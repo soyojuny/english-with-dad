@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="English with Dad">
+  <rect width="512" height="512" rx="96" fill="#fffdf8" />
+  <rect x="46" y="46" width="420" height="420" rx="72" fill="#315d96" />
+  <path d="M138 156h236v46H194v58h152v44H194v66h186v46H138z" fill="#fffdf8" />
+  <path d="M138 112h236v28H138z" fill="#f8ead3" />
+  <circle cx="374" cy="140" r="24" fill="#bb7b22" />
+</svg>

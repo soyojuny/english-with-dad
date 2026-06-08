@@ -1,0 +1,15 @@
+node_modules/
+.next/
+out/
+dist/
+coverage/
+*.tsbuildinfo
+*.log
+.env
+.env*.local
+/app.js
+/index.html
+/manifest.webmanifest
+/sw.js
+/server*.log
+/verification-artifacts/
