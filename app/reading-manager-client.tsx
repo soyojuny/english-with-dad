@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import jsQR from "jsqr";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, FormEvent } from "react";
 import {
@@ -60,10 +61,6 @@ type QrState = {
   open: boolean;
   target: AudioTask | null;
   status: string;
-};
-
-type BarcodeDetectorConstructor = new (options?: { formats?: string[] }) => {
-  detect: (source: HTMLVideoElement) => Promise<Array<{ rawValue: string }>>;
 };
 
 const emptyBookDraft: BookDraft = {
@@ -173,6 +170,26 @@ function isValidExternalUrl(value: string) {
   }
 }
 
+function drawQrSourceToCanvas(source: CanvasImageSource, width: number, height: number) {
+  if (!width || !height) return null;
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  if (!context) return null;
+  context.drawImage(source, 0, 0, width, height);
+  return context.getImageData(0, 0, width, height);
+}
+
+function readQrValueFromSource(source: CanvasImageSource, width: number, height: number) {
+  const imageData = drawQrSourceToCanvas(source, width, height);
+  if (!imageData) return null;
+  const result = jsQR(imageData.data, imageData.width, imageData.height, {
+    inversionAttempts: "attemptBoth",
+  });
+  return result?.data?.trim() ?? null;
+}
+
 function countAssignmentProgress(data: ReadingData, assignment: Assignment) {
   const done = assignment.tasks.filter((taskType) => data.completions[`${assignment.id}:${taskType}`]).length;
   return {
@@ -202,7 +219,9 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
   const [manageBookSearch, setManageBookSearch] = useState("");
   const [bookListFilter, setBookListFilter] = useState<BookListFilter>("active");
   const [bookDraft, setBookDraft] = useState<BookDraft>(() => bookToDraft(null));
+  const [bookDraftMode, setBookDraftMode] = useState<"new" | "edit">("new");
   const [childDraft, setChildDraft] = useState<ChildDraft>(emptyChildDraft);
+  const [childDraftMode, setChildDraftMode] = useState<"new" | "edit">("new");
   const [toast, setToast] = useState("");
   const [qrState, setQrState] = useState<QrState>({
     open: false,
@@ -213,6 +232,7 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
   const qrVideoRef = useRef<HTMLVideoElement | null>(null);
   const qrStreamRef = useRef<MediaStream | null>(null);
   const qrTimerRef = useRef<number | null>(null);
+  const qrFileInputRef = useRef<HTMLInputElement | null>(null);
 
   const activeBooks = useMemo(() => data.books.filter((book) => book.active !== false), [data.books]);
   const inactiveBooks = useMemo(() => data.books.filter((book) => book.active === false), [data.books]);
@@ -297,16 +317,26 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
   }, [childId, data.children]);
 
   useEffect(() => {
+    if (childDraftMode === "new") return;
     if (childDraft.id && data.children.some((item) => item.id === childDraft.id)) return;
-    if (!childDraft.id && childDraft.name.trim()) return;
+    if (!data.children.length) {
+      setChildDraft({ ...emptyChildDraft });
+      return;
+    }
     setChildDraft(childToDraft(data.children[0] ?? null));
-  }, [childDraft.id, childDraft.name, data.children]);
+    setChildDraftMode("edit");
+  }, [childDraft.id, childDraftMode, data.children]);
 
   useEffect(() => {
+    if (bookDraftMode === "new") return;
     if (bookDraft.id && data.books.some((item) => item.id === bookDraft.id)) return;
-    if (!bookDraft.id && (bookDraft.title.trim() || bookDraft.series.trim())) return;
+    if (!data.books.length) {
+      setBookDraft(bookToDraft(null));
+      return;
+    }
     setBookDraft(bookToDraft(data.books[0] ?? null));
-  }, [bookDraft.id, bookDraft.series, bookDraft.title, data.books]);
+    setBookDraftMode("edit");
+  }, [bookDraft.id, bookDraftMode, data.books]);
 
   useEffect(() => {
     if (!todayAssignments.length) {
@@ -378,6 +408,7 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
   useEffect(() => {
     if (!qrState.open || !qrState.target) return undefined;
     let cancelled = false;
+    const qrTarget = qrState.target;
 
     const stopQrScan = () => {
       if (qrTimerRef.current) window.clearInterval(qrTimerRef.current);
@@ -387,16 +418,16 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
       if (qrVideoRef.current) qrVideoRef.current.srcObject = null;
     };
 
-    const start = async () => {
-      const barcodeDetector = (window as unknown as { BarcodeDetector?: BarcodeDetectorConstructor }).BarcodeDetector;
-      if (!barcodeDetector) {
-        setQrState((current) => ({
-          ...current,
-          status: "이 브라우저는 QR 자동 스캔을 지원하지 않습니다. 링크를 직접 붙여넣어 주세요.",
-        }));
-        return;
-      }
+    const applyQrValue = (rawValue: string) => {
+      setBookDraft((current) => ({
+        ...current,
+        audio: { ...current.audio, [qrTarget]: rawValue },
+      }));
+      setToast("QR 링크를 입력했습니다.");
+      setQrState({ open: false, target: null, status: "카메라 권한을 허용하면 QR 코드를 자동으로 읽습니다." });
+    };
 
+    const start = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: "environment" },
@@ -411,25 +442,25 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
         if (!qrVideoRef.current) return;
         qrVideoRef.current.srcObject = stream;
         await qrVideoRef.current.play();
-        const detector = new barcodeDetector({ formats: ["qr_code"] });
-        setQrState((current) => ({ ...current, status: "QR 코드를 화면 중앙에 맞춰 주세요." }));
+        setQrState((current) => ({
+          ...current,
+          status: "QR 코드를 화면 중앙에 맞춰 주세요. 안 되면 아래에서 QR 사진을 올리세요.",
+        }));
 
         qrTimerRef.current = window.setInterval(async () => {
-          if (!qrVideoRef.current || !qrState.target) return;
-          const codes = await detector.detect(qrVideoRef.current);
-          if (!codes.length) return;
-          const rawValue = codes[0].rawValue;
-          setBookDraft((current) => ({
-            ...current,
-            audio: { ...current.audio, [qrState.target as AudioTask]: rawValue },
-          }));
-          setToast("QR 링크를 입력했습니다.");
-          setQrState({ open: false, target: null, status: "카메라 권한을 허용하면 QR 코드를 자동으로 읽습니다." });
+          if (!qrVideoRef.current) return;
+          const rawValue = readQrValueFromSource(
+            qrVideoRef.current,
+            qrVideoRef.current.videoWidth,
+            qrVideoRef.current.videoHeight,
+          );
+          if (!rawValue) return;
+          applyQrValue(rawValue);
         }, 500);
       } catch {
         setQrState((current) => ({
           ...current,
-          status: "카메라 권한을 사용할 수 없습니다. 링크를 직접 붙여넣어 주세요.",
+          status: "카메라를 사용할 수 없습니다. 아래에서 QR 사진을 올리거나 링크를 직접 붙여넣어 주세요.",
         }));
       }
     };
@@ -587,10 +618,15 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
   const showToast = (message: string) => setToast(message);
 
   const startNewChildDraft = () => {
+    setChildDraftMode("new");
     setChildDraft({ ...emptyChildDraft });
   };
 
   const resetChildDraft = () => {
+    if (childDraftMode === "new") {
+      setChildDraft({ ...emptyChildDraft });
+      return;
+    }
     setChildDraft(childToDraft(child));
   };
 
@@ -619,6 +655,7 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
         return { ...current, children };
       });
       setChildDraft(childToDraft(savedChild));
+      setChildDraftMode("edit");
       setChildId(savedChild.id);
       showToast(childDraft.id ? "아동 정보를 저장했습니다." : "아동을 추가했습니다.");
     } catch (error) {
@@ -627,6 +664,7 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
   };
 
   const startNewBookDraft = () => {
+    setBookDraftMode("new");
     setBookDraft({
       ...bookToDraft(null),
       series: manageSeriesFilter !== "all" ? manageSeriesFilter : "",
@@ -634,6 +672,13 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
   };
 
   const resetBookDraft = () => {
+    if (bookDraftMode === "new") {
+      setBookDraft({
+        ...bookToDraft(null),
+        series: manageSeriesFilter !== "all" ? manageSeriesFilter : "",
+      });
+      return;
+    }
     setBookDraft(bookToDraft(draftSourceBook));
   };
 
@@ -674,6 +719,31 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
     reader.readAsDataURL(file);
   };
 
+  const readQrFile = async (file: File | undefined) => {
+    if (!file || !qrState.target) return;
+    const qrTarget = qrState.target;
+
+    try {
+      const bitmap = await createImageBitmap(file);
+      const rawValue = readQrValueFromSource(bitmap, bitmap.width, bitmap.height);
+      bitmap.close();
+
+      if (!rawValue) {
+        showToast("업로드한 이미지에서 QR 코드를 찾지 못했습니다.");
+        return;
+      }
+
+      setBookDraft((current) => ({
+        ...current,
+        audio: { ...current.audio, [qrTarget]: rawValue },
+      }));
+      setQrState({ open: false, target: null, status: "카메라 권한을 허용하면 QR 코드를 자동으로 읽습니다." });
+      showToast("QR 사진에서 링크를 읽었습니다.");
+    } catch {
+      showToast("QR 이미지를 읽지 못했습니다.");
+    }
+  };
+
   const createAssignments = (event: FormEvent<HTMLFormElement>) => createAssignmentsDb(event);
 
   const deleteAssignment = (assignmentId: string) => deleteAssignmentDb(assignmentId);
@@ -711,6 +781,7 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
         return { ...current, books };
       });
       setBookDraft(bookToDraft(savedBook));
+      setBookDraftMode("edit");
       setBookListFilter(savedBook.active === false ? "inactive" : "active");
       showToast(bookDraft.id ? "책 정보를 저장했습니다." : "새 책을 추가했습니다.");
     } catch (error) {
@@ -1355,6 +1426,7 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
                         <button
                           type="button"
                           onClick={() => {
+                            setChildDraftMode("edit");
                             setChildDraft(childToDraft(item));
                             setChildId(item.id);
                           }}
@@ -1656,14 +1728,26 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
                       onChange={(event) => setBookDraft((current) => ({ ...current, level: event.target.value }))}
                     />
                   </label>
-                  <label>
-                    표지 사진
-                    <input type="file" accept="image/*" capture="environment" onChange={(event) => readCoverFile(event.target.files?.[0])} />
-                  </label>
+                  <label>표지 사진</label>
+                  <div className="wide upload-action-row">
+                    <label className="secondary-button file-action">
+                      카메라로 찍기
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={(event) => readCoverFile(event.target.files?.[0])}
+                      />
+                    </label>
+                    <label className="ghost-button file-action">
+                      사진첩에서 선택
+                      <input type="file" accept="image/*" onChange={(event) => readCoverFile(event.target.files?.[0])} />
+                    </label>
+                  </div>
                   <div className="cover-preview">
                     {bookDraft.cover ? <img src={bookDraft.cover} alt="표지 미리보기" /> : <span className="task-meta">표지 사진을 찍거나 업로드하세요.</span>}
                     {!hasCustomCover(bookDraft.cover) && (
-                      <p className="task-meta">표지가 없으면 기본 아이콘으로 저장됩니다.</p>
+                      <p className="task-meta">표지가 없으면 기본 아이콘으로 저장됩니다. 사진첩 이미지를 올리면 테두리를 정리한 표지도 쓸 수 있습니다.</p>
                     )}
                   </div>
                   <label className="wide">
@@ -1777,11 +1861,11 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
                       <button className="secondary-button" type="button" onClick={reactivateBookDb}>
                         다시 활성화
                       </button>
-                    ) : (
+                    ) : draftSourceBook ? (
                       <button className="danger-button" type="button" onClick={deactivateBookDb}>
                         책 비활성화
                       </button>
-                    )}
+                    ) : null}
                   </div>
                 </form>
               </section>
@@ -1840,7 +1924,13 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
                       return (
                         <article className={`manage-item ${book.id === bookDraft.id ? "is-selected" : ""}`} key={book.id}>
                           <img src={book.cover} alt={`${book.title} 표지`} />
-                          <button type="button" onClick={() => setBookDraft(bookToDraft(book))}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setBookDraftMode("edit");
+                              setBookDraft(bookToDraft(book));
+                            }}
+                          >
                             <h3>{book.title}</h3>
                             <p>
                               {book.series}
@@ -1996,6 +2086,22 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
             <p className="task-meta">{qrState.status}</p>
           </div>
           <video ref={qrVideoRef} playsInline muted />
+          <div className="qr-dialog-actions">
+            <button className="secondary-button" type="button" onClick={() => qrFileInputRef.current?.click()}>
+              QR 사진 업로드
+            </button>
+            <input
+              ref={qrFileInputRef}
+              className="visually-hidden"
+              type="file"
+              accept="image/*"
+              onChange={(event) => {
+                void readQrFile(event.target.files?.[0]);
+                event.currentTarget.value = "";
+              }}
+            />
+            <p className="task-meta">카메라 인식이 안 되면 저장된 QR 사진이나 스크린샷을 올려서 읽을 수 있습니다.</p>
+          </div>
         </dialog>
       )}
 

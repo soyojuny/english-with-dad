@@ -771,6 +771,33 @@ label > textarea {
   margin-top: 6px;
 }
 
+.upload-action-row,
+.qr-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.file-action {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-action input,
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .cover-preview {
   display: grid;
   gap: 8px;
@@ -920,6 +947,11 @@ label > textarea {
   margin-top: 14px;
   border-radius: 8px;
   background: #111;
+}
+
+.qr-dialog-actions {
+  margin-top: 14px;
+  align-items: center;
 }
 
 .icon-button {
