@@ -201,9 +201,16 @@ function countAssignmentProgress(data: ReadingData, assignment: Assignment) {
 
 type ReadingManagerClientProps = {
   ownerUserId: string;
+  onSignOut: () => void;
+  isSigningOut: boolean;
 };
 
-export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
+type ActiveProfile =
+  | { kind: "parent" }
+  | { kind: "child"; childId: string }
+  | null;
+
+export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: ReadingManagerClientProps) {
   const [data, setData] = useState<ReadingData>(emptyReadingData);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [syncError, setSyncError] = useState("");
@@ -223,6 +230,7 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
   const [childDraft, setChildDraft] = useState<ChildDraft>(emptyChildDraft);
   const [childDraftMode, setChildDraftMode] = useState<"new" | "edit">("new");
   const [toast, setToast] = useState("");
+  const [activeProfile, setActiveProfile] = useState<ActiveProfile>(null);
   const [qrState, setQrState] = useState<QrState>({
     open: false,
     target: null,
@@ -233,6 +241,7 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
   const qrStreamRef = useRef<MediaStream | null>(null);
   const qrTimerRef = useRef<number | null>(null);
   const qrFileInputRef = useRef<HTMLInputElement | null>(null);
+  const profileLoadedRef = useRef(false);
 
   const activeBooks = useMemo(() => data.books.filter((book) => book.active !== false), [data.books]);
   const inactiveBooks = useMemo(() => data.books.filter((book) => book.active === false), [data.books]);
@@ -307,6 +316,43 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
   }, [ownerUserId, supabase]);
 
   useEffect(() => {
+    if (isLoadingData || profileLoadedRef.current) return;
+
+    profileLoadedRef.current = true;
+    try {
+      const raw = window.sessionStorage.getItem(`ewd-profile:${ownerUserId}`);
+      if (!raw) return;
+
+      const parsed = JSON.parse(raw) as ActiveProfile;
+      if (!parsed) return;
+      if (parsed.kind === "parent") {
+        setActiveProfile(parsed);
+        return;
+      }
+      if (parsed.kind === "child" && data.children.some((item) => item.id === parsed.childId)) {
+        setActiveProfile(parsed);
+      }
+    } catch {
+      // Ignore invalid stored profile data.
+    }
+  }, [data.children, isLoadingData, ownerUserId]);
+
+  useEffect(() => {
+    if (isLoadingData) return;
+    if (!activeProfile) {
+      window.sessionStorage.removeItem(`ewd-profile:${ownerUserId}`);
+      return;
+    }
+
+    if (activeProfile.kind === "child" && !data.children.some((item) => item.id === activeProfile.childId)) {
+      setActiveProfile(null);
+      return;
+    }
+
+    window.sessionStorage.setItem(`ewd-profile:${ownerUserId}`, JSON.stringify(activeProfile));
+  }, [activeProfile, data.children, isLoadingData, ownerUserId]);
+
+  useEffect(() => {
     if (!data.children.length) {
       setChildId("");
       return;
@@ -355,6 +401,17 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
     }
     return undefined;
   }, [toast]);
+
+  useEffect(() => {
+    if (!activeProfile) return;
+    if (activeProfile.kind === "parent") return;
+    if (view !== "child") setView("child");
+    if (childId !== activeProfile.childId) {
+      setChildId(activeProfile.childId);
+      setSelectedAssignmentId("");
+      setSelectedBookId("");
+    }
+  }, [activeProfile, childId, view]);
 
   useEffect(() => {
     if (!("serviceWorker" in navigator) || window.location.protocol === "file:") return;
@@ -1056,6 +1113,17 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
     .filter((assignment) => assignment.childId === childId)
     .sort((a, b) => a.date.localeCompare(b.date));
   const hasChildren = data.children.length > 0;
+  const isParentProfile = activeProfile?.kind === "parent";
+  const isChildProfile = activeProfile?.kind === "child";
+  const activeProfileChild = isChildProfile ? data.children.find((item) => item.id === activeProfile.childId) ?? null : null;
+  const profileChoices = [
+    { id: "parent", label: "부모 관리", description: "기록, 책 관리, 할 일 배정까지 모두 사용합니다." },
+    ...data.children.map((item) => ({
+      id: item.id,
+      label: item.name,
+      description: item.goal || item.level || "아동 읽기 화면만 사용합니다.",
+    })),
+  ];
 
   return (
     <div className="app-shell">
@@ -1070,51 +1138,105 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
           </div>
         </div>
 
-        <nav className="mode-switch" aria-label="화면 선택">
-          {[
-            ["child", "아동"],
-            ["parent", "부모"],
-            ["books", "책 관리"],
-            ["assign", "할 일 배정"],
-          ].map(([target, label]) => (
-            <button
-              className={view === target ? "is-active" : ""}
-              type="button"
-              data-view-target={target}
-              key={target}
-              onClick={() => setView(target as ViewName)}
-            >
-              {label}
-            </button>
-          ))}
-        </nav>
-
-        <label className="child-picker">
-          <span>아동</span>
-          <select
-            disabled={!hasChildren}
-            value={childId}
-            onChange={(event) => {
-              setChildId(event.target.value);
-              setSelectedAssignmentId("");
-              setSelectedBookId("");
-            }}
-          >
-            {!hasChildren && <option value="">아동을 먼저 추가하세요</option>}
-            {data.children.map((item) => (
-              <option value={item.id} key={item.id}>
-                {item.name} · {item.level}
-              </option>
+        {isParentProfile ? (
+          <nav className="mode-switch" aria-label="화면 선택">
+            {[
+              ["child", "아동"],
+              ["parent", "부모"],
+              ["books", "책 관리"],
+              ["assign", "할 일 배정"],
+            ].map(([target, label]) => (
+              <button
+                className={view === target ? "is-active" : ""}
+                type="button"
+                data-view-target={target}
+                key={target}
+                onClick={() => setView(target as ViewName)}
+              >
+                {label}
+              </button>
             ))}
-          </select>
-        </label>
+          </nav>
+        ) : (
+          <div className="profile-summary" aria-live="polite">
+            <span className="summary-pill">
+              <strong>{activeProfileChild?.name ?? "프로필 선택"}</strong>
+              {activeProfileChild?.level ? ` · ${activeProfileChild.level}` : ""}
+            </span>
+          </div>
+        )}
+
+        <div className="topbar-actions">
+          {isParentProfile && (
+            <label className="child-picker">
+              <span>아동</span>
+              <select
+                disabled={!hasChildren}
+                value={childId}
+                onChange={(event) => {
+                  setChildId(event.target.value);
+                  setSelectedAssignmentId("");
+                  setSelectedBookId("");
+                }}
+              >
+                {!hasChildren && <option value="">아동을 먼저 추가하세요</option>}
+                {data.children.map((item) => (
+                  <option value={item.id} key={item.id}>
+                    {item.name} · {item.level}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          <button className="ghost-button" type="button" onClick={() => setActiveProfile(null)}>
+            {activeProfile ? "프로필 변경" : "프로필 선택"}
+          </button>
+          <button className="secondary-button" type="button" onClick={onSignOut} disabled={isSigningOut}>
+            {isSigningOut ? "로그아웃 중..." : "로그아웃"}
+          </button>
+        </div>
       </header>
 
       <main>
         {isLoadingData && <section className="inline-banner">Supabase에서 데이터를 불러오는 중입니다.</section>}
         {syncError && <section className="inline-banner is-error">{syncError}</section>}
 
-        {view === "child" && (
+        {!isLoadingData && !activeProfile && (
+          <section className="profile-gate" aria-labelledby="profileGateTitle">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">프로필 선택</p>
+                <h2 id="profileGateTitle">누가 사용할지 고르세요</h2>
+              </div>
+            </div>
+            <div className="profile-grid">
+              {profileChoices.map((profile) => (
+                <button
+                  className="profile-card"
+                  type="button"
+                  key={profile.id}
+                  onClick={() => {
+                    if (profile.id === "parent") {
+                      setActiveProfile({ kind: "parent" });
+                      return;
+                    }
+                    setActiveProfile({ kind: "child", childId: profile.id });
+                    setView("child");
+                    setChildId(profile.id);
+                    setSelectedAssignmentId("");
+                    setSelectedBookId("");
+                  }}
+                >
+                  <span className="profile-tag">{profile.id === "parent" ? "관리" : "아동"}</span>
+                  <strong>{profile.label}</strong>
+                  <p>{profile.description}</p>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {activeProfile && view === "child" && (
           <section className="view is-active" aria-labelledby="childTitle">
             <div className="section-heading">
               <div>
@@ -1338,7 +1460,7 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
           </section>
         )}
 
-        {view === "parent" && (
+        {isParentProfile && view === "parent" && (
           <section className="view is-active" aria-labelledby="parentTitle">
             <div className="section-heading">
               <div>
@@ -1598,7 +1720,7 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
           </section>
         )}
 
-        {view === "books" && (
+        {isParentProfile && view === "books" && (
           <section className="view is-active" aria-labelledby="bookManageTitle">
             <div className="section-heading">
               <div>
@@ -1965,7 +2087,7 @@ export default function HomePage({ ownerUserId }: ReadingManagerClientProps) {
           </section>
         )}
 
-        {view === "assign" && (
+        {isParentProfile && view === "assign" && (
           <section className="view is-active" aria-labelledby="assignTitle">
             <div className="section-heading">
               <div>

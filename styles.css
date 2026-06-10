@@ -158,6 +158,15 @@ a {
   font-weight: 900;
 }
 
+.topbar-actions,
+.profile-summary {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 select,
 input,
 textarea {
@@ -234,13 +243,6 @@ main {
   background: var(--red-soft);
 }
 
-.session-actions {
-  position: fixed;
-  top: 16px;
-  right: clamp(16px, 4vw, 42px);
-  z-index: 30;
-}
-
 .inline-banner {
   margin-bottom: 16px;
   padding: 12px 16px;
@@ -308,6 +310,54 @@ main {
 
 .summary-pill strong {
   color: var(--ink);
+}
+
+.profile-gate {
+  display: grid;
+  gap: 18px;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.profile-card {
+  display: grid;
+  gap: 10px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(246, 244, 239, 0.96));
+  text-align: left;
+  box-shadow: var(--shadow);
+}
+
+.profile-card strong,
+.profile-card p {
+  margin: 0;
+}
+
+.profile-card strong {
+  font-size: 22px;
+}
+
+.profile-card p {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.profile-tag {
+  display: inline-flex;
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
 }
 
 .child-grid,
@@ -981,7 +1031,9 @@ label > textarea {
     align-items: stretch;
   }
 
-  .mode-switch {
+  .mode-switch,
+  .topbar-actions,
+  .profile-summary {
     overflow-x: auto;
     justify-content: start;
   }
@@ -1013,14 +1065,16 @@ label > textarea {
   .summary-strip,
   .task-actions,
   .audio-actions,
-  .form-actions {
+  .form-actions,
+  .topbar-actions {
     justify-content: stretch;
   }
 
   .library-tools > *,
   .task-actions > *,
   .audio-actions > *,
-  .form-actions > * {
+  .form-actions > *,
+  .topbar-actions > * {
     width: 100%;
   }
 

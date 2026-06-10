@@ -31,13 +31,8 @@ export default function SignedInShell({ userId }: SignedInShellProps) {
 
   return (
     <>
-      <div className="session-actions">
-        <button className="secondary-button" type="button" onClick={signOut} disabled={isPending}>
-          {isPending ? "로그아웃 중..." : "로그아웃"}
-        </button>
-      </div>
       {status ? <div className="auth-inline-status">{status}</div> : null}
-      <ReadingManagerClient ownerUserId={userId} />
+      <ReadingManagerClient ownerUserId={userId} onSignOut={signOut} isSigningOut={isPending} />
     </>
   );
 }
