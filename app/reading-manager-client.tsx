@@ -14,6 +14,7 @@ import type {
   ActivityCategory,
   ActivityLog,
   Assignment,
+  AudioLaunch,
   Book,
   Child,
   ManualLogType,
@@ -200,6 +201,16 @@ function formatTaskSummary(tasks: TaskType[], taskCounts: TaskCountMap) {
 
 function sortTasks(tasks: TaskType[]) {
   return [...tasks].sort((left, right) => taskOrder.indexOf(left) - taskOrder.indexOf(right));
+}
+
+function getLaunchMinutes(launch: AudioLaunch | null | undefined, fallbackMinutes: number) {
+  if (!launch?.openedAt || !launch.returnedAt) return fallbackMinutes;
+  const openedAt = new Date(launch.openedAt).getTime();
+  const returnedAt = new Date(launch.returnedAt).getTime();
+  if (!Number.isFinite(openedAt) || !Number.isFinite(returnedAt) || returnedAt <= openedAt) {
+    return fallbackMinutes;
+  }
+  return Math.max(1, Math.ceil((returnedAt - openedAt) / 60000));
 }
 
 function countAssignmentProgress(data: ReadingData, assignment: Assignment) {
@@ -926,6 +937,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
 
     const key = `${selectedAssignment.id}:${taskType}`;
     const launch = data.audioLaunches[key];
+    const existingCompletion = data.completions[key];
     const targetCount = getAssignmentTaskCount(selectedAssignment, taskType);
     const currentCount = getCompletionCount(data, selectedAssignment.id, taskType);
 
@@ -935,11 +947,14 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     }
 
     try {
+      const addedMinutes = taskDefinitions[taskType].needsAudio
+        ? getLaunchMinutes(launch, taskDefinitions[taskType].minutes)
+        : taskDefinitions[taskType].minutes;
       const savedCompletion = await saveCompletion(supabase, ownerUserId, {
         assignmentId: selectedAssignment.id,
         taskType,
         completedAt: new Date().toISOString(),
-        minutes: taskDefinitions[taskType].minutes * (currentCount + 1),
+        minutes: (existingCompletion?.minutes ?? 0) + addedMinutes,
         audioOpenedAt: launch?.openedAt ?? null,
         count: currentCount + 1,
       });
@@ -1181,6 +1196,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     matcher: {
       types?: ActivityLog["type"] | ActivityLog["type"][];
       activityCategories?: ActivityCategory | ActivityCategory[];
+      bookSummary?: boolean;
     },
   ) => {
     const typeList = matcher.types ? (Array.isArray(matcher.types) ? matcher.types : [matcher.types]) : [];
@@ -1195,6 +1211,52 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
 
     if (!filteredLogs.length) {
       return <span className="task-meta">-</span>;
+    }
+
+    if (matcher.bookSummary) {
+      const grouped = filteredLogs.reduce<
+        Record<
+          string,
+          {
+            series: string;
+            title: string;
+            minutes: number;
+            taskCounts: Partial<Record<TaskType, number>>;
+          }
+        >
+      >((acc, log) => {
+        const book = log.bookId ? getBook(log.bookId) : undefined;
+        const series = book?.series || "직접 입력";
+        const title = log.title;
+        const key = `${series}:${title}`;
+        acc[key] ??= {
+          series,
+          title,
+          minutes: 0,
+          taskCounts: {},
+        };
+        acc[key].minutes += Number(log.minutes || 0);
+        if (log.type === "listen" || log.type === "shadow" || log.type === "self") {
+          acc[key].taskCounts[log.type] = (acc[key].taskCounts[log.type] ?? 0) + log.count;
+        }
+        return acc;
+      }, {});
+
+      return Object.entries(grouped).map(([key, entry]) => {
+        const detailText = sortTasks(Object.keys(entry.taskCounts) as TaskType[])
+          .map((taskType) => `${taskDefinitions[taskType].label} ${entry.taskCounts[taskType] ?? 0}회`)
+          .join(", ");
+
+        return (
+          <div key={key}>
+            <strong>{entry.series}</strong>
+            <br />
+            {entry.title}
+            <br />
+            <small>{detailText || "직접 입력"} ({entry.minutes}분)</small>
+          </div>
+        );
+      });
     }
 
     const grouped = filteredLogs.reduce<Record<string, { title: string; minutes: number; counts: number; notes: string[] }>>((acc, log) => {
@@ -1779,10 +1841,10 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                               </td>
                               <td>{renderCell(logs, { types: "dvd" })}</td>
                               <td>{renderCell(logs, { types: "passiveListen" })}</td>
-                              <td>{renderCell(logs, { activityCategories: "focusListen" })}</td>
-                              <td>{renderCell(logs, { activityCategories: "readAloud" })}</td>
+                              <td>{renderCell(logs, { activityCategories: "focusListen", bookSummary: true })}</td>
+                              <td>{renderCell(logs, { activityCategories: "readAloud", bookSummary: true })}</td>
                               <td>{renderCell(logs, { types: "korean" })}</td>
-                              <td>{renderCell(logs, { types: "englishPicture", activityCategories: "englishPicture" })}</td>
+                              <td>{renderCell(logs, { types: "englishPicture", activityCategories: "englishPicture", bookSummary: true })}</td>
                               <td>{renderCell(logs, { types: "extraStudy" })}</td>
                             </tr>
                           );

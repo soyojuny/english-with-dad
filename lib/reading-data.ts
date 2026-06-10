@@ -15,7 +15,7 @@ export const taskDefinitions: Record<
 > = {
   listen: { label: "읽기", minutes: 10, needsAudio: true },
   shadow: { label: "정따", minutes: 10, needsAudio: true },
-  self: { label: "스스로 읽기", minutes: 8, needsAudio: false },
+  self: { label: "스스로 읽기", minutes: 5, needsAudio: false },
 };
 
 export const activityCategoryDefinitions: Record<
