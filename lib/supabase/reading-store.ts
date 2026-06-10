@@ -8,6 +8,7 @@ import type {
   ManualLog,
   ManualLogType,
   ReadingData,
+  TaskCountMap,
   TaskType,
 } from "../reading-types";
 
@@ -42,6 +43,7 @@ type AssignmentRow = {
   date: string;
   book_id: string;
   tasks: string[];
+  task_counts: TaskCountMap | null;
 };
 
 type CompletionRow = {
@@ -50,6 +52,7 @@ type CompletionRow = {
   completed_at: string;
   minutes: number;
   audio_opened_at: string | null;
+  count: number;
 };
 
 type AudioLaunchRow = {
@@ -96,12 +99,17 @@ function mapBook(row: BookRow): Book {
 }
 
 function mapAssignment(row: AssignmentRow): Assignment {
+  const taskCounts = row.task_counts ?? {};
+  const tasks = Object.keys(taskCounts).length
+    ? (Object.keys(taskCounts) as TaskType[])
+    : [...new Set(row.tasks)] as TaskType[];
   return {
     id: row.id,
     childId: row.child_id,
     date: row.date,
     bookId: row.book_id,
-    tasks: row.tasks as TaskType[],
+    tasks,
+    taskCounts,
   };
 }
 
@@ -114,6 +122,7 @@ function mapManualLog(row: ManualLogRow): ManualLog {
     title: row.title,
     minutes: row.minutes,
     note: row.note,
+    count: 1,
   };
 }
 
@@ -123,6 +132,7 @@ function toCompletionRecord(rows: CompletionRow[]) {
       completedAt: row.completed_at,
       minutes: row.minutes,
       audioOpenedAt: row.audio_opened_at,
+      count: row.count,
     };
     return acc;
   }, {});
@@ -163,12 +173,12 @@ export async function fetchReadingData(
         .order("created_at", { ascending: true }),
       supabase
         .from("assignments")
-        .select("id, owner_user_id, child_id, date, book_id, tasks")
+        .select("id, owner_user_id, child_id, date, book_id, tasks, task_counts")
         .eq("owner_user_id", ownerUserId)
         .order("date", { ascending: true }),
       supabase
         .from("completions")
-        .select("assignment_id, task_type, completed_at, minutes, audio_opened_at")
+        .select("assignment_id, task_type, completed_at, minutes, audio_opened_at, count")
         .eq("owner_user_id", ownerUserId),
       supabase
         .from("audio_launches")
@@ -299,7 +309,7 @@ export async function setBookActive(
 export async function saveAssignments(
   supabase: SupabaseLikeClient,
   ownerUserId: string,
-  payloads: Array<{ childId: string; date: string; bookId: string; tasks: TaskType[] }>,
+  payloads: Array<{ childId: string; date: string; bookId: string; tasks: TaskType[]; taskCounts: TaskCountMap }>,
 ) {
   const result = await supabase
     .from("assignments")
@@ -310,10 +320,11 @@ export async function saveAssignments(
         date: assignment.date,
         book_id: assignment.bookId,
         tasks: assignment.tasks,
+        task_counts: assignment.taskCounts,
       })),
       { onConflict: "owner_user_id,child_id,date,book_id" },
     )
-    .select("id, owner_user_id, child_id, date, book_id, tasks");
+    .select("id, owner_user_id, child_id, date, book_id, tasks, task_counts");
 
   if (result.error) throw new Error(result.error.message);
 
@@ -343,6 +354,7 @@ export async function saveCompletion(
     completedAt: string;
     minutes: number;
     audioOpenedAt: string | null;
+    count: number;
   },
 ) {
   const result = await supabase
@@ -355,10 +367,11 @@ export async function saveCompletion(
         completed_at: payload.completedAt,
         minutes: payload.minutes,
         audio_opened_at: payload.audioOpenedAt,
+        count: payload.count,
       },
       { onConflict: "owner_user_id,assignment_id,task_type" },
     )
-    .select("assignment_id, task_type, completed_at, minutes, audio_opened_at")
+    .select("assignment_id, task_type, completed_at, minutes, audio_opened_at, count")
     .single();
 
   const row = unwrap(result, "완료 기록을 저장하지 못했습니다.") as CompletionRow;
@@ -369,6 +382,7 @@ export async function saveCompletion(
       completedAt: row.completed_at,
       minutes: row.minutes,
       audioOpenedAt: row.audio_opened_at,
+      count: row.count,
     } satisfies Completion,
   };
 }

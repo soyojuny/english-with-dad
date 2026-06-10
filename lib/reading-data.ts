@@ -27,6 +27,8 @@ export const logLabels = {
   englishPicture: "영어 그림책 읽기",
 } as const;
 
+export const taskCountOptions = [0, 1, 2, 3] as const;
+
 const pad = (value: number) => String(value).padStart(2, "0");
 
 export function dateKey(date = new Date()) {

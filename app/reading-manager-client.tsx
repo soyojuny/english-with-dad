@@ -6,6 +6,7 @@ import type { CSSProperties, FormEvent } from "react";
 import {
   dateKey,
   emptyReadingData,
+  taskCountOptions,
   taskDefinitions,
 } from "../lib/reading-data";
 import type {
@@ -15,6 +16,7 @@ import type {
   Child,
   ManualLogType,
   ReadingData,
+  TaskCountMap,
   TaskType,
 } from "../lib/reading-types";
 import { createClient } from "../lib/supabase/client";
@@ -33,7 +35,6 @@ import {
 type ViewName = "child" | "parent" | "books" | "assign";
 type Period = "day" | "week" | "month";
 type AudioTask = "listen" | "shadow";
-type WeekdayValue = "0" | "1" | "2" | "3" | "4" | "5" | "6";
 type BookListFilter = "active" | "attention" | "ready" | "inactive";
 
 type BookDraft = {
@@ -81,16 +82,6 @@ const emptyChildDraft: ChildDraft = {
   goal: "",
 };
 
-const weekdays: Array<{ value: WeekdayValue; label: string; defaultChecked: boolean }> = [
-  { value: "1", label: "월", defaultChecked: true },
-  { value: "2", label: "화", defaultChecked: true },
-  { value: "3", label: "수", defaultChecked: true },
-  { value: "4", label: "목", defaultChecked: false },
-  { value: "5", label: "금", defaultChecked: false },
-  { value: "6", label: "토", defaultChecked: false },
-  { value: "0", label: "일", defaultChecked: false },
-];
-
 const taskOrder: TaskType[] = ["listen", "shadow", "self"];
 
 function formatDate(value: string) {
@@ -127,14 +118,13 @@ function childToDraft(child: Child | null): ChildDraft {
   };
 }
 
-function datesInRange(startValue: string, endValue: string, weekdayValues: string[]) {
+function datesInRange(startValue: string, endValue: string) {
   const dates: string[] = [];
   const start = new Date(`${startValue}T00:00:00`);
   const end = new Date(`${endValue}T00:00:00`);
-  const selectedWeekdays = new Set(weekdayValues.map(Number));
 
   for (let cursor = new Date(start); cursor <= end; cursor.setDate(cursor.getDate() + 1)) {
-    if (selectedWeekdays.has(cursor.getDay())) dates.push(dateKey(cursor));
+    dates.push(dateKey(cursor));
   }
 
   return dates;
@@ -190,12 +180,28 @@ function readQrValueFromSource(source: CanvasImageSource, width: number, height:
   return result?.data?.trim() ?? null;
 }
 
+function getAssignmentTaskCount(assignment: Assignment, taskType: TaskType) {
+  return assignment.taskCounts[taskType] ?? (assignment.tasks.includes(taskType) ? 1 : 0);
+}
+
+function getCompletionCount(data: ReadingData, assignmentId: string, taskType: TaskType) {
+  return data.completions[`${assignmentId}:${taskType}`]?.count ?? 0;
+}
+
+function formatTaskSummary(tasks: TaskType[], taskCounts: TaskCountMap) {
+  return tasks.map((taskType) => `${taskDefinitions[taskType].label} ${taskCounts[taskType] ?? 1}회`).join(" · ");
+}
+
 function countAssignmentProgress(data: ReadingData, assignment: Assignment) {
-  const done = assignment.tasks.filter((taskType) => data.completions[`${assignment.id}:${taskType}`]).length;
+  const total = assignment.tasks.reduce((sum, taskType) => sum + getAssignmentTaskCount(assignment, taskType), 0);
+  const done = assignment.tasks.reduce(
+    (sum, taskType) => sum + Math.min(getCompletionCount(data, assignment.id, taskType), getAssignmentTaskCount(assignment, taskType)),
+    0,
+  );
   return {
     done,
-    total: assignment.tasks.length,
-    percent: assignment.tasks.length ? Math.round((done / assignment.tasks.length) * 100) : 0,
+    total,
+    percent: total ? Math.round((done / total) * 100) : 0,
   };
 }
 
@@ -224,6 +230,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const [progressSeries, setProgressSeries] = useState("all");
   const [manageSeriesFilter, setManageSeriesFilter] = useState("all");
   const [manageBookSearch, setManageBookSearch] = useState("");
+  const [assignSeriesFilter, setAssignSeriesFilter] = useState("all");
+  const [assignBookSearch, setAssignBookSearch] = useState("");
   const [bookListFilter, setBookListFilter] = useState<BookListFilter>("active");
   const [bookDraft, setBookDraft] = useState<BookDraft>(() => bookToDraft(null));
   const [bookDraftMode, setBookDraftMode] = useState<"new" | "edit">("new");
@@ -537,14 +545,15 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
         const completion = data.completions[`${assignment.id}:${taskType}`];
         if (!completion) return logs;
         logs.push({
-            id: `${assignment.id}:${taskType}`,
-            childId: assignment.childId,
-            date: assignment.date,
-            type: taskType,
-            bookId: assignment.bookId,
-            title: book.title,
-            minutes: completion.minutes,
-            note: completion.audioOpenedAt ? `오디오 열기 ${formatTime(completion.audioOpenedAt)}` : taskDefinitions[taskType].label,
+          id: `${assignment.id}:${taskType}`,
+          childId: assignment.childId,
+          date: assignment.date,
+          type: taskType,
+          bookId: assignment.bookId,
+          title: book.title,
+          minutes: completion.minutes,
+          note: completion.audioOpenedAt ? `오디오 열기 ${formatTime(completion.audioOpenedAt)}` : taskDefinitions[taskType].label,
+          count: completion.count,
         });
         return logs;
       }, []);
@@ -663,6 +672,16 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
         return a.series.localeCompare(b.series) || a.title.localeCompare(b.title);
       });
   }, [bookDraft.id, bookListFilter, data.books, manageBookSearch, manageSeriesFilter]);
+  const filteredAssignBooks = useMemo(() => {
+    const query = assignBookSearch.trim().toLowerCase();
+    return activeBooks.filter((book) => {
+      const matchesSeries = assignSeriesFilter === "all" || book.series === assignSeriesFilter;
+      const matchesQuery =
+        !query ||
+        [book.title, book.series, book.volume, book.level].some((field) => field.toLowerCase().includes(query));
+      return matchesSeries && matchesQuery;
+    });
+  }, [activeBooks, assignBookSearch, assignSeriesFilter]);
   const draftTotalAssignmentsCount = bookDraft.id ? bookAssignmentCounts[bookDraft.id] ?? 0 : 0;
   const draftUpcomingAssignmentsCount = useMemo(() => {
     if (!bookDraft.id) return 0;
@@ -670,7 +689,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     return data.assignments.filter((assignment) => assignment.bookId === bookDraft.id && assignment.date >= todayKey).length;
   }, [bookDraft.id, data.assignments]);
 
-  const selectedTaskLabels = (tasks: TaskType[]) => tasks.map((taskType) => taskDefinitions[taskType].label).join(" · ");
+  const selectedTaskLabels = (assignment: Pick<Assignment, "tasks" | "taskCounts">) =>
+    formatTaskSummary(assignment.tasks, assignment.taskCounts);
 
   const showToast = (message: string) => setToast(message);
 
@@ -895,14 +915,22 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
 
     const key = `${selectedAssignment.id}:${taskType}`;
     const launch = data.audioLaunches[key];
+    const targetCount = getAssignmentTaskCount(selectedAssignment, taskType);
+    const currentCount = getCompletionCount(data, selectedAssignment.id, taskType);
+
+    if (currentCount >= targetCount) {
+      showToast(`${taskDefinitions[taskType].label}는 이미 ${targetCount}회 완료했습니다.`);
+      return;
+    }
 
     try {
       const savedCompletion = await saveCompletion(supabase, ownerUserId, {
         assignmentId: selectedAssignment.id,
         taskType,
         completedAt: new Date().toISOString(),
-        minutes: taskDefinitions[taskType].minutes,
+        minutes: taskDefinitions[taskType].minutes * (currentCount + 1),
         audioOpenedAt: launch?.openedAt ?? null,
+        count: currentCount + 1,
       });
 
       setData((current) => ({
@@ -912,7 +940,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           [savedCompletion.key]: savedCompletion.value,
         },
       }));
-      showToast(`${taskDefinitions[taskType].label} 완료 기록을 저장했습니다.`);
+      showToast(`${taskDefinitions[taskType].label} ${currentCount + 1}회 완료를 저장했습니다.`);
     } catch (error) {
       showToast(error instanceof Error ? error.message : "완료 기록을 저장하지 못했습니다.");
     }
@@ -1000,16 +1028,24 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       return;
     }
 
-    const dates = datesInRange(
-      String(formData.get("assignStart") ?? dateKey()),
-      String(formData.get("assignEnd") ?? dateKey()),
-      selectedValues(formData, "weekday"),
-    );
+    const startDate = String(formData.get("assignStart") ?? dateKey());
+    const endDate = String(formData.get("assignEnd") ?? dateKey());
+    const dates = datesInRange(startDate, endDate);
     const bookIds = selectedValues(formData, "assignBook");
-    const tasks = selectedValues(formData, "assignTask") as TaskType[];
+    const taskCounts = taskOrder.reduce<TaskCountMap>((acc, taskType) => {
+      const count = Number(formData.get(`assignCount:${taskType}`) ?? 0);
+      if (count > 0) acc[taskType] = count;
+      return acc;
+    }, {});
+    const tasks = taskOrder.filter((taskType) => (taskCounts[taskType] ?? 0) > 0);
+
+    if (startDate > endDate) {
+      showToast("종료일은 시작일보다 빠를 수 없습니다.");
+      return;
+    }
 
     if (!dates.length || !bookIds.length || !tasks.length) {
-      showToast("날짜, 책, 활동을 모두 선택하세요.");
+      showToast("날짜, 책, 활동 횟수를 모두 선택하세요.");
       return;
     }
 
@@ -1019,6 +1055,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
         date,
         bookId,
         tasks: [...tasks],
+        taskCounts,
       })),
     );
 
@@ -1096,7 +1133,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           {log.title}
           <br />
           <small>
-            {log.minutes}분{log.note ? ` · ${log.note}` : ""}
+            {log.count > 1 ? `${log.count}회 · ` : ""}{log.minutes}분{log.note ? ` · ${log.note}` : ""}
           </small>
         </div>
       ));
@@ -1280,7 +1317,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                             <span className="assignment-meta">
                               {book.series}
                               <br />
-                              {selectedTaskLabels(assignment.tasks)}
+                              {selectedTaskLabels(assignment)}
                             </span>
                             <span className="progress-bar" aria-label={`${progress.percent}% 완료`}>
                               <span style={{ "--value": `${progress.percent}%` } as CSSProperties} />
@@ -1310,12 +1347,14 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                         </p>
                         <div className="status-row">
                           {(selectedAssignment?.tasks ?? taskOrder).map((taskType) => {
-                            const done = selectedAssignment
-                              ? Boolean(data.completions[`${selectedAssignment.id}:${taskType}`])
-                              : false;
+                            const completedCount = selectedAssignment
+                              ? getCompletionCount(data, selectedAssignment.id, taskType)
+                              : 0;
+                            const targetCount = selectedAssignment ? getAssignmentTaskCount(selectedAssignment, taskType) : 1;
+                            const done = completedCount >= targetCount;
                             return (
                               <span className={`status-badge ${done ? "done" : "todo"}`} key={taskType}>
-                                {taskDefinitions[taskType].label} {done ? "완료" : "대기"}
+                                {taskDefinitions[taskType].label} {completedCount}/{targetCount}회
                               </span>
                             );
                           })}
@@ -1328,7 +1367,9 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                         const completion = selectedAssignment
                           ? data.completions[`${selectedAssignment.id}:${taskType}`]
                           : null;
-                        const done = Boolean(completion);
+                        const completedCount = selectedAssignment ? getCompletionCount(data, selectedAssignment.id, taskType) : 0;
+                        const targetCount = selectedAssignment ? getAssignmentTaskCount(selectedAssignment, taskType) : 1;
+                        const done = completedCount >= targetCount;
                         const launch = selectedAssignment ? data.audioLaunches[`${selectedAssignment.id}:${taskType}`] : null;
                         const audioUrl = taskType === "listen" || taskType === "shadow" ? selectedBook.audio[taskType] : "";
                         return (
@@ -1338,8 +1379,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                                 <h4>{taskDefinitions[taskType].label}</h4>
                                 <p className="task-meta">
                                   {completion
-                                    ? `${formatTime(completion.completedAt)} 완료 · ${completion.minutes}분`
-                                    : `${taskDefinitions[taskType].minutes}분 목표`}
+                                    ? `${formatTime(completion.completedAt)} 기준 ${completedCount}/${targetCount}회 · ${completion.minutes}분`
+                                    : `${taskDefinitions[taskType].minutes}분씩 ${targetCount}회`}
                                 </p>
                               </div>
                               <div className="task-actions">
@@ -1354,8 +1395,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                                   </button>
                                 )}
                                 {selectedAssignment ? (
-                                  <button className="primary-button" type="button" onClick={() => completeTaskDb(taskType)}>
-                                    {done ? "다시 기록" : "완료"}
+                                  <button className="primary-button" type="button" onClick={() => completeTaskDb(taskType)} disabled={done}>
+                                    {done ? "완료됨" : `${completedCount + 1}회 완료`}
                                   </button>
                                 ) : (
                                   <button
@@ -1379,7 +1420,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                                 </p>
                                 <div className="audio-actions">
                                   <button className="primary-button" type="button" onClick={() => completeTaskDb(taskType)}>
-                                    완료
+                                    {completedCount + 1}회 완료
                                   </button>
                                 </div>
                               </div>
@@ -2117,31 +2158,48 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     종료일
                     <input name="assignEnd" type="date" required defaultValue={dateKey()} />
                   </label>
-                  <fieldset className="wide checkbox-group">
-                    <legend>반복 요일</legend>
-                    {weekdays.map((weekday) => (
-                      <label key={weekday.value}>
-                        <input name="weekday" type="checkbox" value={weekday.value} defaultChecked={weekday.defaultChecked} /> {weekday.label}
-                      </label>
-                    ))}
-                  </fieldset>
-                  <fieldset className="wide checkbox-group">
-                    <legend>활동</legend>
+                  <fieldset className="wide checkbox-group task-count-group">
+                    <legend>활동 횟수</legend>
                     {taskOrder.map((taskType) => (
-                      <label key={taskType}>
-                        <input name="assignTask" type="checkbox" value={taskType} defaultChecked /> {taskDefinitions[taskType].label}
+                      <label key={taskType} className="task-count-item">
+                        <span>{taskDefinitions[taskType].label}</span>
+                        <select name={`assignCount:${taskType}`} defaultValue={taskType === "self" ? "1" : "0"}>
+                          {taskCountOptions.map((count) => (
+                            <option value={count} key={`${taskType}-${count}`}>
+                              {count === 0 ? "제외" : `${count}회`}
+                            </option>
+                          ))}
+                        </select>
                       </label>
                     ))}
                   </fieldset>
                   <fieldset className="wide book-picker">
                     <legend>책 선택</legend>
-                    <div>
-                      {activeBooks.map((book) => (
+                    <div className="library-tools">
+                      <select value={assignSeriesFilter} aria-label="배정 시리즈 선택" onChange={(event) => setAssignSeriesFilter(event.target.value)}>
+                        <option value="all">전체 시리즈</option>
+                        {seriesNames.map((series) => (
+                          <option value={series} key={series}>
+                            {series}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        value={assignBookSearch}
+                        type="search"
+                        placeholder="책 제목, 시리즈, 레벨 검색"
+                        onChange={(event) => setAssignBookSearch(event.target.value)}
+                      />
+                    </div>
+                    <div className="assign-book-list">
+                      {filteredAssignBooks.map((book) => (
                         <label key={book.id}>
                           <input name="assignBook" type="checkbox" value={book.id} /> {book.series} · {book.title}
+                          {book.level ? ` · ${book.level}` : ""}
                         </label>
                       ))}
                     </div>
+                    {!filteredAssignBooks.length && <div className="empty-state">검색 조건에 맞는 책이 없습니다.</div>}
                   </fieldset>
                   <button className="primary-button" type="submit">
                     날짜별 할 일 생성
@@ -2171,7 +2229,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                             <p>
                               {book.series}
                               <br />
-                              {selectedTaskLabels(assignment.tasks)}
+                              {selectedTaskLabels(assignment)}
                             </p>
                             <div className="status-row">
                               <button className="secondary-button" type="button" onClick={() => deleteAssignmentDb(assignment.id)}>

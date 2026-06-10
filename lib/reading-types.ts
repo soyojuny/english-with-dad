@@ -6,6 +6,7 @@ export type Child = {
 };
 
 export type TaskType = "listen" | "shadow" | "self";
+export type TaskCountMap = Partial<Record<TaskType, number>>;
 
 export type ManualLogType = "dvd" | "korean" | "englishPicture";
 
@@ -32,12 +33,14 @@ export type Assignment = {
   date: string;
   bookId: string;
   tasks: TaskType[];
+  taskCounts: TaskCountMap;
 };
 
 export type Completion = {
   completedAt: string;
   minutes: number;
   audioOpenedAt: string | null;
+  count: number;
 };
 
 export type AudioLaunch = {
@@ -53,6 +56,7 @@ export type ManualLog = {
   title: string;
   minutes: number;
   note: string;
+  count: number;
 };
 
 export type ActivityLog = {
@@ -64,6 +68,7 @@ export type ActivityLog = {
   title: string;
   minutes: number;
   note: string;
+  count: number;
 };
 
 export type ReadingData = {
