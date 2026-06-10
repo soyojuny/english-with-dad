@@ -13,18 +13,22 @@ export const taskDefinitions: Record<
   TaskType,
   { label: string; minutes: number; needsAudio: boolean }
 > = {
-  listen: { label: "듣기", minutes: 10, needsAudio: true },
-  shadow: { label: "정따", minutes: 10, needsAudio: true },
-  self: { label: "스스로 읽기", minutes: 8, needsAudio: false },
+  listen: { label: "흘려듣기", minutes: 10, needsAudio: true },
+  shadow: { label: "집중듣기", minutes: 10, needsAudio: true },
+  self: { label: "소리내어 읽기", minutes: 8, needsAudio: false },
+  picture: { label: "영어 그림책", minutes: 8, needsAudio: false },
 };
 
 export const logLabels = {
   dvd: "DVD",
-  listen: "듣기",
-  shadow: "정따",
-  self: "스스로 읽기",
-  korean: "국어책 읽기",
-  englishPicture: "영어 그림책 읽기",
+  passiveListen: "흘려듣기",
+  listen: "집중듣기",
+  shadow: "집중듣기",
+  self: "소리내어 읽기",
+  picture: "영어 그림책",
+  korean: "한글책",
+  englishPicture: "영어 그림책",
+  extraStudy: "기타학습",
 } as const;
 
 export const taskCountOptions = [0, 1, 2, 3] as const;

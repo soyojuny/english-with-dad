@@ -6,7 +6,6 @@ import type { CSSProperties, FormEvent } from "react";
 import {
   dateKey,
   emptyReadingData,
-  taskCountOptions,
   taskDefinitions,
 } from "../lib/reading-data";
 import type {
@@ -82,7 +81,7 @@ const emptyChildDraft: ChildDraft = {
   goal: "",
 };
 
-const taskOrder: TaskType[] = ["listen", "shadow", "self"];
+const taskOrder: TaskType[] = ["shadow", "self", "picture"];
 
 function formatDate(value: string) {
   const [, month, day] = value.split("-");
@@ -1031,32 +1030,40 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     const startDate = String(formData.get("assignStart") ?? dateKey());
     const endDate = String(formData.get("assignEnd") ?? dateKey());
     const dates = datesInRange(startDate, endDate);
-    const bookIds = selectedValues(formData, "assignBook");
-    const taskCounts = taskOrder.reduce<TaskCountMap>((acc, taskType) => {
-      const count = Number(formData.get(`assignCount:${taskType}`) ?? 0);
-      if (count > 0) acc[taskType] = count;
-      return acc;
-    }, {});
-    const tasks = taskOrder.filter((taskType) => (taskCounts[taskType] ?? 0) > 0);
+    const assignmentMap = new Map<string, TaskCountMap>();
+
+    taskOrder.forEach((taskType) => {
+      selectedValues(formData, `assignBook:${taskType}`).forEach((bookId) => {
+        const current = assignmentMap.get(bookId) ?? {};
+        current[taskType] = 1;
+        assignmentMap.set(bookId, current);
+      });
+    });
+
+    const bookIds = [...assignmentMap.keys()];
 
     if (startDate > endDate) {
       showToast("종료일은 시작일보다 빠를 수 없습니다.");
       return;
     }
 
-    if (!dates.length || !bookIds.length || !tasks.length) {
-      showToast("날짜, 책, 활동 횟수를 모두 선택하세요.");
+    if (!dates.length || !bookIds.length) {
+      showToast("날짜와 활동별 책을 선택하세요.");
       return;
     }
 
     const payloads = dates.flatMap((date) =>
-      bookIds.map((bookId) => ({
-        childId: targetChildId,
-        date,
-        bookId,
-        tasks: [...tasks],
-        taskCounts,
-      })),
+      bookIds.map((bookId) => {
+        const taskCounts = assignmentMap.get(bookId) ?? {};
+        const tasks = taskOrder.filter((taskType) => (taskCounts[taskType] ?? 0) > 0);
+        return {
+          childId: targetChildId,
+          date,
+          bookId,
+          tasks,
+          taskCounts,
+        };
+      }),
     );
 
     try {
@@ -1125,9 +1132,15 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     }
   };
 
-  const renderCell = (logs: ActivityLog[], type: ActivityLog["type"]) => {
-    return logs
-      .filter((log) => log.type === type)
+  const renderCell = (logs: ActivityLog[], types: ActivityLog["type"] | ActivityLog["type"][]) => {
+    const typeList = Array.isArray(types) ? types : [types];
+    const filteredLogs = logs.filter((log) => typeList.includes(log.type));
+
+    if (!filteredLogs.length) {
+      return <span className="task-meta">-</span>;
+    }
+
+    return filteredLogs
       .map((log) => (
         <div key={log.id}>
           {log.title}
@@ -1627,7 +1640,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
               <div className="section-heading compact">
                 <div>
                   <p className="eyebrow">수기 기록</p>
-                  <h2 id="manualLogTitle">DVD와 기타 학습 입력</h2>
+                  <h2 id="manualLogTitle">부모 직접 입력</h2>
                 </div>
               </div>
               <form className="form-grid" onSubmit={addManualLogDb}>
@@ -1639,13 +1652,15 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                   구분
                   <select name="manualType" defaultValue="dvd">
                     <option value="dvd">DVD</option>
-                    <option value="korean">한글책 읽기</option>
-                    <option value="englishPicture">영어 그림책 읽기</option>
+                    <option value="passiveListen">흘려듣기</option>
+                    <option value="korean">한글책</option>
+                    <option value="englishPicture">영어 그림책</option>
+                    <option value="extraStudy">기타학습</option>
                   </select>
                 </label>
                 <label>
                   제목/내용
-                  <input name="manualTitle" type="text" placeholder="Arthur, 한글책 1권" required />
+                  <input name="manualTitle" type="text" placeholder="Arthur DVD, 영어 단어장 2쪽" required />
                 </label>
                 <label>
                   시간
@@ -1674,12 +1689,12 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     <tr>
                       <th>날짜</th>
                       <th>DVD</th>
-                      <th>읽기</th>
-                      <th>정따</th>
-                      <th>스스로 읽기</th>
-                      <th>한글책 읽기</th>
-                      <th>영어 그림책 읽기</th>
-                      <th>특이사항</th>
+                      <th>흘려듣기</th>
+                      <th>집중듣기</th>
+                      <th>소리내어 읽기</th>
+                      <th>한글책</th>
+                      <th>영어 그림책</th>
+                      <th>기타학습</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1695,12 +1710,12 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                                 <strong>{formatDate(date)}</strong>
                               </td>
                               <td>{renderCell(logs, "dvd")}</td>
-                              <td>{renderCell(logs, "listen")}</td>
+                              <td>{renderCell(logs, ["passiveListen", "listen"])}</td>
                               <td>{renderCell(logs, "shadow")}</td>
                               <td>{renderCell(logs, "self")}</td>
                               <td>{renderCell(logs, "korean")}</td>
-                              <td>{renderCell(logs, "englishPicture")}</td>
-                              <td>{logs.map((log) => log.note).filter(Boolean).slice(0, 4).join(" / ")}</td>
+                              <td>{renderCell(logs, ["picture", "englishPicture"])}</td>
+                              <td>{renderCell(logs, "extraStudy")}</td>
                             </tr>
                           );
                         })
@@ -2158,23 +2173,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     종료일
                     <input name="assignEnd" type="date" required defaultValue={dateKey()} />
                   </label>
-                  <fieldset className="wide checkbox-group task-count-group">
-                    <legend>활동 횟수</legend>
-                    {taskOrder.map((taskType) => (
-                      <label key={taskType} className="task-count-item">
-                        <span>{taskDefinitions[taskType].label}</span>
-                        <select name={`assignCount:${taskType}`} defaultValue={taskType === "self" ? "1" : "0"}>
-                          {taskCountOptions.map((count) => (
-                            <option value={count} key={`${taskType}-${count}`}>
-                              {count === 0 ? "제외" : `${count}회`}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                    ))}
-                  </fieldset>
                   <fieldset className="wide book-picker">
-                    <legend>책 선택</legend>
+                    <legend>활동별 책 선택</legend>
                     <div className="library-tools">
                       <select value={assignSeriesFilter} aria-label="배정 시리즈 선택" onChange={(event) => setAssignSeriesFilter(event.target.value)}>
                         <option value="all">전체 시리즈</option>
@@ -2191,12 +2191,19 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                         onChange={(event) => setAssignBookSearch(event.target.value)}
                       />
                     </div>
-                    <div className="assign-book-list">
-                      {filteredAssignBooks.map((book) => (
-                        <label key={book.id}>
-                          <input name="assignBook" type="checkbox" value={book.id} /> {book.series} · {book.title}
-                          {book.level ? ` · ${book.level}` : ""}
-                        </label>
+                    <div className="assignment-task-groups">
+                      {taskOrder.map((taskType) => (
+                        <section className="assignment-task-group" key={taskType}>
+                          <h3>{taskDefinitions[taskType].label}</h3>
+                          <div className="assign-book-list">
+                            {filteredAssignBooks.map((book) => (
+                              <label key={`${taskType}-${book.id}`}>
+                                <input name={`assignBook:${taskType}`} type="checkbox" value={book.id} /> {book.series} · {book.title}
+                                {book.level ? ` · ${book.level}` : ""}
+                              </label>
+                            ))}
+                          </div>
+                        </section>
                       ))}
                     </div>
                     {!filteredAssignBooks.length && <div className="empty-state">검색 조건에 맞는 책이 없습니다.</div>}

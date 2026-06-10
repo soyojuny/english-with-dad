@@ -957,28 +957,27 @@ label > textarea {
   margin: 0;
 }
 
-.task-count-group {
-  align-items: stretch;
-}
-
-.task-count-item {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 10px;
-  min-width: min(100%, 220px);
-}
-
-.task-count-item select {
-  width: auto;
-  min-width: 88px;
-}
-
 .assign-book-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
   gap: 8px;
   width: 100%;
+}
+
+.assignment-task-groups {
+  display: grid;
+  gap: 14px;
+  width: 100%;
+}
+
+.assignment-task-group {
+  display: grid;
+  gap: 10px;
+}
+
+.assignment-task-group h3 {
+  margin: 0;
+  font-size: 15px;
 }
 
 .qr-dialog {

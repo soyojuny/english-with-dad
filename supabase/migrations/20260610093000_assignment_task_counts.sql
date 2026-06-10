@@ -11,7 +11,7 @@ as $$
     and not exists (
       select 1
       from jsonb_each(value) as entry(key, item)
-      where key not in ('listen', 'shadow', 'self')
+      where key not in ('listen', 'shadow', 'self', 'picture')
         or jsonb_typeof(item) <> 'number'
         or (item::text)::int not between 1 and 3
     );
