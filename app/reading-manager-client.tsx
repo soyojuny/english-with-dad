@@ -1454,7 +1454,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                       const progress = countAssignmentProgress(data, assignment);
                       return (
                         <button
-                          className={`assignment-card ${assignment.id === selectedAssignmentId ? "is-active" : ""}`}
+                          className={`assignment-card ${assignment.id === selectedAssignmentId ? "is-active" : ""} ${progress.done === progress.total ? "is-complete" : ""}`}
                           type="button"
                           key={assignment.id}
                           onClick={() => {
@@ -1463,17 +1463,30 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                           }}
                         >
                           <img src={book.cover} alt={`${book.title} 표지`} />
-                          <span>
-                            <h3>{book.title}</h3>
-                            <span className="assignment-meta">
-                              {book.series}
-                              <br />
+                          <div className="assignment-card-copy">
+                            <div className="assignment-card-header">
+                              <div className="assignment-card-heading">
+                                <h3>{book.title}</h3>
+                                <span className="assignment-meta">
+                                  {book.series}
+                                </span>
+                              </div>
+                              <span className={`assignment-state-badge ${progress.done === progress.total ? "is-complete" : ""}`}>
+                                {progress.done === progress.total ? "완료" : "진행 중"}
+                              </span>
+                            </div>
+                            <div className="assignment-progress-row">
+                              <span className="progress-bar" aria-label={`${progress.done}/${progress.total} 완료`}>
+                                <span style={{ "--value": `${progress.percent}%` } as CSSProperties} />
+                              </span>
+                              <span className="assignment-progress-count">
+                                {progress.done}/{progress.total} 완료
+                              </span>
+                            </div>
+                            <span className="assignment-progress-note">
                               {selectedTaskLabels(assignment)}
                             </span>
-                            <span className="progress-bar" aria-label={`${progress.percent}% 완료`}>
-                              <span style={{ "--value": `${progress.percent}%` } as CSSProperties} />
-                            </span>
-                          </span>
+                          </div>
                         </button>
                       );
                     })
