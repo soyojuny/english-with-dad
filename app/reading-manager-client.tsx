@@ -971,7 +971,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const createAssignmentsDb = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const targetChildId = String(formData.get("assignChild") ?? childId);
+    const targetChildId = childId;
 
     if (!targetChildId) {
       showToast("먼저 아동을 추가하세요.");
@@ -2209,16 +2209,15 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
             <div className="management-grid">
               <section className="parent-section" aria-label="할 일 입력 양식">
                 <form className="book-form" onSubmit={createAssignmentsDb}>
-                  <label>
-                    아동
-                    <select name="assignChild" defaultValue={childId}>
-                      {data.children.map((item) => (
-                        <option value={item.id} key={item.id}>
-                          {item.name} · {item.level}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                  <div className="wide">
+                    <p className="task-meta">아동은 상단 선택값으로 배정됩니다.</p>
+                    <div className="summary-strip">
+                      <span className="summary-pill">
+                        <strong>{childSummary.name}</strong>
+                        {childSummary.level ? ` · ${childSummary.level}` : ""}
+                      </span>
+                    </div>
+                  </div>
                   <label>
                     시작일
                     <input name="assignStart" type="date" required defaultValue={dateKey()} />
