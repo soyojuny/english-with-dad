@@ -372,8 +372,12 @@ main {
   grid-template-columns: minmax(360px, 0.9fr) minmax(360px, 1.1fr);
 }
 
-.child-management-grid {
-  margin-bottom: 18px;
+.profile-management-grid {
+  margin-top: 4px;
+}
+
+.profile-management-grid .parent-section {
+  margin-top: 0;
 }
 
 .assignment-list,

@@ -205,7 +205,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     id: "",
     name: "아동 없음",
     level: "",
-    goal: "부모 화면에서 아동을 먼저 추가하세요.",
+    goal: "프로필 관리에서 아동을 먼저 추가하세요.",
   };
   const seriesNames = useMemo(
     () => [...new Set(activeBooks.map((book) => book.series).filter(Boolean))].sort(),
@@ -1288,7 +1288,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
             </label>
           )}
           <button className="ghost-button" type="button" onClick={() => setActiveProfile(null)}>
-            {activeProfile ? "프로필 변경" : "프로필 선택"}
+            {activeProfile ? "프로필 관리" : "프로필 선택"}
           </button>
           <button className="secondary-button" type="button" onClick={onSignOut} disabled={isSigningOut}>
             {isSigningOut ? "로그아웃 중..." : "로그아웃"}
@@ -1304,8 +1304,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           <section className="profile-gate" aria-labelledby="profileGateTitle">
             <div className="section-heading">
               <div>
-                <p className="eyebrow">프로필 선택</p>
-                <h2 id="profileGateTitle">누가 사용할지 고르세요</h2>
+                <p className="eyebrow">프로필 관리</p>
+                <h2 id="profileGateTitle">사용할 프로필을 고르세요</h2>
               </div>
             </div>
             <div className="profile-grid">
@@ -1331,6 +1331,93 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                   <p>{profile.description}</p>
                 </button>
               ))}
+            </div>
+
+            <div className="management-grid profile-management-grid">
+              <section className="parent-section" aria-labelledby="childManageTitle">
+                <div className="section-heading compact">
+                  <div>
+                    <p className="eyebrow">아동 정보</p>
+                    <h2 id="childManageTitle">{childDraft.id ? "아동 정보 수정" : "새 아동 추가"}</h2>
+                  </div>
+                  <div className="form-actions">
+                    <button className="ghost-button" type="button" onClick={startNewChildDraft}>
+                      새 아동
+                    </button>
+                    <button className="secondary-button" type="button" onClick={resetChildDraft}>
+                      선택값 불러오기
+                    </button>
+                  </div>
+                </div>
+
+                <form className="form-grid" onSubmit={saveChildDraft}>
+                  <label>
+                    이름
+                    <input
+                      value={childDraft.name}
+                      type="text"
+                      required
+                      onChange={(event) => setChildDraft((current) => ({ ...current, name: event.target.value }))}
+                    />
+                  </label>
+                  <label>
+                    레벨
+                    <input
+                      value={childDraft.level}
+                      type="text"
+                      onChange={(event) => setChildDraft((current) => ({ ...current, level: event.target.value }))}
+                    />
+                  </label>
+                  <label className="wide">
+                    목표
+                    <input
+                      value={childDraft.goal}
+                      type="text"
+                      placeholder="예: 오늘 3개 활동"
+                      onChange={(event) => setChildDraft((current) => ({ ...current, goal: event.target.value }))}
+                    />
+                  </label>
+                  <div className="form-actions wide">
+                    <button className="primary-button" type="submit">
+                      {childDraft.id ? "아동 저장" : "아동 추가"}
+                    </button>
+                  </div>
+                </form>
+              </section>
+
+              <section className="parent-section" aria-labelledby="childListTitle">
+                <div className="section-heading compact">
+                  <div>
+                    <p className="eyebrow">아동 목록</p>
+                    <h2 id="childListTitle">등록된 아동</h2>
+                  </div>
+                </div>
+
+                <div className="manage-list">
+                  {hasChildren ? (
+                    data.children.map((item) => (
+                      <article className={`child-item ${item.id === childDraft.id ? "is-selected" : ""}`} key={item.id}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setChildDraftMode("edit");
+                            setChildDraft(childToDraft(item));
+                            setChildId(item.id);
+                          }}
+                        >
+                          <h3>{item.name}</h3>
+                          <p>{item.level || "레벨 미입력"}</p>
+                          <span className="status-row">
+                            <span className="status-badge done">{item.goal || "목표 미입력"}</span>
+                          </span>
+                        </button>
+                      </article>
+                    ))
+                  ) : (
+                    <div className="empty-state">먼저 아동을 추가하세요. 추가한 즉시 과제와 기록에 연결됩니다.</div>
+                  )}
+                </div>
+              </section>
             </div>
           </section>
         )}
@@ -1587,93 +1674,6 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                   </button>
                 ))}
               </div>
-            </div>
-
-            <div className="management-grid child-management-grid">
-              <section className="parent-section" aria-labelledby="childManageTitle">
-                <div className="section-heading compact">
-                  <div>
-                    <p className="eyebrow">아동 관리</p>
-                    <h2 id="childManageTitle">{childDraft.id ? "아동 정보 수정" : "새 아동 추가"}</h2>
-                  </div>
-                  <div className="form-actions">
-                    <button className="ghost-button" type="button" onClick={startNewChildDraft}>
-                      새 아동
-                    </button>
-                    <button className="secondary-button" type="button" onClick={resetChildDraft}>
-                      선택값 불러오기
-                    </button>
-                  </div>
-                </div>
-
-                <form className="form-grid" onSubmit={saveChildDraft}>
-                  <label>
-                    이름
-                    <input
-                      value={childDraft.name}
-                      type="text"
-                      required
-                      onChange={(event) => setChildDraft((current) => ({ ...current, name: event.target.value }))}
-                    />
-                  </label>
-                  <label>
-                    레벨
-                    <input
-                      value={childDraft.level}
-                      type="text"
-                      onChange={(event) => setChildDraft((current) => ({ ...current, level: event.target.value }))}
-                    />
-                  </label>
-                  <label className="wide">
-                    목표
-                    <input
-                      value={childDraft.goal}
-                      type="text"
-                      placeholder="예: 오늘 3개 활동"
-                      onChange={(event) => setChildDraft((current) => ({ ...current, goal: event.target.value }))}
-                    />
-                  </label>
-                  <div className="form-actions wide">
-                    <button className="primary-button" type="submit">
-                      {childDraft.id ? "아동 저장" : "아동 추가"}
-                    </button>
-                  </div>
-                </form>
-              </section>
-
-              <section className="parent-section" aria-labelledby="childListTitle">
-                <div className="section-heading compact">
-                  <div>
-                    <p className="eyebrow">아동 목록</p>
-                    <h2 id="childListTitle">등록된 아동</h2>
-                  </div>
-                </div>
-
-                <div className="manage-list">
-                  {hasChildren ? (
-                    data.children.map((item) => (
-                      <article className={`child-item ${item.id === childDraft.id ? "is-selected" : ""}`} key={item.id}>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setChildDraftMode("edit");
-                            setChildDraft(childToDraft(item));
-                            setChildId(item.id);
-                          }}
-                        >
-                          <h3>{item.name}</h3>
-                          <p>{item.level || "레벨 미입력"}</p>
-                          <span className="status-row">
-                            <span className="status-badge done">{item.goal || "목표 미입력"}</span>
-                          </span>
-                        </button>
-                      </article>
-                    ))
-                  ) : (
-                    <div className="empty-state">먼저 아동을 추가하세요. 추가한 즉시 과제와 기록에 연결됩니다.</div>
-                  )}
-                </div>
-              </section>
             </div>
 
             <div className="stats-grid">
