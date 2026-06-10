@@ -34,20 +34,12 @@ export default function AuthPanel() {
       <section className="auth-card">
         <p className="eyebrow">부모 로그인</p>
         <h1>Google로 로그인</h1>
-        <p className="auth-copy">
-          부모만 Google 계정으로 로그인합니다. 아이들은 별도 계정 없이 같은 부모 계정 아래 프로필 데이터로
-          관리합니다.
-        </p>
+        <p className="auth-copy">부모 계정으로 로그인해 아이들의 읽기 기록과 책 관리를 이어서 사용합니다.</p>
 
         <div className="auth-actions">
           <button className="primary-button" type="button" onClick={signInWithGoogle} disabled={submitting}>
             {submitting ? "Google로 이동 중..." : "Google로 계속하기"}
           </button>
-        </div>
-
-        <div className="auth-note">
-          <strong>필수 설정:</strong> Supabase Dashboard에서 Google provider를 켜고, 앱 Redirect URL에
-          `http://localhost:3000/auth/callback`을 추가해야 합니다.
         </div>
 
         {status ? (

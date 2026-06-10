@@ -41,5 +41,5 @@ export default async function Page() {
     return <AuthPanel />;
   }
 
-  return <SignedInShell userId={user.id} email={user.email ?? "로그인된 부모"} />;
+  return <SignedInShell userId={user.id} />;
 }
