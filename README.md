@@ -35,9 +35,13 @@ npm run verify
 또는 개별적으로:
 
 ```powershell
+npm run check:contracts
+npm run test:unit
 npm run typecheck
 npm run build
 ```
+
+AI 개발 하네스와 repo skill 구성은 [docs/development-harness.md](/D:/workspace/english-with-dad/docs/development-harness.md)에 정리되어 있습니다.
 
 ## 현재 기능
 

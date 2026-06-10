@@ -4,6 +4,23 @@ import jsQR from "jsqr";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, FormEvent } from "react";
 import {
+  activityCategoryOrder,
+  countAssignmentProgress,
+  datesInRange,
+  formatAssignmentTaskLabels,
+  formatDate,
+  formatTime,
+  getAssignmentTaskCount,
+  getBookSetupIssues,
+  getCompletionCount,
+  getLaunchMinutes,
+  hasCustomCover,
+  isValidExternalUrl,
+  normalizeText,
+  sortTasks,
+  taskOrder,
+} from "../lib/reading-calculations";
+import {
   activityCategoryDefinitions,
   dateKey,
   emptyReadingData,
@@ -14,7 +31,6 @@ import type {
   ActivityCategory,
   ActivityLog,
   Assignment,
-  AudioLaunch,
   Book,
   Child,
   ManualLogType,
@@ -85,19 +101,6 @@ const emptyChildDraft: ChildDraft = {
   goal: "",
 };
 
-const taskOrder: TaskType[] = ["listen", "shadow", "self"];
-const activityCategoryOrder: ActivityCategory[] = ["focusListen", "readAloud", "englishPicture"];
-
-function formatDate(value: string) {
-  const [, month, day] = value.split("-");
-  return `${Number(month)}/${Number(day)}`;
-}
-
-function formatTime(isoDate: string) {
-  const date = new Date(isoDate);
-  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
-}
-
 function bookToDraft(book: Book | null): BookDraft {
   if (!book) return { ...emptyBookDraft, audio: { ...emptyBookDraft.audio } };
   return {
@@ -122,46 +125,8 @@ function childToDraft(child: Child | null): ChildDraft {
   };
 }
 
-function datesInRange(startValue: string, endValue: string) {
-  const dates: string[] = [];
-  const start = new Date(`${startValue}T00:00:00`);
-  const end = new Date(`${endValue}T00:00:00`);
-
-  for (let cursor = new Date(start); cursor <= end; cursor.setDate(cursor.getDate() + 1)) {
-    dates.push(dateKey(cursor));
-  }
-
-  return dates;
-}
-
 function selectedValues(formData: FormData, name: string) {
   return formData.getAll(name).map(String);
-}
-
-function normalizeText(value: string) {
-  return value.trim().replace(/\s+/g, " ").toLowerCase();
-}
-
-function hasCustomCover(cover: string) {
-  return Boolean(cover && cover !== "/assets/app-icon.svg");
-}
-
-function getBookSetupIssues(book: Pick<BookDraft, "cover" | "audio">) {
-  const issues: string[] = [];
-  if (!hasCustomCover(book.cover)) issues.push("표지");
-  if (!book.audio.listen.trim()) issues.push("읽기 링크");
-  if (!book.audio.shadow.trim()) issues.push("정따 링크");
-  return issues;
-}
-
-function isValidExternalUrl(value: string) {
-  if (!value.trim()) return true;
-  try {
-    const parsed = new URL(value);
-    return parsed.protocol === "http:" || parsed.protocol === "https:";
-  } catch {
-    return false;
-  }
 }
 
 function drawQrSourceToCanvas(source: CanvasImageSource, width: number, height: number) {
@@ -182,48 +147,6 @@ function readQrValueFromSource(source: CanvasImageSource, width: number, height:
     inversionAttempts: "attemptBoth",
   });
   return result?.data?.trim() ?? null;
-}
-
-function getAssignmentTaskCount(assignment: Assignment, taskType: TaskType) {
-  return assignment.taskCounts[taskType] ?? (assignment.tasks.includes(taskType) ? 1 : 0);
-}
-
-function getCompletionCount(data: ReadingData, assignmentId: string, taskType: TaskType) {
-  return data.completions[`${assignmentId}:${taskType}`]?.count ?? 0;
-}
-
-function formatTaskSummary(tasks: TaskType[], taskCounts: TaskCountMap) {
-  return [...tasks]
-    .sort((left, right) => taskOrder.indexOf(left) - taskOrder.indexOf(right))
-    .map((taskType) => `${taskDefinitions[taskType].label} ${taskCounts[taskType] ?? 1}회`)
-    .join(" · ");
-}
-
-function sortTasks(tasks: TaskType[]) {
-  return [...tasks].sort((left, right) => taskOrder.indexOf(left) - taskOrder.indexOf(right));
-}
-
-function getLaunchMinutes(launch: AudioLaunch | null | undefined, fallbackMinutes: number) {
-  if (!launch?.openedAt || !launch.returnedAt) return fallbackMinutes;
-  const openedAt = new Date(launch.openedAt).getTime();
-  const returnedAt = new Date(launch.returnedAt).getTime();
-  if (!Number.isFinite(openedAt) || !Number.isFinite(returnedAt) || returnedAt <= openedAt) {
-    return fallbackMinutes;
-  }
-  return Math.max(1, Math.ceil((returnedAt - openedAt) / 60000));
-}
-
-function countAssignmentProgress(data: ReadingData, assignment: Assignment) {
-  const total = assignment.tasks.reduce((sum, taskType) => sum + getAssignmentTaskCount(assignment, taskType), 0);
-  const done = assignment.tasks.reduce(
-    (sum, taskType) => sum + Math.min(getCompletionCount(data, assignment.id, taskType), getAssignmentTaskCount(assignment, taskType)),
-    0,
-  );
-  return {
-    done,
-    total,
-    percent: total ? Math.round((done / total) * 100) : 0,
-  };
 }
 
 type ReadingManagerClientProps = {
@@ -711,8 +634,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     return data.assignments.filter((assignment) => assignment.bookId === bookDraft.id && assignment.date >= todayKey).length;
   }, [bookDraft.id, data.assignments]);
 
-  const selectedTaskLabels = (assignment: Pick<Assignment, "activityCategory" | "tasks" | "taskCounts">) =>
-    `${activityCategoryDefinitions[assignment.activityCategory].label} · ${formatTaskSummary(assignment.tasks, assignment.taskCounts)}`;
+  const selectedTaskLabels = formatAssignmentTaskLabels;
 
   const showToast = (message: string) => setToast(message);
 

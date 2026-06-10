@@ -7,9 +7,11 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
+    "test:unit": "tsc -p tsconfig.test.json && node --test .test-build/tests/reading-calculations.test.js",
+    "check:contracts": "node scripts/check-contracts.mjs",
     "check:sw": "node --check public/sw.js",
     "check:pwa": "node scripts/check-pwa.mjs",
-    "verify": "npm run check:sw && npm run check:pwa && npm run typecheck && npm run build"
+    "verify": "npm run check:contracts && npm run check:sw && npm run check:pwa && npm run test:unit && npm run typecheck && npm run build"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",

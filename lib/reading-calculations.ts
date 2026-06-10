@@ -1,0 +1,107 @@
+import { activityCategoryDefinitions, dateKey, taskDefinitions } from "./reading-data";
+import type { ActivityCategory, Assignment, AudioLaunch, ReadingData, TaskCountMap, TaskType } from "./reading-types";
+
+export const taskOrder: TaskType[] = ["listen", "shadow", "self"];
+export const activityCategoryOrder: ActivityCategory[] = ["focusListen", "readAloud", "englishPicture"];
+
+export type BookSetupInput = {
+  cover: string;
+  audio: {
+    listen: string;
+    shadow: string;
+  };
+};
+
+export function formatDate(value: string) {
+  const [, month, day] = value.split("-");
+  return `${Number(month)}/${Number(day)}`;
+}
+
+export function formatTime(isoDate: string) {
+  const date = new Date(isoDate);
+  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+}
+
+export function datesInRange(startValue: string, endValue: string) {
+  const dates: string[] = [];
+  const start = new Date(`${startValue}T00:00:00`);
+  const end = new Date(`${endValue}T00:00:00`);
+
+  for (let cursor = new Date(start); cursor <= end; cursor.setDate(cursor.getDate() + 1)) {
+    dates.push(dateKey(cursor));
+  }
+
+  return dates;
+}
+
+export function normalizeText(value: string) {
+  return value.trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+export function hasCustomCover(cover: string) {
+  return Boolean(cover && cover !== "/assets/app-icon.svg");
+}
+
+export function getBookSetupIssues(book: BookSetupInput) {
+  const issues: string[] = [];
+  if (!hasCustomCover(book.cover)) issues.push("표지");
+  if (!book.audio.listen.trim()) issues.push("읽기 링크");
+  if (!book.audio.shadow.trim()) issues.push("정따 링크");
+  return issues;
+}
+
+export function isValidExternalUrl(value: string) {
+  if (!value.trim()) return true;
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+export function getAssignmentTaskCount(assignment: Assignment, taskType: TaskType) {
+  return assignment.taskCounts[taskType] ?? (assignment.tasks.includes(taskType) ? 1 : 0);
+}
+
+export function getCompletionCount(data: ReadingData, assignmentId: string, taskType: TaskType) {
+  return data.completions[`${assignmentId}:${taskType}`]?.count ?? 0;
+}
+
+export function formatTaskSummary(tasks: TaskType[], taskCounts: TaskCountMap) {
+  return [...tasks]
+    .sort((left, right) => taskOrder.indexOf(left) - taskOrder.indexOf(right))
+    .map((taskType) => `${taskDefinitions[taskType].label} ${taskCounts[taskType] ?? 1}회`)
+    .join(" · ");
+}
+
+export function sortTasks(tasks: TaskType[]) {
+  return [...tasks].sort((left, right) => taskOrder.indexOf(left) - taskOrder.indexOf(right));
+}
+
+export function getLaunchMinutes(launch: AudioLaunch | null | undefined, fallbackMinutes: number) {
+  if (!launch?.openedAt || !launch.returnedAt) return fallbackMinutes;
+  const openedAt = new Date(launch.openedAt).getTime();
+  const returnedAt = new Date(launch.returnedAt).getTime();
+  if (!Number.isFinite(openedAt) || !Number.isFinite(returnedAt) || returnedAt <= openedAt) {
+    return fallbackMinutes;
+  }
+  return Math.max(1, Math.ceil((returnedAt - openedAt) / 60000));
+}
+
+export function countAssignmentProgress(data: ReadingData, assignment: Assignment) {
+  const total = assignment.tasks.reduce((sum, taskType) => sum + getAssignmentTaskCount(assignment, taskType), 0);
+  const done = assignment.tasks.reduce(
+    (sum, taskType) => sum + Math.min(getCompletionCount(data, assignment.id, taskType), getAssignmentTaskCount(assignment, taskType)),
+    0,
+  );
+  return {
+    done,
+    total,
+    percent: total ? Math.round((done / total) * 100) : 0,
+  };
+}
+
+export function formatAssignmentTaskLabels(assignment: Pick<Assignment, "activityCategory" | "tasks" | "taskCounts">) {
+  return `${activityCategoryDefinitions[assignment.activityCategory].label} · ${formatTaskSummary(assignment.tasks, assignment.taskCounts)}`;
+}
