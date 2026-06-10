@@ -57,7 +57,7 @@ create table if not exists public.assignments (
     on delete restrict,
   constraint assignments_tasks_check
     check (
-      tasks <@ array['listen', 'shadow', 'self', 'picture']::text[]
+      tasks <@ array['listen', 'shadow', 'self']::text[]
       and array_length(tasks, 1) is distinct from 0
     )
 );
@@ -77,7 +77,7 @@ create table if not exists public.completions (
     references public.assignments (id, owner_user_id)
     on delete cascade,
   constraint completions_task_type_check
-    check (task_type in ('listen', 'shadow', 'self', 'picture'))
+    check (task_type in ('listen', 'shadow', 'self'))
 );
 
 create table if not exists public.audio_launches (
@@ -114,7 +114,7 @@ create table if not exists public.manual_logs (
     references public.children (id, owner_user_id)
     on delete cascade,
   constraint manual_logs_type_check
-    check (type in ('dvd', 'passiveListen', 'korean', 'englishPicture', 'extraStudy'))
+    check (type in ('dvd', 'korean', 'englishPicture'))
 );
 
 create index if not exists children_owner_idx on public.children (owner_user_id);
