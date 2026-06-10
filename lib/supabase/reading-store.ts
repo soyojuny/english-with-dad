@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
+  ActivityCategory,
   Assignment,
   AudioLaunch,
   Book,
@@ -42,6 +43,7 @@ type AssignmentRow = {
   child_id: string;
   date: string;
   book_id: string;
+  activity_category: ActivityCategory;
   tasks: string[];
   task_counts: TaskCountMap | null;
 };
@@ -108,6 +110,7 @@ function mapAssignment(row: AssignmentRow): Assignment {
     childId: row.child_id,
     date: row.date,
     bookId: row.book_id,
+    activityCategory: row.activity_category,
     tasks,
     taskCounts,
   };
@@ -173,7 +176,7 @@ export async function fetchReadingData(
         .order("created_at", { ascending: true }),
       supabase
         .from("assignments")
-        .select("id, owner_user_id, child_id, date, book_id, tasks, task_counts")
+        .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts")
         .eq("owner_user_id", ownerUserId)
         .order("date", { ascending: true }),
       supabase
@@ -309,7 +312,7 @@ export async function setBookActive(
 export async function saveAssignments(
   supabase: SupabaseLikeClient,
   ownerUserId: string,
-  payloads: Array<{ childId: string; date: string; bookId: string; tasks: TaskType[]; taskCounts: TaskCountMap }>,
+  payloads: Array<{ childId: string; date: string; bookId: string; activityCategory: ActivityCategory; tasks: TaskType[]; taskCounts: TaskCountMap }>,
 ) {
   const result = await supabase
     .from("assignments")
@@ -319,12 +322,13 @@ export async function saveAssignments(
         child_id: assignment.childId,
         date: assignment.date,
         book_id: assignment.bookId,
+        activity_category: assignment.activityCategory,
         tasks: assignment.tasks,
         task_counts: assignment.taskCounts,
       })),
-      { onConflict: "owner_user_id,child_id,date,book_id" },
+      { onConflict: "owner_user_id,child_id,date,book_id,activity_category" },
     )
-    .select("id, owner_user_id, child_id, date, book_id, tasks, task_counts");
+    .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts");
 
   if (result.error) throw new Error(result.error.message);
 

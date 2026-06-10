@@ -4,11 +4,14 @@ import jsQR from "jsqr";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, FormEvent } from "react";
 import {
+  activityCategoryDefinitions,
   dateKey,
   emptyReadingData,
   taskDefinitions,
+  taskCountOptions,
 } from "../lib/reading-data";
 import type {
+  ActivityCategory,
   ActivityLog,
   Assignment,
   Book,
@@ -81,7 +84,8 @@ const emptyChildDraft: ChildDraft = {
   goal: "",
 };
 
-const taskOrder: TaskType[] = ["shadow", "self", "picture"];
+const taskOrder: TaskType[] = ["listen", "shadow", "self"];
+const activityCategoryOrder: ActivityCategory[] = ["focusListen", "readAloud", "englishPicture"];
 
 function formatDate(value: string) {
   const [, month, day] = value.split("-");
@@ -548,6 +552,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           childId: assignment.childId,
           date: assignment.date,
           type: taskType,
+          activityCategory: assignment.activityCategory,
           bookId: assignment.bookId,
           title: book.title,
           minutes: completion.minutes,
@@ -688,8 +693,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     return data.assignments.filter((assignment) => assignment.bookId === bookDraft.id && assignment.date >= todayKey).length;
   }, [bookDraft.id, data.assignments]);
 
-  const selectedTaskLabels = (assignment: Pick<Assignment, "tasks" | "taskCounts">) =>
-    formatTaskSummary(assignment.tasks, assignment.taskCounts);
+  const selectedTaskLabels = (assignment: Pick<Assignment, "activityCategory" | "tasks" | "taskCounts">) =>
+    `${activityCategoryDefinitions[assignment.activityCategory].label} · ${formatTaskSummary(assignment.tasks, assignment.taskCounts)}`;
 
   const showToast = (message: string) => setToast(message);
 
@@ -1030,40 +1035,49 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     const startDate = String(formData.get("assignStart") ?? dateKey());
     const endDate = String(formData.get("assignEnd") ?? dateKey());
     const dates = datesInRange(startDate, endDate);
-    const assignmentMap = new Map<string, TaskCountMap>();
+    const categorySelections = activityCategoryOrder.map((activityCategory) => {
+      const taskCounts = activityCategoryDefinitions[activityCategory].tasks.reduce<TaskCountMap>((acc, taskType) => {
+        const count = Number(formData.get(`assignCount:${activityCategory}:${taskType}`) ?? 0);
+        if (count > 0) acc[taskType] = count;
+        return acc;
+      }, {});
 
-    taskOrder.forEach((taskType) => {
-      selectedValues(formData, `assignBook:${taskType}`).forEach((bookId) => {
-        const current = assignmentMap.get(bookId) ?? {};
-        current[taskType] = 1;
-        assignmentMap.set(bookId, current);
-      });
+      return {
+        activityCategory,
+        bookIds: selectedValues(formData, `assignBook:${activityCategory}`),
+        taskCounts,
+        tasks: activityCategoryDefinitions[activityCategory].tasks.filter((taskType) => (taskCounts[taskType] ?? 0) > 0),
+      };
     });
-
-    const bookIds = [...assignmentMap.keys()];
 
     if (startDate > endDate) {
       showToast("종료일은 시작일보다 빠를 수 없습니다.");
       return;
     }
 
-    if (!dates.length || !bookIds.length) {
-      showToast("날짜와 활동별 책을 선택하세요.");
+    const hasSelectedBooks = categorySelections.some((selection) => selection.bookIds.length > 0);
+    if (!dates.length || !hasSelectedBooks) {
+      showToast("날짜와 활동 구분별 책을 선택하세요.");
+      return;
+    }
+
+    const invalidSelection = categorySelections.find((selection) => selection.bookIds.length > 0 && !selection.tasks.length);
+    if (invalidSelection) {
+      showToast(`${activityCategoryDefinitions[invalidSelection.activityCategory].label}의 상세 활동 횟수를 설정하세요.`);
       return;
     }
 
     const payloads = dates.flatMap((date) =>
-      bookIds.map((bookId) => {
-        const taskCounts = assignmentMap.get(bookId) ?? {};
-        const tasks = taskOrder.filter((taskType) => (taskCounts[taskType] ?? 0) > 0);
-        return {
+      categorySelections.flatMap((selection) =>
+        selection.bookIds.map((bookId) => ({
           childId: targetChildId,
           date,
           bookId,
-          tasks,
-          taskCounts,
-        };
-      }),
+          activityCategory: selection.activityCategory,
+          tasks: [...selection.tasks],
+          taskCounts: { ...selection.taskCounts },
+        })),
+      ),
     );
 
     try {
@@ -1071,10 +1085,10 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       const previousKeys = new Set(
         data.assignments
           .filter((assignment) => assignment.childId === targetChildId)
-          .map((assignment) => `${assignment.childId}:${assignment.date}:${assignment.bookId}`),
+          .map((assignment) => `${assignment.childId}:${assignment.date}:${assignment.bookId}:${assignment.activityCategory}`),
       );
       const createdCount = savedAssignments.filter(
-        (assignment) => !previousKeys.has(`${assignment.childId}:${assignment.date}:${assignment.bookId}`),
+        (assignment) => !previousKeys.has(`${assignment.childId}:${assignment.date}:${assignment.bookId}:${assignment.activityCategory}`),
       ).length;
 
       setData((current) => {
@@ -1085,7 +1099,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
             (item) =>
               item.childId === assignment.childId &&
               item.date === assignment.date &&
-              item.bookId === assignment.bookId,
+              item.bookId === assignment.bookId &&
+              item.activityCategory === assignment.activityCategory,
           );
           if (existing && existing.id !== assignment.id) {
             assignmentMap.delete(existing.id);
@@ -1132,31 +1147,52 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     }
   };
 
-  const renderCell = (logs: ActivityLog[], types: ActivityLog["type"] | ActivityLog["type"][]) => {
-    const typeList = Array.isArray(types) ? types : [types];
-    const filteredLogs = logs.filter((log) => typeList.includes(log.type));
+  const renderCell = (
+    logs: ActivityLog[],
+    matcher: {
+      types?: ActivityLog["type"] | ActivityLog["type"][];
+      activityCategories?: ActivityCategory | ActivityCategory[];
+    },
+  ) => {
+    const typeList = matcher.types ? (Array.isArray(matcher.types) ? matcher.types : [matcher.types]) : [];
+    const categoryList = matcher.activityCategories
+      ? (Array.isArray(matcher.activityCategories) ? matcher.activityCategories : [matcher.activityCategories])
+      : [];
+    const filteredLogs = logs.filter((log) => {
+      const matchesType = typeList.length > 0 && typeList.includes(log.type);
+      const matchesCategory = categoryList.length > 0 && Boolean(log.activityCategory && categoryList.includes(log.activityCategory));
+      return matchesType || matchesCategory;
+    });
 
     if (!filteredLogs.length) {
       return <span className="task-meta">-</span>;
     }
 
-    return filteredLogs
-      .map((log) => (
-        <div key={log.id}>
-          {log.title}
-          <br />
-          <small>
-            {log.count > 1 ? `${log.count}회 · ` : ""}{log.minutes}분{log.note ? ` · ${log.note}` : ""}
-          </small>
-        </div>
-      ));
+    const grouped = filteredLogs.reduce<Record<string, { title: string; minutes: number; counts: number; notes: string[] }>>((acc, log) => {
+      const key = `${log.activityCategory ?? log.type}:${log.title}`;
+      acc[key] ??= { title: log.title, minutes: 0, counts: 0, notes: [] };
+      acc[key].minutes += Number(log.minutes || 0);
+      acc[key].counts += log.count;
+      if (log.note && !acc[key].notes.includes(log.note)) acc[key].notes.push(log.note);
+      return acc;
+    }, {});
+
+    return Object.entries(grouped).map(([key, entry]) => (
+      <div key={key}>
+        {entry.title}
+        <br />
+        <small>
+          {entry.counts > 1 ? `${entry.counts}회 · ` : ""}{entry.minutes}분{entry.notes.length ? ` · ${entry.notes.join(", ")}` : ""}
+        </small>
+      </div>
+    ));
   };
 
   const doneTaskCount = todayAssignments.reduce(
     (sum, assignment) => sum + countAssignmentProgress(data, assignment).done,
     0,
   );
-  const totalTaskCount = todayAssignments.reduce((sum, assignment) => sum + assignment.tasks.length, 0);
+  const totalTaskCount = todayAssignments.reduce((sum, assignment) => sum + countAssignmentProgress(data, assignment).total, 0);
   const totalMinutes = periodLogs.reduce((sum, log) => sum + Number(log.minutes || 0), 0);
   const readBookCount = new Set(periodLogs.filter((log) => log.bookId).map((log) => log.bookId)).size;
   const childAssignments = data.assignments
@@ -1301,7 +1337,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                   <strong>{doneTaskCount}</strong>/{totalTaskCount} 완료
                 </span>
                 <span className="summary-pill">
-                  <strong>{todayAssignments.length}</strong>권 예정
+                  <strong>{todayAssignments.length}</strong>건 예정
                 </span>
               </div>
             </div>
@@ -1353,6 +1389,9 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                       <div>
                         <p className="eyebrow">{selectedBook.series}</p>
                         <h3>{selectedBook.title}</h3>
+                        {selectedAssignment && (
+                          <p className="task-meta">{activityCategoryDefinitions[selectedAssignment.activityCategory].label}</p>
+                        )}
                         <p className="book-meta">
                           {selectedBook.volume} · {selectedBook.level}
                           <br />
@@ -1709,13 +1748,13 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                               <td>
                                 <strong>{formatDate(date)}</strong>
                               </td>
-                              <td>{renderCell(logs, "dvd")}</td>
-                              <td>{renderCell(logs, ["passiveListen", "listen"])}</td>
-                              <td>{renderCell(logs, "shadow")}</td>
-                              <td>{renderCell(logs, "self")}</td>
-                              <td>{renderCell(logs, "korean")}</td>
-                              <td>{renderCell(logs, ["picture", "englishPicture"])}</td>
-                              <td>{renderCell(logs, "extraStudy")}</td>
+                              <td>{renderCell(logs, { types: "dvd" })}</td>
+                              <td>{renderCell(logs, { types: "passiveListen" })}</td>
+                              <td>{renderCell(logs, { activityCategories: "focusListen" })}</td>
+                              <td>{renderCell(logs, { activityCategories: "readAloud" })}</td>
+                              <td>{renderCell(logs, { types: "korean" })}</td>
+                              <td>{renderCell(logs, { types: "englishPicture", activityCategories: "englishPicture" })}</td>
+                              <td>{renderCell(logs, { types: "extraStudy" })}</td>
                             </tr>
                           );
                         })
@@ -2192,13 +2231,29 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                       />
                     </div>
                     <div className="assignment-task-groups">
-                      {taskOrder.map((taskType) => (
-                        <section className="assignment-task-group" key={taskType}>
-                          <h3>{taskDefinitions[taskType].label}</h3>
+                      {activityCategoryOrder.map((activityCategory) => (
+                        <section className="assignment-task-group" key={activityCategory}>
+                          <div className="assignment-task-header">
+                            <h3>{activityCategoryDefinitions[activityCategory].label}</h3>
+                            <div className="assignment-count-row">
+                              {activityCategoryDefinitions[activityCategory].tasks.map((taskType) => (
+                                <label key={`${activityCategory}-${taskType}`} className="task-count-item">
+                                  <span>{taskDefinitions[taskType].label}</span>
+                                  <select name={`assignCount:${activityCategory}:${taskType}`} defaultValue={taskType === "listen" ? "1" : "0"}>
+                                    {taskCountOptions.map((count) => (
+                                      <option value={count} key={`${activityCategory}-${taskType}-${count}`}>
+                                        {count === 0 ? "0회" : `${count}회`}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
                           <div className="assign-book-list">
                             {filteredAssignBooks.map((book) => (
-                              <label key={`${taskType}-${book.id}`}>
-                                <input name={`assignBook:${taskType}`} type="checkbox" value={book.id} /> {book.series} · {book.title}
+                              <label key={`${activityCategory}-${book.id}`}>
+                                <input name={`assignBook:${activityCategory}`} type="checkbox" value={book.id} /> {book.series} · {book.title}
                                 {book.level ? ` · ${book.level}` : ""}
                               </label>
                             ))}

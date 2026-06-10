@@ -42,11 +42,12 @@ create table if not exists public.assignments (
   child_id uuid not null,
   date date not null,
   book_id uuid not null,
+  activity_category text not null default 'focusListen',
   tasks text[] not null default array[]::text[],
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now()),
   unique (id, owner_user_id),
-  unique (owner_user_id, child_id, date, book_id),
+  unique (owner_user_id, child_id, date, book_id, activity_category),
   constraint assignments_child_owner_fkey
     foreign key (child_id, owner_user_id)
     references public.children (id, owner_user_id)
@@ -57,9 +58,11 @@ create table if not exists public.assignments (
     on delete restrict,
   constraint assignments_tasks_check
     check (
-      tasks <@ array['listen', 'shadow', 'self', 'picture']::text[]
+      tasks <@ array['listen', 'shadow', 'self']::text[]
       and array_length(tasks, 1) is distinct from 0
-    )
+    ),
+  constraint assignments_activity_category_check
+    check (activity_category in ('focusListen', 'readAloud', 'englishPicture'))
 );
 
 create table if not exists public.completions (
@@ -77,7 +80,7 @@ create table if not exists public.completions (
     references public.assignments (id, owner_user_id)
     on delete cascade,
   constraint completions_task_type_check
-    check (task_type in ('listen', 'shadow', 'self', 'picture'))
+    check (task_type in ('listen', 'shadow', 'self'))
 );
 
 create table if not exists public.audio_launches (
