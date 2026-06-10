@@ -1290,9 +1290,11 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           <button className="ghost-button" type="button" onClick={() => setActiveProfile(null)}>
             {activeProfile ? "프로필 관리" : "프로필 선택"}
           </button>
-          <button className="secondary-button" type="button" onClick={onSignOut} disabled={isSigningOut}>
-            {isSigningOut ? "로그아웃 중..." : "로그아웃"}
-          </button>
+          {isParentProfile && (
+            <button className="secondary-button" type="button" onClick={onSignOut} disabled={isSigningOut}>
+              {isSigningOut ? "로그아웃 중..." : "로그아웃"}
+            </button>
+          )}
         </div>
       </header>
 
