@@ -1534,21 +1534,23 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                                     disabled={!audioUrl}
                                     onClick={() => openAudioDb(taskType as AudioTask)}
                                   >
-                                    오디오 열기
+                                    오디오 듣기
                                   </button>
                                 )}
-                                {selectedAssignment ? (
+                                {selectedAssignment && !taskDefinitions[taskType].needsAudio ? (
                                   <button className="primary-button" type="button" onClick={() => completeTaskDb(taskType)} disabled={done}>
                                     {done ? "완료됨" : `${completedCount + 1}회 완료`}
                                   </button>
                                 ) : (
-                                  <button
-                                    className="secondary-button"
-                                    type="button"
-                                    onClick={() => showToast("부모의 할 일 배정 화면에서 날짜별로 등록할 수 있습니다.")}
-                                  >
-                                    할 일 배정에서 등록
-                                  </button>
+                                  !selectedAssignment && (
+                                    <button
+                                      className="secondary-button"
+                                      type="button"
+                                      onClick={() => showToast("부모의 할 일 배정 화면에서 날짜별로 등록할 수 있습니다.")}
+                                    >
+                                      할 일 배정에서 등록
+                                    </button>
+                                  )
                                 )}
                               </div>
                             </div>
