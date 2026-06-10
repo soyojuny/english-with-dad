@@ -82,7 +82,7 @@ const emptyChildDraft: ChildDraft = {
   goal: "",
 };
 
-const taskOrder: TaskType[] = ["listen", "shadow", "self"];
+const taskOrder: TaskType[] = ["shadow", "self", "picture"];
 
 function formatDate(value: string) {
   const [, month, day] = value.split("-");
@@ -589,6 +589,43 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       return groups;
     }, {});
   }, [periodLogs]);
+  const dashboardSummaries = useMemo(() => {
+    const configs: Array<{
+      id: string;
+      title: string;
+      types: ActivityLog["type"][];
+    }> = [
+      { id: "shadow", title: "집중듣기", types: ["shadow"] },
+      { id: "self", title: "소리내어 읽기", types: ["self"] },
+      { id: "picture", title: "영어 그림책", types: ["picture", "englishPicture"] },
+    ];
+
+    return configs.map((config) => {
+      const grouped = periodLogs
+        .filter((log) => config.types.includes(log.type))
+        .reduce<Map<string, Map<string, { title: string; minutes: number }>>>((seriesMap, log) => {
+          const series = (log.bookId ? getBook(log.bookId)?.series : "") || "직접 입력";
+          const title = log.title.trim() || "제목 없음";
+          const itemMap = seriesMap.get(series) ?? new Map<string, { title: string; minutes: number }>();
+          const current = itemMap.get(title) ?? { title, minutes: 0 };
+          current.minutes += Number(log.minutes || 0);
+          itemMap.set(title, current);
+          seriesMap.set(series, itemMap);
+          return seriesMap;
+        }, new Map());
+
+      return {
+        id: config.id,
+        title: config.title,
+        seriesGroups: Array.from(grouped.entries())
+          .map(([series, items]) => ({
+            series,
+            items: Array.from(items.values()).sort((a, b) => a.title.localeCompare(b.title)),
+          }))
+          .sort((a, b) => a.series.localeCompare(b.series)),
+      };
+    });
+  }, [periodLogs, data.books]);
 
   const filteredLibraryBooks = useMemo(() => {
     const query = bookSearch.trim().toLowerCase();
@@ -1125,9 +1162,12 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     }
   };
 
-  const renderCell = (logs: ActivityLog[], type: ActivityLog["type"]) => {
-    return logs
-      .filter((log) => log.type === type)
+  const renderCell = (logs: ActivityLog[], types: ActivityLog["type"] | ActivityLog["type"][]) => {
+    const typeList = Array.isArray(types) ? types : [types];
+    const filteredLogs = logs.filter((log) => typeList.includes(log.type));
+    if (!filteredLogs.length) return <span className="task-meta">-</span>;
+
+    return filteredLogs
       .map((log) => (
         <div key={log.id}>
           {log.title}
@@ -1639,13 +1679,15 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                   구분
                   <select name="manualType" defaultValue="dvd">
                     <option value="dvd">DVD</option>
-                    <option value="korean">한글책 읽기</option>
-                    <option value="englishPicture">영어 그림책 읽기</option>
+                    <option value="passiveListen">흘려듣기</option>
+                    <option value="korean">한글책</option>
+                    <option value="englishPicture">영어 그림책</option>
+                    <option value="extraStudy">기타학습</option>
                   </select>
                 </label>
                 <label>
                   제목/내용
-                  <input name="manualTitle" type="text" placeholder="Arthur, 한글책 1권" required />
+                  <input name="manualTitle" type="text" placeholder="Arthur DVD, 영어 단어장 2쪽" required />
                 </label>
                 <label>
                   시간
@@ -1661,6 +1703,40 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
               </form>
             </section>
 
+            <section className="parent-section" aria-labelledby="dashboardSummaryTitle">
+              <div className="section-heading compact">
+                <div>
+                  <p className="eyebrow">부모 대시보드</p>
+                  <h2 id="dashboardSummaryTitle">과제별 읽기 요약</h2>
+                </div>
+              </div>
+              <div className="dashboard-summary-grid">
+                {dashboardSummaries.map((summary) => (
+                  <article className="dashboard-summary-card" key={summary.id}>
+                    <h3>{summary.title}</h3>
+                    {summary.seriesGroups.length ? (
+                      <div className="dashboard-summary-groups">
+                        {summary.seriesGroups.map((group) => (
+                          <section key={`${summary.id}-${group.series}`}>
+                            <p className="dashboard-series-title">{group.series}</p>
+                            <ul className="dashboard-book-list">
+                              {group.items.map((item) => (
+                                <li key={`${summary.id}-${group.series}-${item.title}`}>
+                                  {item.title} ({item.minutes}분)
+                                </li>
+                              ))}
+                            </ul>
+                          </section>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="empty-state">선택한 기간에 기록이 없습니다.</div>
+                    )}
+                  </article>
+                ))}
+              </div>
+            </section>
+
             <section className="parent-section" aria-labelledby="logTitle">
               <div className="section-heading compact">
                 <div>
@@ -1674,12 +1750,12 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     <tr>
                       <th>날짜</th>
                       <th>DVD</th>
-                      <th>읽기</th>
-                      <th>정따</th>
-                      <th>스스로 읽기</th>
-                      <th>한글책 읽기</th>
-                      <th>영어 그림책 읽기</th>
-                      <th>특이사항</th>
+                      <th>흘려듣기</th>
+                      <th>집중듣기</th>
+                      <th>소리내어 읽기</th>
+                      <th>한글책</th>
+                      <th>영어 그림책</th>
+                      <th>기타학습</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1695,12 +1771,12 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                                 <strong>{formatDate(date)}</strong>
                               </td>
                               <td>{renderCell(logs, "dvd")}</td>
-                              <td>{renderCell(logs, "listen")}</td>
+                              <td>{renderCell(logs, ["listen", "passiveListen"])}</td>
                               <td>{renderCell(logs, "shadow")}</td>
                               <td>{renderCell(logs, "self")}</td>
                               <td>{renderCell(logs, "korean")}</td>
-                              <td>{renderCell(logs, "englishPicture")}</td>
-                              <td>{logs.map((log) => log.note).filter(Boolean).slice(0, 4).join(" / ")}</td>
+                              <td>{renderCell(logs, ["picture", "englishPicture"])}</td>
+                              <td>{renderCell(logs, "extraStudy")}</td>
                             </tr>
                           );
                         })

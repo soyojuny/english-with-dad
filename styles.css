@@ -690,6 +690,42 @@ main {
   color: var(--muted);
 }
 
+.dashboard-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.dashboard-summary-card {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-strong);
+  padding: 14px;
+}
+
+.dashboard-summary-card h3 {
+  margin: 0 0 12px;
+}
+
+.dashboard-summary-groups {
+  display: grid;
+  gap: 14px;
+}
+
+.dashboard-series-title {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--muted);
+}
+
+.dashboard-book-list {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+}
+
 .series-progress {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));

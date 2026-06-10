@@ -5,10 +5,10 @@ export type Child = {
   goal: string;
 };
 
-export type TaskType = "listen" | "shadow" | "self";
+export type TaskType = "listen" | "shadow" | "self" | "picture";
 export type TaskCountMap = Partial<Record<TaskType, number>>;
 
-export type ManualLogType = "dvd" | "korean" | "englishPicture";
+export type ManualLogType = "dvd" | "passiveListen" | "korean" | "englishPicture" | "extraStudy";
 
 export type ActivityLogType = TaskType | ManualLogType;
 
