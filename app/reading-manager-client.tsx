@@ -192,7 +192,14 @@ function getCompletionCount(data: ReadingData, assignmentId: string, taskType: T
 }
 
 function formatTaskSummary(tasks: TaskType[], taskCounts: TaskCountMap) {
-  return tasks.map((taskType) => `${taskDefinitions[taskType].label} ${taskCounts[taskType] ?? 1}회`).join(" · ");
+  return [...tasks]
+    .sort((left, right) => taskOrder.indexOf(left) - taskOrder.indexOf(right))
+    .map((taskType) => `${taskDefinitions[taskType].label} ${taskCounts[taskType] ?? 1}회`)
+    .join(" · ");
+}
+
+function sortTasks(tasks: TaskType[]) {
+  return [...tasks].sort((left, right) => taskOrder.indexOf(left) - taskOrder.indexOf(right));
 }
 
 function countAssignmentProgress(data: ReadingData, assignment: Assignment) {
@@ -951,7 +958,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   };
 
   const openAudioDb = async (taskType: AudioTask) => {
-    if (!selectedAssignment || !selectedBook) return;
+    if (!selectedBook) return;
 
     const audioUrl = selectedBook.audio[taskType];
     if (!audioUrl) {
@@ -959,24 +966,26 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       return;
     }
 
-    try {
-      const savedLaunch = await saveAudioLaunch(supabase, ownerUserId, {
-        assignmentId: selectedAssignment.id,
-        taskType,
-        openedAt: new Date().toISOString(),
-        returnedAt: null,
-      });
+    if (selectedAssignment) {
+      try {
+        const savedLaunch = await saveAudioLaunch(supabase, ownerUserId, {
+          assignmentId: selectedAssignment.id,
+          taskType,
+          openedAt: new Date().toISOString(),
+          returnedAt: null,
+        });
 
-      setData((current) => ({
-        ...current,
-        audioLaunches: {
-          ...current.audioLaunches,
-          [savedLaunch.key]: savedLaunch.value,
-        },
-      }));
-    } catch (error) {
-      showToast(error instanceof Error ? error.message : "오디오 실행 기록을 저장하지 못했습니다.");
-      return;
+        setData((current) => ({
+          ...current,
+          audioLaunches: {
+            ...current.audioLaunches,
+            [savedLaunch.key]: savedLaunch.value,
+          },
+        }));
+      } catch (error) {
+        showToast(error instanceof Error ? error.message : "오디오 실행 기록을 저장하지 못했습니다.");
+        return;
+      }
     }
 
     const audioWindow = window.open(audioUrl, "ewd-naver-audio");
@@ -986,7 +995,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       } catch {
         // Cross-origin navigation can block opener changes.
       }
-      showToast("오디오 링크를 열었습니다. 돌아와서 완료를 눌러 주세요.");
+      showToast(selectedAssignment ? "오디오 링크를 열었습니다. 돌아와서 완료를 눌러 주세요." : "오디오 링크를 열었습니다.");
     } else {
       showToast("브라우저가 새 창 열기를 막았습니다. 링크를 직접 열어 주세요.");
     }
@@ -1035,49 +1044,69 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     const startDate = String(formData.get("assignStart") ?? dateKey());
     const endDate = String(formData.get("assignEnd") ?? dateKey());
     const dates = datesInRange(startDate, endDate);
-    const categorySelections = activityCategoryOrder.map((activityCategory) => {
-      const taskCounts = activityCategoryDefinitions[activityCategory].tasks.reduce<TaskCountMap>((acc, taskType) => {
-        const count = Number(formData.get(`assignCount:${activityCategory}:${taskType}`) ?? 0);
-        if (count > 0) acc[taskType] = count;
-        return acc;
-      }, {});
+    const selections = filteredAssignBooks.reduce<
+      Array<{
+        bookId: string;
+        activityCategory: ActivityCategory;
+        taskCounts: TaskCountMap;
+        tasks: TaskType[];
+      }>
+    >((acc, book) => {
+      const activityCategory = String(formData.get(`assignCategory:${book.id}`) ?? "") as ActivityCategory | "";
+      if (!activityCategory) return acc;
 
-      return {
+      if (activityCategory === "englishPicture") {
+        acc.push({
+          bookId: book.id,
+          activityCategory,
+          taskCounts: { listen: 1 },
+          tasks: ["listen"],
+        });
+        return acc;
+      }
+
+      const taskCounts = activityCategoryDefinitions[activityCategory].tasks.reduce<TaskCountMap>((taskAcc, taskType) => {
+        const count = Number(formData.get(`assignCount:${book.id}:${taskType}`) ?? 0);
+        if (count > 0) taskAcc[taskType] = count;
+        return taskAcc;
+      }, {});
+      const tasks = activityCategoryDefinitions[activityCategory].tasks.filter((taskType) => (taskCounts[taskType] ?? 0) > 0);
+
+      acc.push({
+        bookId: book.id,
         activityCategory,
-        bookIds: selectedValues(formData, `assignBook:${activityCategory}`),
         taskCounts,
-        tasks: activityCategoryDefinitions[activityCategory].tasks.filter((taskType) => (taskCounts[taskType] ?? 0) > 0),
-      };
-    });
+        tasks,
+      });
+      return acc;
+    }, []);
 
     if (startDate > endDate) {
       showToast("종료일은 시작일보다 빠를 수 없습니다.");
       return;
     }
 
-    const hasSelectedBooks = categorySelections.some((selection) => selection.bookIds.length > 0);
-    if (!dates.length || !hasSelectedBooks) {
-      showToast("날짜와 활동 구분별 책을 선택하세요.");
+    if (!dates.length || !selections.length) {
+      showToast("책별 활동 구분을 선택하세요.");
       return;
     }
 
-    const invalidSelection = categorySelections.find((selection) => selection.bookIds.length > 0 && !selection.tasks.length);
+    const invalidSelection = selections.find((selection) => !selection.tasks.length);
     if (invalidSelection) {
-      showToast(`${activityCategoryDefinitions[invalidSelection.activityCategory].label}의 상세 활동 횟수를 설정하세요.`);
+      const book = getBook(invalidSelection.bookId);
+      showToast(`${book?.title ?? "선택한 책"}의 상세 활동 횟수를 설정하세요.`);
       return;
     }
 
     const payloads = dates.flatMap((date) =>
-      categorySelections.flatMap((selection) =>
-        selection.bookIds.map((bookId) => ({
+      selections.map((selection) => ({
           childId: targetChildId,
           date,
-          bookId,
+          bookId: selection.bookId,
           activityCategory: selection.activityCategory,
           tasks: [...selection.tasks],
           taskCounts: { ...selection.taskCounts },
         })),
-      ),
     );
 
     try {
@@ -1398,7 +1427,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                           {selectedBook.note}
                         </p>
                         <div className="status-row">
-                          {(selectedAssignment?.tasks ?? taskOrder).map((taskType) => {
+                          {sortTasks(selectedAssignment?.tasks ?? taskOrder).map((taskType) => {
                             const completedCount = selectedAssignment
                               ? getCompletionCount(data, selectedAssignment.id, taskType)
                               : 0;
@@ -1415,7 +1444,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     </div>
 
                     <div className="task-list">
-                      {(selectedAssignment?.tasks ?? taskOrder).map((taskType) => {
+                      {sortTasks(selectedAssignment?.tasks ?? taskOrder).map((taskType) => {
                         const completion = selectedAssignment
                           ? data.completions[`${selectedAssignment.id}:${taskType}`]
                           : null;
@@ -2213,7 +2242,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     <input name="assignEnd" type="date" required defaultValue={dateKey()} />
                   </label>
                   <fieldset className="wide book-picker">
-                    <legend>활동별 책 선택</legend>
+                    <legend>책별 활동 설정</legend>
                     <div className="library-tools">
                       <select value={assignSeriesFilter} aria-label="배정 시리즈 선택" onChange={(event) => setAssignSeriesFilter(event.target.value)}>
                         <option value="all">전체 시리즈</option>
@@ -2230,34 +2259,41 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                         onChange={(event) => setAssignBookSearch(event.target.value)}
                       />
                     </div>
-                    <div className="assignment-task-groups">
-                      {activityCategoryOrder.map((activityCategory) => (
-                        <section className="assignment-task-group" key={activityCategory}>
-                          <div className="assignment-task-header">
-                            <h3>{activityCategoryDefinitions[activityCategory].label}</h3>
-                            <div className="assignment-count-row">
-                              {activityCategoryDefinitions[activityCategory].tasks.map((taskType) => (
-                                <label key={`${activityCategory}-${taskType}`} className="task-count-item">
-                                  <span>{taskDefinitions[taskType].label}</span>
-                                  <select name={`assignCount:${activityCategory}:${taskType}`} defaultValue={taskType === "listen" ? "1" : "0"}>
-                                    {taskCountOptions.map((count) => (
-                                      <option value={count} key={`${activityCategory}-${taskType}-${count}`}>
-                                        {count === 0 ? "0회" : `${count}회`}
-                                      </option>
-                                    ))}
-                                  </select>
-                                </label>
-                              ))}
-                            </div>
+                    <div className="assignment-book-config-list">
+                      {filteredAssignBooks.map((book) => (
+                        <section className="assignment-book-config" key={book.id}>
+                          <div className="assignment-book-main">
+                            <p className="assignment-book-title">
+                              {book.series} · {book.title}
+                              {book.level ? ` · ${book.level}` : ""}
+                            </p>
+                            <label className="assignment-category-field">
+                              <span>활동 구분</span>
+                              <select name={`assignCategory:${book.id}`} defaultValue="">
+                                <option value="">선택 안 함</option>
+                                {activityCategoryOrder.map((activityCategory) => (
+                                  <option value={activityCategory} key={`${book.id}-${activityCategory}`}>
+                                    {activityCategoryDefinitions[activityCategory].label}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
                           </div>
-                          <div className="assign-book-list">
-                            {filteredAssignBooks.map((book) => (
-                              <label key={`${activityCategory}-${book.id}`}>
-                                <input name={`assignBook:${activityCategory}`} type="checkbox" value={book.id} /> {book.series} · {book.title}
-                                {book.level ? ` · ${book.level}` : ""}
+                          <div className="assignment-count-row">
+                            {taskOrder.map((taskType) => (
+                              <label key={`${book.id}-${taskType}`} className="task-count-item">
+                                <span>{taskDefinitions[taskType].label}</span>
+                                <select name={`assignCount:${book.id}:${taskType}`} defaultValue={taskType === "listen" ? "1" : "0"}>
+                                  {taskCountOptions.map((count) => (
+                                    <option value={count} key={`${book.id}-${taskType}-${count}`}>
+                                      {count === 0 ? "0회" : `${count}회`}
+                                    </option>
+                                  ))}
+                                </select>
                               </label>
                             ))}
                           </div>
+                          <p className="task-meta">영어 그림책을 선택하면 읽기 1회로 저장됩니다.</p>
                         </section>
                       ))}
                     </div>

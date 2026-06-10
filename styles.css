@@ -964,20 +964,47 @@ label > textarea {
   width: 100%;
 }
 
-.assignment-task-groups {
+.assignment-book-config-list {
   display: grid;
   gap: 14px;
   width: 100%;
 }
 
-.assignment-task-group {
+.assignment-book-config {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: var(--surface-strong);
+}
+
+.assignment-book-main {
   display: grid;
   gap: 10px;
 }
 
-.assignment-task-group h3 {
+.assignment-book-title {
   margin: 0;
   font-size: 15px;
+  font-weight: 900;
+}
+
+.assignment-category-field {
+  display: grid;
+  gap: 6px;
+}
+
+.assignment-category-field span {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.assignment-count-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
 }
 
 .qr-dialog {
