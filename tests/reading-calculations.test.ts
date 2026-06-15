@@ -6,10 +6,13 @@ import {
   formatAssignmentTaskLabels,
   formatDate,
   formatTaskSummary,
+  getAvailableActivityCategories,
   getAssignmentTaskCount,
   getBookSetupIssues,
   getCompletionCount,
+  getDefaultTasksForMaterial,
   getLaunchMinutes,
+  getTaskAudioUrl,
   hasCustomCover,
   isValidExternalUrl,
   normalizeText,
@@ -58,6 +61,22 @@ test("cover and book setup issue helpers identify missing setup", () => {
     }),
     ["표지", "읽기 링크"],
   );
+  assert.deepEqual(
+    getBookSetupIssues({
+      contentType: "wordReading",
+      cover: "",
+      audio: { listen: "", shadow: "" },
+    }),
+    ["단어 읽기 링크"],
+  );
+  assert.deepEqual(
+    getBookSetupIssues({
+      contentType: "wordReading",
+      cover: "",
+      audio: { listen: "https://example.com/word", shadow: "" },
+    }),
+    [],
+  );
 });
 
 test("isValidExternalUrl allows empty, http, and https values only", () => {
@@ -98,9 +117,28 @@ test("completion count and progress cap completed repetitions at target count", 
 });
 
 test("task formatting follows canonical task order", () => {
-  assert.deepEqual(sortTasks(["self", "listen", "shadow"]), ["listen", "shadow", "self"]);
+  assert.deepEqual(sortTasks(["wordRead", "self", "listen", "shadow"]), ["listen", "shadow", "self", "wordRead"]);
   assert.equal(formatTaskSummary(["self", "listen"], { self: 2, listen: 1 }), "읽기 1회 · 스스로 읽기 2회");
   assert.equal(formatAssignmentTaskLabels(assignment), "집중듣기 · 읽기 2회 · 정따 1회 · 스스로 읽기 1회");
+  assert.equal(
+    formatAssignmentTaskLabels({
+      activityCategory: "extraStudy",
+      tasks: ["wordRead"],
+      taskCounts: { wordRead: 1 },
+    }),
+    "기타학습 · 단어 읽기 1회",
+  );
+});
+
+test("word reading materials use extra study assignment defaults and the listen URL", () => {
+  const wordReading = {
+    contentType: "wordReading" as const,
+    audio: { listen: "https://example.com/word", shadow: "" },
+  };
+  assert.deepEqual(getAvailableActivityCategories(wordReading), ["extraStudy"]);
+  assert.deepEqual(getDefaultTasksForMaterial(wordReading), ["wordRead"]);
+  assert.equal(getTaskAudioUrl(wordReading, "wordRead"), "https://example.com/word");
+  assert.equal(getTaskAudioUrl({ contentType: "book", audio: wordReading.audio }, "wordRead"), "");
 });
 
 test("getLaunchMinutes uses rounded elapsed minutes and falls back for invalid launches", () => {

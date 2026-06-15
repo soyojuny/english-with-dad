@@ -68,6 +68,7 @@ SQL Editor에서 아래 마이그레이션을 실행합니다.
 - Supabase 세션 유지
 - 읽기 데이터 전체 CRUD
 - 아동/책/과제/완료/수기 기록 DB 저장
+- 책과 단어 읽기 자료를 `books.content_type`으로 구분해 저장
 
 ## 7. Storage가 필요한 경우
 
@@ -77,3 +78,5 @@ SQL Editor에서 아래 마이그레이션을 실행합니다.
 - 권장: 부모가 찍은 표지 사진을 실제 파일로 계속 업로드할 계획일 때
 
 현재 구현은 `books.cover` 텍스트 컬럼에 URL 또는 data URL을 저장할 수 있습니다. 다만 사진 업로드를 계속 쓸 거면 `book-covers` 같은 Storage 버킷을 만들고 파일 URL만 DB에 저장하는 구조로 옮기는 편이 맞습니다.
+
+단어 읽기 자료는 표지 사진을 요구하지 않고, QR 스캔 또는 직접 입력한 URL을 `books.audio_listen`에 저장합니다.

@@ -16,6 +16,7 @@ export const taskDefinitions: Record<
   listen: { label: "읽기", minutes: 10, needsAudio: true },
   shadow: { label: "정따", minutes: 10, needsAudio: true },
   self: { label: "스스로 읽기", minutes: 5, needsAudio: false },
+  wordRead: { label: "단어 읽기", minutes: 5, needsAudio: true },
 };
 
 export const activityCategoryDefinitions: Record<
@@ -25,6 +26,7 @@ export const activityCategoryDefinitions: Record<
   focusListen: { label: "집중듣기", tasks: ["listen", "shadow", "self"] },
   readAloud: { label: "소리내어 읽기", tasks: ["listen", "shadow", "self"] },
   englishPicture: { label: "영어 그림책", tasks: ["listen"] },
+  extraStudy: { label: "기타학습", tasks: ["wordRead"] },
 };
 
 export const logLabels = {
@@ -33,6 +35,7 @@ export const logLabels = {
   listen: "읽기",
   shadow: "정따",
   self: "스스로 읽기",
+  wordRead: "단어 읽기",
   korean: "한글책",
   englishPicture: "영어 그림책",
   extraStudy: "기타학습",

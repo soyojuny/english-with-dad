@@ -5,9 +5,10 @@ export type Child = {
   goal: string;
 };
 
-export type TaskType = "listen" | "shadow" | "self";
+export type TaskType = "listen" | "shadow" | "self" | "wordRead";
 export type TaskCountMap = Partial<Record<TaskType, number>>;
-export type ActivityCategory = "focusListen" | "readAloud" | "englishPicture";
+export type ActivityCategory = "focusListen" | "readAloud" | "englishPicture" | "extraStudy";
+export type BookContentType = "book" | "wordReading";
 
 export type ManualLogType = "dvd" | "passiveListen" | "korean" | "englishPicture" | "extraStudy";
 
@@ -16,6 +17,7 @@ export type ActivityLogType = TaskType | ManualLogType;
 export type Book = {
   id: string;
   active: boolean;
+  contentType: BookContentType;
   title: string;
   series: string;
   volume: string;

@@ -47,7 +47,7 @@ AI 개발 하네스와 repo skill 구성은 [docs/development-harness.md](/D:/wo
 
 - 부모 Google 로그인
 - 아동 추가/수정
-- 책 등록/수정/비활성화 복구
+- 책/단어 읽기 자료 등록, 수정, 비활성화 복구
 - 날짜별 과제 생성
 - 아동별 완료 기록, 수기 기록 저장
 - 오디오 실행 시간 기록
@@ -60,3 +60,4 @@ AI 개발 하네스와 repo skill 구성은 [docs/development-harness.md](/D:/wo
 - 현재 미사용: Supabase Storage
 
 표지 이미지는 지금도 DB의 `books.cover` 텍스트 컬럼에 URL 또는 data URL로 저장할 수 있지만, 실제 사진 업로드를 계속 쓸 계획이면 나중에 Supabase Storage 버킷으로 옮기는 편이 맞습니다.
+단어 읽기 자료는 `books.content_type = wordReading`으로 구분하고, QR 또는 URL은 `books.audio_listen`에 저장합니다.

@@ -88,6 +88,7 @@ PWA에서도 외부 네이버 링크를 열 수 있다. 다만 외부 도메인�
 
 - `id`
 - `active`
+- `contentType`: `book`, `wordReading`
 - `series`
 - `title`
 - `volume`
@@ -97,13 +98,17 @@ PWA에서도 외부 네이버 링크를 열 수 있다. 다만 외부 도메인�
 - `audio.shadow`
 - `note`
 
+단어 읽기 자료는 `contentType = wordReading`으로 저장하고, 부모가 등록한 QR/URL은 `audio.listen`에 저장한다. 표지와 정따 링크는 요구하지 않는다.
+
 ### assignments
 
 - `id`
 - `childId`
 - `date`
 - `bookId`
+- `activityCategory`: `focusListen`, `readAloud`, `englishPicture`, `extraStudy`
 - `tasks`
+- `taskCounts`
 
 ### completions
 
@@ -111,6 +116,7 @@ PWA에서도 외부 네이버 링크를 열 수 있다. 다만 외부 도메인�
 - `completedAt`
 - `minutes`
 - `audioOpenedAt`
+- `count`
 
 ### audioLaunches
 
@@ -123,7 +129,7 @@ PWA에서도 외부 네이버 링크를 열 수 있다. 다만 외부 도메인�
 - `id`
 - `childId`
 - `date`
-- `type`: `dvd`, `korean`, `englishPicture`
+- `type`: `dvd`, `passiveListen`, `korean`, `englishPicture`, `extraStudy`
 - `title`
 - `minutes`
 - `note`

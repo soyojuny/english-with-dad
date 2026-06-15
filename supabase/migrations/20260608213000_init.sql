@@ -23,6 +23,7 @@ create table if not exists public.books (
   id uuid primary key default gen_random_uuid(),
   owner_user_id uuid not null references auth.users (id) on delete cascade,
   active boolean not null default true,
+  content_type text not null default 'book',
   series text not null,
   title text not null,
   volume text not null default '',
@@ -33,7 +34,9 @@ create table if not exists public.books (
   note text not null default '',
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now()),
-  unique (id, owner_user_id)
+  unique (id, owner_user_id),
+  constraint books_content_type_check
+    check (content_type in ('book', 'wordReading'))
 );
 
 create table if not exists public.assignments (
@@ -58,11 +61,11 @@ create table if not exists public.assignments (
     on delete restrict,
   constraint assignments_tasks_check
     check (
-      tasks <@ array['listen', 'shadow', 'self']::text[]
+      tasks <@ array['listen', 'shadow', 'self', 'wordRead']::text[]
       and array_length(tasks, 1) is distinct from 0
     ),
   constraint assignments_activity_category_check
-    check (activity_category in ('focusListen', 'readAloud', 'englishPicture'))
+    check (activity_category in ('focusListen', 'readAloud', 'englishPicture', 'extraStudy'))
 );
 
 create table if not exists public.completions (
@@ -80,7 +83,7 @@ create table if not exists public.completions (
     references public.assignments (id, owner_user_id)
     on delete cascade,
   constraint completions_task_type_check
-    check (task_type in ('listen', 'shadow', 'self'))
+    check (task_type in ('listen', 'shadow', 'self', 'wordRead'))
 );
 
 create table if not exists public.audio_launches (
@@ -98,7 +101,7 @@ create table if not exists public.audio_launches (
     references public.assignments (id, owner_user_id)
     on delete cascade,
   constraint audio_launches_task_type_check
-    check (task_type in ('listen', 'shadow', 'self'))
+    check (task_type in ('listen', 'shadow', 'self', 'wordRead'))
 );
 
 create table if not exists public.manual_logs (

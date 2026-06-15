@@ -4,6 +4,7 @@ import type {
   Assignment,
   AudioLaunch,
   Book,
+  BookContentType,
   Child,
   Completion,
   ManualLog,
@@ -27,6 +28,7 @@ type BookRow = {
   id: string;
   owner_user_id: string;
   active: boolean;
+  content_type: BookContentType | null;
   series: string;
   title: string;
   volume: string;
@@ -74,6 +76,9 @@ type ManualLogRow = {
   note: string;
 };
 
+const bookSelectColumns =
+  "id, owner_user_id, active, content_type, series, title, volume, level, cover, audio_listen, audio_shadow, note";
+
 function mapChild(row: ChildRow): Child {
   return {
     id: row.id,
@@ -87,6 +92,7 @@ function mapBook(row: BookRow): Book {
   return {
     id: row.id,
     active: row.active,
+    contentType: row.content_type ?? "book",
     series: row.series,
     title: row.title,
     volume: row.volume,
@@ -171,7 +177,7 @@ export async function fetchReadingData(
         .order("created_at", { ascending: true }),
       supabase
         .from("books")
-        .select("id, owner_user_id, active, series, title, volume, level, cover, audio_listen, audio_shadow, note")
+        .select(bookSelectColumns)
         .eq("owner_user_id", ownerUserId)
         .order("created_at", { ascending: true }),
       supabase
@@ -261,6 +267,7 @@ export async function saveBook(
   const payload = {
     owner_user_id: ownerUserId,
     active: book.active,
+    content_type: book.contentType,
     series: book.series,
     title: book.title,
     volume: book.volume,
@@ -277,7 +284,7 @@ export async function saveBook(
       .update(payload)
       .eq("owner_user_id", ownerUserId)
       .eq("id", book.id)
-      .select("id, owner_user_id, active, series, title, volume, level, cover, audio_listen, audio_shadow, note")
+      .select(bookSelectColumns)
       .single();
 
     return mapBook(unwrap(result, "책 정보를 저장하지 못했습니다.") as BookRow);
@@ -286,7 +293,7 @@ export async function saveBook(
   const result = await supabase
     .from("books")
     .insert(payload)
-    .select("id, owner_user_id, active, series, title, volume, level, cover, audio_listen, audio_shadow, note")
+    .select(bookSelectColumns)
     .single();
 
   return mapBook(unwrap(result, "책을 추가하지 못했습니다.") as BookRow);
@@ -303,7 +310,7 @@ export async function setBookActive(
     .update({ active })
     .eq("owner_user_id", ownerUserId)
     .eq("id", bookId)
-    .select("id, owner_user_id, active, series, title, volume, level, cover, audio_listen, audio_shadow, note")
+    .select(bookSelectColumns)
     .single();
 
   return mapBook(unwrap(result, "책 상태를 변경하지 못했습니다.") as BookRow);

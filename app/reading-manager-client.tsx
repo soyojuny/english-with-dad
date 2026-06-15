@@ -5,16 +5,21 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, FormEvent } from "react";
 import {
   activityCategoryOrder,
+  bookContentTypeLabels,
   countAssignmentProgress,
   datesInRange,
   formatAssignmentTaskLabels,
   formatDate,
   formatTime,
+  getAvailableActivityCategories,
   getAssignmentTaskCount,
   getBookSetupIssues,
   getCompletionCount,
+  getDefaultTasksForMaterial,
   getLaunchMinutes,
+  getTaskAudioUrl,
   hasCustomCover,
+  isWordReadingMaterial,
   isValidExternalUrl,
   normalizeText,
   sortTasks,
@@ -32,6 +37,7 @@ import type {
   ActivityLog,
   Assignment,
   Book,
+  BookContentType,
   Child,
   ManualLogType,
   ReadingData,
@@ -53,11 +59,12 @@ import {
 
 type ViewName = "child" | "parent" | "books" | "assign";
 type Period = "day" | "week" | "month";
-type AudioTask = "listen" | "shadow";
+type AudioLinkField = "listen" | "shadow";
 type BookListFilter = "active" | "attention" | "ready" | "inactive";
 
 type BookDraft = {
   id: string;
+  contentType: BookContentType;
   series: string;
   title: string;
   volume: string;
@@ -79,12 +86,13 @@ type ChildDraft = {
 
 type QrState = {
   open: boolean;
-  target: AudioTask | null;
+  target: AudioLinkField | null;
   status: string;
 };
 
 const emptyBookDraft: BookDraft = {
   id: "",
+  contentType: "book",
   series: "",
   title: "",
   volume: "",
@@ -105,6 +113,7 @@ function bookToDraft(book: Book | null): BookDraft {
   if (!book) return { ...emptyBookDraft, audio: { ...emptyBookDraft.audio } };
   return {
     id: book.id,
+    contentType: book.contentType,
     series: book.series,
     title: book.title,
     volume: book.volume,
@@ -196,6 +205,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const profileLoadedRef = useRef(false);
 
   const activeBooks = useMemo(() => data.books.filter((book) => book.active !== false), [data.books]);
+  const activeBookItems = useMemo(() => activeBooks.filter((book) => !isWordReadingMaterial(book)), [activeBooks]);
   const inactiveBooks = useMemo(() => data.books.filter((book) => book.active === false), [data.books]);
   const child = useMemo(
     () => data.children.find((item) => item.id === childId) ?? { id: "", name: "", level: "", goal: "" },
@@ -208,6 +218,10 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     goal: "프로필 관리에서 아동을 먼저 추가하세요.",
   };
   const seriesNames = useMemo(
+    () => [...new Set(activeBookItems.map((book) => book.series).filter(Boolean))].sort(),
+    [activeBookItems],
+  );
+  const assignSeriesNames = useMemo(
     () => [...new Set(activeBooks.map((book) => book.series).filter(Boolean))].sort(),
     [activeBooks],
   );
@@ -239,6 +253,9 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     : selectedBookId
       ? getBook(selectedBookId)
       : undefined;
+  const selectedMaterialTasks = selectedAssignment?.tasks ?? (selectedBook ? getDefaultTasksForMaterial(selectedBook) : taskOrder);
+  const isWordReadingDraft = isWordReadingMaterial(bookDraft);
+  const draftContentTypeLabel = bookContentTypeLabels[bookDraft.contentType];
 
   useEffect(() => {
     let cancelled = false;
@@ -497,7 +514,9 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           bookId: assignment.bookId,
           title: book.title,
           minutes: completion.minutes,
-          note: completion.audioOpenedAt ? `오디오 열기 ${formatTime(completion.audioOpenedAt)}` : taskDefinitions[taskType].label,
+          note: completion.audioOpenedAt
+            ? `${taskType === "wordRead" ? "링크 열기" : "오디오 열기"} ${formatTime(completion.audioOpenedAt)}`
+            : taskDefinitions[taskType].label,
           count: completion.count,
         });
         return logs;
@@ -537,7 +556,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
 
   const filteredLibraryBooks = useMemo(() => {
     const query = bookSearch.trim().toLowerCase();
-    return activeBooks.filter((book) => {
+    return activeBookItems.filter((book) => {
       const matchesSeries = seriesFilter === "all" || book.series === seriesFilter;
       const matchesSearch =
         !query ||
@@ -546,11 +565,11 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
         book.volume.toLowerCase().includes(query);
       return matchesSeries && matchesSearch;
     });
-  }, [activeBooks, bookSearch, seriesFilter]);
+  }, [activeBookItems, bookSearch, seriesFilter]);
 
   const progressBooks = useMemo(
-    () => activeBooks.filter((book) => progressSeries === "all" || book.series === progressSeries),
-    [activeBooks, progressSeries],
+    () => activeBookItems.filter((book) => progressSeries === "all" || book.series === progressSeries),
+    [activeBookItems, progressSeries],
   );
   const bookAssignmentCounts = useMemo(
     () =>
@@ -562,27 +581,28 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   );
   const draftRequiredFields = useMemo(() => {
     const missing: string[] = [];
-    if (!bookDraft.series.trim()) missing.push("시리즈");
-    if (!bookDraft.title.trim()) missing.push("책 제목");
+    if (!isWordReadingDraft && !bookDraft.series.trim()) missing.push("시리즈");
+    if (!bookDraft.title.trim()) missing.push(isWordReadingDraft ? "단어 읽기 이름" : "책 제목");
     return missing;
-  }, [bookDraft.series, bookDraft.title]);
+  }, [bookDraft.series, bookDraft.title, isWordReadingDraft]);
   const draftSetupIssues = useMemo(() => getBookSetupIssues(bookDraft), [bookDraft]);
   const duplicateBook = useMemo(() => {
     const series = normalizeText(bookDraft.series);
     const title = normalizeText(bookDraft.title);
     const volume = normalizeText(bookDraft.volume);
-    if (!series || !title) return null;
+    if (!title || (!isWordReadingDraft && !series)) return null;
 
     return (
       data.books.find(
         (book) =>
           book.id !== bookDraft.id &&
+          book.contentType === bookDraft.contentType &&
           normalizeText(book.series) === series &&
           normalizeText(book.title) === title &&
           normalizeText(book.volume) === volume,
       ) ?? null
     );
-  }, [bookDraft.id, bookDraft.series, bookDraft.title, bookDraft.volume, data.books]);
+  }, [bookDraft.contentType, bookDraft.id, bookDraft.series, bookDraft.title, bookDraft.volume, data.books, isWordReadingDraft]);
   const bookFormDirty = useMemo(
     () => JSON.stringify(bookToDraft(draftSourceBook)) !== JSON.stringify(bookDraft),
     [bookDraft, draftSourceBook],
@@ -684,11 +704,12 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     }
   };
 
-  const startNewBookDraft = () => {
+  const startNewBookDraft = (contentType: BookContentType = "book") => {
     setBookDraftMode("new");
     setBookDraft({
       ...bookToDraft(null),
-      series: manageSeriesFilter !== "all" ? manageSeriesFilter : "",
+      contentType,
+      series: contentType === "wordReading" ? "기타학습" : manageSeriesFilter !== "all" ? manageSeriesFilter : "",
     });
   };
 
@@ -696,7 +717,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     if (bookDraftMode === "new") {
       setBookDraft({
         ...bookToDraft(null),
-        series: manageSeriesFilter !== "all" ? manageSeriesFilter : "",
+        contentType: bookDraft.contentType,
+        series: isWordReadingDraft ? "기타학습" : manageSeriesFilter !== "all" ? manageSeriesFilter : "",
       });
       return;
     }
@@ -718,10 +740,6 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     }));
     showToast("읽기 링크를 정따 링크에 복사했습니다.");
   };
-
-  const completeTask = (taskType: TaskType) => completeTaskDb(taskType);
-
-  const openAudio = (taskType: AudioTask) => openAudioDb(taskType);
 
   const addManualLog = (event: FormEvent<HTMLFormElement>) => addManualLogDb(event);
 
@@ -771,23 +789,28 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
 
   const saveBookDb = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!bookDraft.title.trim() || !bookDraft.series.trim()) return;
-    if (!isValidExternalUrl(bookDraft.audio.listen) || !isValidExternalUrl(bookDraft.audio.shadow)) {
-      showToast("오디오 링크는 http 또는 https 주소만 저장할 수 있습니다.");
+    if (!bookDraft.title.trim() || (!isWordReadingDraft && !bookDraft.series.trim())) return;
+    if (isWordReadingDraft && !bookDraft.audio.listen.trim()) {
+      showToast("단어 읽기 QR 또는 URL을 먼저 입력하세요.");
+      return;
+    }
+    if (!isValidExternalUrl(bookDraft.audio.listen) || (!isWordReadingDraft && !isValidExternalUrl(bookDraft.audio.shadow))) {
+      showToast("링크는 http 또는 https 주소만 저장할 수 있습니다.");
       return;
     }
 
     const nextBook: Book = {
       id: bookDraft.id,
       active: draftSourceBook?.active ?? true,
-      series: bookDraft.series.trim(),
+      contentType: bookDraft.contentType,
+      series: isWordReadingDraft ? bookDraft.series.trim() || "기타학습" : bookDraft.series.trim(),
       title: bookDraft.title.trim(),
       volume: bookDraft.volume.trim(),
       level: bookDraft.level.trim(),
-      cover: bookDraft.cover || "/assets/app-icon.svg",
+      cover: isWordReadingDraft ? "/assets/app-icon.svg" : bookDraft.cover || "/assets/app-icon.svg",
       audio: {
         listen: bookDraft.audio.listen.trim(),
-        shadow: bookDraft.audio.shadow.trim(),
+        shadow: isWordReadingDraft ? "" : bookDraft.audio.shadow.trim(),
       },
       note: bookDraft.note.trim(),
     };
@@ -804,15 +827,15 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       setBookDraft(bookToDraft(savedBook));
       setBookDraftMode("edit");
       setBookListFilter(savedBook.active === false ? "inactive" : "active");
-      showToast(bookDraft.id ? "책 정보를 저장했습니다." : "새 책을 추가했습니다.");
+      showToast(bookDraft.id ? `${bookContentTypeLabels[savedBook.contentType]} 정보를 저장했습니다.` : `새 ${bookContentTypeLabels[savedBook.contentType]} 자료를 추가했습니다.`);
     } catch (error) {
-      showToast(error instanceof Error ? error.message : "책 정보를 저장하지 못했습니다.");
+      showToast(error instanceof Error ? error.message : "자료 정보를 저장하지 못했습니다.");
     }
   };
 
   const deactivateBookDb = async () => {
     if (!bookDraft.id) {
-      showToast("비활성화할 책을 먼저 선택하세요.");
+      showToast("비활성화할 자료를 먼저 선택하세요.");
       return;
     }
     if (draftUpcomingAssignmentsCount > 0) {
@@ -828,15 +851,15 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       }));
       setBookDraft(bookToDraft(savedBook));
       setBookListFilter("inactive");
-      showToast("책을 비활성 목록으로 옮겼습니다.");
+      showToast("자료를 비활성 목록으로 옮겼습니다.");
     } catch (error) {
-      showToast(error instanceof Error ? error.message : "책 상태를 바꾸지 못했습니다.");
+      showToast(error instanceof Error ? error.message : "자료 상태를 바꾸지 못했습니다.");
     }
   };
 
   const reactivateBookDb = async () => {
     if (!bookDraft.id) {
-      showToast("활성화할 책을 먼저 선택하세요.");
+      showToast("활성화할 자료를 먼저 선택하세요.");
       return;
     }
 
@@ -848,9 +871,9 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       }));
       setBookDraft(bookToDraft(savedBook));
       setBookListFilter("active");
-      showToast("책을 다시 활성화했습니다.");
+      showToast("자료를 다시 활성화했습니다.");
     } catch (error) {
-      showToast(error instanceof Error ? error.message : "책 상태를 바꾸지 못했습니다.");
+      showToast(error instanceof Error ? error.message : "자료 상태를 바꾸지 못했습니다.");
     }
   };
 
@@ -894,12 +917,12 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     }
   };
 
-  const openAudioDb = async (taskType: AudioTask) => {
+  const openAudioDb = async (taskType: TaskType) => {
     if (!selectedBook) return;
 
-    const audioUrl = selectedBook.audio[taskType];
+    const audioUrl = getTaskAudioUrl(selectedBook, taskType);
     if (!audioUrl) {
-      showToast("오디오 링크가 등록되지 않았습니다.");
+      showToast(`${taskDefinitions[taskType].label} 링크가 등록되지 않았습니다.`);
       return;
     }
 
@@ -932,7 +955,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       } catch {
         // Cross-origin navigation can block opener changes.
       }
-      showToast(selectedAssignment ? "오디오 링크를 열었습니다. 돌아와서 완료를 눌러 주세요." : "오디오 링크를 열었습니다.");
+      const openedMessage = taskType === "wordRead" ? "단어 읽기 링크를 열었습니다." : "오디오 링크를 열었습니다.";
+      showToast(selectedAssignment ? `${openedMessage} 돌아와서 완료를 눌러 주세요.` : openedMessage);
     } else {
       showToast("브라우저가 새 창 열기를 막았습니다. 링크를 직접 열어 주세요.");
     }
@@ -1024,14 +1048,14 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     }
 
     if (!dates.length || !selections.length) {
-      showToast("책별 활동 구분을 선택하세요.");
+      showToast("책/자료별 활동 구분을 선택하세요.");
       return;
     }
 
     const invalidSelection = selections.find((selection) => !selection.tasks.length);
     if (invalidSelection) {
       const book = getBook(invalidSelection.bookId);
-      showToast(`${book?.title ?? "선택한 책"}의 상세 활동 횟수를 설정하세요.`);
+      showToast(`${book?.title ?? "선택한 자료"}의 상세 활동 횟수를 설정하세요.`);
       return;
     }
 
@@ -1080,7 +1104,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
         };
       });
       setChildId(targetChildId);
-      showToast(`${createdCount}개의 할 일을 생성했습니다. 기존 같은 날짜와 책은 최신 설정으로 갱신했습니다.`);
+      showToast(`${createdCount}개의 할 일을 생성했습니다. 기존 같은 날짜와 자료는 최신 설정으로 갱신했습니다.`);
     } catch (error) {
       showToast(error instanceof Error ? error.message : "할 일을 저장하지 못했습니다.");
     }
@@ -1158,7 +1182,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           taskCounts: {},
         };
         acc[key].minutes += Number(log.minutes || 0);
-        if (log.type === "listen" || log.type === "shadow" || log.type === "self") {
+        if (log.type === "listen" || log.type === "shadow" || log.type === "self" || log.type === "wordRead") {
           acc[key].taskCounts[log.type] = (acc[key].taskCounts[log.type] ?? 0) + log.count;
         }
         return acc;
@@ -1207,7 +1231,14 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   );
   const totalTaskCount = todayAssignments.reduce((sum, assignment) => sum + countAssignmentProgress(data, assignment).total, 0);
   const totalMinutes = periodLogs.reduce((sum, log) => sum + Number(log.minutes || 0), 0);
-  const readBookCount = new Set(periodLogs.filter((log) => log.bookId).map((log) => log.bookId)).size;
+  const readBookCount = new Set(
+    periodLogs
+      .filter((log) => {
+        const book = log.bookId ? getBook(log.bookId) : undefined;
+        return Boolean(book && !isWordReadingMaterial(book));
+      })
+      .map((log) => log.bookId),
+  ).size;
   const childAssignments = data.assignments
     .filter((assignment) => assignment.childId === childId)
     .sort((a, b) => a.date.localeCompare(b.date));
@@ -1223,6 +1254,21 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       description: item.goal || item.level || "아동 읽기 화면만 사용합니다.",
     })),
   ];
+
+  const renderMaterialThumb = (book: Book, className = "") => {
+    if (!isWordReadingMaterial(book)) {
+      return <img className={className || undefined} src={book.cover} alt={`${book.title} 표지`} />;
+    }
+
+    const classNames = ["material-thumb", className].filter(Boolean).join(" ");
+    return (
+      <div className={classNames} role="img" aria-label={`${book.title} 단어 읽기 자료`}>
+        ABC
+      </div>
+    );
+  };
+
+  const formatMaterialMeta = (book: Book) => [book.volume, book.level].filter(Boolean).join(" · ");
 
   return (
     <div className="app-shell">
@@ -1242,7 +1288,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
             {[
               ["child", "아동"],
               ["parent", "부모"],
-              ["books", "책 관리"],
+              ["books", "자료 관리"],
               ["assign", "할 일 배정"],
             ].map(([target, label]) => (
               <button
@@ -1428,8 +1474,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           <section className="view is-active" aria-labelledby="childTitle">
             <div className="section-heading">
               <div>
-                <p className="eyebrow">오늘의 읽기</p>
-                <h2 id="childTitle">해야 할 책을 바로 확인</h2>
+                <p className="eyebrow">오늘의 학습</p>
+                <h2 id="childTitle">해야 할 활동을 바로 확인</h2>
               </div>
               <div className="summary-strip">
                 <span className="summary-pill">
@@ -1445,7 +1491,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
             </div>
 
             <div className="child-grid">
-              <section aria-label="오늘 해야 할 책">
+              <section aria-label="오늘 해야 할 학습">
                 <div className="assignment-list">
                   {todayAssignments.length ? (
                     todayAssignments.map((assignment) => {
@@ -1462,7 +1508,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                             setSelectedBookId("");
                           }}
                         >
-                          <img src={book.cover} alt={`${book.title} 표지`} />
+                          {renderMaterialThumb(book)}
                           <div className="assignment-card-copy">
                             <div className="assignment-card-header">
                               <div className="assignment-card-heading">
@@ -1491,16 +1537,16 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                       );
                     })
                   ) : (
-                    <div className="empty-state">오늘 등록된 책이 없습니다.</div>
+                    <div className="empty-state">오늘 등록된 할 일이 없습니다.</div>
                   )}
                 </div>
               </section>
 
-              <section className="task-panel" aria-label="선택한 책 활동">
+              <section className="task-panel" aria-label="선택한 학습 활동">
                 {selectedBook ? (
                   <>
                     <div className="selected-book-header">
-                      <img className="book-cover" src={selectedBook.cover} alt={`${selectedBook.title} 표지`} />
+                      {renderMaterialThumb(selectedBook, "book-cover")}
                       <div>
                         <p className="eyebrow">{selectedBook.series}</p>
                         <h3>{selectedBook.title}</h3>
@@ -1508,12 +1554,16 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                           <p className="task-meta">{activityCategoryDefinitions[selectedAssignment.activityCategory].label}</p>
                         )}
                         <p className="book-meta">
-                          {selectedBook.volume} · {selectedBook.level}
-                          <br />
+                          {formatMaterialMeta(selectedBook) ? (
+                            <>
+                              {formatMaterialMeta(selectedBook)}
+                              <br />
+                            </>
+                          ) : null}
                           {selectedBook.note}
                         </p>
                         <div className="status-row">
-                          {sortTasks(selectedAssignment?.tasks ?? taskOrder).map((taskType) => {
+                          {sortTasks(selectedMaterialTasks).map((taskType) => {
                             const completedCount = selectedAssignment
                               ? getCompletionCount(data, selectedAssignment.id, taskType)
                               : 0;
@@ -1530,7 +1580,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     </div>
 
                     <div className="task-list">
-                      {sortTasks(selectedAssignment?.tasks ?? taskOrder).map((taskType) => {
+                      {sortTasks(selectedMaterialTasks).map((taskType) => {
                         const completion = selectedAssignment
                           ? data.completions[`${selectedAssignment.id}:${taskType}`]
                           : null;
@@ -1538,7 +1588,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                         const targetCount = selectedAssignment ? getAssignmentTaskCount(selectedAssignment, taskType) : 1;
                         const done = completedCount >= targetCount;
                         const launch = selectedAssignment ? data.audioLaunches[`${selectedAssignment.id}:${taskType}`] : null;
-                        const audioUrl = taskType === "listen" || taskType === "shadow" ? selectedBook.audio[taskType] : "";
+                        const audioUrl = getTaskAudioUrl(selectedBook, taskType);
+                        const launchLabel = taskType === "wordRead" ? "링크" : "오디오";
                         return (
                           <div key={taskType}>
                             <div className={`task-row ${done ? "is-done" : ""}`}>
@@ -1556,9 +1607,9 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                                     className="secondary-button"
                                     type="button"
                                     disabled={!audioUrl}
-                                    onClick={() => openAudioDb(taskType as AudioTask)}
+                                    onClick={() => openAudioDb(taskType)}
                                   >
-                                    오디오 듣기
+                                    {launchLabel} 열기
                                   </button>
                                 )}
                                 {selectedAssignment && !taskDefinitions[taskType].needsAudio ? (
@@ -1580,12 +1631,12 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                             </div>
                             {selectedAssignment && taskDefinitions[taskType].needsAudio && launch && !done && (
                               <div className="return-box">
-                                <h4>{taskDefinitions[taskType].label} 오디오 실행 기록</h4>
+                                <h4>{taskDefinitions[taskType].label} {launchLabel} 실행 기록</h4>
                                 <p className="task-meta">
-                                  오디오 열기 {formatTime(launch.openedAt)} ·{" "}
+                                  {launchLabel} 열기 {formatTime(launch.openedAt)} ·{" "}
                                   {launch.returnedAt
                                     ? `앱으로 돌아온 시간 ${formatTime(launch.returnedAt)}`
-                                    : "네이버 오디오 탭을 열어두었습니다."}
+                                    : `${launchLabel} 탭을 열어두었습니다.`}
                                 </p>
                                 <div className="audio-actions">
                                   <button className="primary-button" type="button" onClick={() => completeTaskDb(taskType)}>
@@ -1600,7 +1651,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     </div>
                   </>
                 ) : (
-                  <div className="empty-state">책을 선택하세요.</div>
+                  <div className="empty-state">학습 항목을 선택하세요.</div>
                 )}
               </section>
             </div>
@@ -1642,7 +1693,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                             window.scrollTo({ top: 120, behavior: "smooth" });
                           }}
                         >
-                          <img className="book-cover" src={book.cover} alt={`${book.title} 표지`} />
+                          {renderMaterialThumb(book, "book-cover")}
                           <span>
                             <p className="eyebrow">{book.series}</p>
                             <h3>{book.title}</h3>
@@ -1784,7 +1835,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                               <td>{renderCell(logs, { activityCategories: "readAloud", bookSummary: true })}</td>
                               <td>{renderCell(logs, { types: "korean" })}</td>
                               <td>{renderCell(logs, { types: "englishPicture", activityCategories: "englishPicture", bookSummary: true })}</td>
-                              <td>{renderCell(logs, { types: "extraStudy" })}</td>
+                              <td>{renderCell(logs, { types: "extraStudy", activityCategories: "extraStudy" })}</td>
                             </tr>
                           );
                         })
@@ -1824,7 +1875,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                   const readDates = getBookReadDates(childId, book.id);
                   return (
                     <article className="progress-item" key={book.id}>
-                      <img src={book.cover} alt={`${book.title} 표지`} />
+                      {renderMaterialThumb(book)}
                       <div>
                         <h3>{book.title}</h3>
                         <p>{book.series}</p>
@@ -1849,38 +1900,41 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           <section className="view is-active" aria-labelledby="bookManageTitle">
             <div className="section-heading">
               <div>
-                <p className="eyebrow">책 관리</p>
-                <h2 id="bookManageTitle">책과 네이버 오디오 링크 입력</h2>
+                <p className="eyebrow">자료 관리</p>
+                <h2 id="bookManageTitle">책과 단어 읽기 자료 입력</h2>
               </div>
               <div className="summary-strip">
                 <span className="summary-pill">
-                  <strong>{activeBooks.length}</strong>권 운영 중
+                  <strong>{activeBooks.length}</strong>건 운영 중
                 </span>
                 <span className="summary-pill">
-                  <strong>{manageAttentionCount}</strong>권 입력 필요
+                  <strong>{manageAttentionCount}</strong>건 입력 필요
                 </span>
                 <span className="summary-pill">
-                  <strong>{inactiveBooks.length}</strong>권 비활성
+                  <strong>{inactiveBooks.length}</strong>건 비활성
                 </span>
               </div>
             </div>
 
             <div className="management-grid">
-              <section className="parent-section" aria-label="책 입력 양식">
+              <section className="parent-section" aria-label="자료 입력 양식">
                 <div className="section-heading compact">
                   <div>
                     <p className="eyebrow">
                       {draftSourceBook
                         ? draftSourceBook.active === false
-                          ? "비활성 책 수정"
-                          : "책 수정"
-                        : "새 책 입력"}
+                          ? `비활성 ${bookContentTypeLabels[draftSourceBook.contentType]} 수정`
+                          : `${bookContentTypeLabels[draftSourceBook.contentType]} 수정`
+                        : `새 ${draftContentTypeLabel} 입력`}
                     </p>
-                    <h2>{draftSourceBook ? draftSourceBook.title : "새 책 등록"}</h2>
+                    <h2>{draftSourceBook ? draftSourceBook.title : `새 ${draftContentTypeLabel} 등록`}</h2>
                   </div>
                   <div className="form-actions">
-                    <button className="ghost-button" type="button" onClick={startNewBookDraft}>
+                    <button className="ghost-button" type="button" onClick={() => startNewBookDraft("book")}>
                       새 책 입력
+                    </button>
+                    <button className="ghost-button" type="button" onClick={() => startNewBookDraft("wordReading")}>
+                      새 단어 읽기
                     </button>
                     <button className="secondary-button" type="button" onClick={resetBookDraft} disabled={!bookFormDirty}>
                       변경 취소
@@ -1890,8 +1944,9 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
 
                 <div className="book-editor-meta">
                   <span className={`status-badge ${draftSourceBook?.active === false ? "" : "done"}`}>
-                    {draftSourceBook ? (draftSourceBook.active === false ? "비활성 책" : "수정 중") : "신규 입력"}
+                    {draftSourceBook ? (draftSourceBook.active === false ? `비활성 ${draftContentTypeLabel}` : "수정 중") : "신규 입력"}
                   </span>
+                  <span className="status-badge">{draftContentTypeLabel}</span>
                   <span className={`status-badge ${bookFormDirty ? "todo" : "done"}`}>
                     {bookFormDirty ? "저장 전 변경 있음" : "저장 완료 상태"}
                   </span>
@@ -1917,13 +1972,13 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     )}
                     {duplicateBook && (
                       <div className="book-alert warning">
-                        같은 책 후보가 있습니다: {duplicateBook.series} · {duplicateBook.title}
+                        같은 자료 후보가 있습니다: {duplicateBook.series} · {duplicateBook.title}
                         {duplicateBook.volume ? ` · ${duplicateBook.volume}` : ""}
                       </div>
                     )}
                     {draftTotalAssignmentsCount > 0 && (
                       <div className="book-alert info">
-                        이 책은 현재 할 일 {draftTotalAssignmentsCount}건에 연결되어 있습니다.
+                        이 자료는 현재 할 일 {draftTotalAssignmentsCount}건에 연결되어 있습니다.
                         {draftUpcomingAssignmentsCount > 0
                           ? ` 예정된 ${draftUpcomingAssignmentsCount}건이 남아 있어 바로 비활성화할 수 없습니다.`
                           : " 예정된 할 일이 없어서 비활성화할 수 있습니다."}
@@ -1934,12 +1989,41 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
 
                 <form className="book-form" onSubmit={saveBookDb}>
                   <label>
-                    시리즈
+                    자료 종류
+                    <select
+                      value={bookDraft.contentType}
+                      disabled={draftTotalAssignmentsCount > 0}
+                      onChange={(event) => {
+                        const contentType = event.target.value as BookContentType;
+                        setBookDraft((current) => ({
+                          ...current,
+                          contentType,
+                          series:
+                            contentType === "wordReading"
+                              ? current.series.trim() || "기타학습"
+                              : current.contentType === "wordReading" && current.series === "기타학습"
+                                ? ""
+                                : current.series,
+                          cover: contentType === "wordReading" ? "" : current.cover,
+                          audio: {
+                            listen: current.audio.listen,
+                            shadow: contentType === "wordReading" ? "" : current.audio.shadow,
+                          },
+                        }));
+                      }}
+                    >
+                      <option value="book">책</option>
+                      <option value="wordReading">단어 읽기</option>
+                    </select>
+                  </label>
+                  <label>
+                    {isWordReadingDraft ? "분류" : "시리즈"}
                     <input
                       value={bookDraft.series}
                       type="text"
                       list="seriesList"
-                      required
+                      required={!isWordReadingDraft}
+                      placeholder={isWordReadingDraft ? "기타학습" : ""}
                       onChange={(event) => setBookDraft((current) => ({ ...current, series: event.target.value }))}
                     />
                     <datalist id="seriesList">
@@ -1949,7 +2033,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     </datalist>
                   </label>
                   <label>
-                    책 제목
+                    {isWordReadingDraft ? "단어 읽기 이름" : "책 제목"}
                     <input
                       value={bookDraft.title}
                       type="text"
@@ -1958,11 +2042,11 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     />
                   </label>
                   <label>
-                    권수/구분
+                    {isWordReadingDraft ? "세트/쪽" : "권수/구분"}
                     <input
                       value={bookDraft.volume}
                       type="text"
-                      placeholder="First Time Books, G1 Science 4"
+                      placeholder={isWordReadingDraft ? "Sight Word 350-12" : "First Time Books, G1 Science 4"}
                       onChange={(event) => setBookDraft((current) => ({ ...current, volume: event.target.value }))}
                     />
                   </label>
@@ -1975,30 +2059,34 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                       onChange={(event) => setBookDraft((current) => ({ ...current, level: event.target.value }))}
                     />
                   </label>
-                  <label>표지 사진</label>
-                  <div className="wide upload-action-row">
-                    <label className="secondary-button file-action">
-                      카메라로 찍기
-                      <input
-                        type="file"
-                        accept="image/*"
-                        capture="environment"
-                        onChange={(event) => readCoverFile(event.target.files?.[0])}
-                      />
-                    </label>
-                    <label className="ghost-button file-action">
-                      사진첩에서 선택
-                      <input type="file" accept="image/*" onChange={(event) => readCoverFile(event.target.files?.[0])} />
-                    </label>
-                  </div>
-                  <div className="cover-preview">
-                    {bookDraft.cover ? <img src={bookDraft.cover} alt="표지 미리보기" /> : <span className="task-meta">표지 사진을 찍거나 업로드하세요.</span>}
-                    {!hasCustomCover(bookDraft.cover) && (
-                      <p className="task-meta">표지가 없으면 기본 아이콘으로 저장됩니다. 사진첩 이미지를 올리면 테두리를 정리한 표지도 쓸 수 있습니다.</p>
-                    )}
-                  </div>
+                  {!isWordReadingDraft && (
+                    <>
+                      <label>표지 사진</label>
+                      <div className="wide upload-action-row">
+                        <label className="secondary-button file-action">
+                          카메라로 찍기
+                          <input
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            onChange={(event) => readCoverFile(event.target.files?.[0])}
+                          />
+                        </label>
+                        <label className="ghost-button file-action">
+                          사진첩에서 선택
+                          <input type="file" accept="image/*" onChange={(event) => readCoverFile(event.target.files?.[0])} />
+                        </label>
+                      </div>
+                      <div className="cover-preview">
+                        {bookDraft.cover ? <img src={bookDraft.cover} alt="표지 미리보기" /> : <span className="task-meta">표지 사진을 찍거나 업로드하세요.</span>}
+                        {!hasCustomCover(bookDraft.cover) && (
+                          <p className="task-meta">표지가 없으면 기본 아이콘으로 저장됩니다. 사진첩 이미지를 올리면 테두리를 정리한 표지도 쓸 수 있습니다.</p>
+                        )}
+                      </div>
+                    </>
+                  )}
                   <label className="wide">
-                    읽기 네이버 링크
+                    {isWordReadingDraft ? "단어 읽기 QR/URL" : "읽기 네이버 링크"}
                     <span className="inline-field">
                       <input
                         value={bookDraft.audio.listen}
@@ -2026,44 +2114,48 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                       </button>
                     </span>
                   </label>
-                  <label className="wide">
-                    정따 네이버 링크
-                    <span className="inline-field">
-                      <input
-                        value={bookDraft.audio.shadow}
-                        type="url"
-                        placeholder="QR 스캔 또는 링크 붙여넣기"
-                        onChange={(event) =>
-                          setBookDraft((current) => ({
-                            ...current,
-                            audio: { ...current.audio, shadow: event.target.value },
-                          }))
-                        }
-                      />
+                  {!isWordReadingDraft && (
+                    <label className="wide">
+                      정따 네이버 링크
+                      <span className="inline-field">
+                        <input
+                          value={bookDraft.audio.shadow}
+                          type="url"
+                          placeholder="QR 스캔 또는 링크 붙여넣기"
+                          onChange={(event) =>
+                            setBookDraft((current) => ({
+                              ...current,
+                              audio: { ...current.audio, shadow: event.target.value },
+                            }))
+                          }
+                        />
+                        <button
+                          className="secondary-button"
+                          type="button"
+                          onClick={() =>
+                            setQrState({
+                              open: true,
+                              target: "shadow",
+                              status: "카메라 권한을 허용하면 QR 코드를 자동으로 읽습니다.",
+                            })
+                          }
+                        >
+                          QR 스캔
+                        </button>
+                      </span>
+                    </label>
+                  )}
+                  <div className="wide quick-link-actions">
+                    {!isWordReadingDraft && (
                       <button
                         className="secondary-button"
                         type="button"
-                        onClick={() =>
-                          setQrState({
-                            open: true,
-                            target: "shadow",
-                            status: "카메라 권한을 허용하면 QR 코드를 자동으로 읽습니다.",
-                          })
-                        }
+                        onClick={copyListenToShadow}
+                        disabled={!bookDraft.audio.listen.trim() || bookDraft.audio.shadow.trim() === bookDraft.audio.listen.trim()}
                       >
-                        QR 스캔
+                        읽기 링크를 정따에 복사
                       </button>
-                    </span>
-                  </label>
-                  <div className="wide quick-link-actions">
-                    <button
-                      className="secondary-button"
-                      type="button"
-                      onClick={copyListenToShadow}
-                      disabled={!bookDraft.audio.listen.trim() || bookDraft.audio.shadow.trim() === bookDraft.audio.listen.trim()}
-                    >
-                      읽기 링크를 정따에 복사
-                    </button>
+                    )}
                     <button
                       className="ghost-button"
                       type="button"
@@ -2075,7 +2167,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                       }
                       disabled={!bookDraft.audio.listen.trim() && !bookDraft.audio.shadow.trim()}
                     >
-                      오디오 링크 비우기
+                      링크 비우기
                     </button>
                   </div>
                   <label className="wide">
@@ -2083,17 +2175,21 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     <textarea
                       value={bookDraft.note}
                       rows={3}
-                      placeholder="책 내용, 난이도, 주의사항"
+                      placeholder={isWordReadingDraft ? "단어 범위, 주의사항" : "책 내용, 난이도, 주의사항"}
                       onChange={(event) => setBookDraft((current) => ({ ...current, note: event.target.value }))}
                     />
                   </label>
-                  <div className="book-checklist wide" aria-label="책 입력 체크리스트">
+                  <div className="book-checklist wide" aria-label="자료 입력 체크리스트">
                     {([
-                      ["시리즈", Boolean(bookDraft.series.trim())],
-                      ["책 제목", Boolean(bookDraft.title.trim())],
-                      ["표지", hasCustomCover(bookDraft.cover)],
-                      ["읽기 링크", Boolean(bookDraft.audio.listen.trim())],
-                      ["정따 링크", Boolean(bookDraft.audio.shadow.trim())],
+                      ...(isWordReadingDraft ? [] : [["시리즈", Boolean(bookDraft.series.trim())]]),
+                      [isWordReadingDraft ? "단어 읽기 이름" : "책 제목", Boolean(bookDraft.title.trim())],
+                      ...(isWordReadingDraft
+                        ? [["단어 읽기 링크", Boolean(bookDraft.audio.listen.trim())]]
+                        : [
+                            ["표지", hasCustomCover(bookDraft.cover)],
+                            ["읽기 링크", Boolean(bookDraft.audio.listen.trim())],
+                            ["정따 링크", Boolean(bookDraft.audio.shadow.trim())],
+                          ]),
                     ] as Array<[string, boolean]>).map(([label, done]) => (
                       <span className={`check-pill ${done ? "is-done" : ""}`} key={label}>
                         {done ? "완료" : "대기"} · {label}
@@ -2102,7 +2198,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                   </div>
                   <div className="form-actions">
                     <button className="primary-button" type="submit">
-                      {draftSourceBook ? "책 저장" : "책 추가"}
+                      {draftSourceBook ? `${draftContentTypeLabel} 저장` : `${draftContentTypeLabel} 추가`}
                     </button>
                     {draftSourceBook?.active === false ? (
                       <button className="secondary-button" type="button" onClick={reactivateBookDb}>
@@ -2110,7 +2206,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                       </button>
                     ) : draftSourceBook ? (
                       <button className="danger-button" type="button" onClick={deactivateBookDb}>
-                        책 비활성화
+                        {draftContentTypeLabel} 비활성화
                       </button>
                     ) : null}
                   </div>
@@ -2121,12 +2217,12 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                 <div className="section-heading compact">
                   <div>
                     <p className="eyebrow">목록</p>
-                    <h2 id="bookListTitle">등록된 책</h2>
+                    <h2 id="bookListTitle">등록된 자료</h2>
                   </div>
                   <div className="library-tools manage-tools">
                     <select
                       value={manageSeriesFilter}
-                      aria-label="책 관리 시리즈 선택"
+                      aria-label="자료 관리 시리즈 선택"
                       onChange={(event) => setManageSeriesFilter(event.target.value)}
                     >
                       <option value="all">전체 시리즈</option>
@@ -2139,13 +2235,13 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     <input
                       value={manageBookSearch}
                       type="search"
-                      placeholder="책 제목, 시리즈, 레벨 검색"
+                      placeholder="자료 제목, 시리즈, 레벨 검색"
                       onChange={(event) => setManageBookSearch(event.target.value)}
                     />
                   </div>
                 </div>
 
-                <div className="book-filter-row" role="tablist" aria-label="책 목록 상태 필터">
+                <div className="book-filter-row" role="tablist" aria-label="자료 목록 상태 필터">
                   {([
                     ["active", `운영 중 ${activeBooks.length}`],
                     ["attention", `입력 필요 ${manageAttentionCount}`],
@@ -2170,7 +2266,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                       const assignmentCount = bookAssignmentCounts[book.id] ?? 0;
                       return (
                         <article className={`manage-item ${book.id === bookDraft.id ? "is-selected" : ""}`} key={book.id}>
-                          <img src={book.cover} alt={`${book.title} 표지`} />
+                          {renderMaterialThumb(book)}
                           <button
                             type="button"
                             onClick={() => {
@@ -2185,6 +2281,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                               {book.level ? ` · ${book.level}` : ""}
                             </p>
                             <span className="status-row">
+                              <span className="status-badge">{bookContentTypeLabels[book.contentType]}</span>
                               <span className={`status-badge ${book.active === false ? "" : "done"}`}>
                                 {book.active === false ? "비활성" : "운영 중"}
                               </span>
@@ -2204,7 +2301,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                       );
                     })
                   ) : (
-                    <div className="empty-state">조건에 맞는 책이 없습니다.</div>
+                    <div className="empty-state">조건에 맞는 자료가 없습니다.</div>
                   )}
                 </div>
               </section>
@@ -2242,11 +2339,11 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     <input name="assignEnd" type="date" required defaultValue={dateKey()} />
                   </label>
                   <fieldset className="wide book-picker">
-                    <legend>책별 활동 설정</legend>
+                    <legend>책/자료별 활동 설정</legend>
                     <div className="library-tools">
                       <select value={assignSeriesFilter} aria-label="배정 시리즈 선택" onChange={(event) => setAssignSeriesFilter(event.target.value)}>
                         <option value="all">전체 시리즈</option>
-                        {seriesNames.map((series) => (
+                        {assignSeriesNames.map((series) => (
                           <option value={series} key={series}>
                             {series}
                           </option>
@@ -2255,49 +2352,61 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                       <input
                         value={assignBookSearch}
                         type="search"
-                        placeholder="책 제목, 시리즈, 레벨 검색"
+                        placeholder="책/자료 제목, 시리즈, 레벨 검색"
                         onChange={(event) => setAssignBookSearch(event.target.value)}
                       />
                     </div>
                     <div className="assignment-book-config-list">
-                      {filteredAssignBooks.map((book) => (
-                        <section className="assignment-book-config" key={book.id}>
-                          <div className="assignment-book-main">
-                            <p className="assignment-book-title">
-                              {book.series} · {book.title}
-                              {book.level ? ` · ${book.level}` : ""}
-                            </p>
-                            <label className="assignment-category-field">
-                              <span>활동 구분</span>
-                              <select name={`assignCategory:${book.id}`} defaultValue="">
-                                <option value="">선택 안 함</option>
-                                {activityCategoryOrder.map((activityCategory) => (
-                                  <option value={activityCategory} key={`${book.id}-${activityCategory}`}>
-                                    {activityCategoryDefinitions[activityCategory].label}
-                                  </option>
-                                ))}
-                              </select>
-                            </label>
-                          </div>
-                          <div className="assignment-count-row">
-                            {taskOrder.map((taskType) => (
-                              <label key={`${book.id}-${taskType}`} className="task-count-item">
-                                <span>{taskDefinitions[taskType].label}</span>
-                                <select name={`assignCount:${book.id}:${taskType}`} defaultValue={taskType === "listen" ? "1" : "0"}>
-                                  {taskCountOptions.map((count) => (
-                                    <option value={count} key={`${book.id}-${taskType}-${count}`}>
-                                      {count === 0 ? "0회" : `${count}회`}
-                                    </option>
-                                  ))}
+                      {filteredAssignBooks.map((book) => {
+                        const categoryOptions = getAvailableActivityCategories(book);
+                        const taskOptions = sortTasks([
+                          ...new Set(categoryOptions.flatMap((activityCategory) => activityCategoryDefinitions[activityCategory].tasks)),
+                        ]);
+                        const isWordReading = isWordReadingMaterial(book);
+                        return (
+                          <section className="assignment-book-config" key={book.id}>
+                            <div className="assignment-book-main">
+                              <p className="assignment-book-title">
+                                <span className="status-badge">{bookContentTypeLabels[book.contentType]}</span>
+                                {book.series} · {book.title}
+                                {book.level ? ` · ${book.level}` : ""}
+                              </p>
+                              <label className="assignment-category-field">
+                                <span>활동 구분</span>
+                                <select name={`assignCategory:${book.id}`} defaultValue={isWordReading ? "extraStudy" : ""}>
+                                  {!isWordReading && <option value="">선택 안 함</option>}
+                                  {activityCategoryOrder
+                                    .filter((activityCategory) => categoryOptions.includes(activityCategory))
+                                    .map((activityCategory) => (
+                                      <option value={activityCategory} key={`${book.id}-${activityCategory}`}>
+                                        {activityCategoryDefinitions[activityCategory].label}
+                                      </option>
+                                    ))}
                                 </select>
                               </label>
-                            ))}
-                          </div>
-                          <p className="task-meta">영어 그림책을 선택하면 읽기 1회로 저장됩니다.</p>
-                        </section>
-                      ))}
+                            </div>
+                            <div className="assignment-count-row">
+                              {taskOptions.map((taskType) => (
+                                <label key={`${book.id}-${taskType}`} className="task-count-item">
+                                  <span>{taskDefinitions[taskType].label}</span>
+                                  <select name={`assignCount:${book.id}:${taskType}`} defaultValue={taskType === "listen" || taskType === "wordRead" ? "1" : "0"}>
+                                    {taskCountOptions.map((count) => (
+                                      <option value={count} key={`${book.id}-${taskType}-${count}`}>
+                                        {count === 0 ? "0회" : `${count}회`}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </label>
+                              ))}
+                            </div>
+                            <p className="task-meta">
+                              {isWordReading ? "단어 읽기 자료는 기타학습 · 단어 읽기로 저장됩니다." : "영어 그림책을 선택하면 읽기 1회로 저장됩니다."}
+                            </p>
+                          </section>
+                        );
+                      })}
                     </div>
-                    {!filteredAssignBooks.length && <div className="empty-state">검색 조건에 맞는 책이 없습니다.</div>}
+                    {!filteredAssignBooks.length && <div className="empty-state">검색 조건에 맞는 책/자료가 없습니다.</div>}
                   </fieldset>
                   <button className="primary-button" type="submit">
                     날짜별 할 일 생성
@@ -2319,7 +2428,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                       if (!book) return null;
                       return (
                         <article className="manage-item" key={assignment.id}>
-                          <img src={book.cover} alt={`${book.title} 표지`} />
+                          {renderMaterialThumb(book)}
                           <div>
                             <h3>
                               {formatDate(assignment.date)} · {book.title}

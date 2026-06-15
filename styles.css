@@ -438,12 +438,24 @@ main {
 }
 
 .assignment-card img,
+.assignment-card .material-thumb,
 .book-cover {
   width: 100%;
   aspect-ratio: 4 / 5;
   border-radius: 6px;
   object-fit: cover;
   background: #e6e0d8;
+}
+
+.material-thumb {
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(49, 93, 150, 0.2);
+  background: linear-gradient(180deg, #eef7f1 0%, #f8f3e7 100%);
+  color: var(--blue);
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0;
 }
 
 .assignment-card h3,
@@ -808,12 +820,19 @@ main {
 }
 
 .progress-item img,
-.manage-item img {
+.progress-item .material-thumb,
+.manage-item img,
+.manage-item .material-thumb {
   width: 64px;
   height: 78px;
   border-radius: 6px;
   object-fit: cover;
   background: #e6e0d8;
+}
+
+.progress-item .material-thumb,
+.manage-item .material-thumb {
+  background: linear-gradient(180deg, #eef7f1 0%, #f8f3e7 100%);
 }
 
 .progress-item p,
@@ -1056,6 +1075,10 @@ label > textarea {
   margin: 0;
   font-size: 15px;
   font-weight: 900;
+}
+
+.assignment-book-title .status-badge {
+  margin-right: 6px;
 }
 
 .assignment-category-field {

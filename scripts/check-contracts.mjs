@@ -66,6 +66,7 @@ for (const relativePath of [
   "tests/reading-calculations.test.ts",
   "tsconfig.test.json",
   "supabase/migrations/20260608213000_init.sql",
+  "supabase/migrations/20260615210000_word_reading_extra_study.sql",
 ]) {
   await requireFile(relativePath);
 }
@@ -83,11 +84,17 @@ for (const ignoredLegacyPath of ["/app.js", "/index.html", "/manifest.webmanifes
 }
 
 const types = await read("lib/reading-types.ts");
-requireUnionMembers(types, "TaskType", ["listen", "shadow", "self"], "lib/reading-types.ts");
+requireUnionMembers(types, "TaskType", ["listen", "shadow", "self", "wordRead"], "lib/reading-types.ts");
 requireUnionMembers(
   types,
   "ActivityCategory",
-  ["focusListen", "readAloud", "englishPicture"],
+  ["focusListen", "readAloud", "englishPicture", "extraStudy"],
+  "lib/reading-types.ts",
+);
+requireUnionMembers(
+  types,
+  "BookContentType",
+  ["book", "wordReading"],
   "lib/reading-types.ts",
 );
 requireUnionMembers(
@@ -98,10 +105,10 @@ requireUnionMembers(
 );
 
 const data = await read("lib/reading-data.ts");
-for (const key of ["listen", "shadow", "self"]) {
+for (const key of ["listen", "shadow", "self", "wordRead"]) {
   requireRegex(data, new RegExp(`${key}: \\{ label:`), "lib/reading-data.ts", `missing task definition for ${key}`);
 }
-for (const key of ["focusListen", "readAloud", "englishPicture"]) {
+for (const key of ["focusListen", "readAloud", "englishPicture", "extraStudy"]) {
   requireRegex(
     data,
     new RegExp(`${key}: \\{ label:`),
@@ -109,7 +116,7 @@ for (const key of ["focusListen", "readAloud", "englishPicture"]) {
     `missing activity category definition for ${key}`,
   );
 }
-for (const key of ["dvd", "passiveListen", "listen", "shadow", "self", "korean", "englishPicture", "extraStudy"]) {
+for (const key of ["dvd", "passiveListen", "listen", "shadow", "self", "wordRead", "korean", "englishPicture", "extraStudy"]) {
   requireRegex(data, new RegExp(`${key}: "`), "lib/reading-data.ts", `missing log label for ${key}`);
 }
 
@@ -130,6 +137,7 @@ for (const tableName of ["children", "books", "assignments", "completions", "aud
   requireIncludes(readingStore, `.from("${tableName}")`, "lib/supabase/reading-store.ts");
 }
 requireIncludes(readingStore, "owner_user_id", "lib/supabase/reading-store.ts");
+requireIncludes(readingStore, "content_type", "lib/supabase/reading-store.ts");
 requireIncludes(readingStore, "activity_category", "lib/supabase/reading-store.ts");
 requireIncludes(readingStore, "task_counts", "lib/supabase/reading-store.ts");
 requireIncludes(readingStore, "count", "lib/supabase/reading-store.ts");
@@ -147,11 +155,18 @@ for (const tableName of ["children", "books", "assignments", "completions", "aud
   );
 }
 requireIncludes(initMigration, "auth.uid() = id", "supabase/migrations/20260608213000_init.sql");
+requireIncludes(initMigration, "content_type text not null default 'book'", "supabase/migrations/20260608213000_init.sql");
 requireIncludes(initMigration, "activity_category text not null default 'focusListen'", "supabase/migrations/20260608213000_init.sql");
+requireIncludes(initMigration, "wordRead", "supabase/migrations/20260608213000_init.sql");
 
 const activityMigration = await read("supabase/migrations/20260610183000_assignment_activity_category_model.sql");
 requireIncludes(activityMigration, "activity_category", "supabase/migrations/20260610183000_assignment_activity_category_model.sql");
 requireIncludes(activityMigration, "owner_user_id, child_id, date, book_id, activity_category", "supabase/migrations/20260610183000_assignment_activity_category_model.sql");
+
+const wordReadingMigration = await read("supabase/migrations/20260615210000_word_reading_extra_study.sql");
+requireIncludes(wordReadingMigration, "content_type", "supabase/migrations/20260615210000_word_reading_extra_study.sql");
+requireIncludes(wordReadingMigration, "wordRead", "supabase/migrations/20260615210000_word_reading_extra_study.sql");
+requireIncludes(wordReadingMigration, "extraStudy", "supabase/migrations/20260615210000_word_reading_extra_study.sql");
 
 const clientStats = await stat(path.join(root, "app/reading-manager-client.tsx"));
 const maxClientBytes = 120_000;

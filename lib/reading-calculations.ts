@@ -1,10 +1,25 @@
 import { activityCategoryDefinitions, dateKey, taskDefinitions } from "./reading-data";
-import type { ActivityCategory, Assignment, AudioLaunch, ReadingData, TaskCountMap, TaskType } from "./reading-types";
+import type {
+  ActivityCategory,
+  Assignment,
+  AudioLaunch,
+  Book,
+  BookContentType,
+  ReadingData,
+  TaskCountMap,
+  TaskType,
+} from "./reading-types";
 
-export const taskOrder: TaskType[] = ["listen", "shadow", "self"];
-export const activityCategoryOrder: ActivityCategory[] = ["focusListen", "readAloud", "englishPicture"];
+export const taskOrder: TaskType[] = ["listen", "shadow", "self", "wordRead"];
+export const activityCategoryOrder: ActivityCategory[] = ["focusListen", "readAloud", "englishPicture", "extraStudy"];
+
+export const bookContentTypeLabels: Record<BookContentType, string> = {
+  book: "책",
+  wordReading: "단어 읽기",
+};
 
 export type BookSetupInput = {
+  contentType?: BookContentType;
   cover: string;
   audio: {
     listen: string;
@@ -42,12 +57,35 @@ export function hasCustomCover(cover: string) {
   return Boolean(cover && cover !== "/assets/app-icon.svg");
 }
 
+export function isWordReadingMaterial(book: { contentType?: BookContentType }) {
+  return book.contentType === "wordReading";
+}
+
 export function getBookSetupIssues(book: BookSetupInput) {
   const issues: string[] = [];
+  if (isWordReadingMaterial(book)) {
+    if (!book.audio.listen.trim()) issues.push("단어 읽기 링크");
+    return issues;
+  }
+
   if (!hasCustomCover(book.cover)) issues.push("표지");
   if (!book.audio.listen.trim()) issues.push("읽기 링크");
   if (!book.audio.shadow.trim()) issues.push("정따 링크");
   return issues;
+}
+
+export function getAvailableActivityCategories(book: Pick<Book, "contentType">): ActivityCategory[] {
+  return isWordReadingMaterial(book) ? ["extraStudy"] : ["focusListen", "readAloud", "englishPicture"];
+}
+
+export function getDefaultTasksForMaterial(book: Pick<Book, "contentType">): TaskType[] {
+  return isWordReadingMaterial(book) ? ["wordRead"] : ["listen", "shadow", "self"];
+}
+
+export function getTaskAudioUrl(book: Pick<Book, "audio" | "contentType">, taskType: TaskType) {
+  if (taskType === "wordRead") return isWordReadingMaterial(book) ? book.audio.listen : "";
+  if (taskType === "listen" || taskType === "shadow") return book.audio[taskType];
+  return "";
 }
 
 export function isValidExternalUrl(value: string) {
