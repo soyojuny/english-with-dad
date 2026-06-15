@@ -360,31 +360,6 @@ main {
   letter-spacing: 0.08em;
 }
 
-.child-view-switch {
-  display: inline-flex;
-  gap: 4px;
-  margin: 0 0 18px;
-  padding: 4px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--surface);
-}
-
-.child-view-switch button {
-  min-width: 110px;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--muted);
-  padding: 9px 14px;
-  font-weight: 900;
-}
-
-.child-view-switch button.is-active {
-  background: var(--green);
-  color: #fff;
-}
-
 .child-grid,
 .management-grid {
   display: grid;
@@ -1195,7 +1170,6 @@ label > textarea {
   }
 
   .mode-switch,
-  .child-view-switch,
   .topbar-actions,
   .profile-summary {
     overflow-x: auto;
@@ -1235,7 +1209,6 @@ label > textarea {
   }
 
   .library-tools,
-  .child-view-switch,
   .summary-strip,
   .task-actions,
   .audio-actions,
@@ -1245,7 +1218,6 @@ label > textarea {
   }
 
   .library-tools > *,
-  .child-view-switch > *,
   .task-actions > *,
   .audio-actions > *,
   .form-actions > *,

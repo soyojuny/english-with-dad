@@ -47,8 +47,8 @@ import type {
 import { createClient } from "../lib/supabase/client";
 import {
   deleteAssignment as deleteAssignmentRecord,
-  fetchChildLibraryData,
   fetchChildTodayData,
+  fetchLibraryData,
   fetchReadingProfileData,
   fetchReadingData,
   saveAssignments,
@@ -170,16 +170,15 @@ type ReadingManagerClientProps = {
 type ActiveProfile =
   | { kind: "parent" }
   | { kind: "child"; childId: string }
+  | { kind: "library" }
   | null;
 
 export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: ReadingManagerClientProps) {
   const [data, setData] = useState<ReadingData>(emptyReadingData);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isLoadingProfileData, setIsLoadingProfileData] = useState(true);
-  const [isLoadingLibraryData, setIsLoadingLibraryData] = useState(false);
   const [syncError, setSyncError] = useState("");
   const [view, setView] = useState<ViewName>("child");
-  const [childLibraryOpen, setChildLibraryOpen] = useState(false);
   const [childId, setChildId] = useState("");
   const [period, setPeriod] = useState<Period>("day");
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>("");
@@ -310,6 +309,20 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           return;
         }
 
+        if (activeProfile.kind === "library") {
+          const nextData = await fetchLibraryData(supabase, ownerUserId);
+          if (cancelled) return;
+          setData((current) => ({
+            children: current.children,
+            books: nextData.books,
+            assignments: [],
+            completions: {},
+            audioLaunches: {},
+            manualLogs: [],
+          }));
+          return;
+        }
+
         const nextData = await fetchChildTodayData(supabase, ownerUserId, activeProfile.childId, dateKey());
         if (cancelled) return;
         setData((current) => ({
@@ -347,6 +360,10 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       const parsed = JSON.parse(raw) as ActiveProfile;
       if (!parsed) return;
       if (parsed.kind === "parent") {
+        setActiveProfile(parsed);
+        return;
+      }
+      if (parsed.kind === "library") {
         setActiveProfile(parsed);
         return;
       }
@@ -426,12 +443,12 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   useEffect(() => {
     if (!activeProfile) return;
     if (activeProfile.kind === "parent") return;
+    if (activeProfile.kind === "library") return;
     if (view !== "child") setView("child");
     if (childId !== activeProfile.childId) {
       setChildId(activeProfile.childId);
       setSelectedAssignmentId("");
       setSelectedBookId("");
-      setChildLibraryOpen(false);
     }
   }, [activeProfile, childId, view]);
 
@@ -710,28 +727,6 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const selectedTaskLabels = formatAssignmentTaskLabels;
 
   const showToast = (message: string) => setToast(message);
-
-  const openChildLibrary = async () => {
-    setChildLibraryOpen(true);
-    if (!isChildProfile || !childId) return;
-    if (data.books.length > todayAssignments.length) return;
-
-    setIsLoadingLibraryData(true);
-    try {
-      const libraryData = await fetchChildLibraryData(supabase, ownerUserId, childId);
-      setData((current) => ({
-        ...current,
-        books: libraryData.books,
-        assignments: libraryData.assignments,
-        completions: libraryData.completions,
-        manualLogs: libraryData.manualLogs,
-      }));
-    } catch (error) {
-      showToast(error instanceof Error ? error.message : "도서관 데이터를 불러오지 못했습니다.");
-    } finally {
-      setIsLoadingLibraryData(false);
-    }
-  };
 
   const startNewChildDraft = () => {
     setChildDraftMode("new");
@@ -1320,9 +1315,11 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const hasChildren = data.children.length > 0;
   const isParentProfile = activeProfile?.kind === "parent";
   const isChildProfile = activeProfile?.kind === "child";
+  const isLibraryProfile = activeProfile?.kind === "library";
   const activeProfileChild = isChildProfile ? data.children.find((item) => item.id === activeProfile.childId) ?? null : null;
   const profileChoices = [
     { id: "parent", label: "부모 관리", description: "기록, 책 관리, 할 일 배정까지 모두 사용합니다." },
+    { id: "library", label: "도서관", description: "책을 검색하고 필요할 때 오디오를 엽니다." },
     ...data.children.map((item) => ({
       id: item.id,
       label: item.name,
@@ -1380,8 +1377,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
         ) : (
           <div className="profile-summary" aria-live="polite">
             <span className="summary-pill">
-              <strong>{activeProfileChild?.name ?? "프로필 선택"}</strong>
-              {activeProfileChild?.level ? ` · ${activeProfileChild.level}` : ""}
+              <strong>{isLibraryProfile ? "도서관" : activeProfileChild?.name ?? "프로필 선택"}</strong>
+              {!isLibraryProfile && activeProfileChild?.level ? ` · ${activeProfileChild.level}` : ""}
             </span>
           </div>
         )}
@@ -1446,6 +1443,12 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                       setActiveProfile({ kind: "parent" });
                       return;
                     }
+                    if (profile.id === "library") {
+                      setActiveProfile({ kind: "library" });
+                      setSelectedAssignmentId("");
+                      setSelectedBookId("");
+                      return;
+                    }
                     setActiveProfile({ kind: "child", childId: profile.id });
                     setView("child");
                     setChildId(profile.id);
@@ -1453,7 +1456,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     setSelectedBookId("");
                   }}
                 >
-                  <span className="profile-tag">{profile.id === "parent" ? "관리" : "아동"}</span>
+                  <span className="profile-tag">{profile.id === "parent" ? "관리" : profile.id === "library" ? "도서" : "아동"}</span>
                   <strong>{profile.label}</strong>
                   <p>{profile.description}</p>
                 </button>
@@ -1549,7 +1552,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           </section>
         )}
 
-        {activeProfile && view === "child" && (
+        {isChildProfile && view === "child" && (
           <section className="view is-active" aria-labelledby="childTitle">
             <div className="section-heading">
               <div>
@@ -1569,146 +1572,57 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
               </div>
             </div>
 
-            <div className="child-view-switch" aria-label="아동 화면 선택">
-              <button
-                className={!childLibraryOpen ? "is-active" : ""}
-                type="button"
-                onClick={() => {
-                  setChildLibraryOpen(false);
-                  setSelectedBookId("");
-                  if (!selectedAssignmentId && todayAssignments[0]) setSelectedAssignmentId(todayAssignments[0].id);
-                }}
-              >
-                오늘 할 일
-              </button>
-              <button
-                className={childLibraryOpen ? "is-active" : ""}
-                type="button"
-                onClick={openChildLibrary}
-              >
-                도서관
-              </button>
-            </div>
-
             <div className="child-grid">
-              {!childLibraryOpen ? (
-                <section aria-label="오늘 해야 할 학습">
-                  <div className="assignment-list">
-                    {todayAssignments.length ? (
-                      todayAssignments.map((assignment) => {
-                        const book = getBook(assignment.bookId);
-                        if (!book) return null;
-                        const progress = countAssignmentProgress(data, assignment);
-                        return (
-                          <button
-                            className={`assignment-card ${assignment.id === selectedAssignmentId ? "is-active" : ""} ${progress.done === progress.total ? "is-complete" : ""}`}
-                            type="button"
-                            key={assignment.id}
-                            onClick={() => {
-                              setSelectedAssignmentId(assignment.id);
-                              setSelectedBookId("");
-                            }}
-                          >
-                            {renderMaterialThumb(book)}
-                            <div className="assignment-card-copy">
-                              <div className="assignment-card-header">
-                                <div className="assignment-card-heading">
-                                  <h3>{book.title}</h3>
-                                  <span className="assignment-meta">
-                                    {book.series}
-                                  </span>
-                                </div>
-                                <span className={`assignment-state-badge ${progress.done === progress.total ? "is-complete" : ""}`}>
-                                  {progress.done === progress.total ? "완료" : "진행 중"}
+              <section aria-label="오늘 해야 할 학습">
+                <div className="assignment-list">
+                  {todayAssignments.length ? (
+                    todayAssignments.map((assignment) => {
+                      const book = getBook(assignment.bookId);
+                      if (!book) return null;
+                      const progress = countAssignmentProgress(data, assignment);
+                      return (
+                        <button
+                          className={`assignment-card ${assignment.id === selectedAssignmentId ? "is-active" : ""} ${progress.done === progress.total ? "is-complete" : ""}`}
+                          type="button"
+                          key={assignment.id}
+                          onClick={() => {
+                            setSelectedAssignmentId(assignment.id);
+                            setSelectedBookId("");
+                          }}
+                        >
+                          {renderMaterialThumb(book)}
+                          <div className="assignment-card-copy">
+                            <div className="assignment-card-header">
+                              <div className="assignment-card-heading">
+                                <h3>{book.title}</h3>
+                                <span className="assignment-meta">
+                                  {book.series}
                                 </span>
                               </div>
-                              <div className="assignment-progress-row">
-                                <span className="progress-bar" aria-label={`${progress.done}/${progress.total} 완료`}>
-                                  <span style={{ "--value": `${progress.percent}%` } as CSSProperties} />
-                                </span>
-                                <span className="assignment-progress-count">
-                                  {progress.done}/{progress.total} 완료
-                                </span>
-                              </div>
-                              <span className="assignment-progress-note">
-                                {selectedTaskLabels(assignment)}
+                              <span className={`assignment-state-badge ${progress.done === progress.total ? "is-complete" : ""}`}>
+                                {progress.done === progress.total ? "완료" : "진행 중"}
                               </span>
                             </div>
-                          </button>
-                        );
-                      })
-                    ) : (
-                      <div className="empty-state">오늘 등록된 할 일이 없습니다.</div>
-                    )}
-                  </div>
-                </section>
-              ) : (
-                <section className="library-section" aria-labelledby="libraryTitle">
-                  <div className="section-heading compact">
-                    <div>
-                      <p className="eyebrow">도서관</p>
-                      <h2 id="libraryTitle">필요할 때 책 검색</h2>
-                    </div>
-                    <div className="library-tools">
-                      <select value={seriesFilter} aria-label="시리즈 선택" onChange={(event) => setSeriesFilter(event.target.value)}>
-                        <option value="all">전체 시리즈</option>
-                        {seriesNames.map((series) => (
-                          <option value={series} key={series}>
-                            {series}
-                          </option>
-                        ))}
-                      </select>
-                      <input
-                        value={bookSearch}
-                        type="search"
-                        placeholder="책 제목 검색"
-                        onChange={(event) => setBookSearch(event.target.value)}
-                      />
-                    </div>
-                  </div>
-                  {isLoadingLibraryData ? (
-                    <div className="empty-state">도서관을 불러오는 중입니다.</div>
+                            <div className="assignment-progress-row">
+                              <span className="progress-bar" aria-label={`${progress.done}/${progress.total} 완료`}>
+                                <span style={{ "--value": `${progress.percent}%` } as CSSProperties} />
+                              </span>
+                              <span className="assignment-progress-count">
+                                {progress.done}/{progress.total} 완료
+                              </span>
+                            </div>
+                            <span className="assignment-progress-note">
+                              {selectedTaskLabels(assignment)}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })
                   ) : (
-                    <div className="library-grid">
-                      {filteredLibraryBooks.length ? (
-                        filteredLibraryBooks.map((book) => {
-                          const readDates = getBookReadDates(childId, book.id);
-                          return (
-                            <article className="book-card" key={book.id}>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setSelectedBookId(book.id);
-                                  setSelectedAssignmentId("");
-                                }}
-                              >
-                                {renderMaterialThumb(book, "book-cover")}
-                                <span>
-                                  <p className="eyebrow">{book.series}</p>
-                                  <h3>{book.title}</h3>
-                                  <span className="book-meta">
-                                    {book.level} · {book.volume}
-                                  </span>
-                                  <span className="status-row">
-                                    <span className={`status-badge ${readDates.length ? "done" : "todo"}`}>
-                                      {readDates.length ? "읽음" : "미읽음"}
-                                    </span>
-                                    {readDates.length > 0 && (
-                                      <span className="status-badge done">{readDates.map(formatDate).join(", ")}</span>
-                                    )}
-                                  </span>
-                                </span>
-                              </button>
-                            </article>
-                          );
-                        })
-                      ) : (
-                        <div className="empty-state">검색 결과가 없습니다.</div>
-                      )}
-                    </div>
+                    <div className="empty-state">오늘 등록된 할 일이 없습니다.</div>
                   )}
-                </section>
-              )}
+                </div>
+              </section>
 
               <section className="task-panel" aria-label="선택한 학습 활동">
                 {selectedBook ? (
@@ -1824,6 +1738,116 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
               </section>
             </div>
 
+          </section>
+        )}
+
+        {isLibraryProfile && (
+          <section className="view is-active" aria-labelledby="libraryTitle">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">도서관</p>
+                <h2 id="libraryTitle">책을 검색해서 듣기</h2>
+              </div>
+              <div className="library-tools">
+                <select value={seriesFilter} aria-label="시리즈 선택" onChange={(event) => setSeriesFilter(event.target.value)}>
+                  <option value="all">전체 시리즈</option>
+                  {seriesNames.map((series) => (
+                    <option value={series} key={series}>
+                      {series}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  value={bookSearch}
+                  type="search"
+                  placeholder="책 제목 검색"
+                  onChange={(event) => setBookSearch(event.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="child-grid library-view-grid">
+              <section className="library-section" aria-label="도서관 책 목록">
+                <div className="library-grid">
+                  {filteredLibraryBooks.length ? (
+                    filteredLibraryBooks.map((book) => (
+                      <article className="book-card" key={book.id}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedBookId(book.id);
+                            setSelectedAssignmentId("");
+                          }}
+                        >
+                          {renderMaterialThumb(book, "book-cover")}
+                          <span>
+                            <p className="eyebrow">{book.series}</p>
+                            <h3>{book.title}</h3>
+                            <span className="book-meta">
+                              {book.level} · {book.volume}
+                            </span>
+                          </span>
+                        </button>
+                      </article>
+                    ))
+                  ) : (
+                    <div className="empty-state">검색 결과가 없습니다.</div>
+                  )}
+                </div>
+              </section>
+
+              <section className="task-panel" aria-label="선택한 책 듣기">
+                {selectedBook ? (
+                  <>
+                    <div className="selected-book-header">
+                      {renderMaterialThumb(selectedBook, "book-cover")}
+                      <div>
+                        <p className="eyebrow">{selectedBook.series}</p>
+                        <h3>{selectedBook.title}</h3>
+                        <p className="book-meta">
+                          {formatMaterialMeta(selectedBook) ? (
+                            <>
+                              {formatMaterialMeta(selectedBook)}
+                              <br />
+                            </>
+                          ) : null}
+                          {selectedBook.note}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="task-list">
+                      {sortTasks(selectedMaterialTasks).map((taskType) => {
+                        const audioUrl = getTaskAudioUrl(selectedBook, taskType);
+                        const launchLabel = taskType === "wordRead" ? "링크" : "오디오";
+                        return (
+                          <div className="task-row" key={taskType}>
+                            <div>
+                              <h4>{taskDefinitions[taskType].label}</h4>
+                              <p className="task-meta">
+                                {audioUrl ? `${launchLabel}를 열 수 있습니다.` : `${taskDefinitions[taskType].label} 링크가 없습니다.`}
+                              </p>
+                            </div>
+                            <div className="task-actions">
+                              <button
+                                className="secondary-button"
+                                type="button"
+                                disabled={!audioUrl}
+                                onClick={() => openAudioDb(taskType)}
+                              >
+                                {launchLabel} 열기
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                ) : (
+                  <div className="empty-state">도서관에서 책을 선택하세요.</div>
+                )}
+              </section>
+            </div>
           </section>
         )}
 

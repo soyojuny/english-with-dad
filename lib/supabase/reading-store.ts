@@ -50,6 +50,12 @@ type AssignmentRow = {
   task_counts: TaskCountMap | null;
 };
 
+type TodayAssignmentRow = AssignmentRow & {
+  book: BookRow | BookRow[] | null;
+  completions: CompletionRow[] | null;
+  audioLaunches: AudioLaunchRow[] | null;
+};
+
 type CompletionRow = {
   assignment_id: string;
   task_type: string;
@@ -120,6 +126,11 @@ function mapAssignment(row: AssignmentRow): Assignment {
     tasks,
     taskCounts,
   };
+}
+
+function firstEmbeddedBook(row: TodayAssignmentRow) {
+  if (Array.isArray(row.book)) return row.book[0] ?? null;
+  return row.book;
 }
 
 function mapManualLog(row: ManualLogRow): ManualLog {
@@ -249,7 +260,19 @@ export async function fetchChildTodayData(
 ): Promise<Omit<ReadingData, "children" | "manualLogs">> {
   const assignmentsResult = await supabase
     .from("assignments")
-    .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts")
+    .select(`
+      id,
+      owner_user_id,
+      child_id,
+      date,
+      book_id,
+      activity_category,
+      tasks,
+      task_counts,
+      book:books!assignments_book_owner_fkey(${bookSelectColumns}),
+      completions:completions!completions_assignment_owner_fkey(assignment_id, task_type, completed_at, minutes, audio_opened_at, count),
+      audioLaunches:audio_launches!audio_launches_assignment_owner_fkey(assignment_id, task_type, opened_at, returned_at)
+    `)
     .eq("owner_user_id", ownerUserId)
     .eq("child_id", childId)
     .eq("date", date)
@@ -257,94 +280,37 @@ export async function fetchChildTodayData(
 
   if (assignmentsResult.error) throw new Error(assignmentsResult.error.message);
 
-  const assignments = (assignmentsResult.data ?? []).map((row) => mapAssignment(row as AssignmentRow));
-  const assignmentIds = assignments.map((assignment) => assignment.id);
-  const bookIds = [...new Set(assignments.map((assignment) => assignment.bookId))];
-
-  const [booksResult, completionsResult, audioLaunchesResult] = await Promise.all([
-    bookIds.length
-      ? supabase
-          .from("books")
-          .select(bookSelectColumns)
-          .eq("owner_user_id", ownerUserId)
-          .in("id", bookIds)
-      : Promise.resolve({ data: [], error: null }),
-    assignmentIds.length
-      ? supabase
-          .from("completions")
-          .select("assignment_id, task_type, completed_at, minutes, audio_opened_at, count")
-          .eq("owner_user_id", ownerUserId)
-          .in("assignment_id", assignmentIds)
-      : Promise.resolve({ data: [], error: null }),
-    assignmentIds.length
-      ? supabase
-          .from("audio_launches")
-          .select("assignment_id, task_type, opened_at, returned_at")
-          .eq("owner_user_id", ownerUserId)
-          .in("assignment_id", assignmentIds)
-      : Promise.resolve({ data: [], error: null }),
-  ]);
-
-  if (booksResult.error) throw new Error(booksResult.error.message);
-  if (completionsResult.error) throw new Error(completionsResult.error.message);
-  if (audioLaunchesResult.error) throw new Error(audioLaunchesResult.error.message);
+  const rows = (assignmentsResult.data ?? []) as unknown as TodayAssignmentRow[];
+  const books = rows.flatMap((row) => {
+    const book = firstEmbeddedBook(row);
+    return book ? [mapBook(book)] : [];
+  });
+  const completions = rows.flatMap((row) => row.completions ?? []);
+  const audioLaunches = rows.flatMap((row) => row.audioLaunches ?? []);
 
   return {
-    books: (booksResult.data ?? []).map((row) => mapBook(row as BookRow)),
-    assignments,
-    completions: toCompletionRecord((completionsResult.data ?? []) as CompletionRow[]),
-    audioLaunches: toAudioLaunchRecord((audioLaunchesResult.data ?? []) as AudioLaunchRow[]),
+    books,
+    assignments: rows.map((row) => mapAssignment(row)),
+    completions: toCompletionRecord(completions),
+    audioLaunches: toAudioLaunchRecord(audioLaunches),
   };
 }
 
-export async function fetchChildLibraryData(
+export async function fetchLibraryData(
   supabase: SupabaseLikeClient,
   ownerUserId: string,
-  childId: string,
-): Promise<Omit<ReadingData, "children">> {
-  const [booksResult, assignmentsResult, manualLogsResult] = await Promise.all([
-    supabase
-      .from("books")
-      .select(bookSelectColumns)
-      .eq("owner_user_id", ownerUserId)
-      .eq("active", true)
-      .order("created_at", { ascending: true }),
-    supabase
-      .from("assignments")
-      .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts")
-      .eq("owner_user_id", ownerUserId)
-      .eq("child_id", childId)
-      .order("date", { ascending: true }),
-    supabase
-      .from("manual_logs")
-      .select("id, child_id, date, type, title, minutes, note")
-      .eq("owner_user_id", ownerUserId)
-      .eq("child_id", childId)
-      .order("date", { ascending: true }),
-  ]);
+): Promise<Pick<ReadingData, "books">> {
+  const result = await supabase
+    .from("books")
+    .select(bookSelectColumns)
+    .eq("owner_user_id", ownerUserId)
+    .eq("active", true)
+    .order("created_at", { ascending: true });
 
-  if (booksResult.error) throw new Error(booksResult.error.message);
-  if (assignmentsResult.error) throw new Error(assignmentsResult.error.message);
-  if (manualLogsResult.error) throw new Error(manualLogsResult.error.message);
-
-  const assignments = (assignmentsResult.data ?? []).map((row) => mapAssignment(row as AssignmentRow));
-  const assignmentIds = assignments.map((assignment) => assignment.id);
-  const completionsResult = assignmentIds.length
-    ? await supabase
-        .from("completions")
-        .select("assignment_id, task_type, completed_at, minutes, audio_opened_at, count")
-        .eq("owner_user_id", ownerUserId)
-        .in("assignment_id", assignmentIds)
-    : { data: [], error: null };
-
-  if (completionsResult.error) throw new Error(completionsResult.error.message);
+  if (result.error) throw new Error(result.error.message);
 
   return {
-    books: (booksResult.data ?? []).map((row) => mapBook(row as BookRow)),
-    assignments,
-    completions: toCompletionRecord((completionsResult.data ?? []) as CompletionRow[]),
-    audioLaunches: {},
-    manualLogs: (manualLogsResult.data ?? []).map((row) => mapManualLog(row as ManualLogRow)),
+    books: (result.data ?? []).map((row) => mapBook(row as BookRow)),
   };
 }
 
