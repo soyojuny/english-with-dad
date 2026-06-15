@@ -47,6 +47,9 @@ import type {
 import { createClient } from "../lib/supabase/client";
 import {
   deleteAssignment as deleteAssignmentRecord,
+  fetchChildLibraryData,
+  fetchChildTodayData,
+  fetchReadingProfileData,
   fetchReadingData,
   saveAssignments,
   saveAudioLaunch,
@@ -172,8 +175,11 @@ type ActiveProfile =
 export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: ReadingManagerClientProps) {
   const [data, setData] = useState<ReadingData>(emptyReadingData);
   const [isLoadingData, setIsLoadingData] = useState(true);
+  const [isLoadingProfileData, setIsLoadingProfileData] = useState(true);
+  const [isLoadingLibraryData, setIsLoadingLibraryData] = useState(false);
   const [syncError, setSyncError] = useState("");
   const [view, setView] = useState<ViewName>("child");
+  const [childLibraryOpen, setChildLibraryOpen] = useState(false);
   const [childId, setChildId] = useState("");
   const [period, setPeriod] = useState<Period>("day");
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>("");
@@ -261,17 +267,63 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     let cancelled = false;
 
     const load = async () => {
+      setIsLoadingProfileData(true);
       setIsLoadingData(true);
       setSyncError("");
 
       try {
-        const nextData = await fetchReadingData(supabase, ownerUserId);
+        const profileData = await fetchReadingProfileData(supabase, ownerUserId);
         if (cancelled) return;
-        setData(nextData);
+        setData((current) => ({ ...current, children: profileData.children }));
       } catch (error) {
         if (cancelled) return;
         setSyncError(error instanceof Error ? error.message : "데이터를 불러오지 못했습니다.");
         showToast("Supabase에서 데이터를 불러오지 못했습니다.");
+      } finally {
+        if (!cancelled) {
+          setIsLoadingProfileData(false);
+          setIsLoadingData(false);
+        }
+      }
+    };
+
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [ownerUserId, supabase]);
+
+  useEffect(() => {
+    if (!activeProfile) return;
+    let cancelled = false;
+
+    const load = async () => {
+      setIsLoadingData(true);
+      setSyncError("");
+
+      try {
+        if (activeProfile.kind === "parent") {
+          const nextData = await fetchReadingData(supabase, ownerUserId);
+          if (cancelled) return;
+          setData(nextData);
+          return;
+        }
+
+        const nextData = await fetchChildTodayData(supabase, ownerUserId, activeProfile.childId, dateKey());
+        if (cancelled) return;
+        setData((current) => ({
+          children: current.children,
+          books: nextData.books,
+          assignments: nextData.assignments,
+          completions: nextData.completions,
+          audioLaunches: nextData.audioLaunches,
+          manualLogs: [],
+        }));
+      } catch (error) {
+        if (cancelled) return;
+        setSyncError(error instanceof Error ? error.message : "데이터를 불러오지 못했습니다.");
+        showToast("선택한 프로필 데이터를 불러오지 못했습니다.");
       } finally {
         if (!cancelled) setIsLoadingData(false);
       }
@@ -282,7 +334,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     return () => {
       cancelled = true;
     };
-  }, [ownerUserId, supabase]);
+  }, [activeProfile, ownerUserId, supabase]);
 
   useEffect(() => {
     if (isLoadingData || profileLoadedRef.current) return;
@@ -379,6 +431,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       setChildId(activeProfile.childId);
       setSelectedAssignmentId("");
       setSelectedBookId("");
+      setChildLibraryOpen(false);
     }
   }, [activeProfile, childId, view]);
 
@@ -657,6 +710,28 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const selectedTaskLabels = formatAssignmentTaskLabels;
 
   const showToast = (message: string) => setToast(message);
+
+  const openChildLibrary = async () => {
+    setChildLibraryOpen(true);
+    if (!isChildProfile || !childId) return;
+    if (data.books.length > todayAssignments.length) return;
+
+    setIsLoadingLibraryData(true);
+    try {
+      const libraryData = await fetchChildLibraryData(supabase, ownerUserId, childId);
+      setData((current) => ({
+        ...current,
+        books: libraryData.books,
+        assignments: libraryData.assignments,
+        completions: libraryData.completions,
+        manualLogs: libraryData.manualLogs,
+      }));
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "도서관 데이터를 불러오지 못했습니다.");
+    } finally {
+      setIsLoadingLibraryData(false);
+    }
+  };
 
   const startNewChildDraft = () => {
     setChildDraftMode("new");
@@ -1345,10 +1420,14 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       </header>
 
       <main>
-        {isLoadingData && <section className="inline-banner">Supabase에서 데이터를 불러오는 중입니다.</section>}
+        {isLoadingProfileData ? (
+          <section className="inline-banner">프로필을 불러오는 중입니다.</section>
+        ) : (
+          isLoadingData && <section className="inline-banner">선택한 화면 데이터를 불러오는 중입니다.</section>
+        )}
         {syncError && <section className="inline-banner is-error">{syncError}</section>}
 
-        {!isLoadingData && !activeProfile && (
+        {!isLoadingProfileData && !activeProfile && (
           <section className="profile-gate" aria-labelledby="profileGateTitle">
             <div className="section-heading">
               <div>
@@ -1490,57 +1569,146 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
               </div>
             </div>
 
+            <div className="child-view-switch" aria-label="아동 화면 선택">
+              <button
+                className={!childLibraryOpen ? "is-active" : ""}
+                type="button"
+                onClick={() => {
+                  setChildLibraryOpen(false);
+                  setSelectedBookId("");
+                  if (!selectedAssignmentId && todayAssignments[0]) setSelectedAssignmentId(todayAssignments[0].id);
+                }}
+              >
+                오늘 할 일
+              </button>
+              <button
+                className={childLibraryOpen ? "is-active" : ""}
+                type="button"
+                onClick={openChildLibrary}
+              >
+                도서관
+              </button>
+            </div>
+
             <div className="child-grid">
-              <section aria-label="오늘 해야 할 학습">
-                <div className="assignment-list">
-                  {todayAssignments.length ? (
-                    todayAssignments.map((assignment) => {
-                      const book = getBook(assignment.bookId);
-                      if (!book) return null;
-                      const progress = countAssignmentProgress(data, assignment);
-                      return (
-                        <button
-                          className={`assignment-card ${assignment.id === selectedAssignmentId ? "is-active" : ""} ${progress.done === progress.total ? "is-complete" : ""}`}
-                          type="button"
-                          key={assignment.id}
-                          onClick={() => {
-                            setSelectedAssignmentId(assignment.id);
-                            setSelectedBookId("");
-                          }}
-                        >
-                          {renderMaterialThumb(book)}
-                          <div className="assignment-card-copy">
-                            <div className="assignment-card-header">
-                              <div className="assignment-card-heading">
-                                <h3>{book.title}</h3>
-                                <span className="assignment-meta">
-                                  {book.series}
+              {!childLibraryOpen ? (
+                <section aria-label="오늘 해야 할 학습">
+                  <div className="assignment-list">
+                    {todayAssignments.length ? (
+                      todayAssignments.map((assignment) => {
+                        const book = getBook(assignment.bookId);
+                        if (!book) return null;
+                        const progress = countAssignmentProgress(data, assignment);
+                        return (
+                          <button
+                            className={`assignment-card ${assignment.id === selectedAssignmentId ? "is-active" : ""} ${progress.done === progress.total ? "is-complete" : ""}`}
+                            type="button"
+                            key={assignment.id}
+                            onClick={() => {
+                              setSelectedAssignmentId(assignment.id);
+                              setSelectedBookId("");
+                            }}
+                          >
+                            {renderMaterialThumb(book)}
+                            <div className="assignment-card-copy">
+                              <div className="assignment-card-header">
+                                <div className="assignment-card-heading">
+                                  <h3>{book.title}</h3>
+                                  <span className="assignment-meta">
+                                    {book.series}
+                                  </span>
+                                </div>
+                                <span className={`assignment-state-badge ${progress.done === progress.total ? "is-complete" : ""}`}>
+                                  {progress.done === progress.total ? "완료" : "진행 중"}
                                 </span>
                               </div>
-                              <span className={`assignment-state-badge ${progress.done === progress.total ? "is-complete" : ""}`}>
-                                {progress.done === progress.total ? "완료" : "진행 중"}
+                              <div className="assignment-progress-row">
+                                <span className="progress-bar" aria-label={`${progress.done}/${progress.total} 완료`}>
+                                  <span style={{ "--value": `${progress.percent}%` } as CSSProperties} />
+                                </span>
+                                <span className="assignment-progress-count">
+                                  {progress.done}/{progress.total} 완료
+                                </span>
+                              </div>
+                              <span className="assignment-progress-note">
+                                {selectedTaskLabels(assignment)}
                               </span>
                             </div>
-                            <div className="assignment-progress-row">
-                              <span className="progress-bar" aria-label={`${progress.done}/${progress.total} 완료`}>
-                                <span style={{ "--value": `${progress.percent}%` } as CSSProperties} />
-                              </span>
-                              <span className="assignment-progress-count">
-                                {progress.done}/{progress.total} 완료
-                              </span>
-                            </div>
-                            <span className="assignment-progress-note">
-                              {selectedTaskLabels(assignment)}
-                            </span>
-                          </div>
-                        </button>
-                      );
-                    })
+                          </button>
+                        );
+                      })
+                    ) : (
+                      <div className="empty-state">오늘 등록된 할 일이 없습니다.</div>
+                    )}
+                  </div>
+                </section>
+              ) : (
+                <section className="library-section" aria-labelledby="libraryTitle">
+                  <div className="section-heading compact">
+                    <div>
+                      <p className="eyebrow">도서관</p>
+                      <h2 id="libraryTitle">필요할 때 책 검색</h2>
+                    </div>
+                    <div className="library-tools">
+                      <select value={seriesFilter} aria-label="시리즈 선택" onChange={(event) => setSeriesFilter(event.target.value)}>
+                        <option value="all">전체 시리즈</option>
+                        {seriesNames.map((series) => (
+                          <option value={series} key={series}>
+                            {series}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        value={bookSearch}
+                        type="search"
+                        placeholder="책 제목 검색"
+                        onChange={(event) => setBookSearch(event.target.value)}
+                      />
+                    </div>
+                  </div>
+                  {isLoadingLibraryData ? (
+                    <div className="empty-state">도서관을 불러오는 중입니다.</div>
                   ) : (
-                    <div className="empty-state">오늘 등록된 할 일이 없습니다.</div>
+                    <div className="library-grid">
+                      {filteredLibraryBooks.length ? (
+                        filteredLibraryBooks.map((book) => {
+                          const readDates = getBookReadDates(childId, book.id);
+                          return (
+                            <article className="book-card" key={book.id}>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedBookId(book.id);
+                                  setSelectedAssignmentId("");
+                                }}
+                              >
+                                {renderMaterialThumb(book, "book-cover")}
+                                <span>
+                                  <p className="eyebrow">{book.series}</p>
+                                  <h3>{book.title}</h3>
+                                  <span className="book-meta">
+                                    {book.level} · {book.volume}
+                                  </span>
+                                  <span className="status-row">
+                                    <span className={`status-badge ${readDates.length ? "done" : "todo"}`}>
+                                      {readDates.length ? "읽음" : "미읽음"}
+                                    </span>
+                                    {readDates.length > 0 && (
+                                      <span className="status-badge done">{readDates.map(formatDate).join(", ")}</span>
+                                    )}
+                                  </span>
+                                </span>
+                              </button>
+                            </article>
+                          );
+                        })
+                      ) : (
+                        <div className="empty-state">검색 결과가 없습니다.</div>
+                      )}
+                    </div>
                   )}
-                </div>
-              </section>
+                </section>
+              )}
 
               <section className="task-panel" aria-label="선택한 학습 활동">
                 {selectedBook ? (
@@ -1656,68 +1824,6 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
               </section>
             </div>
 
-            <section className="library-section" aria-labelledby="libraryTitle">
-              <div className="section-heading compact">
-                <div>
-                  <p className="eyebrow">도서관</p>
-                  <h2 id="libraryTitle">전체 도서 목록</h2>
-                </div>
-                <div className="library-tools">
-                  <select value={seriesFilter} aria-label="시리즈 선택" onChange={(event) => setSeriesFilter(event.target.value)}>
-                    <option value="all">전체 시리즈</option>
-                    {seriesNames.map((series) => (
-                      <option value={series} key={series}>
-                        {series}
-                      </option>
-                    ))}
-                  </select>
-                  <input
-                    value={bookSearch}
-                    type="search"
-                    placeholder="책 제목 검색"
-                    onChange={(event) => setBookSearch(event.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="library-grid">
-                {filteredLibraryBooks.length ? (
-                  filteredLibraryBooks.map((book) => {
-                    const readDates = getBookReadDates(childId, book.id);
-                    return (
-                      <article className="book-card" key={book.id}>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedBookId(book.id);
-                            setSelectedAssignmentId("");
-                            window.scrollTo({ top: 120, behavior: "smooth" });
-                          }}
-                        >
-                          {renderMaterialThumb(book, "book-cover")}
-                          <span>
-                            <p className="eyebrow">{book.series}</p>
-                            <h3>{book.title}</h3>
-                            <span className="book-meta">
-                              {book.level} · {book.volume}
-                            </span>
-                            <span className="status-row">
-                              <span className={`status-badge ${readDates.length ? "done" : "todo"}`}>
-                                {readDates.length ? "읽음" : "미읽음"}
-                              </span>
-                              {readDates.length > 0 && (
-                                <span className="status-badge done">{readDates.map(formatDate).join(", ")}</span>
-                              )}
-                            </span>
-                          </span>
-                        </button>
-                      </article>
-                    );
-                  })
-                ) : (
-                  <div className="empty-state">검색 결과가 없습니다.</div>
-                )}
-              </div>
-            </section>
           </section>
         )}
 
