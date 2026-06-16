@@ -27,9 +27,14 @@ export type BookSetupInput = {
   };
 };
 
-export function formatDate(value: string) {
+export function formatDate(value: string, options: { includeWeekday?: boolean } = {}) {
   const [, month, day] = value.split("-");
-  return `${Number(month)}/${Number(day)}`;
+  const formattedDate = `${Number(month)}/${Number(day)}`;
+  if (!options.includeWeekday) return formattedDate;
+
+  const date = new Date(`${value}T00:00:00`);
+  const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
+  return `${formattedDate}(${weekdays[date.getDay()]})`;
 }
 
 export function formatTime(isoDate: string) {

@@ -185,7 +185,6 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const [selectedBookId, setSelectedBookId] = useState<string>("");
   const [seriesFilter, setSeriesFilter] = useState("all");
   const [bookSearch, setBookSearch] = useState("");
-  const [progressSeries, setProgressSeries] = useState("all");
   const [manageSeriesFilter, setManageSeriesFilter] = useState("all");
   const [manageBookSearch, setManageBookSearch] = useState("");
   const [assignSeriesFilter, setAssignSeriesFilter] = useState("all");
@@ -442,7 +441,10 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
 
   useEffect(() => {
     if (!activeProfile) return;
-    if (activeProfile.kind === "parent") return;
+    if (activeProfile.kind === "parent") {
+      if (view === "child") setView("parent");
+      return;
+    }
     if (activeProfile.kind === "library") return;
     if (view !== "child") setView("child");
     if (childId !== activeProfile.childId) {
@@ -596,16 +598,6 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
 
   const allLogs = useMemo<ActivityLog[]>(() => [...data.manualLogs, ...completionLogs], [completionLogs, data.manualLogs]);
 
-  const getBookReadDates = (targetChildId: string, bookId: string) => {
-    return [
-      ...new Set(
-        allLogs
-          .filter((log) => log.childId === targetChildId && log.bookId === bookId)
-          .map((log) => log.date),
-      ),
-    ].sort();
-  };
-
   const periodLogs = useMemo(() => {
     const end = new Date();
     const start = new Date();
@@ -637,10 +629,6 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     });
   }, [activeBookItems, bookSearch, seriesFilter]);
 
-  const progressBooks = useMemo(
-    () => activeBookItems.filter((book) => progressSeries === "all" || book.series === progressSeries),
-    [activeBookItems, progressSeries],
-  );
   const bookAssignmentCounts = useMemo(
     () =>
       data.assignments.reduce<Record<string, number>>((counts, assignment) => {
@@ -1358,7 +1346,6 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
         {isParentProfile ? (
           <nav className="mode-switch" aria-label="화면 선택">
             {[
-              ["child", "아동"],
               ["parent", "부모"],
               ["books", "자료 관리"],
               ["assign", "할 일 배정"],
@@ -1441,6 +1428,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                   onClick={() => {
                     if (profile.id === "parent") {
                       setActiveProfile({ kind: "parent" });
+                      setView("parent");
                       return;
                     }
                     if (profile.id === "library") {
@@ -1957,7 +1945,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                           return (
                             <tr key={date}>
                               <td>
-                                <strong>{formatDate(date)}</strong>
+                                <strong>{formatDate(date, { includeWeekday: true })}</strong>
                               </td>
                               <td>{renderCell(logs, { types: "dvd" })}</td>
                               <td>{renderCell(logs, { types: "passiveListen" })}</td>
@@ -1981,48 +1969,6 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
               </div>
             </section>
 
-            <section className="parent-section" aria-labelledby="progressTitle">
-              <div className="section-heading compact">
-                <div>
-                  <p className="eyebrow">시리즈별 현황</p>
-                  <h2 id="progressTitle">읽은 책과 남은 책</h2>
-                </div>
-                <select
-                  value={progressSeries}
-                  aria-label="현황 시리즈 선택"
-                  onChange={(event) => setProgressSeries(event.target.value)}
-                >
-                  <option value="all">전체 시리즈</option>
-                  {seriesNames.map((series) => (
-                    <option value={series} key={series}>
-                      {series}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="series-progress">
-                {progressBooks.map((book) => {
-                  const readDates = getBookReadDates(childId, book.id);
-                  return (
-                    <article className="progress-item" key={book.id}>
-                      {renderMaterialThumb(book)}
-                      <div>
-                        <h3>{book.title}</h3>
-                        <p>{book.series}</p>
-                        <div className="status-row">
-                          <span className={`status-badge ${readDates.length ? "done" : "todo"}`}>
-                            {readDates.length ? "읽음" : "미읽음"}
-                          </span>
-                          {readDates.length > 0 && (
-                            <span className="status-badge done">{readDates.map(formatDate).join(", ")}</span>
-                          )}
-                        </div>
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-            </section>
           </section>
         )}
 
