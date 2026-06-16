@@ -149,6 +149,70 @@ a {
   color: #fff;
 }
 
+.period-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.period-navigation {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.period-nav-button,
+.period-today-button {
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--blue-ink);
+  min-height: 36px;
+  padding: 8px 10px;
+  font-weight: 900;
+}
+
+.period-nav-button {
+  min-width: 36px;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.period-today-button {
+  white-space: nowrap;
+}
+
+.period-date-picker {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  min-width: 220px;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--blue-ink);
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.period-date-picker input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
 .child-picker {
   display: flex;
   align-items: center;
@@ -1209,6 +1273,7 @@ label > textarea {
   }
 
   .library-tools,
+  .period-toolbar,
   .summary-strip,
   .task-actions,
   .audio-actions,
@@ -1218,11 +1283,21 @@ label > textarea {
   }
 
   .library-tools > *,
+  .period-toolbar > *,
   .task-actions > *,
   .audio-actions > *,
   .form-actions > *,
   .topbar-actions > * {
     width: 100%;
+  }
+
+  .period-navigation {
+    width: 100%;
+  }
+
+  .period-date-picker {
+    flex: 1 1 160px;
+    min-width: 0;
   }
 
   .assignment-card {

@@ -173,6 +173,66 @@ type ActiveProfile =
   | { kind: "library" }
   | null;
 
+function parseDateKey(value: string) {
+  return new Date(`${value}T00:00:00`);
+}
+
+function getPeriodDateRange(period: Period, selectedDateKey: string) {
+  const selectedDate = parseDateKey(selectedDateKey);
+  const start = new Date(selectedDate);
+  const end = new Date(selectedDate);
+
+  if (period === "week") {
+    start.setDate(selectedDate.getDate() - selectedDate.getDay());
+    end.setTime(start.getTime());
+    end.setDate(start.getDate() + 6);
+  }
+
+  if (period === "month") {
+    start.setDate(1);
+    end.setFullYear(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
+  }
+
+  return {
+    startKey: dateKey(start),
+    endKey: dateKey(end),
+  };
+}
+
+function shiftSelectedDateKey(selectedDateKey: string, period: Period, offset: number) {
+  const selectedDate = parseDateKey(selectedDateKey);
+
+  if (period === "day") {
+    selectedDate.setDate(selectedDate.getDate() + offset);
+  }
+
+  if (period === "week") {
+    selectedDate.setDate(selectedDate.getDate() + offset * 7);
+  }
+
+  if (period === "month") {
+    selectedDate.setDate(1);
+    selectedDate.setMonth(selectedDate.getMonth() + offset);
+  }
+
+  return dateKey(selectedDate);
+}
+
+function formatRangeDate(value: string) {
+  const date = parseDateKey(value);
+  return `${date.getFullYear()}. ${formatDate(value, { includeWeekday: true })}`;
+}
+
+function formatPeriodRangeLabel(period: Period, dateKeys: string[]) {
+  const startKey = dateKeys[0] ?? dateKey();
+  const endKey = dateKeys[dateKeys.length - 1] ?? startKey;
+  const startDate = parseDateKey(startKey);
+
+  if (period === "day") return formatRangeDate(startKey);
+  if (period === "month") return `${startDate.getFullYear()}. ${startDate.getMonth() + 1}`;
+  return `${formatRangeDate(startKey)} - ${formatRangeDate(endKey)}`;
+}
+
 export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: ReadingManagerClientProps) {
   const [data, setData] = useState<ReadingData>(emptyReadingData);
   const [isLoadingData, setIsLoadingData] = useState(true);
@@ -181,6 +241,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const [view, setView] = useState<ViewName>("child");
   const [childId, setChildId] = useState("");
   const [period, setPeriod] = useState<Period>("day");
+  const [selectedDateKey, setSelectedDateKey] = useState(() => dateKey());
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>("");
   const [selectedBookId, setSelectedBookId] = useState<string>("");
   const [seriesFilter, setSeriesFilter] = useState("all");
@@ -598,15 +659,18 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
 
   const allLogs = useMemo<ActivityLog[]>(() => [...data.manualLogs, ...completionLogs], [completionLogs, data.manualLogs]);
 
+  const periodDateKeys = useMemo(() => {
+    const { startKey, endKey } = getPeriodDateRange(period, selectedDateKey);
+    return datesInRange(startKey, endKey);
+  }, [period, selectedDateKey]);
+
+  const periodRangeLabel = useMemo(() => formatPeriodRangeLabel(period, periodDateKeys), [period, periodDateKeys]);
+
   const periodLogs = useMemo(() => {
-    const end = new Date();
-    const start = new Date();
-    if (period === "week") start.setDate(end.getDate() - 6);
-    if (period === "month") start.setDate(1);
-    const startKey = dateKey(start);
-    const endKey = dateKey(end);
+    const startKey = periodDateKeys[0] ?? dateKey();
+    const endKey = periodDateKeys[periodDateKeys.length - 1] ?? startKey;
     return allLogs.filter((log) => log.childId === childId && log.date >= startKey && log.date <= endKey);
-  }, [allLogs, childId, period]);
+  }, [allLogs, childId, periodDateKeys]);
 
   const groupedPeriodLogs = useMemo(() => {
     return periodLogs.reduce<Record<string, ActivityLog[]>>((groups, log) => {
@@ -615,6 +679,11 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       return groups;
     }, {});
   }, [periodLogs]);
+
+  const activityTableDates = useMemo(() => {
+    if (period === "day" && !Object.keys(groupedPeriodLogs).length) return [];
+    return periodDateKeys;
+  }, [groupedPeriodLogs, period, periodDateKeys]);
 
   const filteredLibraryBooks = useMemo(() => {
     const query = bookSearch.trim().toLowerCase();
@@ -1846,17 +1915,49 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                 <p className="eyebrow">부모 관리</p>
                 <h2 id="parentTitle">활동 기록과 읽은 책 현황</h2>
               </div>
-              <div className="period-switch" aria-label="기간 선택">
-                {(["day", "week", "month"] as Period[]).map((item) => (
+              <div className="period-toolbar">
+                <div className="period-switch" aria-label="기간 선택">
+                  {(["day", "week", "month"] as Period[]).map((item) => (
+                    <button
+                      className={period === item ? "is-active" : ""}
+                      type="button"
+                      key={item}
+                      onClick={() => setPeriod(item)}
+                    >
+                      {{ day: "일", week: "주", month: "월" }[item]}
+                    </button>
+                  ))}
+                </div>
+                <div className="period-navigation" aria-label="활동 기록 기간 이동">
                   <button
-                    className={period === item ? "is-active" : ""}
+                    className="period-nav-button"
                     type="button"
-                    key={item}
-                    onClick={() => setPeriod(item)}
+                    aria-label="이전 기간"
+                    onClick={() => setSelectedDateKey((value) => shiftSelectedDateKey(value, period, -1))}
                   >
-                    {{ day: "일", week: "주", month: "월" }[item]}
+                    ‹
                   </button>
-                ))}
+                  <label className="period-date-picker">
+                    <span>{periodRangeLabel}</span>
+                    <input
+                      type="date"
+                      aria-label="활동 기록 기준 날짜 선택"
+                      value={selectedDateKey}
+                      onChange={(event) => setSelectedDateKey(event.target.value || dateKey())}
+                    />
+                  </label>
+                  <button className="period-today-button" type="button" onClick={() => setSelectedDateKey(dateKey())}>
+                    오늘
+                  </button>
+                  <button
+                    className="period-nav-button"
+                    type="button"
+                    aria-label="다음 기간"
+                    onClick={() => setSelectedDateKey((value) => shiftSelectedDateKey(value, period, 1))}
+                  >
+                    ›
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1936,27 +2037,24 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     </tr>
                   </thead>
                   <tbody>
-                    {Object.keys(groupedPeriodLogs).length ? (
-                      Object.keys(groupedPeriodLogs)
-                        .sort()
-                        .reverse()
-                        .map((date) => {
-                          const logs = groupedPeriodLogs[date];
-                          return (
-                            <tr key={date}>
-                              <td>
-                                <strong>{formatDate(date, { includeWeekday: true })}</strong>
-                              </td>
-                              <td>{renderCell(logs, { types: "dvd" })}</td>
-                              <td>{renderCell(logs, { types: "passiveListen" })}</td>
-                              <td>{renderCell(logs, { activityCategories: "focusListen", bookSummary: true })}</td>
-                              <td>{renderCell(logs, { activityCategories: "readAloud", bookSummary: true })}</td>
-                              <td>{renderCell(logs, { types: "korean" })}</td>
-                              <td>{renderCell(logs, { types: "englishPicture", activityCategories: "englishPicture", bookSummary: true })}</td>
-                              <td>{renderCell(logs, { types: "extraStudy", activityCategories: "extraStudy" })}</td>
-                            </tr>
-                          );
-                        })
+                    {activityTableDates.length ? (
+                      activityTableDates.map((date) => {
+                        const logs = groupedPeriodLogs[date] ?? [];
+                        return (
+                          <tr key={date}>
+                            <td>
+                              <strong>{formatDate(date, { includeWeekday: true })}</strong>
+                            </td>
+                            <td>{renderCell(logs, { types: "dvd" })}</td>
+                            <td>{renderCell(logs, { types: "passiveListen" })}</td>
+                            <td>{renderCell(logs, { activityCategories: "focusListen", bookSummary: true })}</td>
+                            <td>{renderCell(logs, { activityCategories: "readAloud", bookSummary: true })}</td>
+                            <td>{renderCell(logs, { types: "korean" })}</td>
+                            <td>{renderCell(logs, { types: "englishPicture", activityCategories: "englishPicture", bookSummary: true })}</td>
+                            <td>{renderCell(logs, { types: "extraStudy", activityCategories: "extraStudy" })}</td>
+                          </tr>
+                        );
+                      })
                     ) : (
                       <tr>
                         <td colSpan={8}>
