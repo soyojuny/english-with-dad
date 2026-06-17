@@ -46,6 +46,7 @@ import {
 } from "../lib/reading-period";
 import type { Period } from "../lib/reading-period";
 import { readQrValueFromSource } from "../lib/qr-reader";
+import { compressCoverImage } from "../lib/cover-image";
 import type {
   ActivityCategory,
   ActivityLog,
@@ -886,13 +887,15 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     showToast("읽기 링크를 정따 링크에 복사했습니다.");
   };
 
-  const readCoverFile = (file: File | undefined) => {
+  const readCoverFile = async (file: File | undefined) => {
     if (!file) return;
-    const reader = new FileReader();
-    reader.addEventListener("load", () => {
-      setBookDraft((current) => ({ ...current, cover: String(reader.result) }));
-    });
-    reader.readAsDataURL(file);
+
+    try {
+      const cover = await compressCoverImage(file);
+      setBookDraft((current) => ({ ...current, cover }));
+    } catch {
+      showToast("표지를 처리하지 못했습니다.");
+    }
   };
 
   const readQrFile = async (file: File | undefined) => {
