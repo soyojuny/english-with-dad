@@ -62,6 +62,7 @@ import {
 
 type ViewName = "child" | "parent" | "books" | "assign";
 type Period = "day" | "week" | "month";
+type ParentPanel = "activity" | "manual";
 type AudioLinkField = "listen" | "shadow";
 type BookListFilter = "active" | "attention" | "ready" | "inactive";
 
@@ -241,6 +242,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const [view, setView] = useState<ViewName>("child");
   const [childId, setChildId] = useState("");
   const [period, setPeriod] = useState<Period>("day");
+  const [parentPanel, setParentPanel] = useState<ParentPanel>("activity");
   const [weeklyPrintRequested, setWeeklyPrintRequested] = useState(false);
   const [selectedDateKey, setSelectedDateKey] = useState(() => dateKey());
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>("");
@@ -502,7 +504,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   }, [toast]);
 
   useEffect(() => {
-    if (!weeklyPrintRequested || period !== "week") return undefined;
+    if (!weeklyPrintRequested || period !== "week" || parentPanel !== "activity") return undefined;
 
     const timer = window.setTimeout(() => {
       window.print();
@@ -510,7 +512,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     }, 120);
 
     return () => window.clearTimeout(timer);
-  }, [period, weeklyPrintRequested]);
+  }, [parentPanel, period, weeklyPrintRequested]);
 
   useEffect(() => {
     if (!activeProfile) return;
@@ -1371,6 +1373,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     }
 
     setPeriod("week");
+    setParentPanel("activity");
     setWeeklyPrintRequested(true);
   };
 
@@ -1935,165 +1938,188 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
             <div className="section-heading">
               <div>
                 <p className="eyebrow">부모 관리</p>
-                <h2 id="parentTitle">활동 기록과 읽은 책 현황</h2>
+                <h2 id="parentTitle">{parentPanel === "activity" ? "활동 기록과 읽은 책 현황" : "수기 기록 입력"}</h2>
               </div>
               <div className="period-toolbar">
-                <div className="period-switch" aria-label="기간 선택">
-                  {(["day", "week", "month"] as Period[]).map((item) => (
+                <div className="parent-panel-switch" aria-label="부모 관리 화면 선택">
+                  {([
+                    ["activity", "활동 기록"],
+                    ["manual", "수기 기록"],
+                  ] as Array<[ParentPanel, string]>).map(([panel, label]) => (
                     <button
-                      className={period === item ? "is-active" : ""}
+                      className={parentPanel === panel ? "is-active" : ""}
                       type="button"
-                      key={item}
-                      onClick={() => setPeriod(item)}
+                      key={panel}
+                      onClick={() => setParentPanel(panel)}
                     >
-                      {{ day: "일", week: "주", month: "월" }[item]}
+                      {label}
                     </button>
                   ))}
                 </div>
-                <div className="period-navigation" aria-label="활동 기록 기간 이동">
-                  <button
-                    className="period-nav-button"
-                    type="button"
-                    aria-label="이전 기간"
-                    onClick={() => setSelectedDateKey((value) => shiftSelectedDateKey(value, period, -1))}
-                  >
-                    ‹
-                  </button>
-                  <label className="period-date-picker">
-                    <span>{periodRangeLabel}</span>
-                    <input
-                      type="date"
-                      aria-label="활동 기록 기준 날짜 선택"
-                      value={selectedDateKey}
-                      onChange={(event) => setSelectedDateKey(event.target.value || dateKey())}
-                    />
-                  </label>
-                  <button className="period-today-button" type="button" onClick={() => setSelectedDateKey(dateKey())}>
-                    오늘
-                  </button>
-                  <button
-                    className="period-nav-button"
-                    type="button"
-                    aria-label="다음 기간"
-                    onClick={() => setSelectedDateKey((value) => shiftSelectedDateKey(value, period, 1))}
-                  >
-                    ›
-                  </button>
-                </div>
-                <button className="secondary-button print-action" type="button" onClick={printWeeklyActivityReport}>
-                  주간 PDF 출력
-                </button>
+                {parentPanel === "activity" && (
+                  <>
+                    <div className="period-switch" aria-label="기간 선택">
+                      {(["day", "week", "month"] as Period[]).map((item) => (
+                        <button
+                          className={period === item ? "is-active" : ""}
+                          type="button"
+                          key={item}
+                          onClick={() => setPeriod(item)}
+                        >
+                          {{ day: "일", week: "주", month: "월" }[item]}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="period-navigation" aria-label="활동 기록 기간 이동">
+                      <button
+                        className="period-nav-button"
+                        type="button"
+                        aria-label="이전 기간"
+                        onClick={() => setSelectedDateKey((value) => shiftSelectedDateKey(value, period, -1))}
+                      >
+                        ‹
+                      </button>
+                      <label className="period-date-picker">
+                        <span>{periodRangeLabel}</span>
+                        <input
+                          type="date"
+                          aria-label="활동 기록 기준 날짜 선택"
+                          value={selectedDateKey}
+                          onChange={(event) => setSelectedDateKey(event.target.value || dateKey())}
+                        />
+                      </label>
+                      <button className="period-today-button" type="button" onClick={() => setSelectedDateKey(dateKey())}>
+                        오늘
+                      </button>
+                      <button
+                        className="period-nav-button"
+                        type="button"
+                        aria-label="다음 기간"
+                        onClick={() => setSelectedDateKey((value) => shiftSelectedDateKey(value, period, 1))}
+                      >
+                        ›
+                      </button>
+                    </div>
+                    <button className="secondary-button print-action" type="button" onClick={printWeeklyActivityReport}>
+                      주간 PDF 출력
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 
-            <div className="stats-grid">
-              {[
-                ["선택 아동", childSummary.name],
-                ["기간 활동", `${periodLogs.length}건`],
-                ["읽기 시간", `${totalMinutes}분`],
-                ["읽은 책", `${readBookCount}권`],
-              ].map(([label, value]) => (
-                <article className="stat" key={label}>
-                  <p>{label}</p>
-                  <strong>{value}</strong>
-                </article>
-              ))}
-            </div>
-
-            <section className="parent-section" aria-labelledby="manualLogTitle">
-              <div className="section-heading compact">
-                <div>
-                  <p className="eyebrow">수기 기록</p>
-                  <h2 id="manualLogTitle">부모 직접 입력</h2>
+            {parentPanel === "activity" ? (
+              <>
+                <div className="stats-grid">
+                  {[
+                    ["선택 아동", childSummary.name],
+                    ["기간 활동", `${periodLogs.length}건`],
+                    ["읽기 시간", `${totalMinutes}분`],
+                    ["읽은 책", `${readBookCount}권`],
+                  ].map(([label, value]) => (
+                    <article className="stat" key={label}>
+                      <p>{label}</p>
+                      <strong>{value}</strong>
+                    </article>
+                  ))}
                 </div>
-              </div>
-              <form className="form-grid" onSubmit={addManualLogDb}>
-                <label>
-                  날짜
-                  <input name="manualDate" type="date" required defaultValue={dateKey()} />
-                </label>
-                <label>
-                  구분
-                  <select name="manualType" defaultValue="dvd">
-                    <option value="dvd">DVD</option>
-                    <option value="passiveListen">흘려듣기</option>
-                    <option value="korean">한글책</option>
-                    <option value="englishPicture">영어 그림책</option>
-                    <option value="extraStudy">기타학습</option>
-                  </select>
-                </label>
-                <label>
-                  제목/내용
-                  <input name="manualTitle" type="text" placeholder="Arthur DVD, 영어 단어장 2쪽" required />
-                </label>
-                <label>
-                  시간
-                  <input name="manualMinutes" type="number" min="0" step="5" defaultValue="20" />
-                </label>
-                <label className="wide">
-                  특이사항
-                  <input name="manualNote" type="text" placeholder="선택 입력" />
-                </label>
-                <button className="primary-button" type="submit">
-                  기록 추가
-                </button>
-              </form>
-            </section>
 
-            <section className="parent-section print-report" aria-labelledby="logTitle">
-              <div className="section-heading compact">
-                <div>
-                  <p className="eyebrow">진행표</p>
-                  <h2 id="logTitle">활동 기록</h2>
-                  <p className="print-only report-subtitle">
-                    {childSummary.name} · {periodRangeLabel} · 활동 {periodLogs.length}건 · 읽기 {totalMinutes}분 · 읽은 책 {readBookCount}권
-                  </p>
-                </div>
-              </div>
-              <div className="table-wrap">
-                <table className="activity-table">
-                  <thead>
-                    <tr>
-                      <th>날짜</th>
-                      <th>DVD</th>
-                      <th>흘려듣기</th>
-                      <th>집중듣기</th>
-                      <th>소리내어 읽기</th>
-                      <th>한글책</th>
-                      <th>영어 그림책</th>
-                      <th>기타학습</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {activityTableDates.length ? (
-                      activityTableDates.map((date) => {
-                        const logs = groupedPeriodLogs[date] ?? [];
-                        return (
-                          <tr key={date}>
-                            <td>
-                              <strong>{formatDate(date, { includeWeekday: true })}</strong>
+                <section className="parent-section print-report" aria-labelledby="logTitle">
+                  <div className="section-heading compact">
+                    <div>
+                      <p className="eyebrow">진행표</p>
+                      <h2 id="logTitle">활동 기록</h2>
+                      <p className="print-only report-subtitle">
+                        {childSummary.name} · {periodRangeLabel} · 활동 {periodLogs.length}건 · 읽기 {totalMinutes}분 · 읽은 책 {readBookCount}권
+                      </p>
+                    </div>
+                  </div>
+                  <div className="table-wrap">
+                    <table className="activity-table">
+                      <thead>
+                        <tr>
+                          <th>날짜</th>
+                          <th>DVD</th>
+                          <th>흘려듣기</th>
+                          <th>집중듣기</th>
+                          <th>소리내어 읽기</th>
+                          <th>한글책</th>
+                          <th>영어 그림책</th>
+                          <th>기타학습</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {activityTableDates.length ? (
+                          activityTableDates.map((date) => {
+                            const logs = groupedPeriodLogs[date] ?? [];
+                            return (
+                              <tr key={date}>
+                                <td>
+                                  <strong>{formatDate(date, { includeWeekday: true })}</strong>
+                                </td>
+                                <td>{renderCell(logs, { types: "dvd" })}</td>
+                                <td>{renderCell(logs, { types: "passiveListen" })}</td>
+                                <td>{renderCell(logs, { activityCategories: "focusListen", bookSummary: true })}</td>
+                                <td>{renderCell(logs, { activityCategories: "readAloud", bookSummary: true })}</td>
+                                <td>{renderCell(logs, { types: "korean" })}</td>
+                                <td>{renderCell(logs, { types: "englishPicture", activityCategories: "englishPicture", bookSummary: true })}</td>
+                                <td>{renderCell(logs, { types: "extraStudy", activityCategories: "extraStudy" })}</td>
+                              </tr>
+                            );
+                          })
+                        ) : (
+                          <tr>
+                            <td colSpan={8}>
+                              <div className="empty-state">선택한 기간에 기록이 없습니다.</div>
                             </td>
-                            <td>{renderCell(logs, { types: "dvd" })}</td>
-                            <td>{renderCell(logs, { types: "passiveListen" })}</td>
-                            <td>{renderCell(logs, { activityCategories: "focusListen", bookSummary: true })}</td>
-                            <td>{renderCell(logs, { activityCategories: "readAloud", bookSummary: true })}</td>
-                            <td>{renderCell(logs, { types: "korean" })}</td>
-                            <td>{renderCell(logs, { types: "englishPicture", activityCategories: "englishPicture", bookSummary: true })}</td>
-                            <td>{renderCell(logs, { types: "extraStudy", activityCategories: "extraStudy" })}</td>
                           </tr>
-                        );
-                      })
-                    ) : (
-                      <tr>
-                        <td colSpan={8}>
-                          <div className="empty-state">선택한 기간에 기록이 없습니다.</div>
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </section>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+              </>
+            ) : (
+              <section className="parent-section" aria-labelledby="manualLogTitle">
+                <div className="section-heading compact">
+                  <div>
+                    <p className="eyebrow">수기 기록</p>
+                    <h2 id="manualLogTitle">부모 직접 입력</h2>
+                  </div>
+                </div>
+                <form className="form-grid" onSubmit={addManualLogDb}>
+                  <label>
+                    날짜
+                    <input name="manualDate" type="date" required defaultValue={dateKey()} />
+                  </label>
+                  <label>
+                    구분
+                    <select name="manualType" defaultValue="dvd">
+                      <option value="dvd">DVD</option>
+                      <option value="passiveListen">흘려듣기</option>
+                      <option value="korean">한글책</option>
+                      <option value="englishPicture">영어 그림책</option>
+                      <option value="extraStudy">기타학습</option>
+                    </select>
+                  </label>
+                  <label>
+                    제목/내용
+                    <input name="manualTitle" type="text" placeholder="Arthur DVD, 영어 단어장 2쪽" required />
+                  </label>
+                  <label>
+                    시간
+                    <input name="manualMinutes" type="number" min="0" step="5" defaultValue="20" />
+                  </label>
+                  <label className="wide">
+                    특이사항
+                    <input name="manualNote" type="text" placeholder="선택 입력" />
+                  </label>
+                  <button className="primary-button" type="submit">
+                    기록 추가
+                  </button>
+                </form>
+              </section>
+            )}
 
           </section>
         )}

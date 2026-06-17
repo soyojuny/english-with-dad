@@ -122,7 +122,8 @@ a {
 }
 
 .mode-switch,
-.period-switch {
+.period-switch,
+.parent-panel-switch {
   display: inline-flex;
   gap: 4px;
   padding: 4px;
@@ -132,7 +133,8 @@ a {
 }
 
 .mode-switch button,
-.period-switch button {
+.period-switch button,
+.parent-panel-switch button {
   min-width: 70px;
   border: 0;
   border-radius: 6px;
@@ -144,7 +146,8 @@ a {
 }
 
 .mode-switch button.is-active,
-.period-switch button.is-active {
+.period-switch button.is-active,
+.parent-panel-switch button.is-active {
   background: var(--blue);
   color: #fff;
 }
@@ -1238,6 +1241,7 @@ label > textarea {
   }
 
   .mode-switch,
+  .parent-panel-switch,
   .topbar-actions,
   .profile-summary {
     overflow-x: auto;
