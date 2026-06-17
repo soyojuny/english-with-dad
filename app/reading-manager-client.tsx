@@ -1,8 +1,8 @@
 ﻿"use client";
 
-import jsQR from "jsqr";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, FormEvent } from "react";
+import { MaterialThumb, formatMaterialMeta } from "./material-thumb";
 import {
   activityCategoryOrder,
   bookContentTypeLabels,
@@ -32,13 +32,26 @@ import {
   taskDefinitions,
   taskCountOptions,
 } from "../lib/reading-data";
+import {
+  bookToDraft,
+  childToDraft,
+  emptyBookDraft,
+  emptyChildDraft,
+} from "../lib/reading-drafts";
+import type { BookDraft, ChildDraft } from "../lib/reading-drafts";
+import {
+  formatPeriodRangeLabel,
+  getPeriodDateRange,
+  shiftSelectedDateKey,
+} from "../lib/reading-period";
+import type { Period } from "../lib/reading-period";
+import { readQrValueFromSource } from "../lib/qr-reader";
 import type {
   ActivityCategory,
   ActivityLog,
   Assignment,
   Book,
   BookContentType,
-  Child,
   ManualLogType,
   ReadingData,
   TaskCountMap,
@@ -48,6 +61,7 @@ import { createClient } from "../lib/supabase/client";
 import {
   deleteAssignment as deleteAssignmentRecord,
   fetchBookManageData,
+  fetchBookSeriesNames,
   fetchChildTodayData,
   fetchLibraryData,
   fetchParentActivityData,
@@ -62,33 +76,10 @@ import {
 } from "../lib/supabase/reading-store";
 
 type ViewName = "child" | "parent" | "books" | "assign";
-type Period = "day" | "week" | "month";
 type ParentPanel = "activity" | "manual";
 type AudioLinkField = "listen" | "shadow";
 type BookListFilter = "active" | "attention" | "ready" | "inactive";
 type ChildManualLogType = Extract<ManualLogType, "korean" | "englishPicture">;
-
-type BookDraft = {
-  id: string;
-  contentType: BookContentType;
-  series: string;
-  title: string;
-  volume: string;
-  level: string;
-  cover: string;
-  audio: {
-    listen: string;
-    shadow: string;
-  };
-  note: string;
-};
-
-type ChildDraft = {
-  id: string;
-  name: string;
-  level: string;
-  goal: string;
-};
 
 type QrState = {
   open: boolean;
@@ -96,73 +87,6 @@ type QrState = {
   status: string;
 };
 
-const emptyBookDraft: BookDraft = {
-  id: "",
-  contentType: "book",
-  series: "",
-  title: "",
-  volume: "",
-  level: "",
-  cover: "",
-  audio: { listen: "", shadow: "" },
-  note: "",
-};
-
-const emptyChildDraft: ChildDraft = {
-  id: "",
-  name: "",
-  level: "",
-  goal: "",
-};
-
-function bookToDraft(book: Book | null): BookDraft {
-  if (!book) return { ...emptyBookDraft, audio: { ...emptyBookDraft.audio } };
-  return {
-    id: book.id,
-    contentType: book.contentType,
-    series: book.series,
-    title: book.title,
-    volume: book.volume,
-    level: book.level,
-    cover: book.cover,
-    audio: { ...book.audio },
-    note: book.note,
-  };
-}
-
-function childToDraft(child: Child | null): ChildDraft {
-  if (!child) return { ...emptyChildDraft };
-  return {
-    id: child.id,
-    name: child.name,
-    level: child.level,
-    goal: child.goal,
-  };
-}
-
-function selectedValues(formData: FormData, name: string) {
-  return formData.getAll(name).map(String);
-}
-
-function drawQrSourceToCanvas(source: CanvasImageSource, width: number, height: number) {
-  if (!width || !height) return null;
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const context = canvas.getContext("2d", { willReadFrequently: true });
-  if (!context) return null;
-  context.drawImage(source, 0, 0, width, height);
-  return context.getImageData(0, 0, width, height);
-}
-
-function readQrValueFromSource(source: CanvasImageSource, width: number, height: number) {
-  const imageData = drawQrSourceToCanvas(source, width, height);
-  if (!imageData) return null;
-  const result = jsQR(imageData.data, imageData.width, imageData.height, {
-    inversionAttempts: "attemptBoth",
-  });
-  return result?.data?.trim() ?? null;
-}
 
 type ReadingManagerClientProps = {
   ownerUserId: string;
@@ -176,66 +100,6 @@ type ActiveProfile =
   | { kind: "library" }
   | null;
 
-function parseDateKey(value: string) {
-  return new Date(`${value}T00:00:00`);
-}
-
-function getPeriodDateRange(period: Period, selectedDateKey: string) {
-  const selectedDate = parseDateKey(selectedDateKey);
-  const start = new Date(selectedDate);
-  const end = new Date(selectedDate);
-
-  if (period === "week") {
-    start.setDate(selectedDate.getDate() - selectedDate.getDay());
-    end.setTime(start.getTime());
-    end.setDate(start.getDate() + 6);
-  }
-
-  if (period === "month") {
-    start.setDate(1);
-    end.setFullYear(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
-  }
-
-  return {
-    startKey: dateKey(start),
-    endKey: dateKey(end),
-  };
-}
-
-function shiftSelectedDateKey(selectedDateKey: string, period: Period, offset: number) {
-  const selectedDate = parseDateKey(selectedDateKey);
-
-  if (period === "day") {
-    selectedDate.setDate(selectedDate.getDate() + offset);
-  }
-
-  if (period === "week") {
-    selectedDate.setDate(selectedDate.getDate() + offset * 7);
-  }
-
-  if (period === "month") {
-    selectedDate.setDate(1);
-    selectedDate.setMonth(selectedDate.getMonth() + offset);
-  }
-
-  return dateKey(selectedDate);
-}
-
-function formatRangeDate(value: string) {
-  const date = parseDateKey(value);
-  return `${date.getFullYear()}. ${formatDate(value, { includeWeekday: true })}`;
-}
-
-function formatPeriodRangeLabel(period: Period, dateKeys: string[]) {
-  const startKey = dateKeys[0] ?? dateKey();
-  const endKey = dateKeys[dateKeys.length - 1] ?? startKey;
-  const startDate = parseDateKey(startKey);
-
-  if (period === "day") return formatRangeDate(startKey);
-  if (period === "month") return `${startDate.getFullYear()}. ${startDate.getMonth() + 1}`;
-  return `${formatRangeDate(startKey)} - ${formatRangeDate(endKey)}`;
-}
-
 export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: ReadingManagerClientProps) {
   const [data, setData] = useState<ReadingData>(emptyReadingData);
   const [isLoadingData, setIsLoadingData] = useState(true);
@@ -247,14 +111,18 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const [parentPanel, setParentPanel] = useState<ParentPanel>("activity");
   const [weeklyPrintRequested, setWeeklyPrintRequested] = useState(false);
   const [selectedDateKey, setSelectedDateKey] = useState(() => dateKey());
+  const [loadedParentActivityRangeKey, setLoadedParentActivityRangeKey] = useState("");
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>("");
   const [selectedBookId, setSelectedBookId] = useState<string>("");
   const [seriesFilter, setSeriesFilter] = useState("all");
   const [bookSearch, setBookSearch] = useState("");
   const [manageSeriesFilter, setManageSeriesFilter] = useState("all");
   const [manageBookSearch, setManageBookSearch] = useState("");
+  const [manageBookResults, setManageBookResults] = useState<Book[]>([]);
+  const [manageSeriesNames, setManageSeriesNames] = useState<string[]>([]);
   const [isBookManageDataLoaded, setIsBookManageDataLoaded] = useState(false);
   const [isLoadingBookManageData, setIsLoadingBookManageData] = useState(false);
+  const [isLoadingBookSeries, setIsLoadingBookSeries] = useState(false);
   const [isAssignBookDataLoaded, setIsAssignBookDataLoaded] = useState(false);
   const [assignSeriesFilter, setAssignSeriesFilter] = useState("all");
   const [assignBookSearch, setAssignBookSearch] = useState("");
@@ -280,7 +148,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
 
   const activeBooks = useMemo(() => data.books.filter((book) => book.active !== false), [data.books]);
   const activeBookItems = useMemo(() => activeBooks.filter((book) => !isWordReadingMaterial(book)), [activeBooks]);
-  const manageBooks = useMemo(() => (isBookManageDataLoaded ? data.books : []), [data.books, isBookManageDataLoaded]);
+  const manageBooks = useMemo(() => (isBookManageDataLoaded ? manageBookResults : []), [isBookManageDataLoaded, manageBookResults]);
   const activeManageBooks = useMemo(() => manageBooks.filter((book) => book.active !== false), [manageBooks]);
   const inactiveManageBooks = useMemo(() => manageBooks.filter((book) => book.active === false), [manageBooks]);
   const child = useMemo(
@@ -302,13 +170,18 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     [activeBooks],
   );
   const allSeriesNames = useMemo(
-    () => (isBookManageDataLoaded ? [...new Set(data.books.map((book) => book.series).filter(Boolean))].sort() : []),
-    [data.books, isBookManageDataLoaded],
+    () => manageSeriesNames,
+    [manageSeriesNames],
   );
   const draftSourceBook = useMemo(
-    () => data.books.find((book) => book.id === bookDraft.id) ?? null,
-    [bookDraft.id, data.books],
+    () => data.books.find((book) => book.id === bookDraft.id) ?? manageBookResults.find((book) => book.id === bookDraft.id) ?? null,
+    [bookDraft.id, data.books, manageBookResults],
   );
+  const parentActivityRange = useMemo(
+    () => getPeriodDateRange(period, selectedDateKey),
+    [period, selectedDateKey],
+  );
+  const parentActivityRangeKey = `${parentActivityRange.startKey}:${parentActivityRange.endKey}`;
 
   const getBook = (bookId: string) => data.books.find((book) => book.id === bookId);
   const getAssignment = (assignmentId: string) =>
@@ -374,11 +247,26 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
 
       try {
         if (activeProfile.kind === "parent") {
-          const nextData = await fetchParentActivityData(supabase, ownerUserId);
+          setLoadedParentActivityRangeKey("");
+          const nextData = await fetchParentActivityData(supabase, ownerUserId, parentActivityRange);
           if (cancelled) return;
-          setData(nextData);
+          setData((current) => {
+            const booksById = new Map(current.books.map((book) => [book.id, book]));
+            nextData.books.forEach((book) => booksById.set(book.id, book));
+
+            return {
+              children: nextData.children,
+              books: [...booksById.values()],
+              assignments: nextData.assignments,
+              completions: nextData.completions,
+              audioLaunches: nextData.audioLaunches,
+              manualLogs: nextData.manualLogs,
+            };
+          });
+          setManageBookResults([]);
           setIsBookManageDataLoaded(false);
           setIsAssignBookDataLoaded(false);
+          setLoadedParentActivityRangeKey(parentActivityRangeKey);
           return;
         }
 
@@ -393,6 +281,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
             audioLaunches: {},
             manualLogs: [],
           }));
+          setManageBookResults([]);
           setIsBookManageDataLoaded(false);
           setIsAssignBookDataLoaded(false);
           return;
@@ -408,6 +297,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           audioLaunches: nextData.audioLaunches,
           manualLogs: [],
         }));
+        setManageBookResults([]);
         setIsBookManageDataLoaded(false);
         setIsAssignBookDataLoaded(false);
       } catch (error) {
@@ -424,10 +314,38 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     return () => {
       cancelled = true;
     };
-  }, [activeProfile, ownerUserId, supabase]);
+  }, [activeProfile, ownerUserId, parentActivityRange, parentActivityRangeKey, supabase]);
 
   useEffect(() => {
-    if (activeProfile?.kind !== "parent" || view !== "assign" || isLoadingData) return;
+    if (activeProfile?.kind !== "parent" || view !== "books" || manageSeriesNames.length) return;
+
+    let cancelled = false;
+
+    const load = async () => {
+      setIsLoadingBookSeries(true);
+
+      try {
+        const seriesNames = await fetchBookSeriesNames(supabase, ownerUserId);
+        if (cancelled) return;
+        setManageSeriesNames(seriesNames);
+      } catch (error) {
+        if (cancelled) return;
+        setSyncError(error instanceof Error ? error.message : "시리즈 목록을 불러오지 못했습니다.");
+        showToast("시리즈 목록을 불러오지 못했습니다. 전체 시리즈로 조회해 주세요.");
+      } finally {
+        if (!cancelled) setIsLoadingBookSeries(false);
+      }
+    };
+
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeProfile, manageSeriesNames.length, ownerUserId, supabase, view]);
+
+  useEffect(() => {
+    if (activeProfile?.kind !== "parent" || view !== "assign") return;
     if (isBookManageDataLoaded || isAssignBookDataLoaded) return;
 
     let cancelled = false;
@@ -458,7 +376,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     return () => {
       cancelled = true;
     };
-  }, [activeProfile, isAssignBookDataLoaded, isBookManageDataLoaded, isLoadingData, ownerUserId, supabase, view]);
+  }, [activeProfile, isAssignBookDataLoaded, isBookManageDataLoaded, ownerUserId, supabase, view]);
 
   useEffect(() => {
     if (isLoadingData || profileLoadedRef.current) return;
@@ -552,7 +470,14 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   }, [toast]);
 
   useEffect(() => {
-    if (!weeklyPrintRequested || period !== "week" || parentPanel !== "activity") return undefined;
+    if (
+      !weeklyPrintRequested ||
+      period !== "week" ||
+      parentPanel !== "activity" ||
+      loadedParentActivityRangeKey !== parentActivityRangeKey
+    ) {
+      return undefined;
+    }
 
     const timer = window.setTimeout(() => {
       window.print();
@@ -560,7 +485,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     }, 120);
 
     return () => window.clearTimeout(timer);
-  }, [parentPanel, period, weeklyPrintRequested]);
+  }, [loadedParentActivityRangeKey, parentActivityRangeKey, parentPanel, period, weeklyPrintRequested]);
 
   useEffect(() => {
     if (!activeProfile) return;
@@ -722,9 +647,9 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const allLogs = useMemo<ActivityLog[]>(() => [...data.manualLogs, ...completionLogs], [completionLogs, data.manualLogs]);
 
   const periodDateKeys = useMemo(() => {
-    const { startKey, endKey } = getPeriodDateRange(period, selectedDateKey);
+    const { startKey, endKey } = parentActivityRange;
     return datesInRange(startKey, endKey);
-  }, [period, selectedDateKey]);
+  }, [parentActivityRange]);
 
   const periodRangeLabel = useMemo(() => formatPeriodRangeLabel(period, periodDateKeys), [period, periodDateKeys]);
 
@@ -783,7 +708,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     if (!title || (!isWordReadingDraft && !series)) return null;
 
     return (
-      data.books.find(
+      manageBookResults.find(
         (book) =>
           book.id !== bookDraft.id &&
           book.contentType === bookDraft.contentType &&
@@ -792,7 +717,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           normalizeText(book.volume) === volume,
       ) ?? null
     );
-  }, [bookDraft.contentType, bookDraft.id, bookDraft.series, bookDraft.title, bookDraft.volume, data.books, isBookManageDataLoaded, isWordReadingDraft]);
+  }, [bookDraft.contentType, bookDraft.id, bookDraft.series, bookDraft.title, bookDraft.volume, isBookManageDataLoaded, isWordReadingDraft, manageBookResults]);
   const bookFormDirty = useMemo(
     () => JSON.stringify(bookToDraft(draftSourceBook)) !== JSON.stringify(bookDraft),
     [bookDraft, draftSourceBook],
@@ -854,15 +779,22 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     setSyncError("");
 
     try {
-      const nextData = await fetchBookManageData(supabase, ownerUserId);
-      setData((current) => ({
-        ...current,
-        books: nextData.books,
-        assignments: nextData.assignments,
-      }));
+      const nextData = await fetchBookManageData(supabase, ownerUserId, {
+        series: manageSeriesFilter,
+        title: manageBookSearch.trim(),
+      });
+      setManageBookResults(nextData.books);
+      setData((current) => {
+        const booksById = new Map(current.books.map((book) => [book.id, book]));
+        nextData.books.forEach((book) => booksById.set(book.id, book));
+        return { ...current, books: [...booksById.values()] };
+      });
+      setManageSeriesNames((current) => {
+        const seriesNames = nextData.books.map((book) => book.series.trim()).filter(Boolean);
+        return [...new Set([...current, ...seriesNames])].sort();
+      });
       setIsBookManageDataLoaded(true);
-      setIsAssignBookDataLoaded(true);
-      showToast("등록된 자료 목록을 불러왔습니다.");
+      showToast("자료를 조회했습니다.");
     } catch (error) {
       setSyncError(error instanceof Error ? error.message : "자료 목록을 불러오지 못했습니다.");
       showToast("자료 목록을 불러오지 못했습니다.");
@@ -954,14 +886,6 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     showToast("읽기 링크를 정따 링크에 복사했습니다.");
   };
 
-  const addManualLog = (event: FormEvent<HTMLFormElement>) => addManualLogDb(event);
-
-  const saveBook = (event: FormEvent<HTMLFormElement>) => saveBookDb(event);
-
-  const deactivateBook = () => deactivateBookDb();
-
-  const reactivateBook = () => reactivateBookDb();
-
   const readCoverFile = (file: File | undefined) => {
     if (!file) return;
     const reader = new FileReader();
@@ -995,10 +919,6 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       showToast("QR 이미지를 읽지 못했습니다.");
     }
   };
-
-  const createAssignments = (event: FormEvent<HTMLFormElement>) => createAssignmentsDb(event);
-
-  const deleteAssignment = (assignmentId: string) => deleteAssignmentDb(assignmentId);
 
   const saveBookDb = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -1037,6 +957,16 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
         else books.push(savedBook);
         return { ...current, books };
       });
+      setManageBookResults((current) => {
+        const existingIndex = current.findIndex((book) => book.id === savedBook.id);
+        const books = [...current];
+        if (existingIndex >= 0) books[existingIndex] = savedBook;
+        else if (isBookManageDataLoaded) books.unshift(savedBook);
+        return books;
+      });
+      setManageSeriesNames((current) =>
+        savedBook.series && !current.includes(savedBook.series) ? [...current, savedBook.series].sort() : current,
+      );
       setBookDraft(bookToDraft(savedBook));
       setBookDraftMode("edit");
       setBookListFilter(savedBook.active === false ? "inactive" : "active");
@@ -1062,6 +992,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
         ...current,
         books: current.books.map((book) => (book.id === savedBook.id ? savedBook : book)),
       }));
+      setManageBookResults((current) => current.map((book) => (book.id === savedBook.id ? savedBook : book)));
       setBookDraft(bookToDraft(savedBook));
       setBookListFilter("inactive");
       showToast("자료를 비활성 목록으로 옮겼습니다.");
@@ -1082,6 +1013,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
         ...current,
         books: current.books.map((book) => (book.id === savedBook.id ? savedBook : book)),
       }));
+      setManageBookResults((current) => current.map((book) => (book.id === savedBook.id ? savedBook : book)));
       setBookDraft(bookToDraft(savedBook));
       setBookListFilter("active");
       showToast("자료를 다시 활성화했습니다.");
@@ -1517,21 +1449,6 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     })),
   ];
 
-  const renderMaterialThumb = (book: Book, className = "") => {
-    if (!isWordReadingMaterial(book)) {
-      return <img className={className || undefined} src={book.cover} alt={`${book.title} 표지`} />;
-    }
-
-    const classNames = ["material-thumb", className].filter(Boolean).join(" ");
-    return (
-      <div className={classNames} role="img" aria-label={`${book.title} 단어 읽기 자료`}>
-        ABC
-      </div>
-    );
-  };
-
-  const formatMaterialMeta = (book: Book) => [book.volume, book.level].filter(Boolean).join(" · ");
-
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -1783,7 +1700,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                             setSelectedBookId("");
                           }}
                         >
-                          {renderMaterialThumb(book)}
+                          <MaterialThumb book={book} />
                           <div className="assignment-card-copy">
                             <div className="assignment-card-header">
                               <div className="assignment-card-heading">
@@ -1821,7 +1738,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                 {selectedBook ? (
                   <>
                     <div className="selected-book-header">
-                      {renderMaterialThumb(selectedBook, "book-cover")}
+                      <MaterialThumb book={selectedBook} className="book-cover" />
                       <div>
                         <p className="eyebrow">{selectedBook.series}</p>
                         <h3>{selectedBook.title}</h3>
@@ -1972,7 +1889,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                             setSelectedAssignmentId("");
                           }}
                         >
-                          {renderMaterialThumb(book, "book-cover")}
+                          <MaterialThumb book={book} className="book-cover" />
                           <span>
                             <p className="eyebrow">{book.series}</p>
                             <h3>{book.title}</h3>
@@ -1993,7 +1910,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                 {selectedBook ? (
                   <>
                     <div className="selected-book-header">
-                      {renderMaterialThumb(selectedBook, "book-cover")}
+                      <MaterialThumb book={selectedBook} className="book-cover" />
                       <div>
                         <p className="eyebrow">{selectedBook.series}</p>
                         <h3>{selectedBook.title}</h3>
@@ -2049,13 +1966,13 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
             <div className="section-heading">
               <div>
                 <p className="eyebrow">부모 관리</p>
-                <h2 id="parentTitle">{parentPanel === "activity" ? "활동 기록과 읽은 책 현황" : "수기 기록 입력"}</h2>
+                <h2 id="parentTitle">{parentPanel === "activity" ? "활동 기록" : "수기 입력"}</h2>
               </div>
               <div className="period-toolbar">
                 <div className="parent-panel-switch" aria-label="부모 관리 화면 선택">
                   {([
                     ["activity", "활동 기록"],
-                    ["manual", "수기 기록"],
+                    ["manual", "수기 입력"],
                   ] as Array<[ParentPanel, string]>).map(([panel, label]) => (
                     <button
                       className={parentPanel === panel ? "is-active" : ""}
@@ -2193,7 +2110,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
               <section className="parent-section" aria-labelledby="manualLogTitle">
                 <div className="section-heading compact">
                   <div>
-                    <p className="eyebrow">수기 기록</p>
+                    <p className="eyebrow">수기 입력</p>
                     <h2 id="manualLogTitle">부모 직접 입력</h2>
                   </div>
                 </div>
@@ -2243,7 +2160,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
               </div>
               <div className="summary-strip">
                 <span className="summary-pill">
-                  <strong>{isBookManageDataLoaded ? activeManageBooks.length : "-"}</strong>건 운영 중
+                  조회 결과 <strong>{isBookManageDataLoaded ? activeManageBooks.length : "-"}</strong>건 운영 중
                 </span>
                 <span className="summary-pill">
                   <strong>{isBookManageDataLoaded ? manageAttentionCount : "-"}</strong>건 입력 필요
@@ -2558,20 +2475,10 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     <h2 id="bookListTitle">등록된 자료</h2>
                   </div>
                   <div className="library-tools manage-tools">
-                    {!isBookManageDataLoaded && (
-                      <button
-                        className="secondary-button"
-                        type="button"
-                        onClick={loadBookManageData}
-                        disabled={isLoadingBookManageData}
-                      >
-                        {isLoadingBookManageData ? "불러오는 중..." : "수정할 자료 불러오기"}
-                      </button>
-                    )}
                     <select
                       value={manageSeriesFilter}
                       aria-label="자료 관리 시리즈 선택"
-                      disabled={!isBookManageDataLoaded}
+                      disabled={isLoadingBookSeries}
                       onChange={(event) => setManageSeriesFilter(event.target.value)}
                     >
                       <option value="all">전체 시리즈</option>
@@ -2584,10 +2491,23 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     <input
                       value={manageBookSearch}
                       type="search"
-                      placeholder="자료 제목, 시리즈, 레벨 검색"
-                      disabled={!isBookManageDataLoaded}
+                      placeholder="자료 제목 검색"
                       onChange={(event) => setManageBookSearch(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                          event.preventDefault();
+                          void loadBookManageData();
+                        }
+                      }}
                     />
+                    <button
+                      className="secondary-button"
+                      type="button"
+                      onClick={loadBookManageData}
+                      disabled={isLoadingBookManageData}
+                    >
+                      {isLoadingBookManageData ? "조회 중..." : "조회"}
+                    </button>
                   </div>
                 </div>
 
@@ -2613,14 +2533,14 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
 
                 <div className="manage-list">
                   {!isBookManageDataLoaded ? (
-                    <div className="empty-state">기존 자료를 수정할 때만 등록된 자료 목록을 불러옵니다.</div>
+                    <div className="empty-state">시리즈를 선택하거나 제목을 입력한 뒤 조회하세요.</div>
                   ) : filteredManageBooks.length ? (
                     filteredManageBooks.map((book) => {
                       const issues = getBookSetupIssues(book);
                       const assignmentCount = bookAssignmentCounts[book.id] ?? 0;
                       return (
                         <article className={`manage-item ${book.id === bookDraft.id ? "is-selected" : ""}`} key={book.id}>
-                          {renderMaterialThumb(book)}
+                          <MaterialThumb book={book} />
                           <button
                             type="button"
                             onClick={() => {
@@ -2782,7 +2702,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                       if (!book) return null;
                       return (
                         <article className="manage-item" key={assignment.id}>
-                          {renderMaterialThumb(book)}
+                          <MaterialThumb book={book} />
                           <div>
                             <h3>
                               {formatDate(assignment.date)} · {book.title}

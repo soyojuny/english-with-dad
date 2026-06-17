@@ -82,6 +82,10 @@ type ManualLogRow = {
   note: string;
 };
 
+type BookSeriesRow = {
+  series: string | null;
+};
+
 const bookSelectColumns =
   "id, owner_user_id, active, content_type, series, title, volume, level, cover, audio_listen, audio_shadow, note";
 
@@ -168,6 +172,10 @@ function toAudioLaunchRecord(rows: AudioLaunchRow[]) {
   }, {});
 }
 
+function toUniqueSeriesNames(rows: BookSeriesRow[]) {
+  return [...new Set(rows.map((row) => String(row.series ?? "").trim()).filter(Boolean))].sort();
+}
+
 function unwrap<T>(result: { data: T | null; error: { message: string } | null }, message: string): T {
   if (result.error || result.data === null) {
     throw new Error(result.error?.message ?? message);
@@ -238,6 +246,7 @@ export async function fetchReadingData(
 export async function fetchParentActivityData(
   supabase: SupabaseLikeClient,
   ownerUserId: string,
+  range: { startKey: string; endKey: string },
 ): Promise<ReadingData> {
   const [childrenResult, assignmentsResult, manualLogsResult] = await Promise.all([
     supabase
@@ -261,11 +270,15 @@ export async function fetchParentActivityData(
         audioLaunches:audio_launches!audio_launches_assignment_owner_fkey(assignment_id, task_type, opened_at, returned_at)
       `)
       .eq("owner_user_id", ownerUserId)
+      .gte("date", range.startKey)
+      .lte("date", range.endKey)
       .order("date", { ascending: true }),
     supabase
       .from("manual_logs")
       .select("id, child_id, date, type, title, minutes, note")
       .eq("owner_user_id", ownerUserId)
+      .gte("date", range.startKey)
+      .lte("date", range.endKey)
       .order("date", { ascending: true }),
   ]);
 
@@ -354,27 +367,47 @@ export async function fetchChildTodayData(
 export async function fetchBookManageData(
   supabase: SupabaseLikeClient,
   ownerUserId: string,
-): Promise<Pick<ReadingData, "books" | "assignments">> {
-  const [booksResult, assignmentsResult] = await Promise.all([
-    supabase
-      .from("books")
-      .select(bookSelectColumns)
-      .eq("owner_user_id", ownerUserId)
-      .order("created_at", { ascending: true }),
-    supabase
-      .from("assignments")
-      .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts")
-      .eq("owner_user_id", ownerUserId)
-      .order("date", { ascending: true }),
-  ]);
+  filters: { series?: string; title?: string } = {},
+): Promise<Pick<ReadingData, "books">> {
+  let query = supabase
+    .from("books")
+    .select(bookSelectColumns)
+    .eq("owner_user_id", ownerUserId);
 
+  if (filters.series && filters.series !== "all") {
+    query = query.eq("series", filters.series);
+  }
+
+  if (filters.title) {
+    query = query.ilike("title", `%${filters.title}%`);
+  }
+
+  const booksResult = await query.order("created_at", { ascending: true });
   if (booksResult.error) throw new Error(booksResult.error.message);
-  if (assignmentsResult.error) throw new Error(assignmentsResult.error.message);
 
   return {
     books: (booksResult.data ?? []).map((row) => mapBook(row as BookRow)),
-    assignments: (assignmentsResult.data ?? []).map((row) => mapAssignment(row as AssignmentRow)),
   };
+}
+
+export async function fetchBookSeriesNames(
+  supabase: SupabaseLikeClient,
+  ownerUserId: string,
+): Promise<string[]> {
+  const rpcResult = await supabase.rpc("book_series_names", { target_owner_user_id: ownerUserId });
+  if (!rpcResult.error) {
+    return toUniqueSeriesNames((rpcResult.data ?? []) as BookSeriesRow[]);
+  }
+
+  const result = await supabase
+    .from("books")
+    .select("series")
+    .eq("owner_user_id", ownerUserId)
+    .order("series", { ascending: true });
+
+  if (result.error) throw new Error(result.error.message);
+
+  return toUniqueSeriesNames((result.data ?? []) as BookSeriesRow[]);
 }
 
 export async function fetchLibraryData(
