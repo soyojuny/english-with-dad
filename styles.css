@@ -392,6 +392,10 @@ main {
   color: var(--ink);
 }
 
+.child-quick-log-button {
+  flex-shrink: 0;
+}
+
 .profile-gate {
   display: grid;
   gap: 18px;
@@ -1209,6 +1213,14 @@ label > textarea {
 .qr-dialog-actions {
   margin-top: 14px;
   align-items: center;
+}
+
+.quick-log-dialog {
+  max-width: 520px;
+}
+
+.quick-log-form {
+  margin-top: 16px;
 }
 
 .icon-button {

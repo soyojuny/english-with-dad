@@ -65,6 +65,7 @@ type Period = "day" | "week" | "month";
 type ParentPanel = "activity" | "manual";
 type AudioLinkField = "listen" | "shadow";
 type BookListFilter = "active" | "attention" | "ready" | "inactive";
+type ChildManualLogType = Extract<ManualLogType, "korean" | "englishPicture">;
 
 type BookDraft = {
   id: string;
@@ -254,6 +255,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const [assignSeriesFilter, setAssignSeriesFilter] = useState("all");
   const [assignBookSearch, setAssignBookSearch] = useState("");
   const [bookListFilter, setBookListFilter] = useState<BookListFilter>("active");
+  const [isChildManualLogOpen, setIsChildManualLogOpen] = useState(false);
   const [bookDraft, setBookDraft] = useState<BookDraft>(() => bookToDraft(null));
   const [bookDraftMode, setBookDraftMode] = useState<"new" | "edit">("new");
   const [childDraft, setChildDraft] = useState<ChildDraft>(emptyChildDraft);
@@ -1366,6 +1368,42 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     ));
   };
 
+  const addChildManualLogDb = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!childId) {
+      showToast("먼저 아동을 선택하세요.");
+      return;
+    }
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const title = String(formData.get("childManualTitle") ?? "").trim();
+    const type = String(formData.get("childManualType") ?? "korean") as ChildManualLogType;
+    if (!title) return;
+    if (type !== "korean" && type !== "englishPicture") {
+      showToast("기록 구분을 다시 선택하세요.");
+      return;
+    }
+
+    try {
+      const manualLog = await saveManualLog(supabase, ownerUserId, {
+        childId,
+        date: dateKey(),
+        type,
+        title,
+        minutes: Number(formData.get("childManualMinutes") ?? 10),
+        note: "",
+      });
+
+      setData((current) => ({ ...current, manualLogs: [...current.manualLogs, manualLog] }));
+      form.reset();
+      setIsChildManualLogOpen(false);
+      showToast("읽은 책 기록을 추가했습니다.");
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "읽은 책 기록을 저장하지 못했습니다.");
+    }
+  };
+
   const printWeeklyActivityReport = () => {
     if (!childId) {
       showToast("PDF로 출력할 아동을 먼저 선택하세요.");
@@ -1651,6 +1689,9 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                 <span className="summary-pill">
                   <strong>{todayAssignments.length}</strong>건 예정
                 </span>
+                <button className="secondary-button child-quick-log-button" type="button" onClick={() => setIsChildManualLogOpen(true)}>
+                  읽은 책 기록
+                </button>
               </div>
             </div>
 
@@ -2716,6 +2757,49 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
             />
             <p className="task-meta">카메라 인식이 안 되면 저장된 QR 사진이나 스크린샷을 올려서 읽을 수 있습니다.</p>
           </div>
+        </dialog>
+      )}
+
+      {isChildManualLogOpen && (
+        <dialog className="qr-dialog quick-log-dialog" open>
+          <button
+            className="icon-button"
+            type="button"
+            aria-label="닫기"
+            onClick={() => setIsChildManualLogOpen(false)}
+          >
+            ×
+          </button>
+          <div>
+            <p className="eyebrow">빠른 기록</p>
+            <h2>읽은 책 추가</h2>
+            <p className="task-meta">오늘 날짜로 저장됩니다.</p>
+          </div>
+          <form className="book-form quick-log-form" onSubmit={addChildManualLogDb}>
+            <label>
+              구분
+              <select name="childManualType" defaultValue="korean">
+                <option value="korean">한글책</option>
+                <option value="englishPicture">영어 그림책</option>
+              </select>
+            </label>
+            <label className="wide">
+              제목
+              <input name="childManualTitle" type="text" placeholder="책 제목" required autoFocus />
+            </label>
+            <label>
+              시간
+              <input name="childManualMinutes" type="number" min="0" step="5" defaultValue="10" />
+            </label>
+            <div className="form-actions wide">
+              <button className="secondary-button" type="button" onClick={() => setIsChildManualLogOpen(false)}>
+                취소
+              </button>
+              <button className="primary-button" type="submit">
+                기록 추가
+              </button>
+            </div>
+          </form>
         </dialog>
       )}
 
