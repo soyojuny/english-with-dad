@@ -47,10 +47,11 @@ import type {
 import { createClient } from "../lib/supabase/client";
 import {
   deleteAssignment as deleteAssignmentRecord,
+  fetchBookManageData,
   fetchChildTodayData,
   fetchLibraryData,
+  fetchParentActivityData,
   fetchReadingProfileData,
-  fetchReadingData,
   saveAssignments,
   saveAudioLaunch,
   saveBook as saveBookRecord,
@@ -252,6 +253,9 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const [bookSearch, setBookSearch] = useState("");
   const [manageSeriesFilter, setManageSeriesFilter] = useState("all");
   const [manageBookSearch, setManageBookSearch] = useState("");
+  const [isBookManageDataLoaded, setIsBookManageDataLoaded] = useState(false);
+  const [isLoadingBookManageData, setIsLoadingBookManageData] = useState(false);
+  const [isAssignBookDataLoaded, setIsAssignBookDataLoaded] = useState(false);
   const [assignSeriesFilter, setAssignSeriesFilter] = useState("all");
   const [assignBookSearch, setAssignBookSearch] = useState("");
   const [bookListFilter, setBookListFilter] = useState<BookListFilter>("active");
@@ -276,7 +280,9 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
 
   const activeBooks = useMemo(() => data.books.filter((book) => book.active !== false), [data.books]);
   const activeBookItems = useMemo(() => activeBooks.filter((book) => !isWordReadingMaterial(book)), [activeBooks]);
-  const inactiveBooks = useMemo(() => data.books.filter((book) => book.active === false), [data.books]);
+  const manageBooks = useMemo(() => (isBookManageDataLoaded ? data.books : []), [data.books, isBookManageDataLoaded]);
+  const activeManageBooks = useMemo(() => manageBooks.filter((book) => book.active !== false), [manageBooks]);
+  const inactiveManageBooks = useMemo(() => manageBooks.filter((book) => book.active === false), [manageBooks]);
   const child = useMemo(
     () => data.children.find((item) => item.id === childId) ?? { id: "", name: "", level: "", goal: "" },
     [childId, data.children],
@@ -296,8 +302,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     [activeBooks],
   );
   const allSeriesNames = useMemo(
-    () => [...new Set(data.books.map((book) => book.series).filter(Boolean))].sort(),
-    [data.books],
+    () => (isBookManageDataLoaded ? [...new Set(data.books.map((book) => book.series).filter(Boolean))].sort() : []),
+    [data.books, isBookManageDataLoaded],
   );
   const draftSourceBook = useMemo(
     () => data.books.find((book) => book.id === bookDraft.id) ?? null,
@@ -368,9 +374,11 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
 
       try {
         if (activeProfile.kind === "parent") {
-          const nextData = await fetchReadingData(supabase, ownerUserId);
+          const nextData = await fetchParentActivityData(supabase, ownerUserId);
           if (cancelled) return;
           setData(nextData);
+          setIsBookManageDataLoaded(false);
+          setIsAssignBookDataLoaded(false);
           return;
         }
 
@@ -385,6 +393,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
             audioLaunches: {},
             manualLogs: [],
           }));
+          setIsBookManageDataLoaded(false);
+          setIsAssignBookDataLoaded(false);
           return;
         }
 
@@ -398,6 +408,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           audioLaunches: nextData.audioLaunches,
           manualLogs: [],
         }));
+        setIsBookManageDataLoaded(false);
+        setIsAssignBookDataLoaded(false);
       } catch (error) {
         if (cancelled) return;
         setSyncError(error instanceof Error ? error.message : "데이터를 불러오지 못했습니다.");
@@ -413,6 +425,40 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       cancelled = true;
     };
   }, [activeProfile, ownerUserId, supabase]);
+
+  useEffect(() => {
+    if (activeProfile?.kind !== "parent" || view !== "assign" || isLoadingData) return;
+    if (isBookManageDataLoaded || isAssignBookDataLoaded) return;
+
+    let cancelled = false;
+
+    const load = async () => {
+      setIsLoadingData(true);
+      setSyncError("");
+
+      try {
+        const nextData = await fetchLibraryData(supabase, ownerUserId);
+        if (cancelled) return;
+        setData((current) => ({
+          ...current,
+          books: nextData.books,
+        }));
+        setIsAssignBookDataLoaded(true);
+      } catch (error) {
+        if (cancelled) return;
+        setSyncError(error instanceof Error ? error.message : "배정할 자료를 불러오지 못했습니다.");
+        showToast("배정할 자료를 불러오지 못했습니다.");
+      } finally {
+        if (!cancelled) setIsLoadingData(false);
+      }
+    };
+
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeProfile, isAssignBookDataLoaded, isBookManageDataLoaded, isLoadingData, ownerUserId, supabase, view]);
 
   useEffect(() => {
     if (isLoadingData || profileLoadedRef.current) return;
@@ -730,6 +776,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   }, [bookDraft.series, bookDraft.title, isWordReadingDraft]);
   const draftSetupIssues = useMemo(() => getBookSetupIssues(bookDraft), [bookDraft]);
   const duplicateBook = useMemo(() => {
+    if (!isBookManageDataLoaded) return null;
     const series = normalizeText(bookDraft.series);
     const title = normalizeText(bookDraft.title);
     const volume = normalizeText(bookDraft.volume);
@@ -745,19 +792,20 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           normalizeText(book.volume) === volume,
       ) ?? null
     );
-  }, [bookDraft.contentType, bookDraft.id, bookDraft.series, bookDraft.title, bookDraft.volume, data.books, isWordReadingDraft]);
+  }, [bookDraft.contentType, bookDraft.id, bookDraft.series, bookDraft.title, bookDraft.volume, data.books, isBookManageDataLoaded, isWordReadingDraft]);
   const bookFormDirty = useMemo(
     () => JSON.stringify(bookToDraft(draftSourceBook)) !== JSON.stringify(bookDraft),
     [bookDraft, draftSourceBook],
   );
   const manageReadyCount = useMemo(
-    () => activeBooks.filter((book) => getBookSetupIssues(book).length === 0).length,
-    [activeBooks],
+    () => activeManageBooks.filter((book) => getBookSetupIssues(book).length === 0).length,
+    [activeManageBooks],
   );
-  const manageAttentionCount = activeBooks.length - manageReadyCount;
+  const manageAttentionCount = activeManageBooks.length - manageReadyCount;
   const filteredManageBooks = useMemo(() => {
+    if (!isBookManageDataLoaded) return [];
     const query = manageBookSearch.trim().toLowerCase();
-    return data.books
+    return manageBooks
       .filter((book) => {
         const matchesSeries = manageSeriesFilter === "all" || book.series === manageSeriesFilter;
         const issues = getBookSetupIssues(book);
@@ -779,7 +827,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
         if (b.id === bookDraft.id) return 1;
         return a.series.localeCompare(b.series) || a.title.localeCompare(b.title);
       });
-  }, [bookDraft.id, bookListFilter, data.books, manageBookSearch, manageSeriesFilter]);
+  }, [bookDraft.id, bookListFilter, isBookManageDataLoaded, manageBooks, manageBookSearch, manageSeriesFilter]);
   const filteredAssignBooks = useMemo(() => {
     const query = assignBookSearch.trim().toLowerCase();
     return activeBooks.filter((book) => {
@@ -800,6 +848,28 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const selectedTaskLabels = formatAssignmentTaskLabels;
 
   const showToast = (message: string) => setToast(message);
+
+  const loadBookManageData = async () => {
+    setIsLoadingBookManageData(true);
+    setSyncError("");
+
+    try {
+      const nextData = await fetchBookManageData(supabase, ownerUserId);
+      setData((current) => ({
+        ...current,
+        books: nextData.books,
+        assignments: nextData.assignments,
+      }));
+      setIsBookManageDataLoaded(true);
+      setIsAssignBookDataLoaded(true);
+      showToast("등록된 자료 목록을 불러왔습니다.");
+    } catch (error) {
+      setSyncError(error instanceof Error ? error.message : "자료 목록을 불러오지 못했습니다.");
+      showToast("자료 목록을 불러오지 못했습니다.");
+    } finally {
+      setIsLoadingBookManageData(false);
+    }
+  };
 
   const startNewChildDraft = () => {
     setChildDraftMode("new");
@@ -2173,13 +2243,13 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
               </div>
               <div className="summary-strip">
                 <span className="summary-pill">
-                  <strong>{activeBooks.length}</strong>건 운영 중
+                  <strong>{isBookManageDataLoaded ? activeManageBooks.length : "-"}</strong>건 운영 중
                 </span>
                 <span className="summary-pill">
-                  <strong>{manageAttentionCount}</strong>건 입력 필요
+                  <strong>{isBookManageDataLoaded ? manageAttentionCount : "-"}</strong>건 입력 필요
                 </span>
                 <span className="summary-pill">
-                  <strong>{inactiveBooks.length}</strong>건 비활성
+                  <strong>{isBookManageDataLoaded ? inactiveManageBooks.length : "-"}</strong>건 비활성
                 </span>
               </div>
             </div>
@@ -2488,9 +2558,20 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     <h2 id="bookListTitle">등록된 자료</h2>
                   </div>
                   <div className="library-tools manage-tools">
+                    {!isBookManageDataLoaded && (
+                      <button
+                        className="secondary-button"
+                        type="button"
+                        onClick={loadBookManageData}
+                        disabled={isLoadingBookManageData}
+                      >
+                        {isLoadingBookManageData ? "불러오는 중..." : "수정할 자료 불러오기"}
+                      </button>
+                    )}
                     <select
                       value={manageSeriesFilter}
                       aria-label="자료 관리 시리즈 선택"
+                      disabled={!isBookManageDataLoaded}
                       onChange={(event) => setManageSeriesFilter(event.target.value)}
                     >
                       <option value="all">전체 시리즈</option>
@@ -2504,31 +2585,36 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                       value={manageBookSearch}
                       type="search"
                       placeholder="자료 제목, 시리즈, 레벨 검색"
+                      disabled={!isBookManageDataLoaded}
                       onChange={(event) => setManageBookSearch(event.target.value)}
                     />
                   </div>
                 </div>
 
-                <div className="book-filter-row" role="tablist" aria-label="자료 목록 상태 필터">
-                  {([
-                    ["active", `운영 중 ${activeBooks.length}`],
-                    ["attention", `입력 필요 ${manageAttentionCount}`],
-                    ["ready", `준비 완료 ${manageReadyCount}`],
-                    ["inactive", `비활성 ${inactiveBooks.length}`],
-                  ] as Array<[BookListFilter, string]>).map(([filter, label]) => (
-                    <button
-                      className={bookListFilter === filter ? "is-active" : ""}
-                      type="button"
-                      key={filter}
-                      onClick={() => setBookListFilter(filter)}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
+                {isBookManageDataLoaded && (
+                  <div className="book-filter-row" role="tablist" aria-label="자료 목록 상태 필터">
+                    {([
+                      ["active", `운영 중 ${activeManageBooks.length}`],
+                      ["attention", `입력 필요 ${manageAttentionCount}`],
+                      ["ready", `준비 완료 ${manageReadyCount}`],
+                      ["inactive", `비활성 ${inactiveManageBooks.length}`],
+                    ] as Array<[BookListFilter, string]>).map(([filter, label]) => (
+                      <button
+                        className={bookListFilter === filter ? "is-active" : ""}
+                        type="button"
+                        key={filter}
+                        onClick={() => setBookListFilter(filter)}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                )}
 
                 <div className="manage-list">
-                  {filteredManageBooks.length ? (
+                  {!isBookManageDataLoaded ? (
+                    <div className="empty-state">기존 자료를 수정할 때만 등록된 자료 목록을 불러옵니다.</div>
+                  ) : filteredManageBooks.length ? (
                     filteredManageBooks.map((book) => {
                       const issues = getBookSetupIssues(book);
                       const assignmentCount = bookAssignmentCounts[book.id] ?? 0;

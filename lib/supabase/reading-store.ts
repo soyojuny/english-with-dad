@@ -235,6 +235,61 @@ export async function fetchReadingData(
   };
 }
 
+export async function fetchParentActivityData(
+  supabase: SupabaseLikeClient,
+  ownerUserId: string,
+): Promise<ReadingData> {
+  const [childrenResult, assignmentsResult, manualLogsResult] = await Promise.all([
+    supabase
+      .from("children")
+      .select("id, owner_user_id, name, level, goal")
+      .eq("owner_user_id", ownerUserId)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("assignments")
+      .select(`
+        id,
+        owner_user_id,
+        child_id,
+        date,
+        book_id,
+        activity_category,
+        tasks,
+        task_counts,
+        book:books!assignments_book_owner_fkey(${bookSelectColumns}),
+        completions:completions!completions_assignment_owner_fkey(assignment_id, task_type, completed_at, minutes, audio_opened_at, count),
+        audioLaunches:audio_launches!audio_launches_assignment_owner_fkey(assignment_id, task_type, opened_at, returned_at)
+      `)
+      .eq("owner_user_id", ownerUserId)
+      .order("date", { ascending: true }),
+    supabase
+      .from("manual_logs")
+      .select("id, child_id, date, type, title, minutes, note")
+      .eq("owner_user_id", ownerUserId)
+      .order("date", { ascending: true }),
+  ]);
+
+  if (childrenResult.error) throw new Error(childrenResult.error.message);
+  if (assignmentsResult.error) throw new Error(assignmentsResult.error.message);
+  if (manualLogsResult.error) throw new Error(manualLogsResult.error.message);
+
+  const assignmentRows = (assignmentsResult.data ?? []) as unknown as TodayAssignmentRow[];
+  const booksById = new Map<string, Book>();
+  assignmentRows.forEach((row) => {
+    const book = firstEmbeddedBook(row);
+    if (book) booksById.set(book.id, mapBook(book));
+  });
+
+  return {
+    children: (childrenResult.data ?? []).map((row) => mapChild(row as ChildRow)),
+    books: [...booksById.values()],
+    assignments: assignmentRows.map((row) => mapAssignment(row)),
+    completions: toCompletionRecord(assignmentRows.flatMap((row) => row.completions ?? [])),
+    audioLaunches: toAudioLaunchRecord(assignmentRows.flatMap((row) => row.audioLaunches ?? [])),
+    manualLogs: (manualLogsResult.data ?? []).map((row) => mapManualLog(row as ManualLogRow)),
+  };
+}
+
 export async function fetchReadingProfileData(
   supabase: SupabaseLikeClient,
   ownerUserId: string,
@@ -293,6 +348,32 @@ export async function fetchChildTodayData(
     assignments: rows.map((row) => mapAssignment(row)),
     completions: toCompletionRecord(completions),
     audioLaunches: toAudioLaunchRecord(audioLaunches),
+  };
+}
+
+export async function fetchBookManageData(
+  supabase: SupabaseLikeClient,
+  ownerUserId: string,
+): Promise<Pick<ReadingData, "books" | "assignments">> {
+  const [booksResult, assignmentsResult] = await Promise.all([
+    supabase
+      .from("books")
+      .select(bookSelectColumns)
+      .eq("owner_user_id", ownerUserId)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("assignments")
+      .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts")
+      .eq("owner_user_id", ownerUserId)
+      .order("date", { ascending: true }),
+  ]);
+
+  if (booksResult.error) throw new Error(booksResult.error.message);
+  if (assignmentsResult.error) throw new Error(assignmentsResult.error.message);
+
+  return {
+    books: (booksResult.data ?? []).map((row) => mapBook(row as BookRow)),
+    assignments: (assignmentsResult.data ?? []).map((row) => mapAssignment(row as AssignmentRow)),
   };
 }
 
