@@ -176,6 +176,10 @@ function toUniqueSeriesNames(rows: BookSeriesRow[]) {
   return [...new Set(rows.map((row) => String(row.series ?? "").trim()).filter(Boolean))].sort();
 }
 
+function uniqueValues(values: string[]) {
+  return [...new Set(values)].filter(Boolean);
+}
+
 function unwrap<T>(result: { data: T | null; error: { message: string } | null }, message: string): T {
   if (result.error || result.data === null) {
     throw new Error(result.error?.message ?? message);
@@ -256,19 +260,7 @@ export async function fetchParentActivityData(
       .order("created_at", { ascending: true }),
     supabase
       .from("assignments")
-      .select(`
-        id,
-        owner_user_id,
-        child_id,
-        date,
-        book_id,
-        activity_category,
-        tasks,
-        task_counts,
-        book:books!assignments_book_owner_fkey(${bookSelectColumns}),
-        completions:completions!completions_assignment_owner_fkey(assignment_id, task_type, completed_at, minutes, audio_opened_at, count),
-        audioLaunches:audio_launches!audio_launches_assignment_owner_fkey(assignment_id, task_type, opened_at, returned_at)
-      `)
+      .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts")
       .eq("owner_user_id", ownerUserId)
       .gte("date", range.startKey)
       .lte("date", range.endKey)
@@ -286,19 +278,44 @@ export async function fetchParentActivityData(
   if (assignmentsResult.error) throw new Error(assignmentsResult.error.message);
   if (manualLogsResult.error) throw new Error(manualLogsResult.error.message);
 
-  const assignmentRows = (assignmentsResult.data ?? []) as unknown as TodayAssignmentRow[];
-  const booksById = new Map<string, Book>();
-  assignmentRows.forEach((row) => {
-    const book = firstEmbeddedBook(row);
-    if (book) booksById.set(book.id, mapBook(book));
-  });
+  const assignmentRows = (assignmentsResult.data ?? []) as AssignmentRow[];
+  const assignmentIds = uniqueValues(assignmentRows.map((row) => row.id));
+  const bookIds = uniqueValues(assignmentRows.map((row) => row.book_id));
+
+  const [booksResult, completionsResult, audioLaunchesResult] = await Promise.all([
+    bookIds.length
+      ? supabase
+          .from("books")
+          .select(bookSelectColumns)
+          .eq("owner_user_id", ownerUserId)
+          .in("id", bookIds)
+      : Promise.resolve({ data: [], error: null }),
+    assignmentIds.length
+      ? supabase
+          .from("completions")
+          .select("assignment_id, task_type, completed_at, minutes, audio_opened_at, count")
+          .eq("owner_user_id", ownerUserId)
+          .in("assignment_id", assignmentIds)
+      : Promise.resolve({ data: [], error: null }),
+    assignmentIds.length
+      ? supabase
+          .from("audio_launches")
+          .select("assignment_id, task_type, opened_at, returned_at")
+          .eq("owner_user_id", ownerUserId)
+          .in("assignment_id", assignmentIds)
+      : Promise.resolve({ data: [], error: null }),
+  ]);
+
+  if (booksResult.error) throw new Error(booksResult.error.message);
+  if (completionsResult.error) throw new Error(completionsResult.error.message);
+  if (audioLaunchesResult.error) throw new Error(audioLaunchesResult.error.message);
 
   return {
     children: (childrenResult.data ?? []).map((row) => mapChild(row as ChildRow)),
-    books: [...booksById.values()],
+    books: (booksResult.data ?? []).map((row) => mapBook(row as BookRow)),
     assignments: assignmentRows.map((row) => mapAssignment(row)),
-    completions: toCompletionRecord(assignmentRows.flatMap((row) => row.completions ?? [])),
-    audioLaunches: toAudioLaunchRecord(assignmentRows.flatMap((row) => row.audioLaunches ?? [])),
+    completions: toCompletionRecord((completionsResult.data ?? []) as CompletionRow[]),
+    audioLaunches: toAudioLaunchRecord((audioLaunchesResult.data ?? []) as AudioLaunchRow[]),
     manualLogs: (manualLogsResult.data ?? []).map((row) => mapManualLog(row as ManualLogRow)),
   };
 }
