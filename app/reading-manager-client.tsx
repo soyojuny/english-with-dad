@@ -1956,60 +1956,59 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     </button>
                   ))}
                 </div>
-                {parentPanel === "activity" && (
-                  <>
-                    <div className="period-switch" aria-label="기간 선택">
-                      {(["day", "week", "month"] as Period[]).map((item) => (
-                        <button
-                          className={period === item ? "is-active" : ""}
-                          type="button"
-                          key={item}
-                          onClick={() => setPeriod(item)}
-                        >
-                          {{ day: "일", week: "주", month: "월" }[item]}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="period-navigation" aria-label="활동 기록 기간 이동">
-                      <button
-                        className="period-nav-button"
-                        type="button"
-                        aria-label="이전 기간"
-                        onClick={() => setSelectedDateKey((value) => shiftSelectedDateKey(value, period, -1))}
-                      >
-                        ‹
-                      </button>
-                      <label className="period-date-picker">
-                        <span>{periodRangeLabel}</span>
-                        <input
-                          type="date"
-                          aria-label="활동 기록 기준 날짜 선택"
-                          value={selectedDateKey}
-                          onChange={(event) => setSelectedDateKey(event.target.value || dateKey())}
-                        />
-                      </label>
-                      <button className="period-today-button" type="button" onClick={() => setSelectedDateKey(dateKey())}>
-                        오늘
-                      </button>
-                      <button
-                        className="period-nav-button"
-                        type="button"
-                        aria-label="다음 기간"
-                        onClick={() => setSelectedDateKey((value) => shiftSelectedDateKey(value, period, 1))}
-                      >
-                        ›
-                      </button>
-                    </div>
-                    <button className="secondary-button print-action" type="button" onClick={printWeeklyActivityReport}>
-                      주간 PDF 출력
-                    </button>
-                  </>
-                )}
               </div>
             </div>
 
             {parentPanel === "activity" ? (
               <>
+                <div className="activity-control-panel" aria-label="활동 기록 조회 도구">
+                  <div className="period-switch" aria-label="기간 선택">
+                    {(["day", "week", "month"] as Period[]).map((item) => (
+                      <button
+                        className={period === item ? "is-active" : ""}
+                        type="button"
+                        key={item}
+                        onClick={() => setPeriod(item)}
+                      >
+                        {{ day: "일", week: "주", month: "월" }[item]}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="period-navigation" aria-label="활동 기록 기간 이동">
+                    <button
+                      className="period-nav-button"
+                      type="button"
+                      aria-label="이전 기간"
+                      onClick={() => setSelectedDateKey((value) => shiftSelectedDateKey(value, period, -1))}
+                    >
+                      ‹
+                    </button>
+                    <label className="period-date-picker">
+                      <span>{periodRangeLabel}</span>
+                      <input
+                        type="date"
+                        aria-label="활동 기록 기준 날짜 선택"
+                        value={selectedDateKey}
+                        onChange={(event) => setSelectedDateKey(event.target.value || dateKey())}
+                      />
+                    </label>
+                    <button className="period-today-button" type="button" onClick={() => setSelectedDateKey(dateKey())}>
+                      오늘
+                    </button>
+                    <button
+                      className="period-nav-button"
+                      type="button"
+                      aria-label="다음 기간"
+                      onClick={() => setSelectedDateKey((value) => shiftSelectedDateKey(value, period, 1))}
+                    >
+                      ›
+                    </button>
+                  </div>
+                  <button className="secondary-button print-action" type="button" onClick={printWeeklyActivityReport}>
+                    주간 PDF 출력
+                  </button>
+                </div>
+
                 <div className="stats-grid">
                   {[
                     ["선택 아동", childSummary.name],

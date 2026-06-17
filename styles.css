@@ -159,6 +159,19 @@ a {
   justify-content: flex-end;
 }
 
+.activity-control-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 14px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 253, 248, 0.72);
+}
+
 .period-navigation {
   display: inline-flex;
   align-items: center;
@@ -1281,6 +1294,7 @@ label > textarea {
   }
 
   .library-tools,
+  .activity-control-panel,
   .period-toolbar,
   .summary-strip,
   .task-actions,
@@ -1291,6 +1305,7 @@ label > textarea {
   }
 
   .library-tools > *,
+  .activity-control-panel > *,
   .period-toolbar > *,
   .task-actions > *,
   .audio-actions > *,
@@ -1373,6 +1388,7 @@ label > textarea {
 
   .topbar,
   .toast,
+  .activity-control-panel,
   .view.is-active > .section-heading,
   .stats-grid,
   .parent-section:not(.print-report) {
