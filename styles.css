@@ -926,6 +926,10 @@ main {
   text-align: center;
 }
 
+.print-only {
+  display: none;
+}
+
 .form-grid,
 .book-form {
   display: grid;
@@ -1333,5 +1337,135 @@ label > textarea {
   .book-form,
   .inline-field {
     grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+
+  :root {
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --surface-strong: #ffffff;
+    --line: #9ca3af;
+    --shadow: none;
+  }
+
+  html,
+  body,
+  .app-shell {
+    width: 100%;
+    min-height: 0;
+    background: #ffffff;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .topbar,
+  .toast,
+  .view.is-active > .section-heading,
+  .stats-grid,
+  .parent-section:not(.print-report) {
+    display: none !important;
+  }
+
+  main {
+    padding: 0;
+  }
+
+  .view,
+  .view.is-active,
+  .print-report,
+  .print-only {
+    display: block !important;
+  }
+
+  .print-report {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: #ffffff;
+    box-shadow: none;
+  }
+
+  .print-report .section-heading {
+    display: block;
+    margin: 0 0 6mm;
+  }
+
+  .print-report .eyebrow {
+    color: #4b5563;
+    font-size: 9pt;
+  }
+
+  .print-report h2 {
+    margin: 1mm 0 0;
+    color: #111827;
+    font-size: 18pt;
+  }
+
+  .report-subtitle {
+    margin: 2mm 0 0;
+    color: #374151;
+    font-size: 10pt;
+    font-weight: 800;
+  }
+
+  .table-wrap {
+    overflow: visible;
+  }
+
+  .activity-table {
+    width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+    border-color: #6b7280;
+  }
+
+  .activity-table th,
+  .activity-table td {
+    padding: 2.4mm;
+    border-color: #9ca3af;
+    font-size: 8.5pt;
+    line-height: 1.35;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+
+  .activity-table th {
+    background: #e5e7eb;
+    color: #111827;
+    font-size: 8pt;
+  }
+
+  .activity-table td {
+    height: 19mm;
+  }
+
+  .activity-table tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .activity-table th:first-child,
+  .activity-table td:first-child {
+    width: 11%;
+  }
+
+  .activity-table small,
+  .task-meta {
+    color: #4b5563;
+  }
+
+  .empty-state {
+    padding: 8mm;
+    border-color: #9ca3af;
+    background: #ffffff;
   }
 }

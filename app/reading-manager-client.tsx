@@ -241,6 +241,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const [view, setView] = useState<ViewName>("child");
   const [childId, setChildId] = useState("");
   const [period, setPeriod] = useState<Period>("day");
+  const [weeklyPrintRequested, setWeeklyPrintRequested] = useState(false);
   const [selectedDateKey, setSelectedDateKey] = useState(() => dateKey());
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>("");
   const [selectedBookId, setSelectedBookId] = useState<string>("");
@@ -499,6 +500,17 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     }
     return undefined;
   }, [toast]);
+
+  useEffect(() => {
+    if (!weeklyPrintRequested || period !== "week") return undefined;
+
+    const timer = window.setTimeout(() => {
+      window.print();
+      setWeeklyPrintRequested(false);
+    }, 120);
+
+    return () => window.clearTimeout(timer);
+  }, [period, weeklyPrintRequested]);
 
   useEffect(() => {
     if (!activeProfile) return;
@@ -1352,6 +1364,16 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     ));
   };
 
+  const printWeeklyActivityReport = () => {
+    if (!childId) {
+      showToast("PDF로 출력할 아동을 먼저 선택하세요.");
+      return;
+    }
+
+    setPeriod("week");
+    setWeeklyPrintRequested(true);
+  };
+
   const doneTaskCount = todayAssignments.reduce(
     (sum, assignment) => sum + countAssignmentProgress(data, assignment).done,
     0,
@@ -1958,6 +1980,9 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     ›
                   </button>
                 </div>
+                <button className="secondary-button print-action" type="button" onClick={printWeeklyActivityReport}>
+                  주간 PDF 출력
+                </button>
               </div>
             </div>
 
@@ -2015,11 +2040,14 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
               </form>
             </section>
 
-            <section className="parent-section" aria-labelledby="logTitle">
+            <section className="parent-section print-report" aria-labelledby="logTitle">
               <div className="section-heading compact">
                 <div>
                   <p className="eyebrow">진행표</p>
                   <h2 id="logTitle">활동 기록</h2>
+                  <p className="print-only report-subtitle">
+                    {childSummary.name} · {periodRangeLabel} · 활동 {periodLogs.length}건 · 읽기 {totalMinutes}분 · 읽은 책 {readBookCount}권
+                  </p>
                 </div>
               </div>
               <div className="table-wrap">
