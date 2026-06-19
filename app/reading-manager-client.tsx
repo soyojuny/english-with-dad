@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, FormEvent } from "react";
+import { AssignmentBookPicker } from "./assignment-book-picker";
 import { MaterialThumb, formatMaterialMeta } from "./material-thumb";
 import {
-  activityCategoryOrder,
   bookContentTypeLabels,
   countAssignmentProgress,
   datesInRange,
@@ -30,7 +30,6 @@ import {
   dateKey,
   emptyReadingData,
   taskDefinitions,
-  taskCountOptions,
 } from "../lib/reading-data";
 import {
   bookToDraft,
@@ -61,6 +60,7 @@ import type {
 import { createClient } from "../lib/supabase/client";
 import {
   deleteAssignment as deleteAssignmentRecord,
+  fetchAssignedBookIdsForChild,
   fetchBookManageData,
   fetchBookSeriesNames,
   fetchChildTodayData,
@@ -127,6 +127,9 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const [isAssignBookDataLoaded, setIsAssignBookDataLoaded] = useState(false);
   const [assignSeriesFilter, setAssignSeriesFilter] = useState("all");
   const [assignBookSearch, setAssignBookSearch] = useState("");
+  const [assignSelectedBookIds, setAssignSelectedBookIds] = useState<string[]>([]);
+  const [assignHistoryBookIds, setAssignHistoryBookIds] = useState<string[]>([]);
+  const [loadedAssignHistoryChildId, setLoadedAssignHistoryChildId] = useState("");
   const [bookListFilter, setBookListFilter] = useState<BookListFilter>("active");
   const [isChildManualLogOpen, setIsChildManualLogOpen] = useState(false);
   const [bookDraft, setBookDraft] = useState<BookDraft>(() => bookToDraft(null));
@@ -347,7 +350,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
 
   useEffect(() => {
     if (activeProfile?.kind !== "parent" || view !== "assign") return;
-    if (isBookManageDataLoaded || isAssignBookDataLoaded) return;
+    if (isAssignBookDataLoaded && loadedAssignHistoryChildId === childId) return;
 
     let cancelled = false;
 
@@ -356,12 +359,17 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       setSyncError("");
 
       try {
-        const nextData = await fetchLibraryData(supabase, ownerUserId);
+        const [nextData, assignedBookIds] = await Promise.all([
+          fetchLibraryData(supabase, ownerUserId),
+          childId ? fetchAssignedBookIdsForChild(supabase, ownerUserId, childId) : Promise.resolve([]),
+        ]);
         if (cancelled) return;
         setData((current) => ({
           ...current,
           books: nextData.books,
         }));
+        setAssignHistoryBookIds(assignedBookIds);
+        setLoadedAssignHistoryChildId(childId);
         setIsAssignBookDataLoaded(true);
       } catch (error) {
         if (cancelled) return;
@@ -377,7 +385,12 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     return () => {
       cancelled = true;
     };
-  }, [activeProfile, isAssignBookDataLoaded, isBookManageDataLoaded, ownerUserId, supabase, view]);
+  }, [activeProfile, childId, isAssignBookDataLoaded, loadedAssignHistoryChildId, ownerUserId, supabase, view]);
+
+  useEffect(() => {
+    setAssignSelectedBookIds([]);
+    setAssignHistoryBookIds([]);
+  }, [childId]);
 
   useEffect(() => {
     if (isLoadingData || profileLoadedRef.current) return;
@@ -754,16 +767,30 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
         return a.series.localeCompare(b.series) || a.title.localeCompare(b.title);
       });
   }, [bookDraft.id, bookListFilter, isBookManageDataLoaded, manageBooks, manageBookSearch, manageSeriesFilter]);
-  const filteredAssignBooks = useMemo(() => {
+  const assignedBookIdsForChild = useMemo(() => new Set(assignHistoryBookIds), [assignHistoryBookIds]);
+  const selectedAssignBooks = useMemo(
+    () =>
+      assignSelectedBookIds
+        .map((bookId) => activeBooks.find((book) => book.id === bookId))
+        .filter((book): book is Book => Boolean(book)),
+    [activeBooks, assignSelectedBookIds],
+  );
+  const assignBookCandidates = useMemo(() => {
     const query = assignBookSearch.trim().toLowerCase();
-    return activeBooks.filter((book) => {
-      const matchesSeries = assignSeriesFilter === "all" || book.series === assignSeriesFilter;
-      const matchesQuery =
-        !query ||
-        [book.title, book.series, book.volume, book.level].some((field) => field.toLowerCase().includes(query));
-      return matchesSeries && matchesQuery;
-    });
-  }, [activeBooks, assignBookSearch, assignSeriesFilter]);
+    const selectedIds = new Set(assignSelectedBookIds);
+
+    return [...activeBooks]
+      .reverse()
+      .filter((book) => {
+        const matchesSeries = assignSeriesFilter === "all" || book.series === assignSeriesFilter;
+        const matchesQuery =
+          !query ||
+          [book.title, book.series, book.volume, book.level].some((field) => field.toLowerCase().includes(query));
+        const matchesAssignmentState = query ? true : !assignedBookIdsForChild.has(book.id);
+        return !selectedIds.has(book.id) && matchesSeries && matchesQuery && matchesAssignmentState;
+      })
+      .slice(0, query ? 20 : 10);
+  }, [activeBooks, assignBookSearch, assignSelectedBookIds, assignSeriesFilter, assignedBookIdsForChild]);
   const draftTotalAssignmentsCount = bookDraft.id ? bookAssignmentCounts[bookDraft.id] ?? 0 : 0;
   const draftUpcomingAssignmentsCount = useMemo(() => {
     if (!bookDraft.id) return 0;
@@ -1153,7 +1180,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     const startDate = String(formData.get("assignStart") ?? dateKey());
     const endDate = String(formData.get("assignEnd") ?? dateKey());
     const dates = datesInRange(startDate, endDate);
-    const selections = filteredAssignBooks.reduce<
+    const selections = selectedAssignBooks.reduce<
       Array<{
         bookId: string;
         activityCategory: ActivityCategory;
@@ -1252,6 +1279,10 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
         };
       });
       setChildId(targetChildId);
+      setAssignHistoryBookIds((current) => [
+        ...new Set([...current, ...selectedAssignBooks.map((book) => book.id)]),
+      ]);
+      setAssignSelectedBookIds([]);
       showToast(`${createdCount}개의 할 일을 생성했습니다. 기존 같은 날짜와 자료는 최신 설정으로 갱신했습니다.`);
     } catch (error) {
       showToast(error instanceof Error ? error.message : "할 일을 저장하지 못했습니다.");
@@ -2615,77 +2646,22 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     종료일
                     <input name="assignEnd" type="date" required defaultValue={dateKey()} />
                   </label>
-                  <fieldset className="wide book-picker">
-                    <legend>책/자료별 활동 설정</legend>
-                    <div className="library-tools">
-                      <select value={assignSeriesFilter} aria-label="배정 시리즈 선택" onChange={(event) => setAssignSeriesFilter(event.target.value)}>
-                        <option value="all">전체 시리즈</option>
-                        {assignSeriesNames.map((series) => (
-                          <option value={series} key={series}>
-                            {series}
-                          </option>
-                        ))}
-                      </select>
-                      <input
-                        value={assignBookSearch}
-                        type="search"
-                        placeholder="책/자료 제목, 시리즈, 레벨 검색"
-                        onChange={(event) => setAssignBookSearch(event.target.value)}
-                      />
-                    </div>
-                    <div className="assignment-book-config-list">
-                      {filteredAssignBooks.map((book) => {
-                        const categoryOptions = getAvailableActivityCategories(book);
-                        const taskOptions = sortTasks([
-                          ...new Set(categoryOptions.flatMap((activityCategory) => activityCategoryDefinitions[activityCategory].tasks)),
-                        ]);
-                        const isWordReading = isWordReadingMaterial(book);
-                        return (
-                          <section className="assignment-book-config" key={book.id}>
-                            <div className="assignment-book-main">
-                              <p className="assignment-book-title">
-                                <span className="status-badge">{bookContentTypeLabels[book.contentType]}</span>
-                                {book.series} · {book.title}
-                                {book.level ? ` · ${book.level}` : ""}
-                              </p>
-                              <label className="assignment-category-field">
-                                <span>활동 구분</span>
-                                <select name={`assignCategory:${book.id}`} defaultValue={isWordReading ? "extraStudy" : ""}>
-                                  {!isWordReading && <option value="">선택 안 함</option>}
-                                  {activityCategoryOrder
-                                    .filter((activityCategory) => categoryOptions.includes(activityCategory))
-                                    .map((activityCategory) => (
-                                      <option value={activityCategory} key={`${book.id}-${activityCategory}`}>
-                                        {activityCategoryDefinitions[activityCategory].label}
-                                      </option>
-                                    ))}
-                                </select>
-                              </label>
-                            </div>
-                            <div className="assignment-count-row">
-                              {taskOptions.map((taskType) => (
-                                <label key={`${book.id}-${taskType}`} className="task-count-item">
-                                  <span>{taskDefinitions[taskType].label}</span>
-                                  <select name={`assignCount:${book.id}:${taskType}`} defaultValue={taskType === "listen" || taskType === "wordRead" ? "1" : "0"}>
-                                    {taskCountOptions.map((count) => (
-                                      <option value={count} key={`${book.id}-${taskType}-${count}`}>
-                                        {count === 0 ? "0회" : `${count}회`}
-                                      </option>
-                                    ))}
-                                  </select>
-                                </label>
-                              ))}
-                            </div>
-                            <p className="task-meta">
-                              {isWordReading ? "단어 읽기 자료는 기타학습 · 단어 읽기로 저장됩니다." : "영어 그림책을 선택하면 읽기 1회로 저장됩니다."}
-                            </p>
-                          </section>
-                        );
-                      })}
-                    </div>
-                    {!filteredAssignBooks.length && <div className="empty-state">검색 조건에 맞는 책/자료가 없습니다.</div>}
-                  </fieldset>
-                  <button className="primary-button" type="submit">
+                  <AssignmentBookPicker
+                    candidates={assignBookCandidates}
+                    selectedBooks={selectedAssignBooks}
+                    assignedBookIds={assignedBookIdsForChild}
+                    seriesNames={assignSeriesNames}
+                    seriesFilter={assignSeriesFilter}
+                    search={assignBookSearch}
+                    childName={childSummary.name}
+                    onSeriesFilterChange={setAssignSeriesFilter}
+                    onSearchChange={setAssignBookSearch}
+                    onAdd={(bookId) => setAssignSelectedBookIds((current) => [...current, bookId])}
+                    onRemove={(bookId) =>
+                      setAssignSelectedBookIds((current) => current.filter((selectedBookId) => selectedBookId !== bookId))
+                    }
+                  />
+                  <button className="primary-button" type="submit" disabled={!selectedAssignBooks.length}>
                     날짜별 할 일 생성
                   </button>
                 </form>

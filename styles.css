@@ -1149,6 +1149,47 @@ label > textarea {
   width: 100%;
 }
 
+.assignment-picker-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.assignment-picker-heading p {
+  margin: 4px 0 0;
+}
+
+.assignment-candidate-list {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+}
+
+.assignment-candidate {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: var(--surface-strong);
+}
+
+.assignment-candidate > div {
+  min-width: 0;
+}
+
+.assignment-candidate .task-meta {
+  margin: 4px 0 0;
+}
+
+.assignment-candidate .status-row {
+  margin-top: 6px;
+}
+
 .assignment-book-config {
   display: grid;
   gap: 10px;
@@ -1161,6 +1202,10 @@ label > textarea {
 .assignment-book-main {
   display: grid;
   gap: 10px;
+}
+
+.assignment-remove-button {
+  justify-self: end;
 }
 
 .assignment-book-title {
@@ -1323,6 +1368,17 @@ label > textarea {
   .audio-actions > *,
   .form-actions > *,
   .topbar-actions > * {
+    width: 100%;
+  }
+
+  .assignment-picker-heading,
+  .assignment-candidate {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .assignment-candidate > button,
+  .assignment-remove-button {
     width: 100%;
   }
 

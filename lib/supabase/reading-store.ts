@@ -445,6 +445,24 @@ export async function fetchLibraryData(
   };
 }
 
+export async function fetchAssignedBookIdsForChild(
+  supabase: SupabaseLikeClient,
+  ownerUserId: string,
+  childId: string,
+): Promise<string[]> {
+  const result = await supabase
+    .from("assignments")
+    .select("book_id")
+    .eq("owner_user_id", ownerUserId)
+    .eq("child_id", childId);
+
+  if (result.error) throw new Error(result.error.message);
+
+  return uniqueValues(
+    ((result.data ?? []) as Array<{ book_id: string }>).map((row) => row.book_id),
+  );
+}
+
 export async function saveChild(
   supabase: SupabaseLikeClient,
   ownerUserId: string,
