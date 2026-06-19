@@ -15,7 +15,6 @@ import {
 type AssignmentBookPickerProps = {
   candidates: Book[];
   selectedBooks: Book[];
-  assignedBookIds: Set<string>;
   seriesNames: string[];
   seriesFilter: string;
   search: string;
@@ -29,7 +28,6 @@ type AssignmentBookPickerProps = {
 export function AssignmentBookPicker({
   candidates,
   selectedBooks,
-  assignedBookIds,
   seriesNames,
   seriesFilter,
   search,
@@ -50,8 +48,8 @@ export function AssignmentBookPicker({
             <strong>{hasSearch ? "검색 결과" : "아직 배정하지 않은 책"}</strong>
             <p className="task-meta">
               {hasSearch
-                ? "이미 배정한 책도 검색해서 다시 추가할 수 있습니다."
-                : `최근 등록된 미배정 책을 최대 10권 표시합니다. ${childName} 기준입니다.`}
+                ? "아직 누구에게도 배정하지 않은 책만 검색됩니다."
+                : `최근 등록된 미배정 책을 최대 10권 표시합니다. ${childName}에게 배정할 책을 선택하세요.`}
             </p>
           </div>
           <span className="summary-pill">
@@ -79,9 +77,7 @@ export function AssignmentBookPicker({
           />
         </div>
         <div className="assignment-candidate-list">
-          {candidates.map((book) => {
-            const hasAssignmentHistory = assignedBookIds.has(book.id);
-            return (
+          {candidates.map((book) => (
               <article className="assignment-candidate" key={book.id}>
                 <div>
                   <p className="assignment-book-title">
@@ -92,23 +88,20 @@ export function AssignmentBookPicker({
                     {[book.series, book.volume, book.level].filter(Boolean).join(" · ")}
                   </p>
                   <div className="status-row">
-                    <span className={`status-badge ${hasAssignmentHistory ? "" : "done"}`}>
-                      {hasAssignmentHistory ? "배정 이력 있음" : "미배정"}
-                    </span>
+                    <span className="status-badge done">미배정</span>
                   </div>
                 </div>
                 <button className="secondary-button" type="button" onClick={() => onAdd(book.id)}>
                   추가
                 </button>
               </article>
-            );
-          })}
+          ))}
         </div>
         {!candidates.length && (
           <div className="empty-state">
             {hasSearch
               ? "검색 조건에 맞는 책/자료가 없습니다."
-              : "이 아동에게 아직 배정하지 않은 책/자료가 없습니다. 검색해서 기존 책을 다시 추가할 수 있습니다."}
+              : "아직 배정하지 않은 책/자료가 없습니다."}
           </div>
         )}
       </fieldset>

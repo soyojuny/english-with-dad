@@ -445,16 +445,14 @@ export async function fetchLibraryData(
   };
 }
 
-export async function fetchAssignedBookIdsForChild(
+export async function fetchAssignedBookIds(
   supabase: SupabaseLikeClient,
   ownerUserId: string,
-  childId: string,
 ): Promise<string[]> {
   const result = await supabase
     .from("assignments")
     .select("book_id")
-    .eq("owner_user_id", ownerUserId)
-    .eq("child_id", childId);
+    .eq("owner_user_id", ownerUserId);
 
   if (result.error) throw new Error(result.error.message);
 

@@ -60,7 +60,7 @@ import type {
 import { createClient } from "../lib/supabase/client";
 import {
   deleteAssignment as deleteAssignmentRecord,
-  fetchAssignedBookIdsForChild,
+  fetchAssignedBookIds,
   fetchBookManageData,
   fetchBookSeriesNames,
   fetchChildTodayData,
@@ -129,7 +129,6 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const [assignBookSearch, setAssignBookSearch] = useState("");
   const [assignSelectedBookIds, setAssignSelectedBookIds] = useState<string[]>([]);
   const [assignHistoryBookIds, setAssignHistoryBookIds] = useState<string[]>([]);
-  const [loadedAssignHistoryChildId, setLoadedAssignHistoryChildId] = useState("");
   const [bookListFilter, setBookListFilter] = useState<BookListFilter>("active");
   const [isChildManualLogOpen, setIsChildManualLogOpen] = useState(false);
   const [bookDraft, setBookDraft] = useState<BookDraft>(() => bookToDraft(null));
@@ -350,7 +349,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
 
   useEffect(() => {
     if (activeProfile?.kind !== "parent" || view !== "assign") return;
-    if (isAssignBookDataLoaded && loadedAssignHistoryChildId === childId) return;
+    if (isAssignBookDataLoaded) return;
 
     let cancelled = false;
 
@@ -361,7 +360,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       try {
         const [nextData, assignedBookIds] = await Promise.all([
           fetchLibraryData(supabase, ownerUserId),
-          childId ? fetchAssignedBookIdsForChild(supabase, ownerUserId, childId) : Promise.resolve([]),
+          fetchAssignedBookIds(supabase, ownerUserId),
         ]);
         if (cancelled) return;
         setData((current) => ({
@@ -369,7 +368,6 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           books: nextData.books,
         }));
         setAssignHistoryBookIds(assignedBookIds);
-        setLoadedAssignHistoryChildId(childId);
         setIsAssignBookDataLoaded(true);
       } catch (error) {
         if (cancelled) return;
@@ -385,11 +383,10 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     return () => {
       cancelled = true;
     };
-  }, [activeProfile, childId, isAssignBookDataLoaded, loadedAssignHistoryChildId, ownerUserId, supabase, view]);
+  }, [activeProfile, isAssignBookDataLoaded, ownerUserId, supabase, view]);
 
   useEffect(() => {
     setAssignSelectedBookIds([]);
-    setAssignHistoryBookIds([]);
   }, [childId]);
 
   useEffect(() => {
@@ -767,7 +764,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
         return a.series.localeCompare(b.series) || a.title.localeCompare(b.title);
       });
   }, [bookDraft.id, bookListFilter, isBookManageDataLoaded, manageBooks, manageBookSearch, manageSeriesFilter]);
-  const assignedBookIdsForChild = useMemo(() => new Set(assignHistoryBookIds), [assignHistoryBookIds]);
+  const assignedBookIds = useMemo(() => new Set(assignHistoryBookIds), [assignHistoryBookIds]);
   const selectedAssignBooks = useMemo(
     () =>
       assignSelectedBookIds
@@ -786,11 +783,10 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
         const matchesQuery =
           !query ||
           [book.title, book.series, book.volume, book.level].some((field) => field.toLowerCase().includes(query));
-        const matchesAssignmentState = query ? true : !assignedBookIdsForChild.has(book.id);
-        return !selectedIds.has(book.id) && matchesSeries && matchesQuery && matchesAssignmentState;
+        return !selectedIds.has(book.id) && !assignedBookIds.has(book.id) && matchesSeries && matchesQuery;
       })
       .slice(0, query ? 20 : 10);
-  }, [activeBooks, assignBookSearch, assignSelectedBookIds, assignSeriesFilter, assignedBookIdsForChild]);
+  }, [activeBooks, assignBookSearch, assignSelectedBookIds, assignSeriesFilter, assignedBookIds]);
   const draftTotalAssignmentsCount = bookDraft.id ? bookAssignmentCounts[bookDraft.id] ?? 0 : 0;
   const draftUpcomingAssignmentsCount = useMemo(() => {
     if (!bookDraft.id) return 0;
@@ -1292,6 +1288,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const deleteAssignmentDb = async (assignmentId: string) => {
     try {
       await deleteAssignmentRecord(supabase, ownerUserId, assignmentId);
+      const assignedBookIds = await fetchAssignedBookIds(supabase, ownerUserId);
       setData((current) => {
         const completions = { ...current.completions };
         const audioLaunches = { ...current.audioLaunches };
@@ -1310,6 +1307,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           assignments: current.assignments.filter((assignment) => assignment.id !== assignmentId),
         };
       });
+      setAssignHistoryBookIds(assignedBookIds);
       showToast("할 일을 삭제했습니다.");
     } catch (error) {
       showToast(error instanceof Error ? error.message : "할 일을 삭제하지 못했습니다.");
@@ -2649,7 +2647,6 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                   <AssignmentBookPicker
                     candidates={assignBookCandidates}
                     selectedBooks={selectedAssignBooks}
-                    assignedBookIds={assignedBookIdsForChild}
                     seriesNames={assignSeriesNames}
                     seriesFilter={assignSeriesFilter}
                     search={assignBookSearch}
