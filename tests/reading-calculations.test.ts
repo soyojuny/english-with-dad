@@ -22,6 +22,11 @@ import {
   sortTasks,
 } from "../lib/reading-calculations";
 import { emptyReadingData } from "../lib/reading-data";
+import {
+  formatPeriodRangeLabel,
+  getPeriodDateRange,
+  shiftSelectedDateKey,
+} from "../lib/reading-period";
 import type { Assignment, Book, ReadingData } from "../lib/reading-types";
 
 const assignment: Assignment = {
@@ -62,6 +67,19 @@ test("datesInRange returns an empty array when the range is inverted", () => {
 
 test("formatDate displays compact month and day", () => {
   assert.equal(formatDate("2026-06-10"), "6/10");
+});
+
+test("activity periods support weekly default navigation and monthly views", () => {
+  assert.deepEqual(getPeriodDateRange("week", "2026-06-10"), {
+    startKey: "2026-06-07",
+    endKey: "2026-06-13",
+  });
+  assert.equal(shiftSelectedDateKey("2026-06-10", "week", 1), "2026-06-17");
+  assert.deepEqual(getPeriodDateRange("month", "2026-06-10"), {
+    startKey: "2026-06-01",
+    endKey: "2026-06-30",
+  });
+  assert.equal(formatPeriodRangeLabel("month", ["2026-06-01", "2026-06-30"]), "2026. 6");
 });
 
 test("normalizeText trims, folds spaces, and lowercases", () => {

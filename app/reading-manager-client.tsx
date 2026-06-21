@@ -114,7 +114,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const [syncError, setSyncError] = useState("");
   const [view, setView] = useState<ViewName>("child");
   const [childId, setChildId] = useState("");
-  const [period, setPeriod] = useState<Period>("day");
+  const [period, setPeriod] = useState<Period>("week");
   const [parentPanel, setParentPanel] = useState<ParentPanel>("activity");
   const [weeklyPrintRequested, setWeeklyPrintRequested] = useState(false);
   const [selectedDateKey, setSelectedDateKey] = useState(() => dateKey());
@@ -707,10 +707,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     }, {});
   }, [periodLogs]);
 
-  const activityTableDates = useMemo(() => {
-    if (period === "day" && !Object.keys(groupedPeriodLogs).length) return [];
-    return periodDateKeys;
-  }, [groupedPeriodLogs, period, periodDateKeys]);
+  const activityTableDates = periodDateKeys;
 
   const filteredLibraryBooks = useMemo(() => {
     const query = bookSearch.trim().toLowerCase();
@@ -2084,14 +2081,14 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
               <>
                 <div className="activity-control-panel" aria-label="활동 기록 조회 도구">
                   <div className="period-switch" aria-label="기간 선택">
-                    {(["day", "week", "month"] as Period[]).map((item) => (
+                    {(["week", "month"] as Period[]).map((item) => (
                       <button
                         className={period === item ? "is-active" : ""}
                         type="button"
                         key={item}
                         onClick={() => setPeriod(item)}
                       >
-                        {{ day: "일", week: "주", month: "월" }[item]}
+                        {{ week: "주", month: "월" }[item]}
                       </button>
                     ))}
                   </div>
