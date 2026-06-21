@@ -173,6 +173,15 @@ export function AssignmentBookPicker({
                       </select>
                     </label>
                   ))}
+                  {!isWordReading && (
+                    <label className="task-count-item">
+                      <span>퀴즈</span>
+                      <select name={`assignQuiz:${book.id}`} defaultValue="N">
+                        <option value="N">N</option>
+                        <option value="Y">Y</option>
+                      </select>
+                    </label>
+                  )}
                 </div>
                 <p className="task-meta">
                   {isWordReading

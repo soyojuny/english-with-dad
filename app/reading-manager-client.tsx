@@ -1202,10 +1202,12 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
         activityCategory: ActivityCategory;
         taskCounts: TaskCountMap;
         tasks: TaskType[];
+        quizEnabled: boolean;
       }>
     >((acc, book) => {
       const activityCategory = String(formData.get(`assignCategory:${book.id}`) ?? "") as ActivityCategory | "";
       if (!activityCategory) return acc;
+      const quizEnabled = String(formData.get(`assignQuiz:${book.id}`) ?? "N") === "Y";
 
       if (activityCategory === "englishPicture") {
         acc.push({
@@ -1213,6 +1215,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           activityCategory,
           taskCounts: { listen: 1 },
           tasks: ["listen"],
+          quizEnabled,
         });
         return acc;
       }
@@ -1229,6 +1232,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
         activityCategory,
         taskCounts,
         tasks,
+        quizEnabled,
       });
       return acc;
     }, []);
@@ -1258,6 +1262,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           activityCategory: selection.activityCategory,
           tasks: [...selection.tasks],
           taskCounts: { ...selection.taskCounts },
+          quizEnabled: selection.quizEnabled,
         })),
     );
 
@@ -1335,7 +1340,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   };
 
   const saveQuizScoreDb = async (quizScore: number) => {
-    if (!selectedAssignment) return;
+    if (!selectedAssignment?.quizEnabled) return;
 
     if (!Number.isInteger(quizScore) || quizScore < 0 || quizScore > 100) {
       showToast("퀴즈 점수는 0점부터 100점까지 입력하세요.");
@@ -2034,7 +2039,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                           </div>
                         );
                       })}
-                      {selectedAssignment && !isWordReadingMaterial(selectedBook) && (
+                      {selectedAssignment?.quizEnabled && !isWordReadingMaterial(selectedBook) && (
                         <AssignmentQuizScore
                           assignmentId={selectedAssignment.id}
                           score={selectedAssignment.quizScore}

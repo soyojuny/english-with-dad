@@ -38,6 +38,7 @@ export type Assignment = {
   activityCategory: ActivityCategory;
   tasks: TaskType[];
   taskCounts: TaskCountMap;
+  quizEnabled: boolean;
   quizScore: number | null;
 };
 

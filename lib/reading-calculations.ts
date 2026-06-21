@@ -125,7 +125,7 @@ export function buildAssignmentActivityLogs(data: ReadingData) {
       }];
     });
 
-    if (assignment.quizScore !== null) {
+    if (assignment.quizEnabled && assignment.quizScore !== null) {
       logs.push({
         id: `${assignment.id}:quiz`,
         childId: assignment.childId,
@@ -232,6 +232,9 @@ export function countAssignmentProgress(data: ReadingData, assignment: Assignmen
   };
 }
 
-export function formatAssignmentTaskLabels(assignment: Pick<Assignment, "activityCategory" | "tasks" | "taskCounts">) {
-  return `${activityCategoryDefinitions[assignment.activityCategory].label} · ${formatTaskSummary(assignment.tasks, assignment.taskCounts)}`;
+export function formatAssignmentTaskLabels(
+  assignment: Pick<Assignment, "activityCategory" | "tasks" | "taskCounts" | "quizEnabled">,
+) {
+  const quizLabel = assignment.quizEnabled ? " · 퀴즈 Y" : "";
+  return `${activityCategoryDefinitions[assignment.activityCategory].label} · ${formatTaskSummary(assignment.tasks, assignment.taskCounts)}${quizLabel}`;
 }

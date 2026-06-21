@@ -37,6 +37,7 @@ const assignment: Assignment = {
   activityCategory: "focusListen",
   tasks: ["listen", "shadow", "self"],
   taskCounts: { listen: 2, shadow: 1, self: 1 },
+  quizEnabled: false,
   quizScore: null,
 };
 
@@ -128,7 +129,7 @@ test("quiz scores become book activity logs without requiring a task completion"
   const data: ReadingData = {
     ...emptyReadingData,
     books: candidateBooks,
-    assignments: [{ ...assignment, bookId: "book-1", quizScore: 80 }],
+    assignments: [{ ...assignment, bookId: "book-1", quizEnabled: true, quizScore: 80 }],
   };
 
   assert.deepEqual(buildAssignmentActivityLogs(data), [
@@ -146,6 +147,14 @@ test("quiz scores become book activity logs without requiring a task completion"
       quizScore: 80,
     },
   ]);
+
+  assert.deepEqual(
+    buildAssignmentActivityLogs({
+      ...data,
+      assignments: [{ ...assignment, bookId: "book-1", quizEnabled: false, quizScore: 80 }],
+    }),
+    [],
+  );
 });
 
 test("cover and book setup issue helpers identify missing setup", () => {
@@ -222,8 +231,13 @@ test("task formatting follows canonical task order", () => {
       activityCategory: "extraStudy",
       tasks: ["wordRead"],
       taskCounts: { wordRead: 1 },
+      quizEnabled: false,
     }),
     "기타학습 · 단어 읽기 1회",
+  );
+  assert.equal(
+    formatAssignmentTaskLabels({ ...assignment, quizEnabled: true }),
+    "집중듣기 · 읽기 2회 · 정따 1회 · 스스로 읽기 1회 · 퀴즈 Y",
   );
 });
 
