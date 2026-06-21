@@ -58,6 +58,39 @@ export function normalizeText(value: string) {
   return value.trim().replace(/\s+/g, " ").toLowerCase();
 }
 
+export function getAssignmentBookCandidates({
+  books,
+  selectedBookIds,
+  assignedBookIds,
+  seriesFilter,
+  search,
+}: {
+  books: Book[];
+  selectedBookIds: Iterable<string>;
+  assignedBookIds: Iterable<string>;
+  seriesFilter: string;
+  search: string;
+}) {
+  const query = normalizeText(search);
+  const selectedIds = new Set(selectedBookIds);
+  const assignedIds = new Set(assignedBookIds);
+
+  return [...books]
+    .reverse()
+    .filter((book) => {
+      const matchesSeries = seriesFilter === "all" || book.series === seriesFilter;
+      const matchesQuery =
+        !query ||
+        [book.title, book.series, book.volume, book.level].some((field) =>
+          normalizeText(field).includes(query),
+        );
+      const canShowAssignedBook = Boolean(query) || !assignedIds.has(book.id);
+
+      return !selectedIds.has(book.id) && canShowAssignedBook && matchesSeries && matchesQuery;
+    })
+    .slice(0, query ? 20 : 10);
+}
+
 export function hasCustomCover(cover: string) {
   return Boolean(cover && cover !== "/assets/app-icon.svg");
 }

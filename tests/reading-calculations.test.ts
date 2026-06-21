@@ -6,6 +6,7 @@ import {
   formatAssignmentTaskLabels,
   formatDate,
   formatTaskSummary,
+  getAssignmentBookCandidates,
   getAvailableActivityCategories,
   getAssignmentTaskCount,
   getBookSetupIssues,
@@ -19,7 +20,7 @@ import {
   sortTasks,
 } from "../lib/reading-calculations";
 import { emptyReadingData } from "../lib/reading-data";
-import type { Assignment, ReadingData } from "../lib/reading-types";
+import type { Assignment, Book, ReadingData } from "../lib/reading-types";
 
 const assignment: Assignment = {
   id: "assignment-1",
@@ -30,6 +31,19 @@ const assignment: Assignment = {
   tasks: ["listen", "shadow", "self"],
   taskCounts: { listen: 2, shadow: 1, self: 1 },
 };
+
+const candidateBooks: Book[] = ["처음 책", "다시 읽을 책", "선택한 책"].map((title, index) => ({
+  id: `book-${index + 1}`,
+  active: true,
+  contentType: "book",
+  title,
+  series: index === 1 ? "반복 시리즈" : "기본 시리즈",
+  volume: `${index + 1}`,
+  level: "1단계",
+  cover: "",
+  audio: { listen: "", shadow: "" },
+  note: "",
+}));
 
 test("datesInRange returns inclusive date keys", () => {
   assert.deepEqual(datesInRange("2026-06-10", "2026-06-12"), [
@@ -49,6 +63,30 @@ test("formatDate displays compact month and day", () => {
 
 test("normalizeText trims, folds spaces, and lowercases", () => {
   assert.equal(normalizeText("  Bear   Says   Thanks  "), "bear says thanks");
+});
+
+test("assignment candidates show only unassigned books until a search includes assignment history", () => {
+  assert.deepEqual(
+    getAssignmentBookCandidates({
+      books: candidateBooks,
+      selectedBookIds: ["book-3"],
+      assignedBookIds: ["book-2"],
+      seriesFilter: "all",
+      search: "",
+    }).map((book) => book.id),
+    ["book-1"],
+  );
+
+  assert.deepEqual(
+    getAssignmentBookCandidates({
+      books: candidateBooks,
+      selectedBookIds: ["book-3"],
+      assignedBookIds: ["book-2"],
+      seriesFilter: "all",
+      search: "다시 읽을",
+    }).map((book) => book.id),
+    ["book-2"],
+  );
 });
 
 test("cover and book setup issue helpers identify missing setup", () => {

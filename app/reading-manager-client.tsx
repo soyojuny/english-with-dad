@@ -11,6 +11,7 @@ import {
   formatAssignmentTaskLabels,
   formatDate,
   formatTime,
+  getAssignmentBookCandidates,
   getAvailableActivityCategories,
   getAssignmentTaskCount,
   getBookSetupIssues,
@@ -773,19 +774,13 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     [activeBooks, assignSelectedBookIds],
   );
   const assignBookCandidates = useMemo(() => {
-    const query = assignBookSearch.trim().toLowerCase();
-    const selectedIds = new Set(assignSelectedBookIds);
-
-    return [...activeBooks]
-      .reverse()
-      .filter((book) => {
-        const matchesSeries = assignSeriesFilter === "all" || book.series === assignSeriesFilter;
-        const matchesQuery =
-          !query ||
-          [book.title, book.series, book.volume, book.level].some((field) => field.toLowerCase().includes(query));
-        return !selectedIds.has(book.id) && !assignedBookIds.has(book.id) && matchesSeries && matchesQuery;
-      })
-      .slice(0, query ? 20 : 10);
+    return getAssignmentBookCandidates({
+      books: activeBooks,
+      selectedBookIds: assignSelectedBookIds,
+      assignedBookIds,
+      seriesFilter: assignSeriesFilter,
+      search: assignBookSearch,
+    });
   }, [activeBooks, assignBookSearch, assignSelectedBookIds, assignSeriesFilter, assignedBookIds]);
   const draftTotalAssignmentsCount = bookDraft.id ? bookAssignmentCounts[bookDraft.id] ?? 0 : 0;
   const draftUpcomingAssignmentsCount = useMemo(() => {
@@ -2647,6 +2642,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                   <AssignmentBookPicker
                     candidates={assignBookCandidates}
                     selectedBooks={selectedAssignBooks}
+                    assignedBookIds={assignedBookIds}
                     seriesNames={assignSeriesNames}
                     seriesFilter={assignSeriesFilter}
                     search={assignBookSearch}

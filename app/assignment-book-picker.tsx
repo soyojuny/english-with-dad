@@ -15,6 +15,7 @@ import {
 type AssignmentBookPickerProps = {
   candidates: Book[];
   selectedBooks: Book[];
+  assignedBookIds: ReadonlySet<string>;
   seriesNames: string[];
   seriesFilter: string;
   search: string;
@@ -28,6 +29,7 @@ type AssignmentBookPickerProps = {
 export function AssignmentBookPicker({
   candidates,
   selectedBooks,
+  assignedBookIds,
   seriesNames,
   seriesFilter,
   search,
@@ -48,7 +50,7 @@ export function AssignmentBookPicker({
             <strong>{hasSearch ? "검색 결과" : "아직 배정하지 않은 책"}</strong>
             <p className="task-meta">
               {hasSearch
-                ? "아직 누구에게도 배정하지 않은 책만 검색됩니다."
+                ? "미배정 책과 배정 이력이 있는 책을 모두 검색합니다."
                 : `최근 등록된 미배정 책을 최대 10권 표시합니다. ${childName}에게 배정할 책을 선택하세요.`}
             </p>
           </div>
@@ -77,7 +79,10 @@ export function AssignmentBookPicker({
           />
         </div>
         <div className="assignment-candidate-list">
-          {candidates.map((book) => (
+          {candidates.map((book) => {
+            const wasAssigned = assignedBookIds.has(book.id);
+
+            return (
               <article className="assignment-candidate" key={book.id}>
                 <div>
                   <p className="assignment-book-title">
@@ -88,14 +93,17 @@ export function AssignmentBookPicker({
                     {[book.series, book.volume, book.level].filter(Boolean).join(" · ")}
                   </p>
                   <div className="status-row">
-                    <span className="status-badge done">미배정</span>
+                    <span className={wasAssigned ? "status-badge" : "status-badge done"}>
+                      {wasAssigned ? "배정 이력 있음" : "미배정"}
+                    </span>
                   </div>
                 </div>
                 <button className="secondary-button" type="button" onClick={() => onAdd(book.id)}>
                   추가
                 </button>
               </article>
-          ))}
+            );
+          })}
         </div>
         {!candidates.length && (
           <div className="empty-state">
