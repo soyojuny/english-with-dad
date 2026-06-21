@@ -3,9 +3,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, FormEvent } from "react";
 import { AssignmentBookPicker } from "./assignment-book-picker";
+import { AssignmentQuizScore } from "./assignment-quiz-score";
 import { MaterialThumb, formatMaterialMeta } from "./material-thumb";
 import {
   bookContentTypeLabels,
+  buildAssignmentActivityLogs,
   countAssignmentProgress,
   datesInRange,
   formatAssignmentTaskLabels,
@@ -71,6 +73,7 @@ import {
   fetchReadingProfileData,
   fetchUpcomingAssignmentData,
   saveAssignments,
+  saveAssignmentQuizScore,
   saveAudioLaunch,
   saveBook as saveBookRecord,
   saveChild,
@@ -678,30 +681,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   }, [qrState.open, qrState.target]);
 
   const completionLogs = useMemo<ActivityLog[]>(() => {
-    return data.assignments.flatMap((assignment) => {
-      const book = getBook(assignment.bookId);
-      if (!book) return [];
-      return assignment.tasks.reduce<ActivityLog[]>((logs, taskType) => {
-        const completion = data.completions[`${assignment.id}:${taskType}`];
-        if (!completion) return logs;
-        logs.push({
-          id: `${assignment.id}:${taskType}`,
-          childId: assignment.childId,
-          date: assignment.date,
-          type: taskType,
-          activityCategory: assignment.activityCategory,
-          bookId: assignment.bookId,
-          title: book.title,
-          minutes: completion.minutes,
-          note: completion.audioOpenedAt
-            ? `${taskType === "wordRead" ? "링크 열기" : "오디오 열기"} ${formatTime(completion.audioOpenedAt)}`
-            : taskDefinitions[taskType].label,
-          count: completion.count,
-        });
-        return logs;
-      }, []);
-    });
-  }, [data.assignments, data.books, data.completions]);
+    return buildAssignmentActivityLogs(data);
+  }, [data]);
 
   const allLogs = useMemo<ActivityLog[]>(() => [...data.manualLogs, ...completionLogs], [completionLogs, data.manualLogs]);
 
@@ -1356,6 +1337,33 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     }
   };
 
+  const saveQuizScoreDb = async (quizScore: number) => {
+    if (!selectedAssignment) return;
+
+    if (!Number.isInteger(quizScore) || quizScore < 0 || quizScore > 100) {
+      showToast("퀴즈 점수는 0점부터 100점까지 입력하세요.");
+      return;
+    }
+
+    try {
+      const savedAssignment = await saveAssignmentQuizScore(
+        supabase,
+        ownerUserId,
+        selectedAssignment.id,
+        quizScore,
+      );
+      setData((current) => ({
+        ...current,
+        assignments: current.assignments.map((assignment) =>
+          assignment.id === savedAssignment.id ? savedAssignment : assignment,
+        ),
+      }));
+      showToast(`퀴즈 ${quizScore}점을 저장했습니다.`);
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "퀴즈 점수를 저장하지 못했습니다.");
+    }
+  };
+
   const renderCell = (
     logs: ActivityLog[],
     matcher: {
@@ -1387,6 +1395,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
             title: string;
             minutes: number;
             taskCounts: Partial<Record<TaskType, number>>;
+            quizScore: number | null;
           }
         >
       >((acc, log) => {
@@ -1399,8 +1408,10 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           title,
           minutes: 0,
           taskCounts: {},
+          quizScore: null,
         };
         acc[key].minutes += Number(log.minutes || 0);
+        if (log.quizScore !== undefined) acc[key].quizScore = log.quizScore;
         if (log.type === "listen" || log.type === "shadow" || log.type === "self" || log.type === "wordRead") {
           acc[key].taskCounts[log.type] = (acc[key].taskCounts[log.type] ?? 0) + log.count;
         }
@@ -1418,7 +1429,10 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
             <br />
             {entry.title}
             <br />
-            <small>{detailText || "직접 입력"} ({entry.minutes}분)</small>
+            <small>
+              {detailText || "활동 기록"} ({entry.minutes}분)
+              {entry.quizScore !== null ? ` 퀴즈(${entry.quizScore}점)` : ""}
+            </small>
           </div>
         );
       });
@@ -2023,6 +2037,13 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                           </div>
                         );
                       })}
+                      {selectedAssignment && !isWordReadingMaterial(selectedBook) && (
+                        <AssignmentQuizScore
+                          assignmentId={selectedAssignment.id}
+                          score={selectedAssignment.quizScore}
+                          onSave={saveQuizScoreDb}
+                        />
+                      )}
                     </div>
                   </>
                 ) : (

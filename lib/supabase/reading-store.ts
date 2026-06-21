@@ -48,6 +48,7 @@ type AssignmentRow = {
   activity_category: ActivityCategory;
   tasks: string[];
   task_counts: TaskCountMap | null;
+  quiz_score: number | null;
 };
 
 type TodayAssignmentRow = AssignmentRow & {
@@ -129,6 +130,7 @@ function mapAssignment(row: AssignmentRow): Assignment {
     activityCategory: row.activity_category,
     tasks,
     taskCounts,
+    quizScore: row.quiz_score,
   };
 }
 
@@ -205,7 +207,7 @@ export async function fetchReadingData(
         .order("created_at", { ascending: true }),
       supabase
         .from("assignments")
-        .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts")
+        .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_score")
         .eq("owner_user_id", ownerUserId)
         .order("date", { ascending: true }),
       supabase
@@ -260,7 +262,7 @@ export async function fetchParentActivityData(
       .order("created_at", { ascending: true }),
     supabase
       .from("assignments")
-      .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts")
+      .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_score")
       .eq("owner_user_id", ownerUserId)
       .gte("date", range.startKey)
       .lte("date", range.endKey)
@@ -354,6 +356,7 @@ export async function fetchChildTodayData(
       activity_category,
       tasks,
       task_counts,
+      quiz_score,
       book:books!assignments_book_owner_fkey(${bookSelectColumns}),
       completions:completions!completions_assignment_owner_fkey(assignment_id, task_type, completed_at, minutes, audio_opened_at, count),
       audioLaunches:audio_launches!audio_launches_assignment_owner_fkey(assignment_id, task_type, opened_at, returned_at)
@@ -398,6 +401,7 @@ export async function fetchUpcomingAssignmentData(
       activity_category,
       tasks,
       task_counts,
+      quiz_score,
       book:books!assignments_book_owner_fkey(${bookSelectColumns})
     `)
     .eq("owner_user_id", ownerUserId)
@@ -612,11 +616,28 @@ export async function saveAssignments(
       })),
       { onConflict: "owner_user_id,child_id,date,book_id,activity_category" },
     )
-    .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts");
+    .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_score");
 
   if (result.error) throw new Error(result.error.message);
 
   return (result.data ?? []).map((row) => mapAssignment(row as AssignmentRow));
+}
+
+export async function saveAssignmentQuizScore(
+  supabase: SupabaseLikeClient,
+  ownerUserId: string,
+  assignmentId: string,
+  quizScore: number,
+) {
+  const result = await supabase
+    .from("assignments")
+    .update({ quiz_score: quizScore })
+    .eq("owner_user_id", ownerUserId)
+    .eq("id", assignmentId)
+    .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_score")
+    .single();
+
+  return mapAssignment(unwrap(result, "퀴즈 점수를 저장하지 못했습니다.") as AssignmentRow);
 }
 
 export async function deleteAssignment(

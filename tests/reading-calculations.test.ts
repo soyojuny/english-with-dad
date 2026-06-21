@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  buildAssignmentActivityLogs,
   countAssignmentProgress,
   datesInRange,
   formatAssignmentTaskLabels,
@@ -31,6 +32,7 @@ const assignment: Assignment = {
   activityCategory: "focusListen",
   tasks: ["listen", "shadow", "self"],
   taskCounts: { listen: 2, shadow: 1, self: 1 },
+  quizScore: null,
 };
 
 const candidateBooks: Book[] = ["처음 책", "다시 읽을 책", "선택한 책"].map((title, index) => ({
@@ -102,6 +104,30 @@ test("upcoming assignments include today and all future dates for the selected c
     getUpcomingAssignments(assignments, "child-1", "2026-06-21").map((item) => item.id),
     ["today", "future"],
   );
+});
+
+test("quiz scores become book activity logs without requiring a task completion", () => {
+  const data: ReadingData = {
+    ...emptyReadingData,
+    books: candidateBooks,
+    assignments: [{ ...assignment, bookId: "book-1", quizScore: 80 }],
+  };
+
+  assert.deepEqual(buildAssignmentActivityLogs(data), [
+    {
+      id: "assignment-1:quiz",
+      childId: "child-1",
+      date: "2026-06-10",
+      type: "quiz",
+      activityCategory: "focusListen",
+      bookId: "book-1",
+      title: "처음 책",
+      minutes: 0,
+      note: "",
+      count: 1,
+      quizScore: 80,
+    },
+  ]);
 });
 
 test("cover and book setup issue helpers identify missing setup", () => {

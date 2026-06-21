@@ -1,6 +1,7 @@
 import { activityCategoryDefinitions, dateKey, taskDefinitions } from "./reading-data";
 import type {
   ActivityCategory,
+  ActivityLog,
   Assignment,
   AudioLaunch,
   Book,
@@ -95,6 +96,53 @@ export function getUpcomingAssignments(assignments: Assignment[], childId: strin
   return assignments
     .filter((assignment) => assignment.childId === childId && assignment.date >= startDate)
     .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+export function buildAssignmentActivityLogs(data: ReadingData) {
+  const booksById = new Map(data.books.map((book) => [book.id, book]));
+
+  return data.assignments.flatMap<ActivityLog>((assignment) => {
+    const book = booksById.get(assignment.bookId);
+    if (!book) return [];
+
+    const logs = assignment.tasks.flatMap<ActivityLog>((taskType) => {
+      const completion = data.completions[`${assignment.id}:${taskType}`];
+      if (!completion) return [];
+
+      return [{
+        id: `${assignment.id}:${taskType}`,
+        childId: assignment.childId,
+        date: assignment.date,
+        type: taskType,
+        activityCategory: assignment.activityCategory,
+        bookId: assignment.bookId,
+        title: book.title,
+        minutes: completion.minutes,
+        note: completion.audioOpenedAt
+          ? `${taskType === "wordRead" ? "링크 열기" : "오디오 열기"} ${formatTime(completion.audioOpenedAt)}`
+          : taskDefinitions[taskType].label,
+        count: completion.count,
+      }];
+    });
+
+    if (assignment.quizScore !== null) {
+      logs.push({
+        id: `${assignment.id}:quiz`,
+        childId: assignment.childId,
+        date: assignment.date,
+        type: "quiz",
+        activityCategory: assignment.activityCategory,
+        bookId: assignment.bookId,
+        title: book.title,
+        minutes: 0,
+        note: "",
+        count: 1,
+        quizScore: assignment.quizScore,
+      });
+    }
+
+    return logs;
+  });
 }
 
 export function hasCustomCover(cover: string) {

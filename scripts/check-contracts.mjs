@@ -67,6 +67,7 @@ for (const relativePath of [
   "tsconfig.test.json",
   "supabase/migrations/20260608213000_init.sql",
   "supabase/migrations/20260615210000_word_reading_extra_study.sql",
+  "supabase/migrations/20260621190000_assignment_quiz_score.sql",
 ]) {
   await requireFile(relativePath);
 }
@@ -140,6 +141,7 @@ requireIncludes(readingStore, "owner_user_id", "lib/supabase/reading-store.ts");
 requireIncludes(readingStore, "content_type", "lib/supabase/reading-store.ts");
 requireIncludes(readingStore, "activity_category", "lib/supabase/reading-store.ts");
 requireIncludes(readingStore, "task_counts", "lib/supabase/reading-store.ts");
+requireIncludes(readingStore, "quiz_score", "lib/supabase/reading-store.ts");
 requireIncludes(readingStore, "count", "lib/supabase/reading-store.ts");
 
 const initMigration = await read("supabase/migrations/20260608213000_init.sql");
@@ -167,6 +169,10 @@ const wordReadingMigration = await read("supabase/migrations/20260615210000_word
 requireIncludes(wordReadingMigration, "content_type", "supabase/migrations/20260615210000_word_reading_extra_study.sql");
 requireIncludes(wordReadingMigration, "wordRead", "supabase/migrations/20260615210000_word_reading_extra_study.sql");
 requireIncludes(wordReadingMigration, "extraStudy", "supabase/migrations/20260615210000_word_reading_extra_study.sql");
+
+const quizScoreMigration = await read("supabase/migrations/20260621190000_assignment_quiz_score.sql");
+requireIncludes(quizScoreMigration, "quiz_score", "supabase/migrations/20260621190000_assignment_quiz_score.sql");
+requireIncludes(quizScoreMigration, "between 0 and 100", "supabase/migrations/20260621190000_assignment_quiz_score.sql");
 
 const clientStats = await stat(path.join(root, "app/reading-manager-client.tsx"));
 const maxClientBytes = 120_000;

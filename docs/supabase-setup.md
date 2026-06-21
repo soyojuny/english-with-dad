@@ -47,6 +47,8 @@ http://localhost:3000/auth/callback
 SQL Editor에서 아래 마이그레이션을 실행합니다.
 
 - [supabase/migrations/20260608213000_init.sql](/D:/workspace/english-with-dad/supabase/migrations/20260608213000_init.sql)
+- 이후 마이그레이션은 파일명 순서대로 실행합니다.
+- 퀴즈 점수 기능에는 [supabase/migrations/20260621190000_assignment_quiz_score.sql](/D:/workspace/english-with-dad/supabase/migrations/20260621190000_assignment_quiz_score.sql)이 필요합니다.
 
 생성되는 주요 테이블:
 
