@@ -1,12 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "../lib/supabase/client";
+import { isLocalTestLoginEnabled } from "../lib/supabase/config";
 
 export default function AuthPanel() {
+  const router = useRouter();
   const [status, setStatus] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [supabase] = useState(() => createClient());
+  const localTestLoginEnabled = isLocalTestLoginEnabled();
 
   const signInWithGoogle = async () => {
     setSubmitting(true);
@@ -29,6 +33,30 @@ export default function AuthPanel() {
     }
   };
 
+  const signInForLocalTest = async () => {
+    const isLocalHost = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
+    if (!localTestLoginEnabled || !isLocalHost) {
+      setStatus("로컬 테스트 로그인은 localhost 개발 서버에서만 사용할 수 있습니다.");
+      return;
+    }
+
+    setSubmitting(true);
+    setStatus("");
+
+    const { error } = await supabase.auth.signInAnonymously();
+    if (error) {
+      setStatus(
+        error.message.includes("Anonymous sign-ins are disabled")
+          ? "Supabase Dashboard에서 Anonymous Sign-Ins를 활성화해 주세요."
+          : error.message,
+      );
+      setSubmitting(false);
+      return;
+    }
+
+    router.refresh();
+  };
+
   return (
     <main className="auth-shell">
       <section className="auth-card">
@@ -40,7 +68,19 @@ export default function AuthPanel() {
           <button className="primary-button" type="button" onClick={signInWithGoogle} disabled={submitting}>
             {submitting ? "Google로 이동 중..." : "Google로 계속하기"}
           </button>
+          {localTestLoginEnabled ? (
+            <button className="secondary-button" type="button" onClick={signInForLocalTest} disabled={submitting}>
+              로컬 테스트로 시작
+            </button>
+          ) : null}
         </div>
+
+        {localTestLoginEnabled ? (
+          <p className="auth-copy">
+            로컬 테스트 계정은 이 브라우저에만 유지됩니다. 로그아웃하거나 브라우저 데이터를 지우면 다시 접근할 수
+            없습니다.
+          </p>
+        ) : null}
 
         {status ? (
           <div className="book-alert info" role="status">

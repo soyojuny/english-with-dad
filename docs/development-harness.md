@@ -114,6 +114,9 @@ npm run build
 
 UI/PWA 작업에서는 자동 검증만으로 충분하지 않다. 변경 범위에 따라 다음을 확인한다.
 
+로컬에서는 Google OAuth 대신 로그인 화면의 `로컬 테스트로 시작`을 사용한다. Supabase Anonymous Sign-Ins와
+`20260621210000_anonymous_local_test_profiles.sql` migration이 적용되어 있어야 한다.
+
 - 아동 화면에서 읽기/정따 오디오 링크 열기
 - 앱 복귀 후 완료 기록 표시
 - 반복 과제 완료 카운트 표시

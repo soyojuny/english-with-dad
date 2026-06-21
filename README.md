@@ -22,9 +22,13 @@ Copy-Item .env.example .env.local
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_replace_me
+NEXT_PUBLIC_ENABLE_LOCAL_TEST_LOGIN=true
 ```
 
 Google OAuth와 테이블 생성은 [docs/supabase-setup.md](/D:/workspace/english-with-dad/docs/supabase-setup.md)에 정리되어 있습니다.
+
+로컬 실행에서는 로그인 화면의 `로컬 테스트로 시작` 버튼으로 Google OAuth 없이 실제 Supabase CRUD를 검증할 수
+있습니다. Supabase 프로젝트에서 Anonymous Sign-Ins를 활성화하고 최신 migration을 적용해야 합니다.
 
 ## 검증
 

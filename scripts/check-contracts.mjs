@@ -69,6 +69,7 @@ for (const relativePath of [
   "supabase/migrations/20260615210000_word_reading_extra_study.sql",
   "supabase/migrations/20260621190000_assignment_quiz_score.sql",
   "supabase/migrations/20260621200000_assignment_quiz_enabled.sql",
+  "supabase/migrations/20260621210000_anonymous_local_test_profiles.sql",
 ]) {
   await requireFile(relativePath);
 }
@@ -79,6 +80,14 @@ for (const scriptName of ["check:contracts", "check:sw", "check:pwa", "test:unit
     fail(`package.json scripts must define ${scriptName}`);
   }
 }
+
+const authPanel = await read("app/auth-panel.tsx");
+requireIncludes(authPanel, "signInAnonymously", "app/auth-panel.tsx");
+requireIncludes(authPanel, "isLocalTestLoginEnabled", "app/auth-panel.tsx");
+
+const supabaseConfig = await read("lib/supabase/config.ts");
+requireIncludes(supabaseConfig, 'process.env.NODE_ENV === "development"', "lib/supabase/config.ts");
+requireIncludes(supabaseConfig, "NEXT_PUBLIC_ENABLE_LOCAL_TEST_LOGIN", "lib/supabase/config.ts");
 
 const gitignore = await read(".gitignore");
 for (const ignoredLegacyPath of ["/app.js", "/index.html", "/manifest.webmanifest", "/sw.js"]) {
@@ -179,6 +188,14 @@ requireIncludes(quizScoreMigration, "between 0 and 100", "supabase/migrations/20
 const quizEnabledMigration = await read("supabase/migrations/20260621200000_assignment_quiz_enabled.sql");
 requireIncludes(quizEnabledMigration, "quiz_enabled", "supabase/migrations/20260621200000_assignment_quiz_enabled.sql");
 requireIncludes(quizEnabledMigration, "default false", "supabase/migrations/20260621200000_assignment_quiz_enabled.sql");
+
+const anonymousProfileMigration = await read("supabase/migrations/20260621210000_anonymous_local_test_profiles.sql");
+requireIncludes(anonymousProfileMigration, "anonymous+", "supabase/migrations/20260621210000_anonymous_local_test_profiles.sql");
+requireIncludes(
+  anonymousProfileMigration,
+  "revoke execute on function public.handle_new_user() from public, anon, authenticated",
+  "supabase/migrations/20260621210000_anonymous_local_test_profiles.sql",
+);
 
 const clientStats = await stat(path.join(root, "app/reading-manager-client.tsx"));
 const maxClientBytes = 120_000;
