@@ -12,6 +12,7 @@ import {
   formatDate,
   formatTime,
   getAssignmentBookCandidates,
+  getUpcomingAssignments,
   getAvailableActivityCategories,
   getAssignmentTaskCount,
   getBookSetupIssues,
@@ -68,6 +69,7 @@ import {
   fetchLibraryData,
   fetchParentActivityData,
   fetchReadingProfileData,
+  fetchUpcomingAssignmentData,
   saveAssignments,
   saveAudioLaunch,
   saveBook as saveBookRecord,
@@ -385,6 +387,51 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       cancelled = true;
     };
   }, [activeProfile, isAssignBookDataLoaded, ownerUserId, supabase, view]);
+
+  useEffect(() => {
+    if (activeProfile?.kind !== "parent" || view !== "assign" || !childId) return;
+
+    let cancelled = false;
+    const startDate = dateKey();
+
+    const load = async () => {
+      setIsLoadingData(true);
+      setSyncError("");
+
+      try {
+        const nextData = await fetchUpcomingAssignmentData(supabase, ownerUserId, childId, startDate);
+        if (cancelled) return;
+
+        setData((current) => {
+          const booksById = new Map(current.books.map((book) => [book.id, book]));
+          nextData.books.forEach((book) => booksById.set(book.id, book));
+
+          return {
+            ...current,
+            books: [...booksById.values()],
+            assignments: [
+              ...current.assignments.filter(
+                (assignment) => assignment.childId !== childId || assignment.date < startDate,
+              ),
+              ...nextData.assignments,
+            ],
+          };
+        });
+      } catch (error) {
+        if (cancelled) return;
+        setSyncError(error instanceof Error ? error.message : "예정된 할 일을 불러오지 못했습니다.");
+        showToast("예정된 할 일을 불러오지 못했습니다.");
+      } finally {
+        if (!cancelled) setIsLoadingData(false);
+      }
+    };
+
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeProfile, childId, ownerUserId, supabase, view]);
 
   useEffect(() => {
     setAssignSelectedBookIds([]);
@@ -1458,9 +1505,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       })
       .map((log) => log.bookId),
   ).size;
-  const childAssignments = data.assignments
-    .filter((assignment) => assignment.childId === childId)
-    .sort((a, b) => a.date.localeCompare(b.date));
+  const childAssignments = getUpcomingAssignments(data.assignments, childId, dateKey());
   const hasChildren = data.children.length > 0;
   const isParentProfile = activeProfile?.kind === "parent";
   const isChildProfile = activeProfile?.kind === "child";
@@ -2664,7 +2709,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                 <div className="section-heading compact">
                   <div>
                     <p className="eyebrow">예정표</p>
-                    <h2 id="assignmentPreviewTitle">생성된 할 일</h2>
+                    <h2 id="assignmentPreviewTitle">오늘 이후 예정된 할 일</h2>
                   </div>
                 </div>
                 <div className="manage-list">
@@ -2694,7 +2739,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                       );
                     })
                   ) : (
-                    <div className="empty-state">생성된 할 일이 없습니다.</div>
+                    <div className="empty-state">오늘 이후 예정된 할 일이 없습니다.</div>
                   )}
                 </div>
               </section>

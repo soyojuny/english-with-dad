@@ -91,6 +91,12 @@ export function getAssignmentBookCandidates({
     .slice(0, query ? 20 : 10);
 }
 
+export function getUpcomingAssignments(assignments: Assignment[], childId: string, startDate: string) {
+  return assignments
+    .filter((assignment) => assignment.childId === childId && assignment.date >= startDate)
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
 export function hasCustomCover(cover: string) {
   return Boolean(cover && cover !== "/assets/app-icon.svg");
 }

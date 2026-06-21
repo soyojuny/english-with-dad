@@ -381,6 +381,46 @@ export async function fetchChildTodayData(
   };
 }
 
+export async function fetchUpcomingAssignmentData(
+  supabase: SupabaseLikeClient,
+  ownerUserId: string,
+  childId: string,
+  startDate: string,
+): Promise<Pick<ReadingData, "books" | "assignments">> {
+  const result = await supabase
+    .from("assignments")
+    .select(`
+      id,
+      owner_user_id,
+      child_id,
+      date,
+      book_id,
+      activity_category,
+      tasks,
+      task_counts,
+      book:books!assignments_book_owner_fkey(${bookSelectColumns})
+    `)
+    .eq("owner_user_id", ownerUserId)
+    .eq("child_id", childId)
+    .gte("date", startDate)
+    .order("date", { ascending: true });
+
+  if (result.error) throw new Error(result.error.message);
+
+  const rows = (result.data ?? []) as unknown as TodayAssignmentRow[];
+  const booksById = new Map<string, Book>();
+
+  rows.forEach((row) => {
+    const book = firstEmbeddedBook(row);
+    if (book) booksById.set(book.id, mapBook(book));
+  });
+
+  return {
+    books: [...booksById.values()],
+    assignments: rows.map((row) => mapAssignment(row)),
+  };
+}
+
 export async function fetchBookManageData(
   supabase: SupabaseLikeClient,
   ownerUserId: string,

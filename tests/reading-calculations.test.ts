@@ -14,6 +14,7 @@ import {
   getDefaultTasksForMaterial,
   getLaunchMinutes,
   getTaskAudioUrl,
+  getUpcomingAssignments,
   hasCustomCover,
   isValidExternalUrl,
   normalizeText,
@@ -86,6 +87,20 @@ test("assignment candidates show only unassigned books until a search includes a
       search: "다시 읽을",
     }).map((book) => book.id),
     ["book-2"],
+  );
+});
+
+test("upcoming assignments include today and all future dates for the selected child", () => {
+  const assignments: Assignment[] = [
+    { ...assignment, id: "past", date: "2026-06-20" },
+    { ...assignment, id: "today", date: "2026-06-21" },
+    { ...assignment, id: "future", date: "2026-07-01" },
+    { ...assignment, id: "other-child", childId: "child-2", date: "2026-06-22" },
+  ];
+
+  assert.deepEqual(
+    getUpcomingAssignments(assignments, "child-1", "2026-06-21").map((item) => item.id),
+    ["today", "future"],
   );
 });
 
