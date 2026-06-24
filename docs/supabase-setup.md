@@ -2,6 +2,9 @@
 
 이 프로젝트는 `부모 1계정 로그인 + children/books/assignments/... 데이터 저장` 구조로 동작합니다.
 
+프로젝트를 다른 리전으로 이전하는 절차는
+[supabase-region-migration.md](/D:/workspace/english-with-dad/docs/supabase-region-migration.md)를 따릅니다.
+
 ## 1. 프로젝트 생성
 
 Supabase에서 새 프로젝트를 만들고 아래 값을 확인합니다.
@@ -64,7 +67,7 @@ SQL Editor에서 아래 마이그레이션을 실행합니다.
 
 - [supabase/migrations/20260608213000_init.sql](/D:/workspace/english-with-dad/supabase/migrations/20260608213000_init.sql)
 - 이후 마이그레이션은 파일명 순서대로 실행합니다.
-- 퀴즈 점수 기능에는 [supabase/migrations/20260621190000_assignment_quiz_score.sql](/D:/workspace/english-with-dad/supabase/migrations/20260621190000_assignment_quiz_score.sql)이 필요합니다.
+- 퀴즈 결과 기능에는 [supabase/migrations/20260621190000_assignment_quiz_score.sql](/D:/workspace/english-with-dad/supabase/migrations/20260621190000_assignment_quiz_score.sql)과 [supabase/migrations/20260624090000_assignment_quiz_result_text.sql](/D:/workspace/english-with-dad/supabase/migrations/20260624090000_assignment_quiz_result_text.sql)이 필요합니다.
 - 할 일별 퀴즈 Y/N 기능에는 [supabase/migrations/20260621200000_assignment_quiz_enabled.sql](/D:/workspace/english-with-dad/supabase/migrations/20260621200000_assignment_quiz_enabled.sql)이 필요합니다.
 - 익명 로컬 테스트 계정에는 [supabase/migrations/20260621210000_anonymous_local_test_profiles.sql](/D:/workspace/english-with-dad/supabase/migrations/20260621210000_anonymous_local_test_profiles.sql)이 필요합니다.
 

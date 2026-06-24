@@ -59,6 +59,7 @@ for (const relativePath of [
   ".agents/skills/ewd-supabase-change/SKILL.md",
   ".agents/skills/ewd-ui-regression/SKILL.md",
   "docs/development-harness.md",
+  "docs/supabase-region-migration.md",
   "lib/reading-calculations.ts",
   "lib/reading-types.ts",
   "lib/reading-data.ts",
@@ -69,6 +70,7 @@ for (const relativePath of [
   "supabase/migrations/20260615210000_word_reading_extra_study.sql",
   "supabase/migrations/20260621190000_assignment_quiz_score.sql",
   "supabase/migrations/20260621200000_assignment_quiz_enabled.sql",
+  "supabase/migrations/20260624090000_assignment_quiz_result_text.sql",
   "supabase/migrations/20260621210000_anonymous_local_test_profiles.sql",
 ]) {
   await requireFile(relativePath);
@@ -79,6 +81,18 @@ for (const scriptName of ["check:contracts", "check:sw", "check:pwa", "test:unit
   if (!packageJson.scripts?.[scriptName]) {
     fail(`package.json scripts must define ${scriptName}`);
   }
+}
+
+const regionMigrationGuide = await read("docs/supabase-region-migration.md");
+for (const requiredText of [
+  "ap-northeast-2",
+  "supabase db dump",
+  "session_replication_role = replica",
+  "auth.users",
+  "NEXT_PUBLIC_SUPABASE_URL",
+  "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+]) {
+  requireIncludes(regionMigrationGuide, requiredText, "docs/supabase-region-migration.md");
 }
 
 const authPanel = await read("app/auth-panel.tsx");
@@ -188,6 +202,10 @@ requireIncludes(quizScoreMigration, "between 0 and 100", "supabase/migrations/20
 const quizEnabledMigration = await read("supabase/migrations/20260621200000_assignment_quiz_enabled.sql");
 requireIncludes(quizEnabledMigration, "quiz_enabled", "supabase/migrations/20260621200000_assignment_quiz_enabled.sql");
 requireIncludes(quizEnabledMigration, "default false", "supabase/migrations/20260621200000_assignment_quiz_enabled.sql");
+
+const quizResultTextMigration = await read("supabase/migrations/20260624090000_assignment_quiz_result_text.sql");
+requireIncludes(quizResultTextMigration, "alter column quiz_score type text", "supabase/migrations/20260624090000_assignment_quiz_result_text.sql");
+requireIncludes(quizResultTextMigration, "assignments_quiz_score_text_check", "supabase/migrations/20260624090000_assignment_quiz_result_text.sql");
 
 const anonymousProfileMigration = await read("supabase/migrations/20260621210000_anonymous_local_test_profiles.sql");
 requireIncludes(anonymousProfileMigration, "anonymous+", "supabase/migrations/20260621210000_anonymous_local_test_profiles.sql");

@@ -1339,11 +1339,12 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     }
   };
 
-  const saveQuizScoreDb = async (quizScore: number) => {
+  const saveQuizScoreDb = async (quizScore: string) => {
     if (!selectedAssignment?.quizEnabled) return;
 
-    if (!Number.isInteger(quizScore) || quizScore < 0 || quizScore > 100) {
-      showToast("퀴즈 점수는 0점부터 100점까지 입력하세요.");
+    const normalizedQuizScore = quizScore.trim();
+    if (!normalizedQuizScore) {
+      showToast("퀴즈 결과를 입력하세요.");
       return;
     }
 
@@ -1352,7 +1353,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
         supabase,
         ownerUserId,
         selectedAssignment.id,
-        quizScore,
+        normalizedQuizScore,
       );
       setData((current) => ({
         ...current,
@@ -1360,9 +1361,9 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           assignment.id === savedAssignment.id ? savedAssignment : assignment,
         ),
       }));
-      showToast(`퀴즈 ${quizScore}점을 저장했습니다.`);
+      showToast(`퀴즈 ${normalizedQuizScore} 저장했습니다.`);
     } catch (error) {
-      showToast(error instanceof Error ? error.message : "퀴즈 점수를 저장하지 못했습니다.");
+      showToast(error instanceof Error ? error.message : "퀴즈 결과를 저장하지 못했습니다.");
     }
   };
 
@@ -1397,7 +1398,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
             title: string;
             minutes: number;
             taskCounts: Partial<Record<TaskType, number>>;
-            quizScore: number | null;
+            quizScore: string | null;
           }
         >
       >((acc, log) => {
@@ -1433,7 +1434,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
             <br />
             <small>
               {detailText || "활동 기록"} ({entry.minutes}분)
-              {entry.quizScore !== null ? ` 퀴즈(${entry.quizScore}점)` : ""}
+              {entry.quizScore !== null ? ` 퀴즈 (${entry.quizScore})` : ""}
             </small>
           </div>
         );

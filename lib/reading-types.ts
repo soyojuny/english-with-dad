@@ -39,7 +39,7 @@ export type Assignment = {
   tasks: TaskType[];
   taskCounts: TaskCountMap;
   quizEnabled: boolean;
-  quizScore: number | null;
+  quizScore: string | null;
 };
 
 export type Completion = {
@@ -76,7 +76,7 @@ export type ActivityLog = {
   minutes: number;
   note: string;
   count: number;
-  quizScore?: number;
+  quizScore?: string;
 };
 
 export type ReadingData = {

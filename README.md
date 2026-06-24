@@ -26,6 +26,8 @@ NEXT_PUBLIC_ENABLE_LOCAL_TEST_LOGIN=true
 ```
 
 Google OAuth와 테이블 생성은 [docs/supabase-setup.md](/D:/workspace/english-with-dad/docs/supabase-setup.md)에 정리되어 있습니다.
+Mumbai에서 Seoul 리전으로 프로젝트를 이전하는 절차는
+[docs/supabase-region-migration.md](/D:/workspace/english-with-dad/docs/supabase-region-migration.md)에 정리되어 있습니다.
 
 로컬 실행에서는 로그인 화면의 `로컬 테스트로 시작` 버튼으로 Google OAuth 없이 실제 Supabase CRUD를 검증할 수
 있습니다. Supabase 프로젝트에서 Anonymous Sign-Ins를 활성화하고 최신 migration을 적용해야 합니다.

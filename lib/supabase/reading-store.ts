@@ -49,7 +49,7 @@ type AssignmentRow = {
   tasks: string[];
   task_counts: TaskCountMap | null;
   quiz_enabled: boolean | null;
-  quiz_score: number | null;
+  quiz_score: string | null;
 };
 
 type TodayAssignmentRow = AssignmentRow & {
@@ -641,7 +641,7 @@ export async function saveAssignmentQuizScore(
   supabase: SupabaseLikeClient,
   ownerUserId: string,
   assignmentId: string,
-  quizScore: number,
+  quizScore: string,
 ) {
   const result = await supabase
     .from("assignments")
@@ -651,7 +651,7 @@ export async function saveAssignmentQuizScore(
     .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_enabled, quiz_score")
     .single();
 
-  return mapAssignment(unwrap(result, "퀴즈 점수를 저장하지 못했습니다.") as AssignmentRow);
+  return mapAssignment(unwrap(result, "퀴즈 결과를 저장하지 못했습니다.") as AssignmentRow);
 }
 
 export async function deleteAssignment(

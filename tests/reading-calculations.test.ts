@@ -125,11 +125,11 @@ test("upcoming assignments include today and all future dates for the selected c
   );
 });
 
-test("quiz scores become book activity logs without requiring a task completion", () => {
+test("quiz results become book activity logs without requiring a task completion", () => {
   const data: ReadingData = {
     ...emptyReadingData,
     books: candidateBooks,
-    assignments: [{ ...assignment, bookId: "book-1", quizEnabled: true, quizScore: 80 }],
+    assignments: [{ ...assignment, bookId: "book-1", quizEnabled: true, quizScore: "PASS" }],
   };
 
   assert.deepEqual(buildAssignmentActivityLogs(data), [
@@ -144,14 +144,14 @@ test("quiz scores become book activity logs without requiring a task completion"
       minutes: 0,
       note: "",
       count: 1,
-      quizScore: 80,
+      quizScore: "PASS",
     },
   ]);
 
   assert.deepEqual(
     buildAssignmentActivityLogs({
       ...data,
-      assignments: [{ ...assignment, bookId: "book-1", quizEnabled: false, quizScore: 80 }],
+      assignments: [{ ...assignment, bookId: "book-1", quizEnabled: false, quizScore: "PASS" }],
     }),
     [],
   );
