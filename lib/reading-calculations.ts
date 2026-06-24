@@ -220,11 +220,15 @@ export function getLaunchMinutes(launch: AudioLaunch | null | undefined, fallbac
 }
 
 export function countAssignmentProgress(data: ReadingData, assignment: Assignment) {
-  const total = assignment.tasks.reduce((sum, taskType) => sum + getAssignmentTaskCount(assignment, taskType), 0);
-  const done = assignment.tasks.reduce(
+  const taskTotal = assignment.tasks.reduce((sum, taskType) => sum + getAssignmentTaskCount(assignment, taskType), 0);
+  const taskDone = assignment.tasks.reduce(
     (sum, taskType) => sum + Math.min(getCompletionCount(data, assignment.id, taskType), getAssignmentTaskCount(assignment, taskType)),
     0,
   );
+  const quizTotal = assignment.quizEnabled ? 1 : 0;
+  const quizDone = assignment.quizEnabled && assignment.quizScore !== null ? 1 : 0;
+  const total = taskTotal + quizTotal;
+  const done = taskDone + quizDone;
   return {
     done,
     total,
@@ -236,5 +240,6 @@ export function formatAssignmentTaskLabels(
   assignment: Pick<Assignment, "activityCategory" | "tasks" | "taskCounts" | "quizEnabled">,
 ) {
   const quizLabel = assignment.quizEnabled ? " · 퀴즈 Y" : "";
-  return `${activityCategoryDefinitions[assignment.activityCategory].label} · ${formatTaskSummary(assignment.tasks, assignment.taskCounts)}${quizLabel}`;
+  const taskSummary = formatTaskSummary(assignment.tasks, assignment.taskCounts);
+  return `${activityCategoryDefinitions[assignment.activityCategory].label}${taskSummary ? ` · ${taskSummary}` : ""}${quizLabel}`;
 }

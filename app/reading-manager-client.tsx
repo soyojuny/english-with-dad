@@ -1247,10 +1247,10 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       return;
     }
 
-    const invalidSelection = selections.find((selection) => !selection.tasks.length);
+    const invalidSelection = selections.find((selection) => !selection.tasks.length && !selection.quizEnabled);
     if (invalidSelection) {
       const book = getBook(invalidSelection.bookId);
-      showToast(`${book?.title ?? "선택한 자료"}의 상세 활동 횟수를 설정하세요.`);
+      showToast(`${book?.title ?? "선택한 자료"}의 상세 활동 횟수 또는 퀴즈 Y를 설정하세요.`);
       return;
     }
 
@@ -1929,6 +1929,13 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                           </div>
                         );
                       })}
+                      {selectedAssignment?.quizEnabled && (
+                        <AssignmentQuizScore
+                          assignmentId={selectedAssignment.id}
+                          score={selectedAssignment.quizScore}
+                          onSave={saveQuizScoreDb}
+                        />
+                      )}
                     </div>
                   </>
                 ) : (
@@ -2040,7 +2047,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                           </div>
                         );
                       })}
-                      {selectedAssignment?.quizEnabled && !isWordReadingMaterial(selectedBook) && (
+                      {selectedAssignment?.quizEnabled && (
                         <AssignmentQuizScore
                           assignmentId={selectedAssignment.id}
                           score={selectedAssignment.quizScore}

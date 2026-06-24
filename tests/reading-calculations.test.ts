@@ -220,6 +220,14 @@ test("completion count and progress cap completed repetitions at target count", 
 
   assert.equal(getCompletionCount(data, "assignment-1", "listen"), 3);
   assert.deepEqual(countAssignmentProgress(data, assignment), { done: 3, total: 4, percent: 75 });
+  assert.deepEqual(
+    countAssignmentProgress(data, { ...assignment, tasks: [], taskCounts: {}, quizEnabled: true }),
+    { done: 0, total: 1, percent: 0 },
+  );
+  assert.deepEqual(
+    countAssignmentProgress(data, { ...assignment, tasks: [], taskCounts: {}, quizEnabled: true, quizScore: "PASS" }),
+    { done: 1, total: 1, percent: 100 },
+  );
 });
 
 test("task formatting follows canonical task order", () => {
@@ -238,6 +246,10 @@ test("task formatting follows canonical task order", () => {
   assert.equal(
     formatAssignmentTaskLabels({ ...assignment, quizEnabled: true }),
     "집중듣기 · 읽기 2회 · 정따 1회 · 스스로 읽기 1회 · 퀴즈 Y",
+  );
+  assert.equal(
+    formatAssignmentTaskLabels({ ...assignment, tasks: [], taskCounts: {}, quizEnabled: true }),
+    "집중듣기 · 퀴즈 Y",
   );
 });
 

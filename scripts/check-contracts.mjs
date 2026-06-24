@@ -71,6 +71,7 @@ for (const relativePath of [
   "supabase/migrations/20260621190000_assignment_quiz_score.sql",
   "supabase/migrations/20260621200000_assignment_quiz_enabled.sql",
   "supabase/migrations/20260624090000_assignment_quiz_result_text.sql",
+  "supabase/migrations/20260624093000_assignment_quiz_only_tasks.sql",
   "supabase/migrations/20260621210000_anonymous_local_test_profiles.sql",
 ]) {
   await requireFile(relativePath);
@@ -206,6 +207,10 @@ requireIncludes(quizEnabledMigration, "default false", "supabase/migrations/2026
 const quizResultTextMigration = await read("supabase/migrations/20260624090000_assignment_quiz_result_text.sql");
 requireIncludes(quizResultTextMigration, "alter column quiz_score type text", "supabase/migrations/20260624090000_assignment_quiz_result_text.sql");
 requireIncludes(quizResultTextMigration, "assignments_quiz_score_text_check", "supabase/migrations/20260624090000_assignment_quiz_result_text.sql");
+
+const quizOnlyTasksMigration = await read("supabase/migrations/20260624093000_assignment_quiz_only_tasks.sql");
+requireIncludes(quizOnlyTasksMigration, "or quiz_enabled", "supabase/migrations/20260624093000_assignment_quiz_only_tasks.sql");
+requireIncludes(quizOnlyTasksMigration, "assignments_tasks_check", "supabase/migrations/20260624093000_assignment_quiz_only_tasks.sql");
 
 const anonymousProfileMigration = await read("supabase/migrations/20260621210000_anonymous_local_test_profiles.sql");
 requireIncludes(anonymousProfileMigration, "anonymous+", "supabase/migrations/20260621210000_anonymous_local_test_profiles.sql");

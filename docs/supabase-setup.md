@@ -67,7 +67,7 @@ SQL Editor에서 아래 마이그레이션을 실행합니다.
 
 - [supabase/migrations/20260608213000_init.sql](/D:/workspace/english-with-dad/supabase/migrations/20260608213000_init.sql)
 - 이후 마이그레이션은 파일명 순서대로 실행합니다.
-- 퀴즈 결과 기능에는 [supabase/migrations/20260621190000_assignment_quiz_score.sql](/D:/workspace/english-with-dad/supabase/migrations/20260621190000_assignment_quiz_score.sql)과 [supabase/migrations/20260624090000_assignment_quiz_result_text.sql](/D:/workspace/english-with-dad/supabase/migrations/20260624090000_assignment_quiz_result_text.sql)이 필요합니다.
+- 퀴즈 결과 기능에는 [supabase/migrations/20260621190000_assignment_quiz_score.sql](/D:/workspace/english-with-dad/supabase/migrations/20260621190000_assignment_quiz_score.sql), [supabase/migrations/20260624090000_assignment_quiz_result_text.sql](/D:/workspace/english-with-dad/supabase/migrations/20260624090000_assignment_quiz_result_text.sql), [supabase/migrations/20260624093000_assignment_quiz_only_tasks.sql](/D:/workspace/english-with-dad/supabase/migrations/20260624093000_assignment_quiz_only_tasks.sql)이 필요합니다.
 - 할 일별 퀴즈 Y/N 기능에는 [supabase/migrations/20260621200000_assignment_quiz_enabled.sql](/D:/workspace/english-with-dad/supabase/migrations/20260621200000_assignment_quiz_enabled.sql)이 필요합니다.
 - 익명 로컬 테스트 계정에는 [supabase/migrations/20260621210000_anonymous_local_test_profiles.sql](/D:/workspace/english-with-dad/supabase/migrations/20260621210000_anonymous_local_test_profiles.sql)이 필요합니다.
 
