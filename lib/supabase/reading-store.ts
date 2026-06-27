@@ -779,3 +779,20 @@ export async function saveManualLog(
 
   return mapManualLog(unwrap(result, "수기 기록을 저장하지 못했습니다.") as ManualLogRow);
 }
+
+export async function deleteManualLog(
+  supabase: SupabaseLikeClient,
+  ownerUserId: string,
+  manualLogId: string,
+) {
+  const result = await supabase
+    .from("manual_logs")
+    .delete()
+    .eq("owner_user_id", ownerUserId)
+    .eq("id", manualLogId)
+    .select("id")
+    .single();
+
+  unwrap(result, "수기 기록을 삭제하지 못했습니다.");
+  return manualLogId;
+}

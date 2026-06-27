@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, FormEvent } from "react";
+import { ActivityLogCell } from "./activity-log-cell";
 import { AssignmentBookPicker } from "./assignment-book-picker";
 import { AssignmentQuizScore } from "./assignment-quiz-score";
 import { MaterialThumb, formatMaterialMeta } from "./material-thumb";
@@ -56,6 +57,7 @@ import type {
   Assignment,
   Book,
   BookContentType,
+  ManualLog,
   ManualLogType,
   QuizResult,
   ReadingData,
@@ -65,6 +67,7 @@ import type {
 import { createClient } from "../lib/supabase/client";
 import {
   deleteAssignment as deleteAssignmentRecord,
+  deleteManualLog,
   fetchAssignedBookIds,
   fetchBookManageData,
   fetchBookSeriesNames,
@@ -686,6 +689,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   }, [data]);
 
   const allLogs = useMemo<ActivityLog[]>(() => [...data.manualLogs, ...completionLogs], [completionLogs, data.manualLogs]);
+  const manualLogIds = useMemo(() => new Set(data.manualLogs.map((log) => log.id)), [data.manualLogs]);
 
   const periodDateKeys = useMemo(() => {
     const { startKey, endKey } = parentActivityRange;
@@ -1367,6 +1371,22 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     }
   };
 
+  const deleteManualLogDb = async (manualLog: ManualLog) => {
+    const confirmed = window.confirm(`${manualLog.title} 수기 기록을 삭제할까요?`);
+    if (!confirmed) return;
+
+    try {
+      const deletedId = await deleteManualLog(supabase, ownerUserId, manualLog.id);
+      setData((current) => ({
+        ...current,
+        manualLogs: current.manualLogs.filter((log) => log.id !== deletedId),
+      }));
+      showToast("수기 기록을 삭제했습니다.");
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "수기 기록을 삭제하지 못했습니다.");
+    }
+  };
+
   const renderCell = (
     logs: ActivityLog[],
     matcher: {
@@ -1374,92 +1394,15 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       activityCategories?: ActivityCategory | ActivityCategory[];
       bookSummary?: boolean;
     },
-  ) => {
-    const typeList = matcher.types ? (Array.isArray(matcher.types) ? matcher.types : [matcher.types]) : [];
-    const categoryList = matcher.activityCategories
-      ? (Array.isArray(matcher.activityCategories) ? matcher.activityCategories : [matcher.activityCategories])
-      : [];
-    const filteredLogs = logs.filter((log) => {
-      const matchesType = typeList.length > 0 && typeList.includes(log.type);
-      const matchesCategory = categoryList.length > 0 && Boolean(log.activityCategory && categoryList.includes(log.activityCategory));
-      return matchesType || matchesCategory;
-    });
-
-    if (!filteredLogs.length) {
-      return <span className="task-meta">-</span>;
-    }
-
-    if (matcher.bookSummary) {
-      const grouped = filteredLogs.reduce<
-        Record<
-          string,
-          {
-            series: string;
-            title: string;
-            minutes: number;
-            taskCounts: Partial<Record<TaskType, number>>;
-            quizScore: QuizResult | null;
-          }
-        >
-      >((acc, log) => {
-        const book = log.bookId ? getBook(log.bookId) : undefined;
-        const series = book?.series || "직접 입력";
-        const title = log.title;
-        const key = `${series}:${title}`;
-        acc[key] ??= {
-          series,
-          title,
-          minutes: 0,
-          taskCounts: {},
-          quizScore: null,
-        };
-        acc[key].minutes += Number(log.minutes || 0);
-        if (log.quizScore !== undefined) acc[key].quizScore = log.quizScore;
-        if (log.type === "listen" || log.type === "shadow" || log.type === "self" || log.type === "wordRead") {
-          acc[key].taskCounts[log.type] = (acc[key].taskCounts[log.type] ?? 0) + log.count;
-        }
-        return acc;
-      }, {});
-
-      return Object.entries(grouped).map(([key, entry]) => {
-        const detailText = sortTasks(Object.keys(entry.taskCounts) as TaskType[])
-          .map((taskType) => `${taskDefinitions[taskType].label} ${entry.taskCounts[taskType] ?? 0}회`)
-          .join(", ");
-
-        return (
-          <div key={key}>
-            <strong>{entry.series}</strong>
-            <br />
-            {entry.title}
-            <br />
-            <small>
-              {detailText || "활동 기록"} ({entry.minutes}분)
-              {entry.quizScore !== null ? ` 퀴즈 (${entry.quizScore})` : ""}
-            </small>
-          </div>
-        );
-      });
-    }
-
-    const grouped = filteredLogs.reduce<Record<string, { title: string; minutes: number; counts: number; notes: string[] }>>((acc, log) => {
-      const key = `${log.activityCategory ?? log.type}:${log.title}`;
-      acc[key] ??= { title: log.title, minutes: 0, counts: 0, notes: [] };
-      acc[key].minutes += Number(log.minutes || 0);
-      acc[key].counts += log.count;
-      if (log.note && !acc[key].notes.includes(log.note)) acc[key].notes.push(log.note);
-      return acc;
-    }, {});
-
-    return Object.entries(grouped).map(([key, entry]) => (
-      <div key={key}>
-        {entry.title}
-        <br />
-        <small>
-          {entry.counts > 1 ? `${entry.counts}회 · ` : ""}{entry.minutes}분{entry.notes.length ? ` · ${entry.notes.join(", ")}` : ""}
-        </small>
-      </div>
-    ));
-  };
+  ) => (
+    <ActivityLogCell
+      logs={logs}
+      matcher={matcher}
+      manualLogIds={manualLogIds}
+      getBook={getBook}
+      onDeleteManualLog={deleteManualLogDb}
+    />
+  );
 
   const addChildManualLogDb = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
