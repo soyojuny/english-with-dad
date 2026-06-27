@@ -27,6 +27,8 @@ C:\nvm4w\nodejs\npm.cmd run git:publish -- "commit message"
 
 ## Rules
 
+- This project uses direct `main` to `origin/main` pushes by default.
+- Do not create a feature branch for normal publish work unless the user explicitly asks.
 - Run `npm run git:status` before committing when the requested scope is not already obvious.
 - Use `git:commit` when the user asks only to commit.
 - Use `git:push` when the user asks only to push existing commits.

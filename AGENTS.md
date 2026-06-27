@@ -29,6 +29,7 @@
 
 - For planning, use `npm run plan:workflow -- "<user request>"` to get script-generated scope warnings, skill hints, and recommended checks before deciding manually.
 - Use `.agents/skills/ewd-git-publish` and the `npm run git:*` wrappers for repeated git status, commit, push, and publish operations.
+- This project commits and pushes directly to `main`/`origin/main` by default. Do not create a feature branch for normal work unless the user explicitly asks.
 - Use `.agents/skills/ewd-feature-change` for normal feature changes.
 - Use `.agents/skills/ewd-supabase-change` for any Auth, database, migration, RLS, or Storage task.
 - Use `.agents/skills/ewd-ui-regression` for PWA, mobile, QR, audio-launch, or visual regression work.

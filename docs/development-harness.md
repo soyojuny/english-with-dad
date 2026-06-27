@@ -34,6 +34,10 @@
 - `ewd-supabase-change`: Auth, schema, migration, RLS, Storage, persisted data
 - `ewd-ui-regression`: PWA, 모바일 UI, QR, 오디오 실행, 브라우저 회귀
 
+### Git publish policy
+
+이 프로젝트는 기본적으로 `main`에서 작업하고 `origin/main`으로 직접 push한다. 일반 작업에서는 별도 feature branch를 만들지 않는다. 사용자가 명시적으로 브랜치 작업을 요청한 경우에만 새 브랜치를 만든다.
+
 ### Subagents
 
 상시 사용하지 않는다. 큰 리뷰나 탐색에서 사용자가 명시적으로 병렬 위임을 원할 때 쓴다.
