@@ -13,6 +13,7 @@ export type BookContentType = "book" | "wordReading";
 export type ManualLogType = "dvd" | "passiveListen" | "korean" | "englishPicture" | "extraStudy";
 
 export type ActivityLogType = TaskType | ManualLogType | "quiz";
+export type QuizResult = "PASS" | "FAIL";
 
 export type Book = {
   id: string;
@@ -39,7 +40,7 @@ export type Assignment = {
   tasks: TaskType[];
   taskCounts: TaskCountMap;
   quizEnabled: boolean;
-  quizScore: string | null;
+  quizScore: QuizResult | null;
 };
 
 export type Completion = {
@@ -76,7 +77,7 @@ export type ActivityLog = {
   minutes: number;
   note: string;
   count: number;
-  quizScore?: string;
+  quizScore?: QuizResult;
 };
 
 export type ReadingData = {

@@ -9,6 +9,8 @@
 
 ## Change Rules
 
+- Keep edits limited to the user's explicit request. If a broader or adjacent change seems necessary, ask the user for confirmation before making it.
+- If the user's request is ambiguous, ask concrete clarification questions before editing.
 - Keep user-facing Korean text valid UTF-8. Prefer `rg` for reading/searching Korean text in PowerShell because default `Get-Content` output can display mojibake.
 - Do not keep adding behavior to `app/reading-manager-client.tsx` when reusable logic can move to `lib/`.
 - `lib/reading-types.ts` and `lib/reading-data.ts` define the app data contract. Update them together with UI, Supabase mapping, migrations, and docs when the domain model changes.
@@ -25,6 +27,8 @@
 
 ## AI Workflow
 
+- For planning, use `npm run plan:workflow -- "<user request>"` to get script-generated scope warnings, skill hints, and recommended checks before deciding manually.
+- Use `.agents/skills/ewd-git-publish` and the `npm run git:*` wrappers for repeated git status, commit, push, and publish operations.
 - Use `.agents/skills/ewd-feature-change` for normal feature changes.
 - Use `.agents/skills/ewd-supabase-change` for any Auth, database, migration, RLS, or Storage task.
 - Use `.agents/skills/ewd-ui-regression` for PWA, mobile, QR, audio-launch, or visual regression work.

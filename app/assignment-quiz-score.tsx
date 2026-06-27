@@ -1,7 +1,10 @@
+import { quizResultOptions } from "../lib/reading-data";
+import type { QuizResult } from "../lib/reading-types";
+
 type AssignmentQuizScoreProps = {
   assignmentId: string;
-  score: string | null;
-  onSave: (score: string) => void;
+  score: QuizResult | null;
+  onSave: (score: QuizResult) => void;
 };
 
 export function AssignmentQuizScore({
@@ -16,28 +19,28 @@ export function AssignmentQuizScore({
       onSubmit={(event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
-        onSave(String(formData.get("quizScore") ?? ""));
+        const quizScore = formData.get("quizScore");
+        if (quizScore === "PASS" || quizScore === "FAIL") {
+          onSave(quizScore);
+        }
       }}
     >
       <div>
         <h4>퀴즈</h4>
-        <p className="task-meta">책 퀴즈 결과를 입력하면 부모 활동 기록에 표시됩니다.</p>
+        <p className="task-meta">아동 학습 결과를 PASS/FAIL로 선택하면 부모 활동 기록에 표시됩니다.</p>
       </div>
-      <div className="task-actions">
-        <label>
-          <span className="visually-hidden">퀴즈 결과</span>
-          <input
+      <div className="task-actions quiz-result-actions" role="group" aria-label="퀴즈 결과 선택">
+        {quizResultOptions.map((result) => (
+          <button
+            className={score === result ? "primary-button" : "secondary-button"}
+            key={result}
             name="quizScore"
-            type="text"
-            defaultValue={score ?? ""}
-            placeholder="100점, PASS"
-            maxLength={40}
-            required
-          />
-        </label>
-        <button className="primary-button" type="submit">
-          {score === null ? "결과 저장" : "결과 수정"}
-        </button>
+            type="submit"
+            value={result}
+          >
+            {result}
+          </button>
+        ))}
       </div>
     </form>
   );

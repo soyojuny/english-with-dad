@@ -4,6 +4,8 @@
 
 ## 기본 원칙
 
+- 사용자가 명시한 내용만 최소 범위로 수정한다. 인접하거나 추가적인 수정이 필요하다고 판단되면 먼저 사용자에게 확인한다.
+- 요청이 명확하지 않으면 수정 전에 구체화를 위한 질문을 한다.
 - 기능은 `app/reading-manager-client.tsx`에 계속 누적하지 않고, 재사용 가능한 로직은 `lib/`로 분리한다.
 - 데이터 계약의 기준은 `lib/reading-types.ts`와 `lib/reading-data.ts`다.
 - Supabase 변경은 migration, RLS, TypeScript row type, mapper, select/insert/update 코드, 문서를 함께 갱신한다.
@@ -28,6 +30,7 @@
 반복 작업 절차는 skill로 분리한다.
 
 - `ewd-feature-change`: 일반 기능, 버그 수정, 리팩터링
+- `ewd-git-publish`: 반복 git status/commit/push/publish 작업
 - `ewd-supabase-change`: Auth, schema, migration, RLS, Storage, persisted data
 - `ewd-ui-regression`: PWA, 모바일 UI, QR, 오디오 실행, 브라우저 회귀
 
@@ -42,6 +45,19 @@
 - 테스트 갭/유지보수성 리뷰
 
 ## 검증 계층
+
+### 0. 계획 보조
+
+```powershell
+npm run plan:workflow -- "<사용자 요청>"
+```
+
+확인 항목:
+
+- 요청 키워드 기반 skill 후보
+- 현재 변경 파일 기준 범위 경고
+- 변경 파일 기준 권장 검증 명령
+- 문서/계획 요청 중 코드 변경이 섞였는지 여부
 
 ### 1. 프로젝트 계약
 
@@ -120,7 +136,7 @@ UI/PWA 작업에서는 자동 검증만으로 충분하지 않다. 변경 범위
 - 아동 화면에서 읽기/정따 오디오 링크 열기
 - 앱 복귀 후 완료 기록 표시
 - 반복 과제 완료 카운트 표시
-- 아동이 입력한 퀴즈 결과 저장 및 부모 활동 기록 표시
+- PASS/FAIL로 선택한 퀴즈 결과 저장 및 부모 활동 기록 표시
 - 할 일 배정에서 퀴즈 Y/N 선택, 기본 N 및 Y 배정만 결과 입력 노출
 - 부모 활동 기록은 주간 보기를 기본으로 하고 월간 보기로 전환
 - 책 관리에서 표지 사진과 QR 링크 입력
@@ -148,6 +164,10 @@ C:\nvm4w\nodejs\npm.cmd run verify
 개별 실행:
 
 ```powershell
+npm run git:status
+npm run git:commit -- "commit message"
+npm run git:push
+npm run git:publish -- "commit message"
 npm run check:contracts
 npm run check:sw
 npm run check:pwa

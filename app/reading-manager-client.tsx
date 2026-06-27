@@ -57,6 +57,7 @@ import type {
   Book,
   BookContentType,
   ManualLogType,
+  QuizResult,
   ReadingData,
   TaskCountMap,
   TaskType,
@@ -1339,12 +1340,11 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     }
   };
 
-  const saveQuizScoreDb = async (quizScore: string) => {
+  const saveQuizScoreDb = async (quizScore: QuizResult) => {
     if (!selectedAssignment?.quizEnabled) return;
 
-    const normalizedQuizScore = quizScore.trim();
-    if (!normalizedQuizScore) {
-      showToast("퀴즈 결과를 입력하세요.");
+    if (quizScore !== "PASS" && quizScore !== "FAIL") {
+      showToast("PASS 또는 FAIL을 선택하세요.");
       return;
     }
 
@@ -1353,7 +1353,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
         supabase,
         ownerUserId,
         selectedAssignment.id,
-        normalizedQuizScore,
+        quizScore,
       );
       setData((current) => ({
         ...current,
@@ -1361,7 +1361,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           assignment.id === savedAssignment.id ? savedAssignment : assignment,
         ),
       }));
-      showToast(`퀴즈 ${normalizedQuizScore} 저장했습니다.`);
+      showToast(`퀴즈 ${quizScore} 저장했습니다.`);
     } catch (error) {
       showToast(error instanceof Error ? error.message : "퀴즈 결과를 저장하지 못했습니다.");
     }
@@ -1398,7 +1398,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
             title: string;
             minutes: number;
             taskCounts: Partial<Record<TaskType, number>>;
-            quizScore: string | null;
+            quizScore: QuizResult | null;
           }
         >
       >((acc, log) => {

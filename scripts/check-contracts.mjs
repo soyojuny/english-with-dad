@@ -56,10 +56,13 @@ function requireUnionMembers(content, typeName, expected, relativePath) {
 for (const relativePath of [
   "AGENTS.md",
   ".agents/skills/ewd-feature-change/SKILL.md",
+  ".agents/skills/ewd-git-publish/SKILL.md",
   ".agents/skills/ewd-supabase-change/SKILL.md",
   ".agents/skills/ewd-ui-regression/SKILL.md",
   "docs/development-harness.md",
   "docs/supabase-region-migration.md",
+  "scripts/git-publish.mjs",
+  "scripts/plan-workflow.mjs",
   "lib/reading-calculations.ts",
   "lib/reading-types.ts",
   "lib/reading-data.ts",
@@ -78,7 +81,7 @@ for (const relativePath of [
 }
 
 const packageJson = JSON.parse(await read("package.json"));
-for (const scriptName of ["check:contracts", "check:sw", "check:pwa", "test:unit", "typecheck", "build", "verify"]) {
+for (const scriptName of ["plan:workflow", "git:status", "git:commit", "git:push", "git:publish", "check:contracts", "check:sw", "check:pwa", "test:unit", "typecheck", "build", "verify"]) {
   if (!packageJson.scripts?.[scriptName]) {
     fail(`package.json scripts must define ${scriptName}`);
   }
@@ -207,6 +210,10 @@ requireIncludes(quizEnabledMigration, "default false", "supabase/migrations/2026
 const quizResultTextMigration = await read("supabase/migrations/20260624090000_assignment_quiz_result_text.sql");
 requireIncludes(quizResultTextMigration, "alter column quiz_score type text", "supabase/migrations/20260624090000_assignment_quiz_result_text.sql");
 requireIncludes(quizResultTextMigration, "assignments_quiz_score_text_check", "supabase/migrations/20260624090000_assignment_quiz_result_text.sql");
+
+const quizPassFailMigration = await read("supabase/migrations/20260627120000_assignment_quiz_pass_fail.sql");
+requireIncludes(quizPassFailMigration, "assignments_quiz_score_pass_fail_check", "supabase/migrations/20260627120000_assignment_quiz_pass_fail.sql");
+requireIncludes(quizPassFailMigration, "quiz_score in ('PASS', 'FAIL')", "supabase/migrations/20260627120000_assignment_quiz_pass_fail.sql");
 
 const quizOnlyTasksMigration = await read("supabase/migrations/20260624093000_assignment_quiz_only_tasks.sql");
 requireIncludes(quizOnlyTasksMigration, "or quiz_enabled", "supabase/migrations/20260624093000_assignment_quiz_only_tasks.sql");

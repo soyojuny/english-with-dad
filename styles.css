@@ -666,6 +666,14 @@ main {
   justify-content: flex-end;
 }
 
+.quiz-result-actions {
+  min-width: 160px;
+}
+
+.quiz-result-actions button {
+  min-width: 72px;
+}
+
 .primary-button,
 .secondary-button,
 .ghost-button,

@@ -9,6 +9,7 @@ import type {
   Completion,
   ManualLog,
   ManualLogType,
+  QuizResult,
   ReadingData,
   TaskCountMap,
   TaskType,
@@ -91,6 +92,10 @@ type BookSeriesRow = {
 const bookSelectColumns =
   "id, owner_user_id, active, content_type, series, title, volume, level, cover, audio_listen, audio_shadow, note";
 
+function toQuizResult(value: string | null): QuizResult | null {
+  return value === "PASS" || value === "FAIL" ? value : null;
+}
+
 function mapChild(row: ChildRow): Child {
   return {
     id: row.id,
@@ -132,7 +137,7 @@ function mapAssignment(row: AssignmentRow): Assignment {
     tasks,
     taskCounts,
     quizEnabled: row.quiz_enabled ?? false,
-    quizScore: row.quiz_score,
+    quizScore: toQuizResult(row.quiz_score),
   };
 }
 
@@ -641,7 +646,7 @@ export async function saveAssignmentQuizScore(
   supabase: SupabaseLikeClient,
   ownerUserId: string,
   assignmentId: string,
-  quizScore: string,
+  quizScore: QuizResult,
 ) {
   const result = await supabase
     .from("assignments")

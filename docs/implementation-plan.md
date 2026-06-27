@@ -109,7 +109,7 @@ PWA에서도 외부 네이버 링크를 열 수 있다. 다만 외부 도메인�
 - `activityCategory`: `focusListen`, `readAloud`, `englishPicture`, `extraStudy`
 - `tasks`
 - `taskCounts`
-- `quizScore`: 아동이 입력한 퀴즈 결과 텍스트, 미입력 시 `null`
+- `quizScore`: 보호자가 선택한 `"PASS"` 또는 `"FAIL"`, 미선택 시 `null`
 - `quizEnabled`: 할 일 배정 시 퀴즈 포함 여부, 기본값 `false` (`N`)
 
 ### completions

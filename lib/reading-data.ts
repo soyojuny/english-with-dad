@@ -1,4 +1,4 @@
-import type { ActivityCategory, ReadingData, TaskType } from "./reading-types";
+import type { ActivityCategory, QuizResult, ReadingData, TaskType } from "./reading-types";
 
 export const emptyReadingData: ReadingData = {
   children: [],
@@ -42,6 +42,7 @@ export const logLabels = {
 } as const;
 
 export const taskCountOptions = [0, 1, 2, 3] as const;
+export const quizResultOptions: QuizResult[] = ["PASS", "FAIL"];
 
 const pad = (value: number) => String(value).padStart(2, "0");
 
