@@ -659,6 +659,29 @@ export async function saveAssignmentQuizScore(
   return mapAssignment(unwrap(result, "퀴즈 결과를 저장하지 못했습니다.") as AssignmentRow);
 }
 
+export async function saveAssignmentTaskCounts(
+  supabase: SupabaseLikeClient,
+  ownerUserId: string,
+  assignmentId: string,
+  payload: {
+    tasks: TaskType[];
+    taskCounts: TaskCountMap;
+  },
+) {
+  const result = await supabase
+    .from("assignments")
+    .update({
+      tasks: payload.tasks,
+      task_counts: payload.taskCounts,
+    })
+    .eq("owner_user_id", ownerUserId)
+    .eq("id", assignmentId)
+    .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_enabled, quiz_score")
+    .single();
+
+  return mapAssignment(unwrap(result, "할 일 횟수를 수정하지 못했습니다.") as AssignmentRow);
+}
+
 export async function deleteAssignment(
   supabase: SupabaseLikeClient,
   ownerUserId: string,

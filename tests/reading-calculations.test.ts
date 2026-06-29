@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  buildAssignmentTaskCounts,
   buildAssignmentActivityLogs,
   countAssignmentProgress,
   datesInRange,
@@ -197,6 +198,20 @@ test("task counts fall back to legacy task presence", () => {
   assert.equal(getAssignmentTaskCount(assignment, "listen"), 2);
   assert.equal(getAssignmentTaskCount({ ...assignment, taskCounts: {} }, "shadow"), 1);
   assert.equal(getAssignmentTaskCount({ ...assignment, tasks: ["listen"], taskCounts: {} }, "self"), 0);
+});
+
+test("assignment task count builder keeps only positive counts for the category", () => {
+  assert.deepEqual(
+    buildAssignmentTaskCounts("focusListen", { listen: 2, shadow: 0, self: 1, wordRead: 3 }),
+    {
+      tasks: ["listen", "self"],
+      taskCounts: { listen: 2, self: 1 },
+    },
+  );
+  assert.deepEqual(buildAssignmentTaskCounts("extraStudy", { listen: 1, wordRead: 2 }), {
+    tasks: ["wordRead"],
+    taskCounts: { wordRead: 2 },
+  });
 });
 
 test("completion count and progress cap completed repetitions at target count", () => {

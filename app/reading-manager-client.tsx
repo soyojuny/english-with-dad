@@ -4,10 +4,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, FormEvent } from "react";
 import { ActivityLogCell } from "./activity-log-cell";
 import { AssignmentBookPicker } from "./assignment-book-picker";
+import { AssignmentEditForm } from "./assignment-edit-form";
 import { AssignmentQuizScore } from "./assignment-quiz-score";
 import { MaterialThumb, formatMaterialMeta } from "./material-thumb";
 import {
   bookContentTypeLabels,
+  buildAssignmentTaskCounts,
   buildAssignmentActivityLogs,
   countAssignmentProgress,
   datesInRange,
@@ -78,6 +80,7 @@ import {
   fetchUpcomingAssignmentData,
   saveAssignments,
   saveAssignmentQuizScore,
+  saveAssignmentTaskCounts,
   saveAudioLaunch,
   saveBook as saveBookRecord,
   saveChild,
@@ -139,6 +142,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const [assignBookSearch, setAssignBookSearch] = useState("");
   const [assignSelectedBookIds, setAssignSelectedBookIds] = useState<string[]>([]);
   const [assignHistoryBookIds, setAssignHistoryBookIds] = useState<string[]>([]);
+  const [editingAssignmentId, setEditingAssignmentId] = useState<string | null>(null);
   const [bookListFilter, setBookListFilter] = useState<BookListFilter>("active");
   const [isChildManualLogOpen, setIsChildManualLogOpen] = useState(false);
   const [bookDraft, setBookDraft] = useState<BookDraft>(() => bookToDraft(null));
@@ -1225,12 +1229,13 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
         return acc;
       }
 
-      const taskCounts = activityCategoryDefinitions[activityCategory].tasks.reduce<TaskCountMap>((taskAcc, taskType) => {
-        const count = Number(formData.get(`assignCount:${book.id}:${taskType}`) ?? 0);
-        if (count > 0) taskAcc[taskType] = count;
-        return taskAcc;
-      }, {});
-      const tasks = activityCategoryDefinitions[activityCategory].tasks.filter((taskType) => (taskCounts[taskType] ?? 0) > 0);
+      const { tasks, taskCounts } = buildAssignmentTaskCounts(
+        activityCategory,
+        activityCategoryDefinitions[activityCategory].tasks.reduce<TaskCountMap>((taskAcc, taskType) => {
+          taskAcc[taskType] = Number(formData.get(`assignCount:${book.id}:${taskType}`) ?? 0);
+          return taskAcc;
+        }, {}),
+      );
 
       acc.push({
         bookId: book.id,
@@ -1337,10 +1342,43 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           assignments: current.assignments.filter((assignment) => assignment.id !== assignmentId),
         };
       });
+      setEditingAssignmentId((current) => (current === assignmentId ? null : current));
       setAssignHistoryBookIds(assignedBookIds);
       showToast("할 일을 삭제했습니다.");
     } catch (error) {
       showToast(error instanceof Error ? error.message : "할 일을 삭제하지 못했습니다.");
+    }
+  };
+
+  const updateAssignmentCountsDb = async (assignment: Assignment, event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const counts = activityCategoryDefinitions[assignment.activityCategory].tasks.reduce<TaskCountMap>((acc, taskType) => {
+      acc[taskType] = Number(formData.get(`assignmentCount:${assignment.id}:${taskType}`) ?? 0);
+      return acc;
+    }, {});
+    const { tasks, taskCounts } = buildAssignmentTaskCounts(assignment.activityCategory, counts);
+
+    if (!tasks.length && !assignment.quizEnabled) {
+      showToast("상세 활동 횟수를 1회 이상 설정하세요.");
+      return;
+    }
+
+    try {
+      const savedAssignment = await saveAssignmentTaskCounts(supabase, ownerUserId, assignment.id, {
+        tasks,
+        taskCounts,
+      });
+      setData((current) => ({
+        ...current,
+        assignments: current.assignments.map((item) =>
+          item.id === savedAssignment.id ? savedAssignment : item,
+        ),
+      }));
+      setEditingAssignmentId(null);
+      showToast("할 일 횟수를 수정했습니다.");
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "할 일 횟수를 수정하지 못했습니다.");
     }
   };
 
@@ -2691,8 +2729,9 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     childAssignments.map((assignment) => {
                       const book = getBook(assignment.bookId);
                       if (!book) return null;
+                      const isEditing = editingAssignmentId === assignment.id;
                       return (
-                        <article className="manage-item" key={assignment.id}>
+                        <article className={`manage-item assignment-manage-item ${isEditing ? "is-selected" : ""}`} key={assignment.id}>
                           <MaterialThumb book={book} />
                           <div>
                             <h3>
@@ -2704,10 +2743,28 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                               {selectedTaskLabels(assignment)}
                             </p>
                             <div className="status-row">
-                              <button className="secondary-button" type="button" onClick={() => deleteAssignmentDb(assignment.id)}>
+                              <button
+                                className="secondary-button assignment-action-button"
+                                type="button"
+                                onClick={() => setEditingAssignmentId(isEditing ? null : assignment.id)}
+                              >
+                                {isEditing ? "수정 닫기" : "수정"}
+                              </button>
+                              <button
+                                className="secondary-button assignment-action-button"
+                                type="button"
+                                onClick={() => deleteAssignmentDb(assignment.id)}
+                              >
                                 삭제
                               </button>
                             </div>
+                            {isEditing && (
+                              <AssignmentEditForm
+                                assignment={assignment}
+                                onCancel={() => setEditingAssignmentId(null)}
+                                onSubmit={updateAssignmentCountsDb}
+                              />
+                            )}
                           </div>
                         </article>
                       );

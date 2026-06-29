@@ -194,6 +194,17 @@ export function getAssignmentTaskCount(assignment: Assignment, taskType: TaskTyp
   return assignment.taskCounts[taskType] ?? (assignment.tasks.includes(taskType) ? 1 : 0);
 }
 
+export function buildAssignmentTaskCounts(activityCategory: ActivityCategory, counts: TaskCountMap) {
+  const taskCounts = activityCategoryDefinitions[activityCategory].tasks.reduce<TaskCountMap>((acc, taskType) => {
+    const count = counts[taskType] ?? 0;
+    if (count > 0) acc[taskType] = count;
+    return acc;
+  }, {});
+  const tasks = activityCategoryDefinitions[activityCategory].tasks.filter((taskType) => (taskCounts[taskType] ?? 0) > 0);
+
+  return { tasks, taskCounts };
+}
+
 export function getCompletionCount(data: ReadingData, assignmentId: string, taskType: TaskType) {
   return data.completions[`${assignmentId}:${taskType}`]?.count ?? 0;
 }

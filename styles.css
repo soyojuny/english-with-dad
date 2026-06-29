@@ -1261,6 +1261,48 @@ label > textarea {
   gap: 8px;
 }
 
+.assignment-manage-item > div {
+  min-width: 0;
+}
+
+.assignment-manage-item .assignment-action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  min-height: 40px;
+  padding: 9px 12px;
+  background: var(--surface);
+  color: var(--blue-ink);
+  font-weight: 900;
+  text-align: center;
+}
+
+.assignment-manage-item .primary-button.assignment-action-button {
+  border-color: transparent;
+  background: var(--blue);
+  color: #fff;
+}
+
+.assignment-manage-item .ghost-button.assignment-action-button {
+  background: transparent;
+}
+
+.assignment-edit-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-strong);
+}
+
+.assignment-edit-actions {
+  margin-top: 0;
+}
+
 .qr-dialog {
   width: min(560px, calc(100vw - 24px));
   border: 1px solid var(--line);
