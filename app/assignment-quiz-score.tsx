@@ -13,17 +13,9 @@ export function AssignmentQuizScore({
   onSave,
 }: AssignmentQuizScoreProps) {
   return (
-    <form
+    <div
       className="task-row quiz-score-row"
       key={`${assignmentId}:${score ?? "empty"}`}
-      onSubmit={(event) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        const quizScore = formData.get("quizScore");
-        if (quizScore === "PASS" || quizScore === "FAIL") {
-          onSave(quizScore);
-        }
-      }}
     >
       <div>
         <h4>퀴즈</h4>
@@ -34,14 +26,13 @@ export function AssignmentQuizScore({
           <button
             className={score === result ? "primary-button" : "secondary-button"}
             key={result}
-            name="quizScore"
-            type="submit"
-            value={result}
+            type="button"
+            onClick={() => onSave(result)}
           >
             {result}
           </button>
         ))}
       </div>
-    </form>
+    </div>
   );
 }
