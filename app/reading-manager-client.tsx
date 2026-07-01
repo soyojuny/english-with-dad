@@ -1357,10 +1357,11 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       acc[taskType] = Number(formData.get(`assignmentCount:${assignment.id}:${taskType}`) ?? 0);
       return acc;
     }, {});
+    const quizEnabled = String(formData.get(`assignmentQuiz:${assignment.id}`) ?? "N") === "Y";
     const { tasks, taskCounts } = buildAssignmentTaskCounts(assignment.activityCategory, counts);
 
-    if (!tasks.length && !assignment.quizEnabled) {
-      showToast("상세 활동 횟수를 1회 이상 설정하세요.");
+    if (!tasks.length && !quizEnabled) {
+      showToast("활동 횟수나 퀴즈 Y를 설정하세요.");
       return;
     }
 
@@ -1368,6 +1369,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       const savedAssignment = await saveAssignmentTaskCounts(supabase, ownerUserId, assignment.id, {
         tasks,
         taskCounts,
+        quizEnabled,
       });
       setData((current) => ({
         ...current,
@@ -1376,7 +1378,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
         ),
       }));
       setEditingAssignmentId(null);
-      showToast("할 일 횟수를 수정했습니다.");
+      showToast("할 일을 수정했습니다.");
     } catch (error) {
       showToast(error instanceof Error ? error.message : "할 일 횟수를 수정하지 못했습니다.");
     }

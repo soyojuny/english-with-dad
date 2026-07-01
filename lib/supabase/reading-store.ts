@@ -666,6 +666,7 @@ export async function saveAssignmentTaskCounts(
   payload: {
     tasks: TaskType[];
     taskCounts: TaskCountMap;
+    quizEnabled: boolean;
   },
 ) {
   const result = await supabase
@@ -673,6 +674,8 @@ export async function saveAssignmentTaskCounts(
     .update({
       tasks: payload.tasks,
       task_counts: payload.taskCounts,
+      quiz_enabled: payload.quizEnabled,
+      ...(!payload.quizEnabled ? { quiz_score: null } : {}),
     })
     .eq("owner_user_id", ownerUserId)
     .eq("id", assignmentId)

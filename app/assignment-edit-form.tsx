@@ -34,6 +34,13 @@ export function AssignmentEditForm({ assignment, onCancel, onSubmit }: Assignmen
             </select>
           </label>
         ))}
+        <label className="task-count-item">
+          <span>퀴즈</span>
+          <select name={`assignmentQuiz:${assignment.id}`} defaultValue={assignment.quizEnabled ? "Y" : "N"}>
+            <option value="N">N</option>
+            <option value="Y">Y</option>
+          </select>
+        </label>
       </div>
       <div className="form-actions assignment-edit-actions">
         <button className="ghost-button assignment-action-button" type="button" onClick={onCancel}>
