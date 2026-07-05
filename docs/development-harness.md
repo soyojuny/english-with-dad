@@ -33,6 +33,42 @@
 - `ewd-git-publish`: 반복 git status/commit/push/publish 작업
 - `ewd-supabase-change`: Auth, schema, migration, RLS, Storage, persisted data
 - `ewd-ui-regression`: PWA, 모바일 UI, QR, 오디오 실행, 브라우저 회귀
+- `grill-with-docs`: 큰 작업을 구현 전에 질문으로 구체화하고 용어/결정 문서를 남기는 계획 단계
+- `grilling`: `grill-with-docs`가 사용하는 질문 절차
+- `domain-modeling`: `grill-with-docs`가 사용하는 `CONTEXT.md`와 ADR 기록 절차
+- `implement`: plan task, PRD, issue를 기준으로 구현하는 coding agent 역할
+- `code-review`: plan-aware verification agent 역할
+- `research`: 구현 전 확인이 필요한 근거 자료를 남기는 선택적 조사 절차
+
+### `plans/`
+
+계획이 필요한 작업은 `docs/`가 아니라 `plans/`에 둔다. `docs/`는 완료 후에도 유지할 아키텍처 문서와 운영 문서의 위치이고, `plans/`는 현재 작업의 계약, task, 검증 기록을 담는 작업 표면이다.
+
+기본 구조:
+
+```text
+plans/
+  active/
+    <slug>/
+      plan.md
+      review.md
+      tasks/
+        01-*.md
+      research.md
+      adr/
+        0001-*.md
+  archive/
+```
+
+실제 plan에서 필수 항목은 `plan.md`, `review.md`, `tasks/`다. `research.md`와 `adr/`는 필요한 경우에만 만든다.
+
+- `plan.md`: `grill-with-docs` 이후 확정된 작업 계약. coding agent와 verification agent가 모두 기준으로 삼는다.
+- `tasks/`: coding agent가 수행할 vertical slice 단위 작업.
+- `review.md`: verification agent가 plan 대비 구현 결과, 누락, scope creep, 실행한 검증, 승격 후보를 기록한다.
+- `research.md`: `/research` 결과처럼 구현 전에 확인한 근거 자료가 있을 때만 둔다.
+- `adr/`: 작업 중 생긴 결정 후보를 둔다. 완료 후 장기 보존이 필요한 것만 `docs/adr/`로 승격한다.
+
+완료된 plan은 verification agent가 `review.md`에 통과 상태를 남기고 승격 후보가 처리된 뒤에만 `plans/archive/`로 이동한다.
 
 ### Git publish policy
 
@@ -62,6 +98,8 @@ npm run plan:workflow -- "<사용자 요청>"
 - 현재 변경 파일 기준 범위 경고
 - 변경 파일 기준 권장 검증 명령
 - 문서/계획 요청 중 코드 변경이 섞였는지 여부
+
+큰 작업에서는 이 보조 출력만으로 구현을 시작하지 않는다. 먼저 `grill-with-docs`로 결정을 구체화하고, `plans/active/<slug>/plan.md`와 `tasks/`에 작업 계약을 남긴 뒤 coding agent가 개발한다. 구현 후 verification agent는 plan-aware `code-review`를 사용해 같은 plan과 task를 spec source로 읽고 `review.md`에 검증 결과를 기록한다.
 
 ### 1. 프로젝트 계약
 

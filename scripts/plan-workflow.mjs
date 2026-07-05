@@ -46,6 +46,7 @@ function classifyRequest(text) {
 
 function classifyFile(file) {
   if (file === "AGENTS.md" || file.startsWith("docs/") || file.startsWith(".agents/")) return "docs";
+  if (file.startsWith("plans/")) return "harness";
   if (file.startsWith("supabase/") || file === "lib/supabase/reading-store.ts") return "supabase";
   if (file.startsWith("public/") || file === "styles.css" || file.startsWith("app/")) return "ui-pwa";
   if (file.startsWith("lib/") || file.startsWith("tests/")) return "feature";
@@ -58,7 +59,7 @@ function formatList(values) {
 }
 
 const changedFiles = unique([
-  ...runGit(["diff", "--name-only", "--diff-filter=ACMRTUXB", "HEAD"]),
+  ...runGit(["diff", "--name-only", "--diff-filter=ACDMRTUXB", "HEAD"]),
   ...runGit(["ls-files", "--others", "--exclude-standard"]),
 ]);
 const requestCategories = classifyRequest(requestText);

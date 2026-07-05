@@ -28,6 +28,8 @@
 ## AI Workflow
 
 - For planning, use `npm run plan:workflow -- "<user request>"` to get script-generated scope warnings, skill hints, and recommended checks before deciding manually.
+- For substantial planned work, use `grill-with-docs` first and capture the agreed working contract under `plans/active/<slug>/` before implementation.
+- Active plans use `plan.md`, `review.md`, and `tasks/` as the required shape. Promote durable knowledge to `docs/` before moving a plan to `plans/archive/`.
 - Use `.agents/skills/ewd-git-publish` and the `npm run git:*` wrappers for repeated git status, commit, push, and publish operations.
 - This project commits and pushes directly to `main`/`origin/main` by default. Do not create a feature branch for normal work unless the user explicitly asks.
 - Use `.agents/skills/ewd-feature-change` for normal feature changes.

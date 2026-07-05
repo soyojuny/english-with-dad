@@ -59,7 +59,18 @@ for (const relativePath of [
   ".agents/skills/ewd-git-publish/SKILL.md",
   ".agents/skills/ewd-supabase-change/SKILL.md",
   ".agents/skills/ewd-ui-regression/SKILL.md",
+  ".agents/skills/grill-with-docs/SKILL.md",
+  ".agents/skills/grilling/SKILL.md",
+  ".agents/skills/domain-modeling/SKILL.md",
+  ".agents/skills/domain-modeling/CONTEXT-FORMAT.md",
+  ".agents/skills/domain-modeling/ADR-FORMAT.md",
+  ".agents/skills/implement/SKILL.md",
+  ".agents/skills/code-review/SKILL.md",
+  ".agents/skills/research/SKILL.md",
   "docs/development-harness.md",
+  "plans/README.md",
+  "plans/active/.gitkeep",
+  "plans/archive/.gitkeep",
   "docs/supabase-region-migration.md",
   "scripts/git-publish.mjs",
   "scripts/plan-workflow.mjs",
@@ -85,6 +96,54 @@ for (const scriptName of ["plan:workflow", "git:status", "git:commit", "git:push
   if (!packageJson.scripts?.[scriptName]) {
     fail(`package.json scripts must define ${scriptName}`);
   }
+}
+
+const agentsGuide = await read("AGENTS.md");
+for (const requiredText of [
+  "grill-with-docs",
+  "plans/active/<slug>/",
+  "plan.md",
+  "review.md",
+  "plans/archive/",
+]) {
+  requireIncludes(agentsGuide, requiredText, "AGENTS.md");
+}
+
+const plansReadme = await read("plans/README.md");
+for (const requiredText of [
+  "plan.md",
+  "review.md",
+  "tasks/",
+  "grill-with-docs",
+  "code-review",
+  "docs/CONTEXT.md",
+  "docs/adr/",
+  "plans/archive/",
+  "Promotion Candidates",
+]) {
+  requireIncludes(plansReadme, requiredText, "plans/README.md");
+}
+
+const developmentHarness = await read("docs/development-harness.md");
+for (const requiredText of [
+  "plans/",
+  "plans/active/<slug>/plan.md",
+  "verification agent",
+  "plan-aware `code-review`",
+  "review.md",
+  "docs/adr/",
+]) {
+  requireIncludes(developmentHarness, requiredText, "docs/development-harness.md");
+}
+
+const codeReviewSkill = await read(".agents/skills/code-review/SKILL.md");
+for (const requiredText of [
+  "plans/active/<slug>/",
+  "plan.md",
+  "tasks/*.md",
+  "review.md",
+]) {
+  requireIncludes(codeReviewSkill, requiredText, ".agents/skills/code-review/SKILL.md");
 }
 
 const regionMigrationGuide = await read("docs/supabase-region-migration.md");

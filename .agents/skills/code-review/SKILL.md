@@ -10,7 +10,7 @@ Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
 
 Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings.
 
-The issue tracker should have been provided to you — run `/setup-matt-pocock-skills` if `docs/agents/issue-tracker.md` is missing.
+For this repo, prefer `plans/active/<slug>/plan.md` and `tasks/*.md` as the spec source when they exist. If a review is tied to an external issue, use the issue details the user provides.
 
 ## Process
 
@@ -27,9 +27,11 @@ Before going further, confirm the fixed point resolves (`git rev-parse <fixed-po
 Look for the originating spec, in this order:
 
 1. Issue references in the commit messages (`#123`, `Closes #45`, GitLab `!67`, etc.) — fetch via the workflow in `docs/agents/issue-tracker.md`.
-2. A path the user passed as an argument.
-3. A PRD/spec file under `docs/`, `specs/`, or `.scratch/` matching the branch name or feature.
-4. If nothing is found, ask the user where the spec is. If they say there isn't one, the **Spec** sub-agent will skip and report "no spec available".
+2. A plan path the user passed as an argument, such as `plans/active/<slug>/`.
+3. An active plan under `plans/active/<slug>/` matching the branch name, feature name, or user-supplied slug. When found, treat `plan.md` as the primary spec and include every `tasks/*.md` file as acceptance-criteria detail. Read `review.md` only to avoid duplicating prior findings; do not treat it as the spec.
+4. Any other path the user passed as an argument.
+5. A PRD/spec file under `docs/`, `specs/`, or `.scratch/` matching the branch name or feature.
+6. If nothing is found, ask the user where the spec is. If they say there isn't one, the **Spec** sub-agent will skip and report "no spec available".
 
 ### 3. Identify the standards sources
 
@@ -68,7 +70,7 @@ Send a single message with two `Agent` tool calls. Use the `general-purpose` sub
 **Spec sub-agent prompt** — include:
 
 - The diff command and commit list.
-- The path or fetched contents of the spec.
+- The path or fetched contents of the spec. For a `plans/active/<slug>/` source, include `plan.md` and all `tasks/*.md` files.
 - The brief: "Report: (a) requirements the spec asked for that are missing or partial; (b) behaviour in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong. Quote the spec line for each finding. Under 400 words."
 
 If the spec is missing, skip the Spec sub-agent and note this in the final report.
