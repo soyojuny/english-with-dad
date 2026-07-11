@@ -18,11 +18,11 @@ import {
   formatTime,
   getAssignmentBookCandidates,
   getUpcomingAssignments,
-  getAvailableActivityCategories,
   getAssignmentTaskCount,
   getBookSetupIssues,
   getCompletionCount,
   getDefaultTasksForMaterial,
+  getEditableTasksForAssignment,
   getLaunchMinutes,
   getTaskAudioUrl,
   hasCustomCover,
@@ -823,8 +823,6 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     return data.assignments.filter((assignment) => assignment.bookId === bookDraft.id && assignment.date >= todayKey).length;
   }, [bookDraft.id, data.assignments]);
 
-  const selectedTaskLabels = formatAssignmentTaskLabels;
-
   const showToast = (message: string) => setToast(message);
 
   const loadBookManageData = async () => {
@@ -1080,6 +1078,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const completeTaskDb = async (taskType: TaskType) => {
     if (!selectedAssignment) return;
 
+    const task = taskDefinitions[taskType];
     const key = `${selectedAssignment.id}:${taskType}`;
     const launch = data.audioLaunches[key];
     const existingCompletion = data.completions[key];
@@ -1087,20 +1086,20 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     const currentCount = getCompletionCount(data, selectedAssignment.id, taskType);
 
     if (currentCount >= targetCount) {
-      showToast(`${taskDefinitions[taskType].label}는 이미 ${targetCount}회 완료했습니다.`);
+      showToast(`${task.label}는 이미 ${targetCount}회 완료했습니다.`);
       return;
     }
 
     try {
-      const addedMinutes = taskDefinitions[taskType].needsAudio
-        ? getLaunchMinutes(launch, taskDefinitions[taskType].minutes)
-        : taskDefinitions[taskType].minutes;
+      const addedMinutes = task.needsAudio
+        ? getLaunchMinutes(launch, task.minutes)
+        : task.minutes;
       const savedCompletion = await saveCompletion(supabase, ownerUserId, {
         assignmentId: selectedAssignment.id,
         taskType,
         completedAt: new Date().toISOString(),
         minutes: (existingCompletion?.minutes ?? 0) + addedMinutes,
-        audioOpenedAt: launch?.openedAt ?? null,
+        audioOpenedAt: task.needsAudio ? launch?.openedAt ?? null : null,
         count: currentCount + 1,
       });
 
@@ -1111,7 +1110,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           [savedCompletion.key]: savedCompletion.value,
         },
       }));
-      showToast(`${taskDefinitions[taskType].label} ${currentCount + 1}회 완료를 저장했습니다.`);
+      showToast(`${task.label} ${currentCount + 1}회 완료를 저장했습니다.`);
     } catch (error) {
       showToast(error instanceof Error ? error.message : "완료 기록을 저장하지 못했습니다.");
     }
@@ -1216,7 +1215,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     >((acc, book) => {
       const activityCategory = String(formData.get(`assignCategory:${book.id}`) ?? "") as ActivityCategory | "";
       if (!activityCategory) return acc;
-      const quizEnabled = String(formData.get(`assignQuiz:${book.id}`) ?? "N") === "Y";
+      const quizEnabled = activityCategory !== "extraStudy" && formData.get(`assignQuiz:${book.id}`) === "Y";
 
       if (activityCategory === "englishPicture") {
         acc.push({
@@ -1231,10 +1230,11 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
 
       const { tasks, taskCounts } = buildAssignmentTaskCounts(
         activityCategory,
-        activityCategoryDefinitions[activityCategory].tasks.reduce<TaskCountMap>((taskAcc, taskType) => {
+        taskOrder.reduce<TaskCountMap>((taskAcc, taskType) => {
           taskAcc[taskType] = Number(formData.get(`assignCount:${book.id}:${taskType}`) ?? 0);
           return taskAcc;
         }, {}),
+        book,
       );
 
       acc.push({
@@ -1353,12 +1353,14 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const updateAssignmentCountsDb = async (assignment: Assignment, event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const counts = activityCategoryDefinitions[assignment.activityCategory].tasks.reduce<TaskCountMap>((acc, taskType) => {
+    const book = getBook(assignment.bookId);
+    const editableTasks = getEditableTasksForAssignment(assignment, book);
+    const counts = editableTasks.reduce<TaskCountMap>((acc, taskType) => {
       acc[taskType] = Number(formData.get(`assignmentCount:${assignment.id}:${taskType}`) ?? 0);
       return acc;
     }, {});
-    const quizEnabled = String(formData.get(`assignmentQuiz:${assignment.id}`) ?? "N") === "Y";
-    const { tasks, taskCounts } = buildAssignmentTaskCounts(assignment.activityCategory, counts);
+    const quizEnabled = !assignment.tasks.includes("copywork") && formData.get(`assignmentQuiz:${assignment.id}`) === "Y";
+    const { tasks, taskCounts } = buildAssignmentTaskCounts(assignment.activityCategory, counts, editableTasks);
 
     if (!tasks.length && !quizEnabled) {
       showToast("활동 횟수나 퀴즈 Y를 설정하세요.");
@@ -1794,7 +1796,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                               </span>
                             </div>
                             <span className="assignment-progress-note">
-                              {selectedTaskLabels(assignment)}
+                              {formatAssignmentTaskLabels(assignment)}
                             </span>
                           </div>
                         </button>
@@ -1845,6 +1847,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
 
                     <div className="task-list">
                       {sortTasks(selectedMaterialTasks).map((taskType) => {
+                        const task = taskDefinitions[taskType];
                         const completion = selectedAssignment
                           ? data.completions[`${selectedAssignment.id}:${taskType}`]
                           : null;
@@ -1858,15 +1861,15 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                           <div key={taskType}>
                             <div className={`task-row ${done ? "is-done" : ""}`}>
                               <div>
-                                <h4>{taskDefinitions[taskType].label}</h4>
+                                <h4>{task.label}</h4>
                                 <p className="task-meta">
                                   {completion
                                     ? `${formatTime(completion.completedAt)} 기준 ${completedCount}/${targetCount}회 · ${completion.minutes}분`
-                                    : `${taskDefinitions[taskType].minutes}분씩 ${targetCount}회`}
+                                    : `${task.minutes}분씩 ${targetCount}회`}
                                 </p>
                               </div>
                               <div className="task-actions">
-                                {taskDefinitions[taskType].needsAudio && (
+                                {task.needsAudio && (
                                   <button
                                     className="secondary-button"
                                     type="button"
@@ -1876,7 +1879,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                                     {launchLabel} 열기
                                   </button>
                                 )}
-                                {selectedAssignment && !taskDefinitions[taskType].needsAudio ? (
+                                {selectedAssignment && !task.needsAudio ? (
                                   <button className="primary-button" type="button" onClick={() => completeTaskDb(taskType)} disabled={done}>
                                     {done ? "완료됨" : `${completedCount + 1}회 완료`}
                                   </button>
@@ -1893,9 +1896,9 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                                 )}
                               </div>
                             </div>
-                            {selectedAssignment && taskDefinitions[taskType].needsAudio && launch && !done && (
+                            {selectedAssignment && task.needsAudio && launch && !done && (
                               <div className="return-box">
-                                <h4>{taskDefinitions[taskType].label} {launchLabel} 실행 기록</h4>
+                                <h4>{task.label} {launchLabel} 실행 기록</h4>
                                 <p className="task-meta">
                                   {launchLabel} 열기 {formatTime(launch.openedAt)} ·{" "}
                                   {launch.returnedAt
@@ -2742,7 +2745,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                             <p>
                               {book.series}
                               <br />
-                              {selectedTaskLabels(assignment)}
+                              {formatAssignmentTaskLabels(assignment)}
                             </p>
                             <div className="status-row">
                               <button
@@ -2763,6 +2766,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                             {isEditing && (
                               <AssignmentEditForm
                                 assignment={assignment}
+                                book={book}
                                 onCancel={() => setEditingAssignmentId(null)}
                                 onSubmit={updateAssignmentCountsDb}
                               />

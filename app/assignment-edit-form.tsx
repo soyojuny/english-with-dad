@@ -1,20 +1,20 @@
 import type { FormEvent } from "react";
-import { getAssignmentTaskCount, sortTasks } from "../lib/reading-calculations";
-import {
-  activityCategoryDefinitions,
-  taskCountOptions,
-  taskDefinitions,
-} from "../lib/reading-data";
-import type { Assignment, TaskType } from "../lib/reading-types";
+import { getAssignmentTaskCount, getEditableTasksForAssignment, sortTasks } from "../lib/reading-calculations";
+import { taskCountOptions, taskDefinitions } from "../lib/reading-data";
+import type { Assignment, Book, TaskType } from "../lib/reading-types";
 
 type AssignmentEditFormProps = {
   assignment: Assignment;
+  book: Pick<Book, "contentType">;
   onCancel: () => void;
   onSubmit: (assignment: Assignment, event: FormEvent<HTMLFormElement>) => void;
 };
 
-export function AssignmentEditForm({ assignment, onCancel, onSubmit }: AssignmentEditFormProps) {
-  const editableTasks = sortTasks(activityCategoryDefinitions[assignment.activityCategory].tasks);
+export function AssignmentEditForm({ assignment, book, onCancel, onSubmit }: AssignmentEditFormProps) {
+  const editableTasks = sortTasks(
+    getEditableTasksForAssignment(assignment, book),
+  );
+  const isCopyworkAssignment = assignment.tasks.includes("copywork");
 
   return (
     <form className="assignment-edit-form" onSubmit={(event) => onSubmit(assignment, event)}>
@@ -34,13 +34,15 @@ export function AssignmentEditForm({ assignment, onCancel, onSubmit }: Assignmen
             </select>
           </label>
         ))}
-        <label className="task-count-item">
-          <span>퀴즈</span>
-          <select name={`assignmentQuiz:${assignment.id}`} defaultValue={assignment.quizEnabled ? "Y" : "N"}>
-            <option value="N">N</option>
-            <option value="Y">Y</option>
-          </select>
-        </label>
+        {!isCopyworkAssignment && (
+          <label className="task-count-item">
+            <span>퀴즈</span>
+            <select name={`assignmentQuiz:${assignment.id}`} defaultValue={assignment.quizEnabled ? "Y" : "N"}>
+              <option value="N">N</option>
+              <option value="Y">Y</option>
+            </select>
+          </label>
+        )}
       </div>
       <div className="form-actions assignment-edit-actions">
         <button className="ghost-button assignment-action-button" type="button" onClick={onCancel}>

@@ -5,7 +5,7 @@ export type Child = {
   goal: string;
 };
 
-export type TaskType = "listen" | "shadow" | "self" | "wordRead";
+export type TaskType = "listen" | "shadow" | "self" | "wordRead" | "copywork";
 export type TaskCountMap = Partial<Record<TaskType, number>>;
 export type ActivityCategory = "focusListen" | "readAloud" | "englishPicture" | "extraStudy";
 export type BookContentType = "book" | "wordReading";

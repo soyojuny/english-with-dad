@@ -1,7 +1,11 @@
-import type { Book } from "../lib/reading-types";
+"use client";
+
+import { useEffect, useState } from "react";
+import type { ActivityCategory, Book } from "../lib/reading-types";
 import {
   activityCategoryOrder,
   bookContentTypeLabels,
+  getActivityTasksForMaterial,
   getAvailableActivityCategories,
   isWordReadingMaterial,
   sortTasks,
@@ -40,6 +44,23 @@ export function AssignmentBookPicker({
   onRemove,
 }: AssignmentBookPickerProps) {
   const hasSearch = Boolean(search.trim());
+  const [selectedCategories, setSelectedCategories] = useState<Record<string, ActivityCategory | "">>({});
+
+  useEffect(() => {
+    setSelectedCategories((current) => {
+      const next: Record<string, ActivityCategory | ""> = {};
+      selectedBooks.forEach((book) => {
+        const categoryOptions = getAvailableActivityCategories(book);
+        const fallbackCategory = isWordReadingMaterial(book) ? "extraStudy" : "";
+        const currentCategory = current[book.id];
+        next[book.id] =
+          currentCategory && categoryOptions.includes(currentCategory)
+            ? currentCategory
+            : fallbackCategory;
+      });
+      return next;
+    });
+  }, [selectedBooks]);
 
   return (
     <>
@@ -119,14 +140,12 @@ export function AssignmentBookPicker({
         <div className="assignment-book-config-list">
           {selectedBooks.map((book) => {
             const categoryOptions = getAvailableActivityCategories(book);
-            const taskOptions = sortTasks([
-              ...new Set(
-                categoryOptions.flatMap(
-                  (activityCategory) => activityCategoryDefinitions[activityCategory].tasks,
-                ),
-              ),
-            ]);
             const isWordReading = isWordReadingMaterial(book);
+            const selectedCategory = selectedCategories[book.id] ?? (isWordReading ? "extraStudy" : "");
+            const taskOptions = selectedCategory
+              ? sortTasks(getActivityTasksForMaterial(selectedCategory, book))
+              : [];
+            const showQuizControl = !isWordReading && selectedCategory !== "" && selectedCategory !== "extraStudy";
 
             return (
               <section className="assignment-book-config" key={book.id}>
@@ -145,7 +164,16 @@ export function AssignmentBookPicker({
                   </button>
                   <label className="assignment-category-field">
                     <span>활동 구분</span>
-                    <select name={`assignCategory:${book.id}`} defaultValue={isWordReading ? "extraStudy" : ""}>
+                    <select
+                      name={`assignCategory:${book.id}`}
+                      value={selectedCategory}
+                      onChange={(event) =>
+                        setSelectedCategories((current) => ({
+                          ...current,
+                          [book.id]: event.target.value as ActivityCategory | "",
+                        }))
+                      }
+                    >
                       {!isWordReading && <option value="">선택 안 함</option>}
                       {activityCategoryOrder
                         .filter((activityCategory) => categoryOptions.includes(activityCategory))
@@ -159,11 +187,11 @@ export function AssignmentBookPicker({
                 </div>
                 <div className="assignment-count-row">
                   {taskOptions.map((taskType) => (
-                    <label key={`${book.id}-${taskType}`} className="task-count-item">
+                    <label key={`${book.id}-${selectedCategory}-${taskType}`} className="task-count-item">
                       <span>{taskDefinitions[taskType].label}</span>
                       <select
                         name={`assignCount:${book.id}:${taskType}`}
-                        defaultValue={taskType === "listen" || taskType === "wordRead" ? "1" : "0"}
+                        defaultValue={taskType === "listen" || taskType === "wordRead" || taskType === "copywork" ? "1" : "0"}
                       >
                         {taskCountOptions.map((count) => (
                           <option value={count} key={`${book.id}-${taskType}-${count}`}>
@@ -173,7 +201,7 @@ export function AssignmentBookPicker({
                       </select>
                     </label>
                   ))}
-                  {!isWordReading && (
+                  {showQuizControl && (
                     <label className="task-count-item">
                       <span>퀴즈</span>
                       <select name={`assignQuiz:${book.id}`} defaultValue="N">
@@ -186,7 +214,9 @@ export function AssignmentBookPicker({
                 <p className="task-meta">
                   {isWordReading
                     ? "단어 읽기 자료는 기타학습 · 단어 읽기로 저장됩니다."
-                    : "영어 그림책을 선택하면 읽기 1회로 저장됩니다."}
+                    : selectedCategory === "extraStudy"
+                      ? "기타학습을 선택하면 필사로 저장됩니다."
+                      : "영어 그림책을 선택하면 읽기 1회로 저장됩니다."}
                 </p>
               </section>
             );

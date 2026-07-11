@@ -87,6 +87,7 @@ for (const relativePath of [
   "supabase/migrations/20260624090000_assignment_quiz_result_text.sql",
   "supabase/migrations/20260624093000_assignment_quiz_only_tasks.sql",
   "supabase/migrations/20260621210000_anonymous_local_test_profiles.sql",
+  "supabase/migrations/20260711120000_copywork_extra_study.sql",
 ]) {
   await requireFile(relativePath);
 }
@@ -172,7 +173,7 @@ for (const ignoredLegacyPath of ["/app.js", "/index.html", "/manifest.webmanifes
 }
 
 const types = await read("lib/reading-types.ts");
-requireUnionMembers(types, "TaskType", ["listen", "shadow", "self", "wordRead"], "lib/reading-types.ts");
+requireUnionMembers(types, "TaskType", ["listen", "shadow", "self", "wordRead", "copywork"], "lib/reading-types.ts");
 requireUnionMembers(
   types,
   "ActivityCategory",
@@ -193,7 +194,7 @@ requireUnionMembers(
 );
 
 const data = await read("lib/reading-data.ts");
-for (const key of ["listen", "shadow", "self", "wordRead"]) {
+for (const key of ["listen", "shadow", "self", "wordRead", "copywork"]) {
   requireRegex(data, new RegExp(`${key}: \\{ label:`), "lib/reading-data.ts", `missing task definition for ${key}`);
 }
 for (const key of ["focusListen", "readAloud", "englishPicture", "extraStudy"]) {
@@ -204,7 +205,7 @@ for (const key of ["focusListen", "readAloud", "englishPicture", "extraStudy"]) 
     `missing activity category definition for ${key}`,
   );
 }
-for (const key of ["dvd", "passiveListen", "listen", "shadow", "self", "wordRead", "korean", "englishPicture", "extraStudy"]) {
+for (const key of ["dvd", "passiveListen", "listen", "shadow", "self", "wordRead", "copywork", "korean", "englishPicture", "extraStudy"]) {
   requireRegex(data, new RegExp(`${key}: "`), "lib/reading-data.ts", `missing log label for ${key}`);
 }
 
@@ -216,6 +217,7 @@ for (const exportName of [
   "countAssignmentProgress",
   "getLaunchMinutes",
   "getBookSetupIssues",
+  "getActivityTasksForMaterial",
 ]) {
   requireRegex(calculations, new RegExp(`export function ${exportName}\\(`), "lib/reading-calculations.ts", `missing ${exportName} export`);
 }
@@ -277,6 +279,17 @@ requireIncludes(quizPassFailMigration, "quiz_score in ('PASS', 'FAIL')", "supaba
 const quizOnlyTasksMigration = await read("supabase/migrations/20260624093000_assignment_quiz_only_tasks.sql");
 requireIncludes(quizOnlyTasksMigration, "or quiz_enabled", "supabase/migrations/20260624093000_assignment_quiz_only_tasks.sql");
 requireIncludes(quizOnlyTasksMigration, "assignments_tasks_check", "supabase/migrations/20260624093000_assignment_quiz_only_tasks.sql");
+
+const copyworkMigration = await read("supabase/migrations/20260711120000_copywork_extra_study.sql");
+for (const requiredText of [
+  "copywork",
+  "assignments_tasks_check",
+  "assignments_task_counts_check",
+  "completions_task_type_check",
+  "audio_launches_task_type_check",
+]) {
+  requireIncludes(copyworkMigration, requiredText, "supabase/migrations/20260711120000_copywork_extra_study.sql");
+}
 
 const anonymousProfileMigration = await read("supabase/migrations/20260621210000_anonymous_local_test_profiles.sql");
 requireIncludes(anonymousProfileMigration, "anonymous+", "supabase/migrations/20260621210000_anonymous_local_test_profiles.sql");

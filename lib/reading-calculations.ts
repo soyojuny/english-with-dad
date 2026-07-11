@@ -11,7 +11,7 @@ import type {
   TaskType,
 } from "./reading-types";
 
-export const taskOrder: TaskType[] = ["listen", "shadow", "self", "wordRead"];
+export const taskOrder: TaskType[] = ["listen", "shadow", "self", "wordRead", "copywork"];
 export const activityCategoryOrder: ActivityCategory[] = ["focusListen", "readAloud", "englishPicture", "extraStudy"];
 
 export const bookContentTypeLabels: Record<BookContentType, string> = {
@@ -167,14 +167,27 @@ export function getBookSetupIssues(book: BookSetupInput) {
 }
 
 export function getAvailableActivityCategories(book: Pick<Book, "contentType">): ActivityCategory[] {
-  return isWordReadingMaterial(book) ? ["extraStudy"] : ["focusListen", "readAloud", "englishPicture"];
+  return isWordReadingMaterial(book)
+    ? ["extraStudy"]
+    : ["focusListen", "readAloud", "englishPicture", "extraStudy"];
 }
 
 export function getDefaultTasksForMaterial(book: Pick<Book, "contentType">): TaskType[] {
   return isWordReadingMaterial(book) ? ["wordRead"] : ["listen", "shadow", "self"];
 }
 
+export function getActivityTasksForMaterial(
+  activityCategory: ActivityCategory,
+  book: Pick<Book, "contentType">,
+): TaskType[] {
+  if (activityCategory === "extraStudy") {
+    return isWordReadingMaterial(book) ? ["wordRead"] : ["copywork"];
+  }
+  return activityCategoryDefinitions[activityCategory].tasks;
+}
+
 export function getTaskAudioUrl(book: Pick<Book, "audio" | "contentType">, taskType: TaskType) {
+  if (taskType === "copywork") return "";
   if (taskType === "wordRead") return isWordReadingMaterial(book) ? book.audio.listen : "";
   if (taskType === "listen" || taskType === "shadow") return book.audio[taskType];
   return "";
@@ -194,13 +207,30 @@ export function getAssignmentTaskCount(assignment: Assignment, taskType: TaskTyp
   return assignment.taskCounts[taskType] ?? (assignment.tasks.includes(taskType) ? 1 : 0);
 }
 
-export function buildAssignmentTaskCounts(activityCategory: ActivityCategory, counts: TaskCountMap) {
-  const taskCounts = activityCategoryDefinitions[activityCategory].tasks.reduce<TaskCountMap>((acc, taskType) => {
+export function getEditableTasksForAssignment(
+  assignment: Pick<Assignment, "activityCategory" | "tasks">,
+  book?: Pick<Book, "contentType">,
+): TaskType[] {
+  if (assignment.tasks.length) return assignment.tasks;
+  return book
+    ? getActivityTasksForMaterial(assignment.activityCategory, book)
+    : activityCategoryDefinitions[assignment.activityCategory].tasks;
+}
+
+export function buildAssignmentTaskCounts(
+  activityCategory: ActivityCategory,
+  counts: TaskCountMap,
+  availableTasksOrBook: TaskType[] | Pick<Book, "contentType"> = activityCategoryDefinitions[activityCategory].tasks,
+) {
+  const availableTasks = Array.isArray(availableTasksOrBook)
+    ? availableTasksOrBook
+    : getActivityTasksForMaterial(activityCategory, availableTasksOrBook);
+  const taskCounts = availableTasks.reduce<TaskCountMap>((acc, taskType) => {
     const count = counts[taskType] ?? 0;
     if (count > 0) acc[taskType] = count;
     return acc;
   }, {});
-  const tasks = activityCategoryDefinitions[activityCategory].tasks.filter((taskType) => (taskCounts[taskType] ?? 0) > 0);
+  const tasks = availableTasks.filter((taskType) => (taskCounts[taskType] ?? 0) > 0);
 
   return { tasks, taskCounts };
 }

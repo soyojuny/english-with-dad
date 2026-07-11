@@ -63,8 +63,9 @@ export function ActivityLogCell({
       acc[key] ??= { series, title: log.title, minutes: 0, taskCounts: {}, quizScore: null };
       acc[key].minutes += Number(log.minutes || 0);
       if (log.quizScore !== undefined) acc[key].quizScore = log.quizScore;
-      if (log.type === "listen" || log.type === "shadow" || log.type === "self" || log.type === "wordRead") {
-        acc[key].taskCounts[log.type] = (acc[key].taskCounts[log.type] ?? 0) + log.count;
+      if (log.type in taskDefinitions) {
+        const taskType = log.type as TaskType;
+        acc[key].taskCounts[taskType] = (acc[key].taskCounts[taskType] ?? 0) + log.count;
       }
       return acc;
     }, {});

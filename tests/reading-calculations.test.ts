@@ -8,12 +8,14 @@ import {
   formatAssignmentTaskLabels,
   formatDate,
   formatTaskSummary,
+  getActivityTasksForMaterial,
   getAssignmentBookCandidates,
   getAvailableActivityCategories,
   getAssignmentTaskCount,
   getBookSetupIssues,
   getCompletionCount,
   getDefaultTasksForMaterial,
+  getEditableTasksForAssignment,
   getLaunchMinutes,
   getTaskAudioUrl,
   getUpcomingAssignments,
@@ -158,6 +160,46 @@ test("quiz results become book activity logs without requiring a task completion
   );
 });
 
+test("copywork completions become extra study activity logs", () => {
+  const copyworkAssignment: Assignment = {
+    ...assignment,
+    id: "copywork-assignment",
+    activityCategory: "extraStudy",
+    tasks: ["copywork"],
+    taskCounts: { copywork: 1 },
+    quizEnabled: false,
+    quizScore: null,
+  };
+  const data: ReadingData = {
+    ...emptyReadingData,
+    books: candidateBooks,
+    assignments: [copyworkAssignment],
+    completions: {
+      "copywork-assignment:copywork": {
+        completedAt: "2026-06-10T10:00:00.000Z",
+        minutes: 5,
+        audioOpenedAt: null,
+        count: 1,
+      },
+    },
+  };
+
+  assert.deepEqual(buildAssignmentActivityLogs(data), [
+    {
+      id: "copywork-assignment:copywork",
+      childId: "child-1",
+      date: "2026-06-10",
+      type: "copywork",
+      activityCategory: "extraStudy",
+      bookId: "book-1",
+      title: "처음 책",
+      minutes: 5,
+      note: "필사",
+      count: 1,
+    },
+  ]);
+});
+
 test("cover and book setup issue helpers identify missing setup", () => {
   assert.equal(hasCustomCover("/assets/app-icon.svg"), false);
   assert.equal(hasCustomCover("data:image/png;base64,abc"), true);
@@ -212,6 +254,10 @@ test("assignment task count builder keeps only positive counts for the category"
     tasks: ["wordRead"],
     taskCounts: { wordRead: 2 },
   });
+  assert.deepEqual(buildAssignmentTaskCounts("extraStudy", { wordRead: 2, copywork: 1 }, ["copywork"]), {
+    tasks: ["copywork"],
+    taskCounts: { copywork: 1 },
+  });
 });
 
 test("completion count and progress cap completed repetitions at target count", () => {
@@ -246,8 +292,15 @@ test("completion count and progress cap completed repetitions at target count", 
 });
 
 test("task formatting follows canonical task order", () => {
-  assert.deepEqual(sortTasks(["wordRead", "self", "listen", "shadow"]), ["listen", "shadow", "self", "wordRead"]);
+  assert.deepEqual(sortTasks(["copywork", "wordRead", "self", "listen", "shadow"]), [
+    "listen",
+    "shadow",
+    "self",
+    "wordRead",
+    "copywork",
+  ]);
   assert.equal(formatTaskSummary(["self", "listen"], { self: 2, listen: 1 }), "읽기 1회 · 스스로 읽기 2회");
+  assert.equal(formatTaskSummary(["copywork"], { copywork: 1 }), "필사 1회");
   assert.equal(formatAssignmentTaskLabels(assignment), "집중듣기 · 읽기 2회 · 정따 1회 · 스스로 읽기 1회");
   assert.equal(
     formatAssignmentTaskLabels({
@@ -269,14 +322,42 @@ test("task formatting follows canonical task order", () => {
 });
 
 test("word reading materials use extra study assignment defaults and the listen URL", () => {
+  const regularBook = {
+    contentType: "book" as const,
+    audio: { listen: "https://example.com/listen", shadow: "https://example.com/shadow" },
+  };
   const wordReading = {
     contentType: "wordReading" as const,
     audio: { listen: "https://example.com/word", shadow: "" },
   };
+  assert.deepEqual(getAvailableActivityCategories(regularBook), [
+    "focusListen",
+    "readAloud",
+    "englishPicture",
+    "extraStudy",
+  ]);
+  assert.deepEqual(getActivityTasksForMaterial("extraStudy", regularBook), ["copywork"]);
+  assert.deepEqual(getActivityTasksForMaterial("extraStudy", wordReading), ["wordRead"]);
   assert.deepEqual(getAvailableActivityCategories(wordReading), ["extraStudy"]);
   assert.deepEqual(getDefaultTasksForMaterial(wordReading), ["wordRead"]);
   assert.equal(getTaskAudioUrl(wordReading, "wordRead"), "https://example.com/word");
   assert.equal(getTaskAudioUrl({ contentType: "book", audio: wordReading.audio }, "wordRead"), "");
+  assert.equal(getTaskAudioUrl(regularBook, "copywork"), "");
+});
+
+test("extra study edit fallback stays material-aware when assignment tasks are empty", () => {
+  assert.deepEqual(
+    getEditableTasksForAssignment({ activityCategory: "extraStudy", tasks: [] }, { contentType: "book" }),
+    ["copywork"],
+  );
+  assert.deepEqual(
+    getEditableTasksForAssignment({ activityCategory: "extraStudy", tasks: [] }, { contentType: "wordReading" }),
+    ["wordRead"],
+  );
+  assert.deepEqual(
+    getEditableTasksForAssignment({ activityCategory: "extraStudy", tasks: ["copywork"] }, { contentType: "wordReading" }),
+    ["copywork"],
+  );
 });
 
 test("getLaunchMinutes uses rounded elapsed minutes and falls back for invalid launches", () => {
