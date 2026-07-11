@@ -6,7 +6,7 @@
 
 - 사용자가 명시한 내용만 최소 범위로 수정한다. 인접하거나 추가적인 수정이 필요하다고 판단되면 먼저 사용자에게 확인한다.
 - 요청이 명확하지 않으면 수정 전에 구체화를 위한 질문을 한다.
-- 기능은 `app/reading-manager-client.tsx`에 계속 누적하지 않고, 재사용 가능한 로직은 `lib/`로 분리한다.
+- 기능은 `app/reading-manager-client.tsx`에 계속 누적하지 않는다. 가능한 한 orchestration shell로 유지하고, 재사용 가능한 로직은 `lib/`로, 응집도 높은 UI 구역과 dialog는 focused `app/` components로 분리한다.
 - 데이터 계약의 기준은 `lib/reading-types.ts`와 `lib/reading-data.ts`다.
 - Supabase 변경은 migration, RLS, TypeScript row type, mapper, select/insert/update 코드, 문서를 함께 갱신한다.
 - PWA 변경은 `public/manifest.webmanifest`, `public/sw.js`, `scripts/check-pwa.mjs`를 함께 확인한다.
@@ -70,6 +70,12 @@ plans/
 
 완료된 plan은 verification agent가 `review.md`에 통과 상태를 남기고 승격 후보가 처리된 뒤에만 `plans/archive/`로 이동한다.
 
+계획 아카이브는 수동 파일 이동 대신 다음 명령으로 수행한다.
+
+```powershell
+npm run plan:archive -- "<slug>"
+```
+
 ### Git publish policy
 
 이 프로젝트는 기본적으로 `main`에서 작업하고 `origin/main`으로 직접 push한다. 일반 작업에서는 별도 feature branch를 만들지 않는다. 사용자가 명시적으로 브랜치 작업을 요청한 경우에만 새 브랜치를 만든다.
@@ -115,7 +121,12 @@ npm run check:contracts
 - reading domain union과 label 정의
 - Supabase store가 주요 테이블과 새 계약을 참조하는지
 - 초기 migration의 RLS/policy 기본 조건
-- `app/reading-manager-client.tsx` 크기 예산
+- `app/reading-manager-client.tsx` `client shell budget` (`120_000` bytes hard limit)
+- 대응 기준:
+  - Keep `app/reading-manager-client.tsx` as an orchestration shell when practical.
+  - Move pure domain or calculation logic into `lib/`.
+  - Move cohesive UI sections and dialogs into focused `app/` components.
+  - The budget is a final guardrail, not a request to shave bytes locally.
 
 ### 2. PWA 계약
 
@@ -210,6 +221,7 @@ npm run git:status
 npm run git:commit -- "commit message"
 npm run git:push
 npm run git:publish -- "commit message"
+npm run plan:archive -- "<slug>"
 npm run check:contracts
 npm run check:sw
 npm run check:pwa

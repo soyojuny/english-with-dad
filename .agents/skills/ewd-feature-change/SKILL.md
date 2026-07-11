@@ -17,7 +17,12 @@ Follow this workflow for app behavior changes.
 ## 2. Keep The Blast Radius Small
 
 - Do not add more unrelated state or helpers to `app/reading-manager-client.tsx` when logic can be moved into `lib/`.
+- Treat the `120_000` byte limit as a client shell budget.
+- Keep `app/reading-manager-client.tsx` as an orchestration shell when practical.
 - Prefer extracting pure functions before changing complex UI flows.
+- Move reusable reading logic into `lib/`.
+- Move cohesive UI surfaces and dialogs into focused `app/` components.
+- The budget is a final guardrail, not a request to shave bytes locally.
 - Preserve Korean user-facing copy and keep text UTF-8.
 - Do not edit ignored root legacy files such as `app.js` or `index.html`.
 

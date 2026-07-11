@@ -3,6 +3,7 @@ import path from "node:path";
 
 const root = process.cwd();
 const failures = [];
+const clientShellBudgetBytes = 120_000;
 
 async function exists(relativePath) {
   try {
@@ -73,6 +74,7 @@ for (const relativePath of [
   "plans/archive/.gitkeep",
   "docs/supabase-region-migration.md",
   "scripts/git-publish.mjs",
+  "scripts/plan-archive.mjs",
   "scripts/plan-workflow.mjs",
   "lib/reading-calculations.ts",
   "lib/reading-types.ts",
@@ -93,7 +95,7 @@ for (const relativePath of [
 }
 
 const packageJson = JSON.parse(await read("package.json"));
-for (const scriptName of ["plan:workflow", "git:status", "git:commit", "git:push", "git:publish", "check:contracts", "check:sw", "check:pwa", "test:unit", "typecheck", "build", "verify"]) {
+for (const scriptName of ["plan:workflow", "plan:archive", "git:status", "git:commit", "git:push", "git:publish", "check:contracts", "check:sw", "check:pwa", "test:unit", "typecheck", "build", "verify"]) {
   if (!packageJson.scripts?.[scriptName]) {
     fail(`package.json scripts must define ${scriptName}`);
   }
@@ -121,6 +123,7 @@ for (const requiredText of [
   "docs/adr/",
   "plans/archive/",
   "Promotion Candidates",
+  "plan:archive",
 ]) {
   requireIncludes(plansReadme, requiredText, "plans/README.md");
 }
@@ -133,8 +136,24 @@ for (const requiredText of [
   "plan-aware `code-review`",
   "review.md",
   "docs/adr/",
+  "plan:archive",
+  "client shell budget",
+  "Move pure domain or calculation logic into `lib/`.",
+  "Move cohesive UI sections and dialogs into focused `app/` components.",
+  "The budget is a final guardrail, not a request to shave bytes locally.",
 ]) {
   requireIncludes(developmentHarness, requiredText, "docs/development-harness.md");
+}
+
+const featureChangeSkill = await read(".agents/skills/ewd-feature-change/SKILL.md");
+for (const requiredText of [
+  "client shell budget",
+  "Keep `app/reading-manager-client.tsx` as an orchestration shell when practical.",
+  "Move reusable reading logic into `lib/`.",
+  "Move cohesive UI surfaces and dialogs into focused `app/` components.",
+  "The budget is a final guardrail, not a request to shave bytes locally.",
+]) {
+  requireIncludes(featureChangeSkill, requiredText, ".agents/skills/ewd-feature-change/SKILL.md");
 }
 
 const codeReviewSkill = await read(".agents/skills/code-review/SKILL.md");
@@ -300,9 +319,10 @@ requireIncludes(
 );
 
 const clientStats = await stat(path.join(root, "app/reading-manager-client.tsx"));
-const maxClientBytes = 120_000;
-if (clientStats.size > maxClientBytes) {
-  fail(`app/reading-manager-client.tsx is ${clientStats.size} bytes; extract reusable logic before growing past ${maxClientBytes}`);
+if (clientStats.size > clientShellBudgetBytes) {
+  fail(
+    `app/reading-manager-client.tsx is ${clientStats.size} bytes; the client shell budget is ${clientShellBudgetBytes}. Move pure domain or calculation logic into \`lib/\`. Move cohesive UI sections and dialogs into focused \`app/\` components. The budget is a final guardrail, not a request to shave bytes locally.`,
+  );
 }
 
 if (failures.length) {

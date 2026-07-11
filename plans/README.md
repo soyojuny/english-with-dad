@@ -38,6 +38,7 @@ Only `plan.md`, `review.md`, and `tasks/` are required for a real plan. Add
    - Harness and operating rules go to `AGENTS.md` or `docs/development-harness.md`.
 7. Move the plan to `plans/archive/` only after verification passes and promotion
    candidates are closed.
+8. Use `npm run plan:archive -- "<slug>"` to archive the plan instead of moving files manually.
 
 ## `plan.md`
 

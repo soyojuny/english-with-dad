@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "test:unit": "tsc -p tsconfig.test.json && node --test .test-build/tests/reading-calculations.test.js",
     "plan:workflow": "node scripts/plan-workflow.mjs",
+    "plan:archive": "node scripts/plan-archive.mjs",
     "git:status": "node scripts/git-publish.mjs status",
     "git:commit": "node scripts/git-publish.mjs commit",
     "git:push": "node scripts/git-publish.mjs push",
