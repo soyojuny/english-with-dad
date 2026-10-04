@@ -34,5 +34,6 @@
 - This project commits and pushes directly to `main`/`origin/main` by default. Do not create a feature branch for normal work unless the user explicitly asks.
 - Use `.agents/skills/ewd-feature-change` for normal feature changes.
 - Use `.agents/skills/ewd-supabase-change` for any Auth, database, migration, RLS, or Storage task.
+- Use `.agents/skills/ewd-register-assign` for AI-assisted book registration and routine assignment requests. Read `docs/ai-registration-assignment.md` and the skill's current routines before processing a batch.
 - Use `.agents/skills/ewd-ui-regression` for PWA, mobile, QR, audio-launch, or visual regression work.
 - Use subagents only when explicitly requested or when the user asks for parallel review/exploration. Good splits are security/RLS, UI regression, and test gaps.

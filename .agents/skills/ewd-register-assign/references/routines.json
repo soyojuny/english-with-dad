@@ -1,0 +1,49 @@
+{
+  "updatedAt": "2026-10-04",
+  "first": {
+    "reading": {
+      "blockDays": 2,
+      "booksPerBlock": 1,
+      "activityCategory": "focusListen",
+      "taskCounts": { "listen": 1 },
+      "quizEnabled": true
+    },
+    "shadow": {
+      "blockDays": 3,
+      "booksPerBlock": 1,
+      "activityCategory": "readAloud",
+      "taskCounts": { "listen": 1, "shadow": 1, "self": 1 },
+      "quizEnabled": true
+    },
+    "picture": {
+      "blockDays": 6,
+      "booksPerBlock": 2,
+      "activityCategory": "englishPicture",
+      "taskCounts": { "listen": 1 },
+      "quizEnabled": false
+    }
+  },
+  "second": {
+    "reading": {
+      "blockDays": 3,
+      "booksPerBlock": 2,
+      "activityCategory": "focusListen",
+      "taskCounts": { "listen": 1 },
+      "quizEnabled": false
+    },
+    "shadow": {
+      "blockDays": 6,
+      "booksPerBlock": 1,
+      "activityCategory": "readAloud",
+      "taskCounts": { "listen": 1, "shadow": 1, "self": 1 },
+      "quizEnabled": false
+    },
+    "picture": {
+      "blockDays": 6,
+      "booksPerBlock": 2,
+      "activityCategory": "englishPicture",
+      "taskCounts": { "listen": 1 },
+      "quizEnabled": false
+    }
+  }
+}

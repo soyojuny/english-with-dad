@@ -1,0 +1,4 @@
+interface:
+  display_name: "English With Dad 자료 등록·배정"
+  short_description: "표지·QR 사진으로 자료를 등록하고 아동별 루틴에 맞춰 주간 할일을 배정"
+  default_prompt: "$ewd-register-assign으로 제공한 사진을 순서대로 등록하고 지정한 아동의 주간 루틴으로 배정해 줘."
