@@ -49,12 +49,13 @@ test("첫째 읽기는 두 날마다 교체하고 매일 문제풀이를 포함�
   }
 });
 
-test("첫째 정따는 세 날마다 교체하고 세 활동·문제풀이를 매일 적용한다", () => {
+test("첫째 정따는 세 날마다 교체하고 읽기 없이 정따·스스로 읽기·문제풀이를 매일 적용한다", () => {
   const rows = planAssignments(input([bundle("first", "shadow", 2)])).assignments;
   assert.deepEqual(rows.map((row) => row.book_id), [id(10), id(10), id(10), id(11), id(11), id(11)]);
   for (const row of rows) {
     assert.equal(row.activity_category, "readAloud");
-    assert.deepEqual(row.task_counts, { listen: 1, shadow: 1, self: 1 });
+    assert.deepEqual(row.tasks, ["shadow", "self"]);
+    assert.deepEqual(row.task_counts, { shadow: 1, self: 1 });
     assert.equal(row.quiz_enabled, true);
   }
 });

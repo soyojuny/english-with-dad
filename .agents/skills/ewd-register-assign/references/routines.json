@@ -12,7 +12,7 @@
       "blockDays": 3,
       "booksPerBlock": 1,
       "activityCategory": "readAloud",
-      "taskCounts": { "listen": 1, "shadow": 1, "self": 1 },
+      "taskCounts": { "shadow": 1, "self": 1 },
       "quizEnabled": true
     },
     "picture": {

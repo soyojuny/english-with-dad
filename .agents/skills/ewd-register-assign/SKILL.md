@@ -48,7 +48,9 @@ Do not choose books or a start date on the parent's behalf.
   specified purpose for field placement; decoding a URL does not verify playback.
 - For two QR codes, use adjacent labels and the parent's purpose to identify the
   fields. A single shared audio link may fill both reading and shadowing only when
-  confirmed to contain both. `getTaskAudioUrl()` has no missing-field fallback.
+  both activities are in the agreed plan and the link is confirmed to contain both.
+  Link count or audio contents alone do not authorize adding a reading task.
+  `getTaskAudioUrl()` has no missing-field fallback.
 - Read `lib/reading-types.ts`, `lib/reading-data.ts`,
   `lib/supabase/reading-store.ts`, `lib/cover-image.ts` and applicable migrations.
   Use `compressCoverImage()` for a JPEG data URL (960px max, quality 0.72);
@@ -73,7 +75,9 @@ Do not choose books or a start date on the parent's behalf.
 1. Use `scripts/plan-assignments.mjs` to generate candidates from resolved IDs. The
    script does not access the DB. Read [its input format](references/schedule-input.md)
    when preparing the agent's temporary JSON; the parent need not write that file.
-2. Validate ownership and active book status, and each task's required audio.
+2. Compare candidate activities against the agreed routine and book-specific
+   exceptions in the operating contract, applying the parent's latest instructions.
+   Validate ownership and active book status, and require audio only for assigned tasks.
    Reading requires `audio_listen`, shadowing requires `audio_shadow`, self-reading
    needs none. Keep quiz enabled only where the current routine calls for it.
 3. Immediately query existing assignments for each selected **child, activity
