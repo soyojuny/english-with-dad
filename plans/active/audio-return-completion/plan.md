@@ -75,7 +75,7 @@
 
 ### Phase 3 — 최종 검증
 
-- **Step 05**: [전체 검증과 리뷰](tasks/05-final-verification.md). 전체 verify와 브라우저 검증, Standards/Spec 리뷰를 수행한다. 발견된 결함은 먼저 회귀 테스트를 작성하여 수정한 뒤 `test: verify audio completion recovery`로 기록한다. 실제 안드로이드 실기기 검증 가능 여부와 미확인 한계는 명시한다.
+- **Step 05**: [전체 검증과 리뷰](tasks/05-final-verification.md). 전체 verify와 브라우저 검증, Standards/Spec 리뷰를 수행한다. 발견된 결과 조회 지연 결함은 먼저 회귀 테스트를 작성하여 수정한 뒤 `fix: recover stalled completion result checks`로 기록한다. 실제 안드로이드 실기기 검증 가능 여부와 미확인 한계는 명시한다.
 
 ### Step 공통 규칙
 
@@ -100,9 +100,9 @@
 | 데이터 로딩 실패 | '기록 없음'과 로딩/오류를 구별한다. 정상적인 목표 완료 상태를 버튼 소실 오류로 판단하지 않는다. |
 | 읽기·정따·단어 읽기 / 비오디오 task | 기존 표시·횟수·기본 시간 규칙을 유지한다. |
 
-구현 시 새 테스트가 `npm run test:unit`에 실제로 포함되도록 실행 대상을 확인한다. 현재 스크립트는 `reading-calculations.test.js` 하나만 실행한다. mock 저장 지연/실패 테스트와 실기기 검증은 각각 필요한 범위를 담당하며, 브라우저 이벤트를 직접 호출한 테스트만으로 안드로이드 PWA 복귀를 검증했다고 선언하지 않는다.
+구현 시 새 테스트가 `npm run test:unit`에 실제로 포함되도록 실행 대상을 확인한다. 계획 당시 스크립트는 `reading-calculations.test.js` 하나만 실행했으며 Step 01에서 모든 테스트 파일을 발견하도록 수정했다. mock 저장 지연/실패 테스트와 실기기 검증은 각각 필요한 범위를 담당하며, 브라우저 이벤트를 직접 호출한 테스트만으로 안드로이드 PWA 복귀를 검증했다고 선언하지 않는다.
 
-구현 완료 검증: 관련 단위 테스트, `npm run check:contracts`, `npm run check:pwa`, `npm run typecheck`, 최종 `npm run verify`, 안드로이드 설치형 PWA 실제 오디오 링크 smoke check. 기본 검사는 통과했지만 수정 후 검증은 아직 수행하지 않았다.
+구현 완료 검증: 관련 단위 테스트, `npm run check:contracts`, `npm run check:pwa`, `npm run typecheck`, 최종 `npm run verify`, 안드로이드 설치형 PWA 실제 오디오 링크 smoke check. 최종 자동 검증과 모바일 폭 브라우저 fixture 검증은 통과했다. 실기기 smoke check는 기기 미접근으로 미검증이며 상세 결과는 review.md에 기록했다.
 
 ## References
 

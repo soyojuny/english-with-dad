@@ -2,7 +2,7 @@
 
 ## Status
 
-Pending — 사용자 TDD 구현 승인. Phase 0 계약 작성, Herdr 개발/테스트 pane 분리 완료. 구현 검증 진행 예정.
+Passed — 승인된 TDD 구현, step별 검증, Standards/Spec 리뷰를 완료했다. 실제 안드로이드 설치형 PWA와 외부 오디오 앱 전환은 실기기 미접근으로 미검증이다.
 
 ## Plan Conformance
 
@@ -25,7 +25,7 @@ Pending — 사용자 TDD 구현 승인. Phase 0 계약 작성, Herdr 개발/테
 - `npm run check:contracts`: 통과.
 - `npm run test:unit`: 통과.
 - 계획 작성 전 `npm run git:status`: 변경 없음.
-- 실제 안드로이드 PWA 재현, 운영 저장 확인, 신규 회귀 테스트, 구현 후 전체 verify: 미실시.
+- 위 항목은 계획 작성 당시 기준이다. 구현 후 검증은 아래 Final Verification에 기록했다.
 
 ## Step History
 
@@ -35,8 +35,27 @@ Pending — 사용자 TDD 구현 승인. Phase 0 계약 작성, Herdr 개발/테
 | 1 | 01 조건부 복귀 저장 | Complete | 누락 export RED, 기존 upsert 대입 시 9 assertion 실패 → 31 tests GREEN, contracts/typecheck 통과 | `779a84f` |
 | 1 | 02 완료 요청 관리 | Complete | tests-first 컴파일 RED, 행동 assertion RED → 58 tests GREEN, contracts/typecheck 통과 | `940e486` |
 | 2 | 03 복귀 이벤트 관리 | Complete | tests-first 컴파일 RED, 신규 26개 중 23개 행동 실패 → 84 tests GREEN, typecheck/contracts/PWA 통과 | `983675f` |
-| 2 | 04 화면/배정 복원 | Complete | 정책 테스트 20개 중 17개 RED, 브라우저 4/4 RED → unit 103/103, browser 4/4 GREEN, 타입/계약/PWA 통과 | 이 step 커밋; 다음 step에서 해시 기록 |
-| 3 | 05 최종 검증 | Pending | 미실행 | — |
+| 2 | 04 화면/배정 복원 | Complete | 정책 테스트 20개 중 17개 RED, 브라우저 4/4 RED → unit 103/103, browser 4/4 GREEN, 타입/계약/PWA 통과 | `69b491b` |
+| 3 | 05 최종 검증/조회 지연 복구 | Complete | 리뷰 결함 회귀 3/3 RED, browser 6 PASS/1 RED → unit 106/106, browser 7/7 GREEN, 전체 verify 통과 | 이 기록을 포함한 `fix: recover stalled completion result checks` 커밋 |
+
+## Final Verification
+
+- Herdr 개발 pane `audio-dev` (`wC:p3`)와 테스트 pane `audio-tests` (`wC:p4`)를 분리했다. 개발 담당은 구현, 현재 담당은 테스트 작성/독립 검증/커밋을 맡았다.
+- `npm run verify`: exit 0. contracts, SW 구문, PWA 계약, 단위 테스트 106개, typecheck, production build 모두 통과. 최종 로그: `/tmp/ewd-step05-verify.log`.
+- 모든 `.test.js`를 발견하는 실행기로 신규 테스트 파일이 실행되었음을 확인했다.
+- `npm run test:audio-browser`: 7/7 통과, runtimeErrors 0. 실제 ReadingManagerClient + Supabase HTTP fixture, Chromium 390×844. 최종 로그 `/tmp/ewd-step05-browser-green.log`, JSON/화면 캡처 `/tmp/ewd-audio-smoke-KEasPz/`.
+- 브라우저 사례: 배정 선택 재로드 복원, 저장 중 버튼 잠금, 지속 오류 안내, 복귀 응답 지연 중 로컬 시간 사용, 저장 실패 후 같은 요청 재시도, 저장 후 응답 유실의 결과 확인, 결과 조회 지연 후 복구.
+- 결과 조회 지연 회귀 RED: unit 103 PASS/3 FAIL (`/tmp/ewd-step05-red.log`), browser 6 PASS/1 FAIL (`/tmp/ewd-step05-browser-first.log`). 구현 전에 실패를 확인했다.
+- 운영 계정/데이터, 스키마/RLS, manifest/SW 캐시·설치 규칙 변경 없음. main에서 step별 커밋했으며 push/배포하지 않았다.
+- 실제 안드로이드 설치형 PWA, 외부 오디오 앱 전환, 장시간 청취 후 실제 인증 토큰 갱신, 운영 서버에 저장된 결과는 미검증이다. fixture 지연/실패 검증을 실제 보고 증상의 원인 확정으로 해석하지 않는다.
+
+## Standards Review
+
+고정 시작 `15c82a4`, 1차 종료 `69b491b`의 변경을 별도 reviewer가 검토했다. Step 05 추가 변경은 `69b491b` 대비 diff로 재검토했다. 문서화된 규칙 위반이나 조치가 필요한 코드 냄새는 발견하지 못했다. owner_user_id 범위, lib/hook/UI 분리, 한정된 수정 범위가 유지됨을 확인했다.
+
+## Spec Review
+
+같은 고정점과 plan/모든 task를 기준으로 별도 reviewer가 검토했다. 결과 조회가 멈추면 checking에 고정되고 원래 저장 성공도 무시하는 P2 결함 1개를 발견했다. Step 05에서 테스트 3개를 먼저 RED로 만들고, checking의 15초 안내·만료 조회 응답 차단·동일 요청의 늦은 저장 성공 반영을 구현했다. 추가 브라우저 RED/GREEN 및 reviewer 재검토로 해결을 확인했다. 중요한 미해결 코드 결함은 발견하지 못했다.
 
 ## Promotion Candidates
 

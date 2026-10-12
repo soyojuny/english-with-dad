@@ -74,10 +74,9 @@ export function useChildTaskRequests(options: Options) {
       onChange: (key, state) => {
         if (!isActive()) return;
         setFeedback((current) => ({ ...current, scopeKey, completions: { ...current.completions, [key]: state } }));
-        if (state.status !== "pending") {
-          clearTimeout(timers.get(key));
-          timers.delete(key);
-        } else if (!timers.has(key)) {
+        clearTimeout(timers.get(key));
+        timers.delete(key);
+        if (state.status === "pending" || state.status === "checking") {
           // Notify once; retain the attempt and require result checking before any retry.
           timers.set(key, setTimeout(() => {
             if (isActive()) completion.markUncertain(key);

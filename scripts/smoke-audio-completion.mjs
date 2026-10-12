@@ -53,6 +53,9 @@ async function fixture() {
   let writes = 0;
   let held = false;
   let fail = false;
+  let loseResponse = false;
+  let heldCheck = false;
+  let releaseCheck;
   let release;
   let heldAudio = false;
   let releaseAudio;
@@ -86,7 +89,14 @@ async function fixture() {
           if (current && !request.headers()['prefer']?.includes('resolution=merge-duplicates')) return route.fulfill({status:409,headers,body:JSON.stringify({message:'duplicate',code:'23505'})});
           if (current) {Object.assign(current,body);data=[current];} else { completions.push(body);data=[body]; }
         }
-      } else data = completions.filter(row => matches(row,url.searchParams));
+        if (loseResponse) {
+          loseResponse = false;
+          return route.fulfill({status:503,headers,body:JSON.stringify({message:'저장 후 응답 유실',code:'TEST_NETWORK'})});
+        }
+      } else {
+        if (heldCheck) await new Promise(resolve => { releaseCheck = resolve; });
+        data = completions.filter(row => matches(row,url.searchParams));
+      }
     } else if (table === 'audio_launches') {
       data = launches.filter(row=>matches(row,url.searchParams));
       if (request.method()==='PATCH') {
@@ -101,7 +111,7 @@ async function fixture() {
   await page.locator('.profile-grid').getByRole('button', {name:/테스트 아동/}).click();
   await page.locator('.assignment-card').filter({hasText:'테스트 책 2'}).click();
   await page.getByRole('button',{name:'1회 완료',exact:true}).waitFor();
-  return {context,page,completions,get writes(){return writes;},hold(){held=true;},holdAudio(){heldAudio=true;},release(){held=false;heldAudio=false;release?.();releaseAudio?.();},fail(){fail=true;},recover(){fail=false;}};
+  return {context,page,completions,get writes(){return writes;},hold(){held=true;},holdAudio(){heldAudio=true;},holdCheck(){heldCheck=true;},release(){held=false;heldAudio=false;heldCheck=false;release?.();releaseAudio?.();releaseCheck?.();},fail(){fail=true;},recover(){fail=false;},loseResponse(){loseResponse=true;}};
 }
 async function run(name, test) {
   const f = await fixture();
@@ -140,6 +150,39 @@ try {
     await f.page.getByRole('button',{name:'1회 완료',exact:true}).click();
     await f.page.getByRole('button',{name:'2회 완료',exact:true}).waitFor({timeout:4000});
     assert.ok(f.completions[0].minutes > 0 && f.completions[0].minutes < 10,'completion uses fallback while local return time is available');
+  });
+  await run('failed-save-retry',async f=>{
+    f.fail();
+    await f.page.getByRole('button',{name:'1회 완료',exact:true}).click();
+    await f.page.getByRole('button',{name:'같은 요청 재시도',exact:true}).waitFor();
+    f.recover();
+    await f.page.getByRole('button',{name:'같은 요청 재시도',exact:true}).click();
+    await f.page.getByRole('button',{name:'2회 완료',exact:true}).waitFor({timeout:4000});
+    assert.equal(f.completions[0].count,1);
+    assert.equal(f.writes,2);
+    await f.page.reload();
+    await f.page.getByRole('button',{name:'2회 완료',exact:true}).waitFor({timeout:4000});
+  });
+  await run('lost-response-result-check',async f=>{
+    f.loseResponse();
+    await f.page.getByRole('button',{name:'1회 완료',exact:true}).click();
+    await f.page.getByRole('button',{name:'저장 결과 확인',exact:true}).click();
+    await f.page.getByRole('button',{name:'2회 완료',exact:true}).waitFor({timeout:4000});
+    assert.equal(f.writes,1);
+    assert.equal(f.completions[0].count,1);
+  });
+  await run('stalled-result-check-recovery',async f=>{
+    f.loseResponse();
+    await f.page.getByRole('button',{name:'1회 완료',exact:true}).click();
+    f.holdCheck();
+    await f.page.getByRole('button',{name:'저장 결과 확인',exact:true}).click();
+    await f.page.getByText('완료 저장 결과를 확인하고 있습니다.',{exact:true}).waitFor();
+    await f.page.getByRole('button',{name:'저장 결과 확인',exact:true}).waitFor({timeout:18000});
+    f.release();
+    await f.page.getByRole('button',{name:'저장 결과 확인',exact:true}).click();
+    await f.page.getByRole('button',{name:'2회 완료',exact:true}).waitFor({timeout:4000});
+    assert.equal(f.writes,1);
+    assert.equal(f.completions[0].count,1);
   });
   assert.equal(runtimeErrors.length,0,JSON.stringify(runtimeErrors));
 } finally {

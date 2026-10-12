@@ -114,7 +114,14 @@ export function createCompletionCoordinator(options: CoordinatorOptions) {
     set(key, request, { status: "pending", attempt, message: "완료 기록을 저장하고 있습니다." });
     try {
       const result = await options.save(options.ownerUserId, attempt.payload, attempt.expectedCount);
-      finish(key, request, version, result.completion, result.status === "saved" || matchesAttempt(result.completion, attempt));
+      const success = result.status === "saved" || matchesAttempt(result.completion, attempt);
+      if (!isCurrent(key, request, version) && success && !disposed && requests.get(key) === request
+        && ["checking", "uncertain"].includes(request.state.status)) {
+        // The same attempt was saved; settle it and fence any outstanding result check.
+        finish(key, request, ++request.version, result.completion, true);
+      } else {
+        finish(key, request, version, result.completion, success);
+      }
     } catch (error) {
       if (!isCurrent(key, request, version)) return;
       const rejected = error instanceof CompletionSaveError && error.outcome === "rejected";
@@ -169,7 +176,9 @@ export function createCompletionCoordinator(options: CoordinatorOptions) {
     },
     markUncertain(key: string) {
       const request = requests.get(key);
-      if (!disposed && request?.state.status === "pending") {
+      if (!disposed && request && ["pending", "checking"].includes(request.state.status)) {
+        // An expired read must not submit a retry or replace a newer result.
+        if (request.state.status === "checking") request.version++;
         set(key, request, { status: "uncertain", attempt: request.attempt, message: "저장 응답을 기다리고 있습니다. 결과를 확인하세요." });
       }
     },

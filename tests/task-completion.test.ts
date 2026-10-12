@@ -269,3 +269,59 @@ test("confirmed failure class exposes readable message and outcome", () => {
   assert.equal(error.message, "완료 기록을 저장하지 못했습니다.");
   assert.equal(error.outcome, "rejected");
 });
+
+test("stalled result check can become uncertain and retry without a second increment", async () => {
+  const h = harness();
+  h.fake.mutationPlans.push({ loseResponse: true });
+  await h.coordinator.start(input);
+  const gate = deferred();
+  h.fake.readPlans.push({ before: gate.promise });
+  const stalled = h.coordinator.checkResult(key);
+  assert.equal(h.coordinator.getState(key).status, "checking");
+  h.coordinator.markUncertain(key);
+  assert.equal(h.coordinator.getState(key).status, "uncertain");
+  await h.coordinator.retry(key);
+  assert.equal(h.coordinator.getState(key).status, "success");
+  gate.resolve();
+  await stalled;
+  assert.equal(h.coordinator.getState(key).status, "success");
+  assert.equal(h.fake.writes.length, 1);
+  assert.equal(h.published.length, 1);
+});
+
+test("late original success resolves a stalled result check and fences its later response", async () => {
+  const h = harness();
+  const writeGate = deferred();
+  h.fake.mutationPlans.push({ after: writeGate.promise });
+  const original = h.coordinator.start(input);
+  await waitFor(() => h.fake.rows.length > 0, "original save should commit before checking");
+  h.coordinator.markUncertain(key);
+  const readGate = deferred();
+  h.fake.readPlans.push({ before: readGate.promise });
+  const checking = h.coordinator.checkResult(key);
+  writeGate.resolve();
+  await original;
+  assert.equal(h.coordinator.getState(key).status, "success");
+  assert.equal(h.published.length, 1);
+  readGate.resolve();
+  await checking;
+  assert.equal(h.coordinator.getState(key).status, "success");
+  assert.equal(h.published.length, 1);
+});
+
+test("timed out retry check cannot submit after a replacement check succeeds", async () => {
+  const h = harness();
+  h.fake.mutationPlans.push({ error: { code: "42501", message: "write denied" } });
+  await h.coordinator.start(input);
+  const gate = deferred();
+  h.fake.readPlans.push({ before: gate.promise });
+  const stalledRetry = h.coordinator.retry(key);
+  h.coordinator.markUncertain(key);
+  await h.coordinator.retry(key);
+  assert.equal(h.coordinator.getState(key).status, "success");
+  gate.resolve();
+  await stalledRetry;
+  assert.equal(h.fake.writes.length, 2);
+  assert.equal(h.fake.rows[0].count, 1);
+  assert.equal(h.published.length, 1);
+});
