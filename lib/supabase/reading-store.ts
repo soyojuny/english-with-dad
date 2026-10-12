@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { CompletionSaveError, type CompletionPayload, type CompletionSaveResult } from "../task-completion";
 import type {
   ActivityCategory,
   Assignment,
@@ -739,6 +740,77 @@ export async function saveCompletion(
       count: row.count,
     } satisfies Completion,
   };
+}
+
+export async function fetchCompletion(
+  supabase: SupabaseLikeClient,
+  ownerUserId: string,
+  assignmentId: string,
+  taskType: TaskType,
+) {
+  const result = await supabase.from("completions")
+    .select("assignment_id, task_type, completed_at, minutes, audio_opened_at, count")
+    .eq("owner_user_id", ownerUserId)
+    .eq("assignment_id", assignmentId)
+    .eq("task_type", taskType)
+    .maybeSingle();
+  if (result.error) throw new Error(result.error.message);
+  if (result.data === null) return null;
+  return mapSavedCompletion(result.data as CompletionRow);
+}
+
+function mapSavedCompletion(row: CompletionRow) {
+  return {
+    key: `${row.assignment_id}:${row.task_type}`,
+    value: {
+      completedAt: row.completed_at,
+      minutes: row.minutes,
+      audioOpenedAt: row.audio_opened_at,
+      count: row.count,
+    } satisfies Completion,
+  };
+}
+
+export async function saveCompletionGuarded(
+  supabase: SupabaseLikeClient,
+  ownerUserId: string,
+  payload: CompletionPayload,
+  expectedCount: number,
+): Promise<CompletionSaveResult> {
+  if (!Number.isInteger(expectedCount) || expectedCount < 0 || payload.count !== expectedCount + 1) {
+    throw new CompletionSaveError("완료 횟수가 올바르지 않습니다.", "rejected");
+  }
+  const values = {
+    completed_at: payload.completedAt,
+    minutes: payload.minutes,
+    audio_opened_at: payload.audioOpenedAt,
+    count: payload.count,
+  };
+  const query = expectedCount === 0
+    ? supabase.from("completions").insert({
+      ...values,
+      owner_user_id: ownerUserId,
+      assignment_id: payload.assignmentId,
+      task_type: payload.taskType,
+    })
+    : supabase.from("completions").update(values)
+      .eq("owner_user_id", ownerUserId)
+      .eq("assignment_id", payload.assignmentId)
+      .eq("task_type", payload.taskType)
+      .eq("count", expectedCount);
+  const result = await query
+    .select("assignment_id, task_type, completed_at, minutes, audio_opened_at, count")
+    .maybeSingle();
+
+  if (result.error && !(expectedCount === 0 && result.error.code === "23505")) {
+    // A SQLSTATE is a confirmed statement rejection; transport failures may follow a commit.
+    const outcome = /^[0-9A-Z]{5}$/.test(result.error.code ?? "") ? "rejected" : "uncertain";
+    throw new CompletionSaveError(result.error.message, outcome);
+  }
+  if (result.error || result.data === null) {
+    return { status: "conflict", completion: await fetchCompletion(supabase, ownerUserId, payload.assignmentId, payload.taskType) };
+  }
+  return { status: "saved", completion: mapSavedCompletion(result.data as CompletionRow) };
 }
 
 export async function saveAudioLaunch(

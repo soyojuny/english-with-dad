@@ -23,3 +23,12 @@
 ## Blocked By
 
 [Step 01](01-reproduce-and-contract.md).
+
+## TDD Result
+
+- 테스트 먼저 작성: 새 coordinator/store API 누락으로 컴파일 RED를 테스트 pane에서도 확인했다.
+- 이전 저장 의미와 최소 stub에서 행동 RED를 확인했다. 단일 클릭 pending/연타, 실패 재시도, 응답 유실 조회, 늦은 응답/프로필 전환 테스트가 실패했다.
+- 순수 payload 계산과 180줄의 완료 coordinator, 소유자 필터 조회, insert/expected-count 조건부 update로 구현했다.
+- GREEN: 완료 store 11개, coordinator 16개. 전체 unit 테스트 58개, contracts/typecheck 통과.
+- 지연 요청이 서버에 나중에 도착해도 새 count를 되돌리지 않으며 결과 미확정 재시도는 원래 payload를 유지한다.
+- 기존 UI 연결은 Step 04로 남겼다. 테스트 대기 helper는 50 turn 이후 실패하여 무한 대기하지 않는다.

@@ -32,8 +32,8 @@ Pending — 사용자 TDD 구현 승인. Phase 0 계약 작성, Herdr 개발/테
 | Phase | Step | Status | RED → GREEN | Commit |
 | --- | --- | --- | --- | --- |
 | 0 | 00 계약과 pane 구성 | Complete | 문서 step | `0af891b` |
-| 1 | 01 조건부 복귀 저장 | Complete | 누락 export RED, 기존 upsert 대입 시 9 assertion 실패 → 31 tests GREEN, contracts/typecheck 통과 | 이 step 커밋; 다음 step에서 해시 기록 |
-| 1 | 02 완료 요청 관리 | Pending | 미실행 | — |
+| 1 | 01 조건부 복귀 저장 | Complete | 누락 export RED, 기존 upsert 대입 시 9 assertion 실패 → 31 tests GREEN, contracts/typecheck 통과 | `779a84f` |
+| 1 | 02 완료 요청 관리 | Complete | tests-first 컴파일 RED, 행동 assertion RED → 58 tests GREEN, contracts/typecheck 통과 | 이 step 커밋; 다음 step에서 해시 기록 |
 | 2 | 03 복귀 이벤트 관리 | Pending | 미실행 | — |
 | 2 | 04 화면/배정 복원 | Pending | 미실행 | — |
 | 3 | 05 최종 검증 | Pending | 미실행 | — |
@@ -41,3 +41,13 @@ Pending — 사용자 TDD 구현 승인. Phase 0 계약 작성, Herdr 개발/테
 ## Promotion Candidates
 
 - 없음. 새 도메인 규칙이나 장기 보존할 아키텍처 결정은 아직 없다.
+
+## Browser Baseline (Before Step 04)
+
+실제 ReadingManagerClient를 임시 번들로 실행하고 Supabase 요청만 in-memory fixture로 대체했다. Chromium 390×844에서 테스트 코드를 먼저 실행했다. 운영 계정/데이터는 사용하지 않았다.
+
+- RED: 두 번째 배정에서 재로드 후 `1회 완료` 버튼을 찾지 못했다.
+- RED: 완료 요청을 지연시켜도 완료 버튼이 활성 상태였다.
+- RED: 저장 실패 뒤 3.2초가 지나면 task 영역에 오류 상태가 남지 않았다.
+- 브라우저 runtime error는 없었다. 테스트 도구/로그는 `/tmp/ewd-audio-browser/`, `/tmp/ewd-browser-red.log`에 있다.
+- 안드로이드 실기기나 실제 오디오 앱 전환을 검증한 결과는 아니다.
