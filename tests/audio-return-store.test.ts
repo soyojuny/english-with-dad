@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { saveAudioLaunch, saveAudioReturn } from "../lib/supabase/reading-store";
+import { fetchAudioLaunch, saveAudioLaunch, saveAudioReturn } from "../lib/supabase/reading-store";
 import type { TaskType } from "../lib/reading-types";
 
 type LaunchRow = {
@@ -49,7 +49,7 @@ function createSupabaseFake(
 
   function from(table: string) {
     assert.equal(table, "audio_launches");
-    let operation: "update" | "upsert" | undefined;
+    let operation: "select" | "update" | "upsert" = "select";
     let values: Partial<LaunchRow> = {};
     let conflictColumns: (keyof LaunchRow)[] = [];
     let selectedColumns: string[] | undefined;
@@ -79,7 +79,7 @@ function createSupabaseFake(
             affected = [inserted];
           }
         } else {
-          throw new Error("Expected update or upsert");
+          affected = rows.filter((row) => conditions.every(({ column, value }) => row[column] === value));
         }
 
         const data = affected.map((row) => selectedColumns
@@ -266,4 +266,27 @@ test("saveAudioLaunch replaces the old launch and clears its return on the same 
     values: { ...initialRow, opened_at: newerOpenedAt },
     onConflict: "owner_user_id,assignment_id,task_type",
   }]);
+});
+
+test("fetchAudioLaunch scopes owner, assignment and task and maps the persisted launch", async () => {
+  const fake = createSupabaseFake([
+    { ...initialRow, returned_at: returnedAt },
+    { ...initialRow, owner_user_id: "owner-2" },
+    { ...initialRow, assignment_id: "assignment-2" },
+    { ...initialRow, task_type: "shadow" },
+  ]);
+  assert.deepEqual(await fetchAudioLaunch(fake.client, "owner-1", "assignment-1", "listen"), {
+    key: "assignment-1:listen", value: { openedAt, returnedAt },
+  });
+  assert.deepEqual(fake.writes, []);
+});
+
+test("fetchAudioLaunch returns null for no scoped row", async () => {
+  const fake = createSupabaseFake([{ ...initialRow, owner_user_id: "owner-2" }]);
+  assert.equal(await fetchAudioLaunch(fake.client, "owner-1", "assignment-1", "listen"), null);
+});
+
+test("fetchAudioLaunch propagates database errors", async () => {
+  const fake = createSupabaseFake([], { databaseError: { message: "audio read denied" } });
+  await assert.rejects(fetchAudioLaunch(fake.client, "owner-1", "assignment-1", "listen"), /audio read denied/);
 });

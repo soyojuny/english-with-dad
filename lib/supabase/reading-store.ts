@@ -849,6 +849,24 @@ export async function saveAudioLaunch(
   };
 }
 
+export async function fetchAudioLaunch(
+  supabase: SupabaseLikeClient,
+  ownerUserId: string,
+  assignmentId: string,
+  taskType: TaskType,
+) {
+  const result = await supabase.from("audio_launches")
+    .select("assignment_id, task_type, opened_at, returned_at")
+    .eq("owner_user_id", ownerUserId)
+    .eq("assignment_id", assignmentId)
+    .eq("task_type", taskType)
+    .maybeSingle();
+  if (result.error) throw new Error(result.error.message);
+  if (result.data === null) return null;
+  const row = result.data as AudioLaunchRow;
+  return { key: `${row.assignment_id}:${row.task_type}`, value: { openedAt: row.opened_at, returnedAt: row.returned_at } };
+}
+
 export async function saveAudioReturn(
   supabase: SupabaseLikeClient,
   ownerUserId: string,
