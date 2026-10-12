@@ -153,9 +153,14 @@ npm run test:unit
 - 날짜 범위 생성
 - 과제 횟수와 완료율 계산
 - 오디오 실행 시간 계산
+- 조건부 오디오 복귀 저장과 실행 기록 덮어쓰기 방지
 - 책 입력 준비 상태와 URL 검증
 - 단어 읽기 자료 입력 준비 상태와 QR/URL 검증
 - task 정렬과 활동 요약 라벨
+
+`test:unit`은 TypeScript 테스트를 컴파일한 뒤 `scripts/run-unit-tests.mjs`로
+`.test-build/` 아래의 모든 `.test.js` 파일을 실행한다. 새 테스트 파일도 실행 대상에
+포함되며 Windows/Linux 셸 glob에 의존하지 않는다.
 
 ### 4. 타입 계약
 

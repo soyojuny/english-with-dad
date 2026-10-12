@@ -31,8 +31,8 @@ Pending — 사용자 TDD 구현 승인. Phase 0 계약 작성, Herdr 개발/테
 
 | Phase | Step | Status | RED → GREEN | Commit |
 | --- | --- | --- | --- | --- |
-| 0 | 00 계약과 pane 구성 | Ready | 문서 step | 커밋 후 기록 |
-| 1 | 01 조건부 복귀 저장 | Pending | 미실행 | — |
+| 0 | 00 계약과 pane 구성 | Complete | 문서 step | `0af891b` |
+| 1 | 01 조건부 복귀 저장 | Complete | 누락 export RED, 기존 upsert 대입 시 9 assertion 실패 → 31 tests GREEN, contracts/typecheck 통과 | 이 step 커밋; 다음 step에서 해시 기록 |
 | 1 | 02 완료 요청 관리 | Pending | 미실행 | — |
 | 2 | 03 복귀 이벤트 관리 | Pending | 미실행 | — |
 | 2 | 04 화면/배정 복원 | Pending | 미실행 | — |

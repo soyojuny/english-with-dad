@@ -18,7 +18,7 @@
 
 ## Required Verification
 
-테스트 먼저 작성 → RED → 구현 → GREEN。지연/실패 응답을 제어해 단일 요청, 연타, 실패/미확정 후 재시도를 검증한다. test:unit/typecheck/check:contracts 결과를 기록한 뒤 step 커밋.
+테스트 먼저 작성 → RED → 구현 → GREEN. 지연/실패 응답을 제어해 단일 요청, 연타, 실패/미확정 후 재시도를 검증한다. test:unit/typecheck/check:contracts 결과를 기록한 뒤 step 커밋.
 
 ## Blocked By
 

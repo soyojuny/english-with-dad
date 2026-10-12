@@ -20,3 +20,11 @@ mock Supabase로 새 실행 이후 이전 복귀 요청이 도착하는 조건�
 ## Blocked By
 
 Step 00 계약 커밋.
+
+## TDD Result
+
+- 테스트를 먼저 작성한 뒤 RED: `saveAudioReturn` export 누락으로 컴파일 실패.
+- 기존 `saveAudioLaunch`에 위임한 중간 구현으로 행동 RED 확인: 직접 실행한 store 테스트에서 assertion 9개 실패. 이전 실행 덮어쓰기와 최초 복귀 변경을 검출했다.
+- 조건부 update 구현 후 GREEN: store 테스트 13개, 전체 unit 테스트 31개 통과.
+- 테스트 pane에서 `npm run test:unit`, `npm run check:contracts`, `npm run typecheck` 모두 통과.
+- 실행 저장 upsert, 스키마, RLS는 유지했다.
