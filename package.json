@@ -8,6 +8,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test:unit": "tsc -p tsconfig.test.json && node scripts/run-unit-tests.mjs",
+    "test:audio-browser": "node scripts/smoke-audio-completion.mjs",
     "plan:workflow": "node scripts/plan-workflow.mjs",
     "plan:archive": "node scripts/plan-archive.mjs",
     "git:status": "node scripts/git-publish.mjs status",

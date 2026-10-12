@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import type { TaskType } from "../../lib/reading-types";
-import type { saveCompletion } from "../../lib/supabase/reading-store";
+import type { saveCompletionGuarded } from "../../lib/supabase/reading-store";
 
 export type CompletionRow = {
   owner_user_id: string;
@@ -42,7 +42,7 @@ export function completionSupabaseFake(initialRows: CompletionRow[] = []) {
     const filters: { column: keyof CompletionRow; value: unknown }[] = [];
     let execution: Promise<Response> | undefined;
 
-    function execute(optional: boolean) {
+    function execute() {
       execution ??= (async (): Promise<Response> => {
         const plan = operation === "select" ? readPlans.shift() : mutationPlans.shift();
         if (operation === "select") reads.push([...filters]);
@@ -51,15 +51,14 @@ export function completionSupabaseFake(initialRows: CompletionRow[] = []) {
         if (plan?.error) return { data: null, error: plan.error };
 
         let affected = rows.filter((row) => filters.every(({ column, value }) => row[column] === value));
-        if (operation === "insert" || operation === "upsert") {
+        if (operation === "insert") {
           const existing = rows.find((row) => row.owner_user_id === values.owner_user_id
             && row.assignment_id === values.assignment_id && row.task_type === values.task_type);
-          if (existing && operation === "insert") {
+          if (existing) {
             return { data: null, error: { code: "23505", message: "completion key already exists" } };
           }
-          if (existing) Object.assign(existing, values);
-          else rows.push({ ...values } as CompletionRow);
-          affected = [existing ?? rows[rows.length - 1]];
+          rows.push({ ...values } as CompletionRow);
+          affected = [rows[rows.length - 1]];
         } else if (operation === "update") {
           for (const row of affected) Object.assign(row, values);
         }
@@ -71,7 +70,7 @@ export function completionSupabaseFake(initialRows: CompletionRow[] = []) {
         if (plan && "after" in plan) await plan.after;
         if (plan && "loseResponse" in plan && plan.loseResponse) throw new Error("response lost after commit");
         if (data.length === 1) return { data: data[0], error: null };
-        if (!data.length && optional) return { data: null, error: null };
+        if (!data.length) return { data: null, error: null };
         return { data: null, error: { code: "PGRST116", message: "expected exactly one row" } };
       })();
       return execution;
@@ -79,17 +78,15 @@ export function completionSupabaseFake(initialRows: CompletionRow[] = []) {
 
     const query = {
       insert(patch: CompletionRow) { operation = "insert"; values = { ...patch }; return query; },
-      upsert(patch: CompletionRow) { operation = "upsert"; values = { ...patch }; return query; },
       update(patch: Partial<CompletionRow>) { operation = "update"; values = { ...patch }; return query; },
       eq(column: keyof CompletionRow, value: unknown) { filters.push({ column, value }); return query; },
       select(columns: string) {
         selected = columns === "*" ? undefined : columns.split(",").map((column) => column.trim());
         return query;
       },
-      single() { return execute(false); },
-      maybeSingle() { return execute(true); },
+      maybeSingle() { return execute(); },
     };
     return query;
   }
-  return { client: { from } as unknown as Parameters<typeof saveCompletion>[0], rows, writes, reads, mutationPlans, readPlans };
+  return { client: { from } as unknown as Parameters<typeof saveCompletionGuarded>[0], rows, writes, reads, mutationPlans, readPlans };
 }

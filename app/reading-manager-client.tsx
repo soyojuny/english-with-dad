@@ -7,6 +7,10 @@ import { AssignmentBookPicker } from "./assignment-book-picker";
 import { AssignmentEditForm } from "./assignment-edit-form";
 import { AssignmentQuizScore } from "./assignment-quiz-score";
 import { MaterialThumb, formatMaterialMeta } from "./material-thumb";
+import { TaskCompletionFeedback } from "./task-completion-feedback";
+import { useChildTaskRequests } from "./use-child-task-requests";
+import { useChildAssignmentSelection } from "./use-child-assignment-selection";
+import { childSelectionStorageKey } from "../lib/child-task-policy";
 import {
   bookContentTypeLabels,
   buildAssignmentTaskCounts,
@@ -23,7 +27,6 @@ import {
   getCompletionCount,
   getDefaultTasksForMaterial,
   getEditableTasksForAssignment,
-  getLaunchMinutes,
   getTaskAudioUrl,
   hasCustomCover,
   isWordReadingMaterial,
@@ -84,7 +87,6 @@ import {
   saveAudioLaunch,
   saveBook as saveBookRecord,
   saveChild,
-  saveCompletion,
   saveManualLog,
   setBookActive,
 } from "../lib/supabase/reading-store";
@@ -119,6 +121,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isLoadingProfileData, setIsLoadingProfileData] = useState(true);
   const [syncError, setSyncError] = useState("");
+  const [loadedChildScopeKey, setLoadedChildScopeKey] = useState("");
   const [view, setView] = useState<ViewName>("child");
   const [childId, setChildId] = useState("");
   const [period, setPeriod] = useState<Period>("week");
@@ -151,6 +154,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const [childDraftMode, setChildDraftMode] = useState<"new" | "edit">("new");
   const [toast, setToast] = useState("");
   const [activeProfile, setActiveProfile] = useState<ActiveProfile>(null);
+  const todayDateKey = dateKey();
   const [qrState, setQrState] = useState<QrState>({
     open: false,
     target: null,
@@ -208,12 +212,27 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     () =>
       data.assignments.filter((assignment) => {
         const book = getBook(assignment.bookId);
-        return assignment.childId === childId && assignment.date === dateKey() && book?.active !== false;
+        return assignment.childId === childId && assignment.date === todayDateKey && book?.active !== false;
       }),
-    [childId, data.assignments, data.books],
+    [childId, data.assignments, data.books, todayDateKey],
   );
 
-  const selectedAssignment = selectedAssignmentId ? getAssignment(selectedAssignmentId) : undefined;
+  const childSelectionKey = activeProfile?.kind === "child"
+    ? childSelectionStorageKey(ownerUserId, activeProfile.childId, todayDateKey) : null;
+  const childDataStatus = syncError ? "error"
+    : isLoadingData || loadedChildScopeKey !== childSelectionKey || activeProfile?.kind === "child" && childId !== activeProfile.childId
+      ? "loading" : "ready";
+  const selectChildAssignment = useChildAssignmentSelection({
+    storageKey: childSelectionKey, dataStatus: childDataStatus, childId, date: todayDateKey,
+    assignments: todayAssignments, selectedId: selectedAssignmentId, onSelect: setSelectedAssignmentId,
+  });
+  const taskRequests = useChildTaskRequests({
+    scopeKey: childSelectionKey, dataStatus: childDataStatus, ownerUserId, supabase,
+    assignments: todayAssignments, data, setData,
+  });
+  const selectedAssignment = activeProfile?.kind === "child"
+    ? childDataStatus === "ready" ? todayAssignments.find((assignment) => assignment.id === selectedAssignmentId) : undefined
+    : selectedAssignmentId ? getAssignment(selectedAssignmentId) : undefined;
   const selectedBook = selectedAssignment
     ? getBook(selectedAssignment.bookId)
     : selectedBookId
@@ -255,12 +274,16 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   }, [ownerUserId, supabase]);
 
   useEffect(() => {
-    if (!activeProfile) return;
+    if (!activeProfile) {
+      setLoadedChildScopeKey("");
+      return;
+    }
     let cancelled = false;
 
     const load = async () => {
       setIsLoadingData(true);
       setSyncError("");
+      setLoadedChildScopeKey("");
 
       try {
         if (activeProfile.kind === "parent") {
@@ -304,7 +327,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           return;
         }
 
-        const nextData = await fetchChildTodayData(supabase, ownerUserId, activeProfile.childId, dateKey());
+        const nextData = await fetchChildTodayData(supabase, ownerUserId, activeProfile.childId, todayDateKey);
         if (cancelled) return;
         setData((current) => ({
           children: current.children,
@@ -314,6 +337,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           audioLaunches: nextData.audioLaunches,
           manualLogs: [],
         }));
+        setLoadedChildScopeKey(childSelectionKey ?? "");
         setManageBookResults([]);
         setIsBookManageDataLoaded(false);
         setIsAssignBookDataLoaded(false);
@@ -331,7 +355,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     return () => {
       cancelled = true;
     };
-  }, [activeProfile, ownerUserId, parentActivityRange, parentActivityRangeKey, supabase]);
+  }, [activeProfile, ownerUserId, parentActivityRange, parentActivityRangeKey, supabase, childSelectionKey, todayDateKey]);
 
   useEffect(() => {
     if (activeProfile?.kind !== "parent" || view !== "books" || manageSeriesNames.length) return;
@@ -522,16 +546,6 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   }, [bookDraft.id, bookDraftMode, data.books]);
 
   useEffect(() => {
-    if (!todayAssignments.length) {
-      setSelectedAssignmentId("");
-      return;
-    }
-    if (!selectedAssignmentId || !todayAssignments.some((assignment) => assignment.id === selectedAssignmentId)) {
-      setSelectedAssignmentId(todayAssignments[0].id);
-    }
-  }, [selectedAssignmentId, todayAssignments]);
-
-  useEffect(() => {
     if (toast) {
       const timer = window.setTimeout(() => setToast(""), 2600);
       return () => window.clearTimeout(timer);
@@ -578,48 +592,6 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       setToast("PWA 캐시 등록을 건너뛰었습니다.");
     });
   }, []);
-
-  useEffect(() => {
-    const markReturned = async () => {
-      if (document.visibilityState !== "visible") return;
-
-      const pendingLaunches = Object.entries(data.audioLaunches).filter(([, launch]) => !launch.returnedAt);
-      if (!pendingLaunches.length) return;
-
-      const returnedAt = new Date().toISOString();
-
-      try {
-        const updates = await Promise.all(
-          pendingLaunches.map(([key, launch]) => {
-            const [assignmentId, taskType] = key.split(":");
-            return saveAudioLaunch(supabase, ownerUserId, {
-              assignmentId,
-              taskType: taskType as TaskType,
-              openedAt: launch.openedAt,
-              returnedAt,
-            });
-          }),
-        );
-
-        setData((current) => ({
-          ...current,
-          audioLaunches: {
-            ...current.audioLaunches,
-            ...Object.fromEntries(updates.map((update) => [update.key, update.value])),
-          },
-        }));
-      } catch {
-        showToast("오디오 복귀 시간을 저장하지 못했습니다.");
-      }
-    };
-
-    document.addEventListener("visibilitychange", markReturned);
-    window.addEventListener("focus", markReturned);
-    return () => {
-      document.removeEventListener("visibilitychange", markReturned);
-      window.removeEventListener("focus", markReturned);
-    };
-  }, [data.audioLaunches, ownerUserId, supabase]);
 
   useEffect(() => {
     if (!qrState.open || !qrState.target) return undefined;
@@ -1075,47 +1047,6 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     }
   };
 
-  const completeTaskDb = async (taskType: TaskType) => {
-    if (!selectedAssignment) return;
-
-    const task = taskDefinitions[taskType];
-    const key = `${selectedAssignment.id}:${taskType}`;
-    const launch = data.audioLaunches[key];
-    const existingCompletion = data.completions[key];
-    const targetCount = getAssignmentTaskCount(selectedAssignment, taskType);
-    const currentCount = getCompletionCount(data, selectedAssignment.id, taskType);
-
-    if (currentCount >= targetCount) {
-      showToast(`${task.label}는 이미 ${targetCount}회 완료했습니다.`);
-      return;
-    }
-
-    try {
-      const addedMinutes = task.needsAudio
-        ? getLaunchMinutes(launch, task.minutes)
-        : task.minutes;
-      const savedCompletion = await saveCompletion(supabase, ownerUserId, {
-        assignmentId: selectedAssignment.id,
-        taskType,
-        completedAt: new Date().toISOString(),
-        minutes: (existingCompletion?.minutes ?? 0) + addedMinutes,
-        audioOpenedAt: task.needsAudio ? launch?.openedAt ?? null : null,
-        count: currentCount + 1,
-      });
-
-      setData((current) => ({
-        ...current,
-        completions: {
-          ...current.completions,
-          [savedCompletion.key]: savedCompletion.value,
-        },
-      }));
-      showToast(`${task.label} ${currentCount + 1}회 완료를 저장했습니다.`);
-    } catch (error) {
-      showToast(error instanceof Error ? error.message : "완료 기록을 저장하지 못했습니다.");
-    }
-  };
-
   const openAudioDb = async (taskType: TaskType) => {
     if (!selectedBook) return;
 
@@ -1125,6 +1056,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       return;
     }
 
+    const launchScope = selectedAssignment ? taskRequests.prepareAudioLaunch() : null;
+    if (selectedAssignment && !launchScope?.isCurrent()) return;
     if (selectedAssignment) {
       try {
         const savedLaunch = await saveAudioLaunch(supabase, ownerUserId, {
@@ -1134,14 +1067,9 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
           returnedAt: null,
         });
 
-        setData((current) => ({
-          ...current,
-          audioLaunches: {
-            ...current.audioLaunches,
-            [savedLaunch.key]: savedLaunch.value,
-          },
-        }));
+        if (!launchScope?.apply(savedLaunch)) return;
       } catch (error) {
+        if (!launchScope?.isCurrent()) return;
         showToast(error instanceof Error ? error.message : "오디오 실행 기록을 저장하지 못했습니다.");
         return;
       }
@@ -1759,7 +1687,9 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
             <div className="child-grid">
               <section aria-label="오늘 해야 할 학습">
                 <div className="assignment-list">
-                  {todayAssignments.length ? (
+                  {childDataStatus !== "ready" ? (
+                    <div className="empty-state">{childDataStatus === "error" ? "학습 기록을 불러오지 못했습니다." : "오늘의 학습 기록을 불러오는 중입니다."}</div>
+                  ) : todayAssignments.length ? (
                     todayAssignments.map((assignment) => {
                       const book = getBook(assignment.bookId);
                       if (!book) return null;
@@ -1768,9 +1698,10 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                         <button
                           className={`assignment-card ${assignment.id === selectedAssignmentId ? "is-active" : ""} ${progress.done === progress.total ? "is-complete" : ""}`}
                           type="button"
+                          disabled={childDataStatus !== "ready"}
                           key={assignment.id}
                           onClick={() => {
-                            setSelectedAssignmentId(assignment.id);
+                            selectChildAssignment(assignment.id);
                             setSelectedBookId("");
                           }}
                         >
@@ -1854,7 +1785,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                         const completedCount = selectedAssignment ? getCompletionCount(data, selectedAssignment.id, taskType) : 0;
                         const targetCount = selectedAssignment ? getAssignmentTaskCount(selectedAssignment, taskType) : 1;
                         const done = completedCount >= targetCount;
-                        const launch = selectedAssignment ? data.audioLaunches[`${selectedAssignment.id}:${taskType}`] : null;
+                        const taskKey = selectedAssignment ? `${selectedAssignment.id}:${taskType}` : "";
+                        const launch = selectedAssignment ? taskRequests.getLaunch(taskKey) ?? data.audioLaunches[taskKey] : null;
                         const audioUrl = getTaskAudioUrl(selectedBook, taskType);
                         const launchLabel = taskType === "wordRead" ? "링크" : "오디오";
                         return (
@@ -1873,44 +1805,32 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                                   <button
                                     className="secondary-button"
                                     type="button"
-                                    disabled={!audioUrl}
+                                    disabled={!audioUrl || childDataStatus !== "ready"}
                                     onClick={() => openAudioDb(taskType)}
                                   >
                                     {launchLabel} 열기
                                   </button>
                                 )}
-                                {selectedAssignment && !task.needsAudio ? (
-                                  <button className="primary-button" type="button" onClick={() => completeTaskDb(taskType)} disabled={done}>
-                                    {done ? "완료됨" : `${completedCount + 1}회 완료`}
+                                {!selectedAssignment && (
+                                  <button
+                                    className="secondary-button"
+                                    type="button"
+                                    onClick={() => showToast("부모의 할 일 배정 화면에서 날짜별로 등록할 수 있습니다.")}
+                                  >
+                                    할 일 배정에서 등록
                                   </button>
-                                ) : (
-                                  !selectedAssignment && (
-                                    <button
-                                      className="secondary-button"
-                                      type="button"
-                                      onClick={() => showToast("부모의 할 일 배정 화면에서 날짜별로 등록할 수 있습니다.")}
-                                    >
-                                      할 일 배정에서 등록
-                                    </button>
-                                  )
                                 )}
                               </div>
                             </div>
-                            {selectedAssignment && task.needsAudio && launch && !done && (
-                              <div className="return-box">
-                                <h4>{task.label} {launchLabel} 실행 기록</h4>
-                                <p className="task-meta">
-                                  {launchLabel} 열기 {formatTime(launch.openedAt)} ·{" "}
-                                  {launch.returnedAt
-                                    ? `앱으로 돌아온 시간 ${formatTime(launch.returnedAt)}`
-                                    : `${launchLabel} 탭을 열어두었습니다.`}
-                                </p>
-                                <div className="audio-actions">
-                                  <button className="primary-button" type="button" onClick={() => completeTaskDb(taskType)}>
-                                    {completedCount + 1}회 완료
-                                  </button>
-                                </div>
-                              </div>
+                            {selectedAssignment && (
+                              <TaskCompletionFeedback
+                                taskType={taskType} launch={launch} completedCount={completedCount} targetCount={targetCount}
+                                dataStatus={childDataStatus} request={taskRequests.completionStates[taskKey]}
+                                audioReturn={taskRequests.returnStates[taskKey]}
+                                onComplete={() => taskRequests.complete(selectedAssignment, taskType)}
+                                onRetry={() => taskRequests.retry(taskKey)} onCheck={() => taskRequests.checkResult(taskKey)}
+                                onRetryReturn={() => taskRequests.retryReturn(taskKey)}
+                              />
                             )}
                           </div>
                         );
@@ -1925,7 +1845,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     </div>
                   </>
                 ) : (
-                  <div className="empty-state">학습 항목을 선택하세요.</div>
+                  <div className="empty-state">{childDataStatus === "error" ? "학습 기록을 불러오지 못했습니다." : childDataStatus === "loading" ? "학습 기록을 불러오는 중입니다." : "학습 항목을 선택하세요."}</div>
                 )}
               </section>
             </div>

@@ -700,48 +700,6 @@ export async function deleteAssignment(
   if (result.error) throw new Error(result.error.message);
 }
 
-export async function saveCompletion(
-  supabase: SupabaseLikeClient,
-  ownerUserId: string,
-  payload: {
-    assignmentId: string;
-    taskType: TaskType;
-    completedAt: string;
-    minutes: number;
-    audioOpenedAt: string | null;
-    count: number;
-  },
-) {
-  const result = await supabase
-    .from("completions")
-    .upsert(
-      {
-        owner_user_id: ownerUserId,
-        assignment_id: payload.assignmentId,
-        task_type: payload.taskType,
-        completed_at: payload.completedAt,
-        minutes: payload.minutes,
-        audio_opened_at: payload.audioOpenedAt,
-        count: payload.count,
-      },
-      { onConflict: "owner_user_id,assignment_id,task_type" },
-    )
-    .select("assignment_id, task_type, completed_at, minutes, audio_opened_at, count")
-    .single();
-
-  const row = unwrap(result, "완료 기록을 저장하지 못했습니다.") as CompletionRow;
-
-  return {
-    key: `${row.assignment_id}:${row.task_type}`,
-    value: {
-      completedAt: row.completed_at,
-      minutes: row.minutes,
-      audioOpenedAt: row.audio_opened_at,
-      count: row.count,
-    } satisfies Completion,
-  };
-}
-
 export async function fetchCompletion(
   supabase: SupabaseLikeClient,
   ownerUserId: string,

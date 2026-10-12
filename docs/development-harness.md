@@ -237,6 +237,25 @@ npm run typecheck
 npm run build
 ```
 
+## 오디오 완료 화면 회귀 테스트
+
+`npm run test:audio-browser`는 실제 `ReadingManagerClient`를 모바일 폭 Chromium에서
+실행하고 Supabase HTTP 응답만 테스트 데이터로 대체한다. 운영 계정이나 데이터는 쓰지 않는다.
+선택 복원, 저장 중 클릭 차단, 지속적인 오류 안내, 복귀 저장 응답 지연 중 시간 계산을 검사한다.
+
+브라우저 도구는 프로젝트 의존성에 추가하지 않고 임시 디렉터리에 설치한다.
+
+```bash
+npm install --prefix /tmp/ewd-audio-browser playwright esbuild
+# 해당 Playwright 버전의 Chromium이 없으면 설치한다.
+/tmp/ewd-audio-browser/node_modules/.bin/playwright install chromium
+EWD_BROWSER_TOOLS_DIR=/tmp/ewd-audio-browser npm run test:audio-browser
+```
+
+`EWD_CHROMIUM_PATH`로 기존 Chromium 실행 파일을 지정할 수도 있다. 결과 JSON과 화면 캡처는
+명령 출력에 표시된 시스템 임시 디렉터리에 저장한다. 이 검사는 자동 `verify`에 포함하지 않는다.
+실제 안드로이드 설치형 PWA와 외부 오디오 앱 전환 검증은 별도로 수행한다.
+
 ## 다음 하네스 후보
 
 - `node --test` 또는 Vitest 기반 순수 로직 테스트

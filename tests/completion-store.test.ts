@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { fetchCompletion, saveCompletion, saveCompletionGuarded } from "../lib/supabase/reading-store";
+import { fetchCompletion, saveCompletionGuarded } from "../lib/supabase/reading-store";
 import { CompletionSaveError } from "../lib/task-completion";
 import { completionSupabaseFake, deferred, type CompletionRow } from "./helpers/completion-supabase-fake";
 
@@ -110,10 +110,4 @@ test("fetch and unique-conflict reconciliation propagate read errors", async () 
   await assert.rejects(fetchCompletion(fake.client, "owner-1", "assignment-1", "listen"), /read denied/);
   fake.readPlans.push({ error: { code: "42501", message: "reconciliation denied" } });
   await assert.rejects(saveCompletionGuarded(fake.client, "owner-1", payload, 0), /reconciliation denied/);
-});
-
-test("legacy saveCompletion upsert stays compatible until UI wiring", async () => {
-  const fake = completionSupabaseFake();
-  assert.deepEqual(await saveCompletion(fake.client, "owner-1", payload), record);
-  assert.equal(fake.writes[0].operation, "upsert");
 });
