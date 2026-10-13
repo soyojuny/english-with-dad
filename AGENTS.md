@@ -20,6 +20,7 @@
 
 ## Verification
 
+- When adding or modifying tests, follow `docs/testing-guidelines.md`: review normal, edge, and invalid input cases, and structure each test with Given–When–Then comments.
 - Preferred full check: `npm run verify`.
 - In this Windows/NVM workspace, if `npm` is not on PATH, run `C:\nvm4w\nodejs\npm.cmd run verify`.
 - Individual checks: `npm run check:contracts`, `npm run check:sw`, `npm run check:pwa`, `npm run typecheck`, `npm run build`.

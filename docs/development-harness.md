@@ -164,6 +164,9 @@ npm run test:unit
 `.test-build/` 아래의 모든 `.test.js` 파일을 실행한다. 새 테스트 파일도 실행 대상에
 포함되며 Windows/Linux 셸 glob에 의존하지 않는다.
 
+정상 입력·경계값·잘못된 입력의 케이스 구성과 Given–When–Then 작성 규칙은
+[테스트 코드 작성 기준](testing-guidelines.md)을 따른다.
+
 ### 4. 타입 계약
 
 ```powershell
