@@ -2,7 +2,7 @@
 
 ## Status
 
-Pending — 계획만 작성했으며 구현하지 않았다.
+Complete — 2026-10-13 구현·필수 검사 PASS; 루트 Standards/Spec 각 0 findings; 커밋 인계. Step 03은 시작하지 않았다.
 
 ## Phase
 
@@ -32,17 +32,17 @@ node:test를 유지한다. 최소 도메인 fixture와 제어 가능한 Promise�
 
 ## Acceptance Criteria
 
-- [ ] 기존 6개 테스트 파일이 유지되고 fixture 변경이 테스트 간 상태를 공유하지 않는다.
-- [ ] 대상 계약과 테스트 경로/시나리오 ID를 inventory.md 및 scenarios.md에 연결했다.
-- [ ] 기존 관련 회귀를 보존하고 정상·경계·invalid의 적용 여부를 기록했다.
-- [ ] 테스트가 독립 실행되며 실행 발견·실패 전달·환경/대역 정리가 확인된다.
-- [ ] 필요한 검사를 실행했고 명령·결과·제한을 기록했다.
+- [x] 기존 6개 테스트 파일이 유지되고 fixture 변경이 테스트 간 상태를 공유하지 않는다.
+- [x] 대상 계약과 테스트 경로/시나리오 ID를 inventory.md 및 scenarios.md에 연결했다.
+- [x] 기존 관련 회귀를 보존하고 정상·경계·invalid의 적용 여부를 기록했다.
+- [x] 테스트가 독립 실행되며 실행 발견·실패 전달·환경/대역 정리가 확인된다.
+- [x] 필요한 검사를 실행했고 명령·결과·제한을 기록했다.
 
 ## Required Verification
 
 - npm run test:unit
 - npm run typecheck
-- test:harness 제안 명령
+- npm run test:harness — Step 02에서 도입
 
 제안 명령은 Phase 0에서 확정·구현한 뒤 사용할 수 있다. fixture 계층에서는 실제 DB/RLS 또는 실기기를 검증했다고 표시하지 않는다. 한 phase 종료 시 기존 npm run verify와 준비된 관련 신규 suite를 함께 실행한다.
 
@@ -54,8 +54,10 @@ node:test를 유지한다. 최소 도메인 fixture와 제어 가능한 Promise�
 
 | 항목 | 기록 |
 | --- | --- |
-| 테스트 경로·시나리오 | 미작성 |
-| 실행 명령/결과 | 미실행 |
-| 신규 동작/기존 동작 | 구현 시 기록 |
-| 결함 재현 RED → GREEN | 결함 수정이 승인된 경우에만 기록; 정상 기존 동작은 GREEN 확인 |
-| 미검증·제외·후속 | 구현 시 기록 |
+| 테스트 경로·시나리오 | T01-N01/N02/N03, T01-E01~E06, T01-F01~F03. tests/harness/unit-runner.test.mjs 8개 + tests/unit/test-fixtures.test.ts 4개. 상세 Given/When/Then은 테스트 본문과 scenarios.md. |
+| 실행 명령/결과 | npm run test:unit exit 0(7개 파일); npm run typecheck exit 0; root의 npm run test:harness exit 0(8 PASS/0 FAIL/0 skip/todo), direct harness 8 PASS. unit 각 emitted 파일 직접 실행은 총 110개 test PASS(기존 6파일 106개 + 신규 4개). review.md에 초기 실패와 최종 결과·로그를 구분했다. |
+| 신규 동작/기존 동작 | 러너가 .test-build 정리→tsc→tests/ 발견→Node 실행을 맡는다. noEmitOnError, 루트 tests/*.test.ts 및 tests/unit/**/*.test.ts 경계. deferred를 async-fixtures.ts로 이동; 로컬 fixedClock/readingFixture 도입. 기존 6파일은 유지하고 3파일의 helper import만 변경. |
+| 결함 재현 RED → GREEN | 신규 하네스의 NODE_TEST_CONTEXT 상속으로 root 실행 5 FAIL/3 PASS(재귀 skip 및 status 0) → subprocess의 env 복사본에서 해당 값 제거 → 8 PASS. 승인된 테스트 설정 수정이며 제품 결함/제품 코드 수정은 없다. |
+| 미검증·제외·후속 | sandbox spawnSync EPERM은 root의 sandbox 밖 실행으로 검증. 테스트별 임시 프로젝트/복사본/symlink를 t.after에서 제거; 시계/Promise/도메인 데이터/query fake는 인스턴스별 독립이고 global Date/timer/env 변경 없음. helper invalid는 실제 Promise 거부로 검증하며 타입 밖 입력을 강제하지 않았다. DB/RLS·실기기 제외 유지. Step 03의 DOM/서버 하네스 및 Step 31의 다른 도구 시나리오는 대기. |
+| source 커버리지 baseline | review.md의 Step 02 Coverage Baseline: 전체 app/lib/middleware/SW source와 별도 scripts 범위, unit의 runtime lib 14개 중 7개 로드/7개 미import 실행 0. V8 named function hit 및 미측정 원본 line/branch를 구분하고 임의 퍼센트 gate 없음. |
+| 상태 전환·역할 | Pending → In Progress(구현/실패 분석) → Complete(최종 실제 PASS), 2026-10-13. code-review/commit은 root; 개발 pane은 commit/push/Step 03/agent/Herdr를 수행하지 않았다. |

@@ -2,7 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { fetchCompletion, saveCompletionGuarded } from "../lib/supabase/reading-store";
 import { CompletionSaveError } from "../lib/task-completion";
-import { completionSupabaseFake, deferred, type CompletionRow } from "./helpers/completion-supabase-fake";
+import { completionSupabaseFake, type CompletionRow } from "./helpers/completion-supabase-fake";
+import { deferred } from "./helpers/async-fixtures";
 
 const payload = {
   assignmentId: "assignment-1", taskType: "listen" as const,

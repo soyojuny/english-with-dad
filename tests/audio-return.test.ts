@@ -5,7 +5,7 @@ import {
 } from "../lib/audio-return";
 import { buildCompletionAttempt } from "../lib/task-completion";
 import type { AudioLaunch, TaskType } from "../lib/reading-types";
-import { deferred } from "./helpers/completion-supabase-fake";
+import { deferred } from "./helpers/async-fixtures";
 
 const key = "assignment-1:listen";
 const openedAt = "2026-10-12T01:00:00.000Z";

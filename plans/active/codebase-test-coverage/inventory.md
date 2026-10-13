@@ -81,7 +81,7 @@ private row mapper는 공개 함수의 입출력으로 검증한다. 테스트 �
 | public/sw.js | check:sw, check:pwa | install/activate/fetch 실행 및 브라우저, 29 | P01 |
 | public/manifest.webmanifest | check:pwa | 실제 응답·설치 메타·모바일, 29·30 | P01·P02 |
 | public/assets/** | 일부 manifest/cache 자산 존재 검사 | 참조된 자산 응답과 표시; 이미지 자체 단위 테스트는 없음, 29·30 | P02 (참조 자산) |
-| scripts/run-unit-tests.mjs | 기존 unit 실행 | 신규 발견·stale 산출물·실패 전달, 02·31 | T01 |
+| scripts/run-unit-tests.mjs | Step 02: unit 7파일·harness 8사례 PASS | 정리/컴파일/신규·중첩 발견·삭제 stale·0개·실패/컴파일 오류 검증 완료; Step 31에서 재사용 | T01 |
 | scripts/smoke-audio-completion.mjs | 7개 브라우저 시나리오 | fixture·정리·실패 artifact·기존 회귀 보존, 04·25 | T01·H01·C03·U05·U06·U07 |
 | scripts/check-contracts.mjs | 현재 실행 통과 | 정상/누락/위반 fixture, 31 | T01 |
 | scripts/check-pwa.mjs | verify의 정적 검사 | manifest/cache 누락 fixture, 31 | T01 |
@@ -89,8 +89,8 @@ private row mapper는 공개 함수의 입출력으로 검증한다. 테스트 �
 | scripts/plan-archive.mjs | 구현 파일 조사 | 임시 plan의 통과/거부/중복/입력, 31 | T01 |
 | scripts/git-publish.mjs | 구현 파일 조사 | 가짜 git/임시 repo로 인자·실패·변경 없음, 31 | T01 |
 | next.config.mjs | build | 실제 Next 실행과 StrictMode 수명주기, 03·04·31 | T02 |
-| package.json / package-lock.json | 설치·기존 명령 | 러너 경계·재현 가능한 dev 도구·실패 exit, 02–04·32 | T02 |
-| tsconfig.json / tsconfig.test.json | typecheck/unit 컴파일 | 러너 대상 분리·신규 suite typecheck, 02·03·32 | T02 |
+| package.json / package-lock.json | Step 02: test:unit 단일 러너, test:harness 8 PASS; 의존성/lock 변경 없음 | 러너 경계·재현 가능한 dev 도구·실패 exit, 02–04·32 | T02 |
+| tsconfig.json / tsconfig.test.json | Step 02: typecheck PASS, unit 루트/중첩 경계·다른 계층 제외/noEmitOnError 검증 | 러너 대상 분리·신규 suite typecheck, 02·03·32 | T02 |
 | next-env.d.ts | typecheck | 생성된 타입 계약; 직접 테스트/수정 대상 아님 | T02 (생성 타입) |
 | .gitignore | contracts의 legacy 경계 | 테스트 산출물 제외 및 하네스 fixture, 02·31 | T01·T02 |
 | AGENTS.md / README.md / docs/** / plans/** | contracts 일부·문서 리뷰 | 코드 테스트 대상 아님; 명령·계약·링크 정합성, 01·32·33 | T02 (문서) |
@@ -171,3 +171,12 @@ store의 23개 함수는 위 개별 행에 대응한다. 나머지 export는 아
 | middleware.ts | `middleware`, `config` | A03 |
 
 타입 전용 export: lib/reading-types.ts 전체, reading-calculations의 BookSetupInput, reading-period의 Period, reading-drafts의 BookDraft/ChildDraft, child-task-policy의 ChildDataStatus, task-completion의 payload/attempt/result/input/state 관련 타입, audio-return의 SavedAudioLaunch/AudioReturnPayload/AudioReturnState/AudioReturnEvent. 같은 파일의 시나리오 입력·출력과 typecheck에서 확인한다.
+
+## Step 02 단위 러너/fixture 증거
+
+- scripts/run-unit-tests.mjs와 tsconfig.test.json: tests/harness/unit-runner.test.mjs의 T01-N01/E01/E02/E03/E05/E06/F01/F02, root 실행 8 PASS. `.test-build`는 매 단위 명령 시작에 정리한다. 컴파일 실패 시 테스트 실행 없이 nonzero이며 부분 emit도 하지 않는다. 발견은 `.test-build/tests/`에 한정한다.
+- tests/helpers/async-fixtures.ts: deferred, fixedClock. tests/helpers/reading-fixture.ts: readingFixture. tests/unit/test-fixtures.test.ts의 T01-N02/N03/E04/F03이 저장 지연/거부와 중첩 데이터·시계·query 대역 독립성을 실제 도메인 API로 확인했다(4 PASS). 고정 시계는 API에 전달할 timestamp만 제공하며 global Date/timer를 바꾸지 않는다.
+- tests/helpers/completion-supabase-fake.ts: query 대역 동작은 유지하고 deferred만 분리했다. completion-store/task-completion/audio-return의 import 경로만 갱신했다. 기존 루트 6파일의 test 본문과 7개 오디오 browser 시나리오는 보존한다.
+- unit은 루트 tests/*.test.ts + tests/unit/**/*.test.ts + tests/helpers/**/*.ts, 하네스는 npm run test:harness의 tests/harness/*.test.mjs다. 새 component/hook/server/browser 소스는 unit include에 넣지 않는다. 타입 import로 필요한 의존성이 포함되는 TypeScript 특성까지 완전한 모듈 격리로 주장하지 않는다.
+- 실제 unit 단독 실행: 기존 6파일 106개 + 신규 4개 = 110개 test PASS. Step 01의 93개는 소스의 top-level test 선언 수였으며 parameterized 등록 후 실행 개수와 다르다.
+- 전체 source 범위·unit 미import 7개를 포함한 baseline은 [review.md](review.md)의 Step 02 Coverage Baseline에서 추적한다. 이번 신규 helper/test는 제품 source 커버리지에서 제외하고 runtime 앱 파일을 제외해 수치를 올리지 않는다.

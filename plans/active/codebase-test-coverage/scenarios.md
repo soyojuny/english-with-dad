@@ -2,7 +2,7 @@
 
 ## 적용 방식
 
-아래 43개 ID는 필수 자동 시나리오 묶음이다. 하나의 ID가 테스트 하나를 뜻하지 않는다. Step 01에서 코드/공개 API, 기대 동작, 기존 증거와 작성할 테스트 경로를 연결했다. **계약 목록 확정은 완료했고 신규 런타임 검증은 모두 대기**다. 각 담당 step에서 사례를 `<ID>-N01/E01/F01`로 나누고 테스트명·실행 결과를 기록한다. 기존 회귀 일부가 있다는 이유로 묶음 전체를 PASS 처리하지 않는다.
+아래 43개 ID는 필수 자동 시나리오 묶음이다. 하나의 ID가 테스트 하나를 뜻하지 않는다. Step 01에서 코드/공개 API, 기대 동작, 기존 증거와 작성할 테스트 경로를 연결했다. **계약 목록 확정과 Step 02의 단위 러너/fixture 검증은 완료했고 다른 신규 런타임 검증은 대기**다. 각 담당 step에서 사례를 `<ID>-N01/E01/F01`로 나누고 테스트명·실행 결과를 기록한다. 기존 회귀 일부가 있다는 이유로 묶음 전체를 PASS 처리하지 않는다.
 
 기대 결과가 계약/문서로 확인되지 않은 invalid 입력은 현재 출력값을 복사하지 않고 확인 필요 또는 결함으로 기록한다. 이미 있는 테스트는 대응시키고 미검증 사례만 추가한다. query 대역/HTTP fixture는 실제 DB·RLS 증거가 아니다.
 
@@ -49,8 +49,8 @@
 | M03 | 카메라/업로드 | 필드 적용·권한/미지원·late stream·track/interval 정리 | 28 | browser API 대역 | app/reading-manager-client.tsx | tests/browser/camera-upload.spec.ts | 없음; 신규 대기 |
 | P01 | SW 실행 | install/activate·cache cleanup·GET/nonGET·offline fallback | 29 | worker 대역/Next browser | public/sw.js; public/manifest.webmanifest | tests/harness/service-worker.test.mjs; tests/browser/pwa.spec.ts | E08 정적만; 신규 대기 |
 | P02 | 모바일 표시 | 360/390px·긴 한국어·버튼·dialog·의도된 표 스크롤 | 30 | browser | app/layout.tsx; styles.css; public/manifest.webmanifest; public/assets/** | tests/browser/mobile-layout.spec.ts | E07 모바일 실행 일부·E08 정적; 신규 대기 |
-| T01 | 러너/하네스 | 새 파일 발견·삭제 산출물·0개/실패 exit·임시 fixture | 02·31 | harness | scripts/run-unit-tests.mjs; scripts/check-contracts.mjs; scripts/check-pwa.mjs; scripts/plan-workflow.mjs; scripts/plan-archive.mjs; scripts/git-publish.mjs; scripts/smoke-audio-completion.mjs; tests/helpers/completion-supabase-fake.ts | tests/harness/unit-runner.test.mjs; tests/harness/*.test.mjs | E08 정상 실행 일부; 신규 대기 |
-| T02 | 전체 검증 | 필수 suite 탐색·독립/전체 실행·coverage 공백·로그 인계 | 32·33 | 전체 자동 | package.json; package-lock.json; tsconfig.json; tsconfig.test.json; next.config.mjs; .gitignore; next-env.d.ts; AGENTS.md; README.md; docs/**; plans/**; .env.example | review.md; inventory.md; scenarios.md; 후속 coverage report 경로 확정 | E08 기존 gate만; 신규 대기 |
+| T01 | 러너/하네스 | 새 파일 발견·삭제 산출물·0개/실패 exit·임시 fixture | 02·31 | harness | scripts/run-unit-tests.mjs; scripts/check-contracts.mjs; scripts/check-pwa.mjs; scripts/plan-workflow.mjs; scripts/plan-archive.mjs; scripts/git-publish.mjs; scripts/smoke-audio-completion.mjs; tests/helpers/completion-supabase-fake.ts; tests/helpers/async-fixtures.ts; tests/helpers/reading-fixture.ts | tests/harness/unit-runner.test.mjs; tests/unit/test-fixtures.test.ts; tests/harness/*.test.mjs | Step 02: harness 8·fixture 4 PASS; Step 31 다른 도구 대기 |
+| T02 | 전체 검증 | 필수 suite 탐색·독립/전체 실행·coverage 공백·로그 인계 | 32·33 | 전체 자동 | package.json; package-lock.json; tsconfig.json; tsconfig.test.json; next.config.mjs; .gitignore; next-env.d.ts; AGENTS.md; README.md; docs/**; plans/**; .env.example | review.md; inventory.md; scenarios.md; 후속 coverage report 경로 확정 | Step 02 source baseline 기록; 전체 gate/coverage는 Step 32–33 대기 |
 
 ## 우선순위와 실패 처리
 
@@ -139,7 +139,7 @@
 
 ## 기존 증거 장부
 
-Step 01은 아래 파일과 테스트명을 정적으로 대조했다. E01~E06의 계획 작성 시 test:unit 통과 기록은 review.md의 과거 baseline이다. 이번 step에서 런타임 재실행하거나 전체 묶음 PASS를 증명한 결과가 아니다. E07은 스크립트 정의를 확인했으며 실행 결과 artifact는 이 계획에 없다.
+Step 01은 아래 파일과 테스트명을 정적으로 대조했다. E01~E06의 계획 작성 시 통과 기록과 선언 수는 과거 baseline이다. Step 02에서 기존 6파일을 직접 재실행해 106개 test PASS를 확인했다(총 assertion 개수는 아님). 각 시나리오의 남은 공백까지 PASS를 증명한 결과는 아니다. E07은 정의만 확인했으며 이번 실행 artifact는 없다.
 
 | 증거 | 실제 경로 | 대표 테스트명 / 보존 대상 | 실행 상태와 한계 |
 | --- | --- | --- | --- |
@@ -163,3 +163,26 @@ Step 01은 아래 파일과 테스트명을 정적으로 대조했다. E01~E06�
 | Q03 | 삭제 대상이 이미 없는 0행 결과를 idempotent 성공으로 볼지 | 14·24·26 | DB error 전파는 확정; 별도 오류 처리를 임의 추가하지 않음 |
 | Q04 | callback next의 query/hash·SDK rejection, getUser 오류 상세 표시 | 17 | 같은 origin redirect·code/next 제거·no-store는 확정; 추가 정책 확인 |
 | Q05 | 잘못된 cover URL의 이미지 load 실패 시 UI 대체 표시 | 20·30 | 없는 cover/단어 자료의 대체 표시만 확정; load fallback 신설 없음 |
+
+## Step 02 실제 실행 기록
+
+근거: Step 02 Cases to Verify와 docs/testing-guidelines.md. 러너 계약은 신규 테스트를 실제 발견·실행하고 실패를 최종 exit로 전달하는 것이다. 시간 기대값 2분 1초 → 3분은 기존 청취 계약이며 구현 계산을 기대값으로 복사하지 않았다. 모든 새 테스트/생성 fixture test 본문에 Given–When–Then이 있다.
+
+| 사례 ID | 입력/행동 | 고정 기대 결과 | 실제 파일::테스트명 | 최종 결과 |
+| --- | --- | --- | --- | --- |
+| T01-N01 | 새 루트 .test.ts를 임시 프로젝트에 추가해 CLI 실행 | 새 test 이름 출력·emit·exit 0 | tests/harness/unit-runner.test.mjs::T01-N01: 새 루트 단위 테스트를 명령 한 번으로 컴파일하고 발견한다 | PASS |
+| T01-E01 | tests/unit/domain/nested.test.ts 추가 | 중첩 test 이름 출력·exit 0 | tests/harness/unit-runner.test.mjs::T01-E01: tests/unit의 중첩 디렉터리 테스트를 발견한다 | PASS |
+| T01-E02 | 2개 test 실행 후 1개 소스 삭제·재실행 | 삭제 test 출력/산출물 없음; 남은 test 실행·exit 0 | tests/harness/unit-runner.test.mjs::T01-E02: 소스 테스트를 삭제하면 다음 실행에서 오래된 산출물이 제거된다 | PASS |
+| T01-E03 | lib는 있으나 test 0개 | 명시적 No emitted unit tests 오류·nonzero | tests/harness/unit-runner.test.mjs::T01-E03: 단위 테스트가 0개이면 빈 실행을 성공으로 처리하지 않는다 | PASS |
+| T01-E05 | 마지막 test 삭제 후 재실행 | 옛 성공 emit 제거·0개 nonzero | tests/harness/unit-runner.test.mjs::T01-E05: 마지막 테스트 삭제 후 오래된 성공 산출물로 통과하지 않는다 | PASS |
+| T01-F01 | 의도적 assertion 불일치 | 실제 not ok 출력·최종 nonzero | tests/harness/unit-runner.test.mjs::T01-F01: 단위 assertion 실패를 최종 명령의 nonzero exit로 전달한다 | PASS |
+| T01-F02 | 성공 실행 후 TS2322 형식 오류 추가 | 컴파일 nonzero·옛/부분 emit 실행 없음 | tests/harness/unit-runner.test.mjs::T01-F02: 컴파일 오류가 나면 이전 산출물을 실행하거나 부분 emit하지 않는다 | PASS |
+| T01-E06 | 다른 계층에 컴파일 오류 소스 배치 | unit만 발견/emit; 다른 계층 제외·exit 0 | tests/harness/unit-runner.test.mjs::T01-E06: component hook server browser harness 소스는 단위 컴파일과 발견에 섞이지 않는다 | PASS |
+| T01-N02 | 한 fixture의 완료/중첩 자료/배열 변경 | 다른 fixture의 빈 로그·기본 데이터 유지 | tests/unit/test-fixtures.test.ts::T01-N02: 한 도메인 fixture의 완료와 중첩 자료 변경은 다른 fixture에 영향을 주지 않는다 | PASS |
+| T01-N03 | 제어 Promise로 완료 저장 지연 후 resolve | release 전 row 0개·후 1회/3분; 다른 fake 불변 | tests/unit/test-fixtures.test.ts::T01-N03: 제어 Promise가 풀리기 전에는 완료 row가 저장되지 않고 풀린 뒤 1회 저장된다 | PASS |
+| T01-E04 | 독립 시계 2개 중 하나를 121,000ms 이동 | 복귀 01:02:01Z·청취 3분; 다른 시계 01:00Z | tests/unit/test-fixtures.test.ts::T01-E04: 시계를 2분 1초 이동하면 청취는 3분이고 다른 시계는 시작 시각을 유지한다 | PASS |
+| T01-F03 | 저장 전 Promise reject | 요청 실패·완료 row 0개 | tests/unit/test-fixtures.test.ts::T01-F03: 제어 Promise가 거부되면 저장은 실패하고 완료 row를 만들지 않는다 | PASS |
+
+실행 증거: root의 `/tmp/ewd-step02-root-harness-final.log`(npm 8 PASS)·`/tmp/ewd-step02-root-harness-direct-escalated.log`(direct 8 PASS), `/tmp/ewd-step02-unit-direct.log`(각 emitted unit 파일 직접 실행 총 110 PASS), `/tmp/ewd-step02-typecheck.log`(exit 0). root 재실행 전 sandbox EPERM과 NODE_TEST_CONTEXT 재귀 skip 실패는 review.md에 별도 기록한다.
+
+임시 프로젝트는 test마다 t.after로 제거하고 저장소/node_modules는 읽기 전용 symlink로 참조한다. subprocess env 복사본에서 NODE_TEST_CONTEXT를 제거하며 부모 env는 변경하지 않는다. helper는 신뢰된 타입의 테스트 입력만 받고 invalid 데이터 생성기를 일반화하지 않는다. Promise 거부는 실제 실패 계약으로 검증한다. DOM/storage/timer listener cleanup은 이 step에서 만들지 않아 N/A이고 Step 03·21·22에서 남아 있다.

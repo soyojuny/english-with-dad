@@ -4,7 +4,7 @@
 
 In Progress
 
-Step 01의 문서 구현과 필수 검사는 완료했다. 루트의 두 축 검토·커밋은 대기이며 Step 02–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
+Step 01은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93으로 커밋됐다. Step 02 구현·필수 검사·루트 Standards/Spec 검토(각 0 findings)는 완료했으며 커밋은 루트에 인계한다. Step 03–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
 
 ## Planning Status
 
@@ -14,9 +14,9 @@ Step 01의 문서 구현과 필수 검사는 완료했다. 루트의 두 축 검
 
 ## Plan Conformance
 
-- 변경 범위는 이 계획 디렉터리의 문서뿐이다.
-- 테스트·앱·Supabase migration·패키지 코드는 변경하지 않았다.
-- 사용자의 전체 순차 구현·step별 커밋 요청을 반영했다. 현재 개발 pane은 Step 01만 수행하고 검토·커밋·다음 step 전달은 루트가 맡는다. push·배포 권한은 없다. 사용자 제공 초기 계획 문서 38개는 첫 step 커밋 범위다.
+- Step 01은 계획 문서만 변경했다. Step 02는 단위 러너·컴파일 경계·package 명령·공통 fixture·해당 회귀 및 실행 기록만 변경한다.
+- 제품 app/lib/Supabase migration·의존성과 lock은 변경하지 않았다.
+- 사용자의 전체 순차 구현·step별 커밋 요청을 반영했다. 현재 개발 pane은 전달된 Step 02만 수행하고 검토·커밋·다음 step 전달은 루트가 맡는다. push·배포 권한은 없다. 사용자 제공 초기 계획 문서 38개는 첫 step 커밋 범위다.
 - 기존 node:test와 오디오 브라우저 회귀를 유지하며 신규 계층을 분리하는 계획이다.
 - DB query 조건 검사와 실제 DB/RLS, browser simulation과 실기기를 구분한다.
 - 용어와 도메인 규칙을 바꾸지 않아 docs/CONTEXT.md·ADR 추가는 필요하지 않다.
@@ -30,7 +30,7 @@ Step 01의 문서 구현과 필수 검사는 완료했다. 루트의 두 축 검
 - .test-build를 발견하는 실행기는 stale 산출물 처리도 검증 대상으로 삼는다.
 - 로컬 DB가 없으므로 actual migration·RLS·RPC·제약·DB 경쟁 보장은 확인할 수 없다.
 - 실기기 확인은 자동 계획의 완료 조건에 넣지 않기로 했다.
-- 새 러너 및 source 커버리지 수치는 아직 측정하지 않았다. 계획에 특정 신규 버전이나 임의 전역 수치 gate를 확정하지 않았다.
+- Step 02에서 단위 러너/fixture와 전체 lib 목록의 V8 함수 실행 baseline을 확인했다. 원본 line/branch·다른 계층의 coverage는 미측정이며 임의 전역 수치 gate는 없다.
 
 ## Verification Run
 
@@ -54,12 +54,12 @@ Step 01의 문서 구현과 필수 검사는 완료했다. 루트의 두 축 검
 
 ## Step History
 
-계획 작성 시 모든 step은 Pending이었다. 현재 Step 01만 Complete이며 진행 결과는 각 task Execution Record와 이 표에 함께 기록한다.
+계획 작성 시 모든 step은 Pending이었다. 현재 Step 01·02가 Complete이며 진행 결과는 각 task Execution Record와 이 표에 함께 기록한다.
 
 | Phase | Step | Status | 실행한 검사/결과 |
 | --- | --- | --- | --- |
-| 0 | 01 검증 계약과 전체 코드 목록 확정 | Complete | check:contracts exit 0; 문서/파일/API/증거 대조 exit 0. 루트 검토·커밋 대기. |
-| 0 | 02 단위 테스트 실행기와 공통 fixture | Pending | 미실행 |
+| 0 | 01 검증 계약과 전체 코드 목록 확정 | Complete | check:contracts exit 0; 문서/파일/API/증거 대조 exit 0. 루트 Standards/Spec 0 findings, main 7dd0f93 커밋. |
+| 0 | 02 단위 테스트 실행기와 공통 fixture | Complete | test:unit/typecheck PASS; root harness 8 PASS·direct unit 110 PASS; source baseline 기록. 루트 Standards/Spec 각 0 findings; 커밋 인계. |
 | 0 | 03 컴포넌트·hook·서버 테스트 기반 | Pending | 미실행 |
 | 0 | 04 브라우저 fixture와 실제 Next 실행 구분 | Pending | 미실행 |
 | 1 | 05 날짜와 주·월 경계 | Pending | 미실행 |
@@ -114,7 +114,51 @@ Step 01의 문서 구현과 필수 검사는 완료했다. 루트의 두 축 검
 
 - Standards: 발견 사항 0개. Spec: 발견 사항 0개.
 - 루트가 check:contracts 및 문서 대조를 재실행해 PASS를 확인했다.
-- 완료 기준 검토 후 첫 step 커밋으로 초기 사용자 제공 계획 문서 38개를 함께 기록한다.
+- 완료 기준 검토 후 초기 사용자 제공 계획 문서 38개를 main `7dd0f93`으로 커밋했다.
+
+## Step 02 Execution — 2026-10-13
+
+기준 main: `7dd0f93`. 단위 러너가 정리→컴파일→발견→실행을 맡고 noEmitOnError 및 unit/harness 경계를 분리했다. 공통 deferred·로컬 fixedClock·독립 readingFixture와 회귀를 추가했다. 기존 6파일의 본문은 유지하고 3파일의 helper import만 변경했다. 제품/의존성/lock 변경은 없다.
+
+| 명령·실행 경계 | 결과 | artifact / 의미 |
+| --- | --- | --- |
+| npm run test:unit; 각 emitted 파일 직접 node 실행 | PASS exit 0; 명령 출력은 7파일, direct는 총 110 test/110 PASS/0 FAIL/skip/todo | /tmp/ewd-step02-unit.log; /tmp/ewd-step02-unit-direct.log. 기존 6파일 106개 + 신규 fixture 4개이며 assertion 총개수는 아님 |
+| npm run typecheck | PASS exit 0 | /tmp/ewd-step02-typecheck.log |
+| 개발 pane npm run test:harness / direct | FAIL: sandbox spawnSync EPERM | /tmp/ewd-step02-harness.log; /tmp/ewd-step02-harness-direct.log. 권한 경계이며 PASS로 계산하지 않음 |
+| root npm run test:harness, 최초 sandbox 밖 | FAIL: 3 PASS/5 FAIL | /tmp/ewd-step02-root-harness-escalated.log. NODE_TEST_CONTEXT 상속으로 CLI가 재귀 run 경고 후 실행을 생략하고 status 0 |
+| root npm run test:harness / direct, env 분리 후 | 둘 다 PASS exit 0, 8 test/8 PASS/0 FAIL/skip/todo | /tmp/ewd-step02-root-harness-final.log; /tmp/ewd-step02-root-harness-direct-escalated.log. 신규/중첩 발견·삭제 stale·0개·실제 assertion 실패·컴파일 오류·다른 계층 제외 증명 |
+
+- NODE_TEST_CONTEXT는 subprocess env 복사본에서만 제거한다. 부모 env 변경/skip 처리 없이 실제 실패 출력과 nonzero를 확인했다. 이는 승인 범위의 하네스 수정이며 제품 결함 수정은 아니다.
+- 임시 프로젝트/복사본/symlink는 test마다 t.after로 제거한다. Promise/시계/도메인/query state는 인스턴스별 독립이며 global Date/timer/env 교체와 범용 query 대역은 없다. node_modules는 읽기 참조하고 DB/네트워크는 실행하지 않는다.
+- source baseline은 아래에 기록했다. DOM/storage/listener·다른 하네스 도구는 후속 step에 남기고 DB/RLS·실기기·OAuth 제외를 유지한다. phase 0 전체 완료 전이므로 verify/build/browser 추가 실행은 없다.
+- 루트 Standards/Spec 각 0 findings. 커밋은 루트 담당이며 개발 pane은 commit/push/Step 03/agent/Herdr를 수행하지 않았다.
+
+## Step 02 Coverage Baseline — 2026-10-13
+
+환경: Node v22.23.2, TypeScript 5.9.3. `NODE_V8_COVERAGE=/tmp/ewd-step02-v8-coverage npm run test:unit`은 exit 0이다. `/tmp/ewd-step02-coverage-baseline.py`로 worker JSON의 동일 이름/start/end 함수 범위를 합쳐 최대 hit count를 취하고, `.test-build/lib/*.js`를 대응하는 `lib/*.ts`로 연결했다. 결과는 `/tmp/ewd-step02-coverage-baseline.json`이다.
+
+전체 제품 source 범위는 app/**/*.ts(x), lib/**/*.ts, middleware.ts, public/sw.js다. scripts/*.mjs는 하네스 범위로 별도 추적한다. 이번 unit baseline은 **lib 런타임 14개 모두**를 분모 목록에 남기며 7개를 로드했다. 미import 7개도 실행 함수 0으로 표시한다. app 15개, middleware.ts, public/sw.js와 나머지 하네스 스크립트는 후속 계층에서 측정할 공백이며 완료/제외 처리하지 않는다.
+
+| source | unit import | 실행한 named V8 함수 / 발견한 named V8 함수 | 후속 담당 step |
+| --- | --- | --- | --- |
+| lib/audio-return.ts | 로드 | 13 / 13 | 15 |
+| lib/child-task-policy.ts | 로드 | 5 / 5 | 08 |
+| lib/cover-image.ts | 미import (실행 0) | 0 / 미측정 | 27 |
+| lib/qr-reader.ts | 미import (실행 0) | 0 / 미측정 | 27 |
+| lib/reading-calculations.ts | 로드 | 24 / 24 | 05·07·08 |
+| lib/reading-data.ts | 로드 | 2 / 2 | 05·06·08 |
+| lib/reading-drafts.ts | 미import (실행 0) | 0 / 미측정 | 06 |
+| lib/reading-period.ts | 로드 | 4 / 5 | 05 |
+| lib/supabase/client.ts | 미import (실행 0) | 0 / 미측정 | 16 |
+| lib/supabase/config.ts | 미import (실행 0) | 0 / 미측정 | 16 |
+| lib/supabase/middleware.ts | 미import (실행 0) | 0 / 미측정 | 17 |
+| lib/supabase/reading-store.ts | 로드 | 7 / 35 | 09–15 |
+| lib/supabase/server.ts | 미import (실행 0) | 0 / 미측정 | 16 |
+| lib/task-completion.ts | 로드 | 17 / 17 | 15 |
+
+이 수치는 named 함수의 실행 공백을 찾는 초기 증거이며 TypeScript 원본 line/branch 커버리지 퍼센트가 아니다. 익명 callback, 분기 hit와 source-map 집계는 아직 정량화하지 않았고, 미import 파일의 함수 총수도 엔진이 발견하지 않아 `미측정`으로 남긴다. importer만의 높은 수치로 전체 통과를 주장하지 않는다. 전역 퍼센트 gate는 없다. Step 32에서 원본 source mapping·미import 포함 계층별 보고와 기존 대비 후퇴 방식을 확정한다.
+
+제외: 타입 전용 lib/reading-types.ts(타입 계약은 typecheck), tests/fixture, 자산·설정·문서, ignored legacy 및 생성 산출물. 서버/브라우저/SW 코드는 미검증 공백이며 coverage 제외가 아니다. 쿼리 대역의 함수 실행은 실제 DB/RLS 보장이 아니다.
 
 ## Final Verification
 

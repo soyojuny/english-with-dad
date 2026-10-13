@@ -5,12 +5,13 @@
     "module": "CommonJS",
     "moduleResolution": "Node",
     "noEmit": false,
+    "noEmitOnError": true,
     "outDir": ".test-build",
     "rootDir": ".",
     "incremental": false,
     "types": ["node"],
     "plugins": []
   },
-  "include": ["lib/**/*.ts", "tests/**/*.test.ts"],
+  "include": ["lib/**/*.ts", "tests/*.test.ts", "tests/unit/**/*.test.ts", "tests/helpers/**/*.ts"],
   "exclude": ["node_modules", ".next", ".test-build"]
 }

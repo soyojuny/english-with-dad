@@ -5,7 +5,8 @@ import {
   type CompletionRequestState, type SavedCompletion,
 } from "../lib/task-completion";
 import { fetchCompletion, saveCompletionGuarded } from "../lib/supabase/reading-store";
-import { completionSupabaseFake, deferred } from "./helpers/completion-supabase-fake";
+import { completionSupabaseFake } from "./helpers/completion-supabase-fake";
+import { deferred } from "./helpers/async-fixtures";
 
 const key = "assignment-1:listen";
 const input = {
