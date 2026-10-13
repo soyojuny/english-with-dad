@@ -2,7 +2,7 @@
 
 ## Status
 
-Pending — 계획만 작성했으며 구현하지 않았다.
+Complete — 2026-10-14 구현·필수 검사 PASS; 제품 코드는 변경하지 않았다.
 
 ## Phase
 
@@ -32,11 +32,11 @@ bookToDraft·childToDraft와 빈 초기 데이터의 관찰 가능한 계약을 
 
 ## Acceptance Criteria
 
-- [ ] 새 초안의 audio 참조가 원본 및 다른 초안과 분리되고 타입 계약은 별도 검사에 연결된다.
-- [ ] 대상 계약과 테스트 경로/시나리오 ID를 inventory.md 및 scenarios.md에 연결했다.
-- [ ] 기존 관련 회귀를 보존하고 정상·경계·invalid의 적용 여부를 기록했다.
-- [ ] 테스트가 독립 실행되며 실행 발견·실패 전달·환경/대역 정리가 확인된다.
-- [ ] 필요한 검사를 실행했고 명령·결과·제한을 기록했다.
+- [x] 새 초안의 audio 참조가 원본 및 다른 초안과 분리되고 타입 계약은 별도 검사에 연결된다.
+- [x] 대상 계약과 테스트 경로/시나리오 ID를 inventory.md 및 scenarios.md에 연결했다.
+- [x] 기존 관련 회귀를 보존하고 정상·경계·invalid의 적용 여부를 기록했다.
+- [x] 테스트가 독립 실행되며 실행 발견·실패 전달·환경/대역 정리가 확인된다.
+- [x] 필요한 검사를 실행했고 명령·결과·제한을 기록했다.
 
 ## Required Verification
 
@@ -53,8 +53,8 @@ bookToDraft·childToDraft와 빈 초기 데이터의 관찰 가능한 계약을 
 
 | 항목 | 기록 |
 | --- | --- |
-| 테스트 경로·시나리오 | 미작성 |
-| 실행 명령/결과 | 미실행 |
-| 신규 동작/기존 동작 | 구현 시 기록 |
-| 결함 재현 RED → GREEN | 결함 수정이 승인된 경우에만 기록; 정상 기존 동작은 GREEN 확인 |
-| 미검증·제외·후속 | 구현 시 기록 |
+| 테스트 경로·시나리오 | D02-N01/N02/E01. `tests/reading-drafts.test.ts` 5개 test가 Book/Child 편집 필드, null·빈 문자열, 반복 초안 audio 분리, 초기 `ReadingData` shape와 정의/옵션을 검증한다. |
+| 실행 명령/결과 | 2026-10-14 `npm run test:unit`, `npm run check:contracts`, `npm run typecheck` 결과는 review.md의 Step 06 실행 기록에 남긴다. |
+| 신규 동작/기존 동작 | 제품 코드는 변경하지 않았다. singleton `emptyReadingData`는 변경하지 않고 초기 shape만 관찰했다. `emptyBookDraft`도 직접 변경하지 않고 생성한 초안이 nested audio를 공유하지 않음을 확인했다. |
+| 결함 재현 RED → GREEN | 기존 동작의 신규 GREEN 계약 확인이다. 제품 결함을 재현하거나 수정하지 않았다. |
+| 미검증·제외·후속 | 타입상 불가능한 객체는 `as any`로 만들지 않았다. invalid 폼 입력은 U01, 외부 row 입력은 S01에서 다룬다. Step 02의 unit runner 신규 파일 발견·실패 exit 전달·정리 증거를 재사용한다. DB/RLS·실기기와 Step 07은 범위 밖이다. |

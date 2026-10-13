@@ -9,7 +9,7 @@
 | ID | 계약 | 기대 동작 / 확인 지점 | 담당 step | 계층 | 운영 파일 | 테스트 경로 (후속 제안 포함) | 기존 증거 / 현재 결과 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | D01 | 날짜·기간 | 일요일 시작 주간·윤년/월말·포함 범위·주/월 이동 | 05 | unit | lib/reading-data.ts; lib/reading-calculations.ts; lib/reading-period.ts | tests/reading-calculations.test.ts; tests/reading-period.test.ts | Step 05 PASS: 3개 TZ 명령에서 8 unit 파일 PASS; malformed 날짜는 Q01 |
-| D02 | 초안·데이터 정의 | null 기본값·자료 필드 보존·audio 참조 분리·초기 컬렉션/정의/옵션 | 06 | unit | lib/reading-drafts.ts; lib/reading-data.ts | tests/reading-drafts.test.ts | 없음; 신규 대기 |
+| D02 | 초안·데이터 정의 | null 기본값·자료 필드 보존·audio 참조 분리·초기 컬렉션/정의/옵션 | 06 | unit | lib/reading-drafts.ts; lib/reading-data.ts | tests/reading-drafts.test.ts | Step 06 2026-10-14 PASS: unit·contracts·typecheck; 타입 밖 입력은 폼 U01·row S01 담당 |
 | D03 | 자료 준비 | 일반 책/단어 읽기의 표지·필수 링크 차이 | 07·23 | unit/browser | lib/reading-calculations.ts; app/reading-manager-client.tsx | tests/reading-calculations.test.ts; tests/browser/profile-material.spec.ts | E01 일부; 신규 대기 |
 | D04 | URL 경계 | 빈 값 허용과 필수 입력 구분; http/https만 유효 | 07·23 | unit/browser | lib/reading-calculations.ts; app/reading-manager-client.tsx | tests/reading-calculations.test.ts; tests/browser/profile-material.spec.ts | E01 일부; 신규 대기 |
 | D05 | 후보 검색·예정 목록 | 선택 자료 제외·이력 조건·시리즈·정렬·10/20 상한; 예정 목록은 child 일치·오늘 포함·날짜순 | 07 | unit | lib/reading-calculations.ts | tests/reading-calculations.test.ts | E01 일부; 신규 대기 |
@@ -79,6 +79,9 @@
 | D01-E02 | 2027-01-01, 2026-01-31, 빈 라벨 | 주/월 범위·이동·라벨 조회 | 일~토 범위, 주 7일 이동, month 목적 월 1일, 고정 오늘 fallback | tests/reading-period.test.ts::경계값: 주간 범위는 일요일에 시작해 연말과 연초를 모두 포함한다 등 | edge | 3개 Step 05 unit 명령 PASS |
 | D01-N02 | 2026-06-10T00:05:00.000Z | formatTime 조회 | Asia/Seoul 09:05, UTC 00:05의 로컬 시각 | tests/reading-period.test.ts::정상 입력: formatTime은 UTC ISO 시각을 실행 환경의 로컬 시각으로 표시한다 | normal | 각 TZ unit 명령 PASS |
 | D01-F01 | 2026-06-12~10 | datesInRange 조회 | 실제 배정 폼에서 선검사하는 역전 범위는 [] | tests/reading-calculations.test.ts::잘못된 범위: datesInRange는 실제 배정 폼에서 가능한 역전 범위에 빈 목록을 반환한다 | invalid | 3개 Step 05 unit 명령 PASS |
+| D02-N01 | 편집 가능한 모든 Book/Child 필드 | bookToDraft/childToDraft 변환 | UI 초안 필드가 원본 값과 같다 | tests/reading-drafts.test.ts::정상 입력: bookToDraft는 모든 편집 필드를 보존한다 등 | normal | Step 06 2026-10-14 unit PASS |
+| D02-E01 | null·빈 문자열·반복 생성한 Book/Child 초안 | 초안 생성 뒤 audio와 원본 변경 | 원본·빈 초안·다른 초안은 서로 오염되지 않는다 | tests/reading-drafts.test.ts::경계값: 빈 문자열과 반복 생성한 초안은 원본·빈 초안·다른 초안과 분리된다 | edge | Step 06 2026-10-14 unit PASS |
+| D02-N02 | 초기 ReadingData 및 정의/옵션 | 초기 shape·UI 소비 정의 조회 | 빈 컬렉션/맵, label·needsAudio·category tasks, count/PASS-FAIL options | tests/reading-drafts.test.ts::정상 입력: 초기 데이터 shape와 UI가 소비하는 task·category·option 정의를 제공한다 | normal | Step 06 2026-10-14 unit·contracts PASS |
 
 새 기능 규칙을 임의로 만들지 않는다. 최종 review는 이 표와 실제 발견/실행된 테스트를 대조한다.
 
@@ -89,7 +92,7 @@
 | ID | 정상 | 경계 | invalid/실패 또는 N/A 이유 |
 | --- | --- | --- | --- |
 | D01 | 고정 날짜의 주/월 범위·표시·로컬 formatTime | 일요일·월말·윤년·연말·한 날짜·빈 라벨 fallback·포함 양 끝 | 역전 범위는 []; malformed 날짜 정책은 Q01 |
-| D02 | book/child의 모든 편집 필드 복사·초기 컬렉션/label/task 정의/옵션 | null 초안·audio 참조 분리 | 타입 밖 객체 N/A: 폼 검증은 U01 |
+| D02 | book/child의 모든 편집 필드 복사·초기 컬렉션/label/task 정의/옵션 | null 초안·audio 참조 분리 | 타입 밖 객체 N/A: 폼 검증은 U01, 외부 row는 S01 |
 | D03 | 일반 책은 표지/읽기/정따 준비 상태 표시 | 단어 읽기는 listen만 필요·기본 아이콘 | 누락 링크는 준비 부족 표시; 저장 거부와 구분 |
 | D04 | http/https URL 허용 | 공백은 helper에서 true; 단어 읽기 저장에는 필수 | ftp/javascript/깨진 URL은 false·폼 저장 차단 |
 | D05 | 시리즈/검색 및 선택 제외·예정 목록 child/date 필터 | 무검색 10개·검색 20개; 검색할 때 이력 포함·오늘 포함 | 문자열 검색은 정규화; SQL wildcard는 Q02 |

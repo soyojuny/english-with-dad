@@ -10,11 +10,11 @@
 
 | 파일 | 현재 확인한 검증 | 추가 책임 / step | 시나리오 / 테스트·결과 참조 |
 | --- | --- | --- | --- |
-| lib/reading-types.ts | typecheck, contracts | 타입 전용; 06·08의 행동 계약 및 전체 typecheck | D02·D06·D07·D08 (타입 전용) |
-| lib/reading-data.ts | dateKey: reading-period.test.ts, contracts | 정의 규칙·초기 데이터, 06·08 | D01(05 PASS)·D02·D06·D07·U05 |
+| lib/reading-types.ts | typecheck, contracts | 타입 전용; 06·08의 행동 계약 및 전체 typecheck | D02(06 2026-10-14 PASS)·D06·D07·D08 (타입 전용) |
+| lib/reading-data.ts | dateKey: reading-period.test.ts, definitions/initial data: reading-drafts.test.ts, contracts | 정의 규칙·초기 데이터, 08 | D01(05 PASS)·D02(06 2026-10-14 PASS)·D06·D07·U05 |
 | lib/reading-calculations.ts | datesInRange/formatDate: reading-calculations.test.ts; formatDate/formatTime: reading-period.test.ts | 검색·제한·매트릭스·로그·진행률 공백, 07·08 | D01(05 PASS)·D03·D04·D05·D06·D07·D08·U06 |
 | lib/reading-period.ts | reading-period.test.ts | 주/월/연말/윤년과 이동·라벨 경계, 05 완료 | D01(05 PASS) |
-| lib/reading-drafts.ts | 직접 테스트 파일 없음 | null 기본값·복사·참조 오염, 06 | D02 |
+| lib/reading-drafts.ts | reading-drafts.test.ts | null 기본값·복사·참조 오염 | D02(06 2026-10-14 PASS) |
 | lib/child-task-policy.ts | child-task-policy.test.ts | 완료 표시·선택·snapshot 기존 규칙 대응 및 공백, 08 | D07·H01·H03·U06 |
 | lib/task-completion.ts | task-completion.test.ts | 기존 비동기/결과 불명확 회귀 유지, 15 | S07·H03·U07 |
 | lib/audio-return.ts | audio-return.test.ts | 이벤트·첫 복귀·이전 응답 회귀 유지, 15 | S08·H03·U06 |
@@ -160,8 +160,8 @@ store의 23개 함수는 위 개별 행에 대응한다. 나머지 export는 아
 | lib/cover-image.ts | `compressCoverImage` | M01 |
 | lib/qr-reader.ts | `readQrValueFromSource` | M02 |
 | lib/reading-calculations.ts | `taskOrder`, `activityCategoryOrder`, `bookContentTypeLabels`, `formatDate`, `formatTime`, `datesInRange`, `normalizeText`, `getAssignmentBookCandidates`, `getUpcomingAssignments`, `buildAssignmentActivityLogs`, `hasCustomCover`, `isWordReadingMaterial`, `getBookSetupIssues`, `getAvailableActivityCategories`, `getDefaultTasksForMaterial`, `getActivityTasksForMaterial`, `getTaskAudioUrl`, `isValidExternalUrl`, `getAssignmentTaskCount`, `getEditableTasksForAssignment`, `buildAssignmentTaskCounts`, `getCompletionCount`, `formatTaskSummary`, `sortTasks`, `getLaunchMinutes`, `countAssignmentProgress`, `formatAssignmentTaskLabels` | D01·D03·D04·D05·D06·D07·D08·U06 |
-| lib/reading-data.ts | `emptyReadingData`, `taskDefinitions`, `activityCategoryDefinitions`, `logLabels`, `taskCountOptions`, `quizResultOptions`, `dateKey` | D01·D02·D06·D07·U05 |
-| lib/reading-drafts.ts | `emptyBookDraft`, `emptyChildDraft`, `bookToDraft`, `childToDraft` | D02 |
+| lib/reading-data.ts | `emptyReadingData`, `taskDefinitions`, `activityCategoryDefinitions`, `logLabels`, `taskCountOptions`, `quizResultOptions`, `dateKey` | D01·D02(06 2026-10-14 PASS)·D06·D07·U05 |
+| lib/reading-drafts.ts | `emptyBookDraft`, `emptyChildDraft`, `bookToDraft`, `childToDraft` | D02(06 2026-10-14 PASS) |
 | lib/reading-period.ts | `getPeriodDateRange`, `shiftSelectedDateKey`, `formatPeriodRangeLabel` | D01 |
 | lib/supabase/client.ts | `createClient` | A01 |
 | lib/supabase/config.ts | `getSupabaseEnv`, `isSupabaseConfigured`, `isLocalTestLoginEnabled` | A01 |

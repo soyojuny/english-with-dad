@@ -4,7 +4,7 @@
 
 In Progress
 
-Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS로 구현 완료했으며 Step 06–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
+Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS로 구현 완료했으며 Step 07–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
 
 ## Planning Status
 
@@ -212,6 +212,22 @@ afterEach는 DOM/storage/timer/spy/global/env를 복원하고 StrictMode effect�
 - D01은 로컬 `dateKey`, 포함 범위와 역전 범위, 윤년 한 날짜·월말, 일요일 시작 주간·연말/연초, week 7일 이동, month 대상 월 1일, 주/월 라벨과 빈 라벨 fallback을 명시한다.
 - malformed/존재하지 않는 날짜 문자열의 정책은 Q01이다. `type=date`의 정상 UI 경로는 유효 날짜만 제출하고 역전 범위는 폼이 선검사한다. 따라서 순수 helper에 타입 밖 문자열을 강제해 현재 관찰 결과를 계약으로 만들지 않았다. 외부 row/URL 경계에서 이 입력을 허용하거나 거부할 제품 계약은 후속 결정이 필요하다.
 - 이번 step은 unit 범위만 검증했다. DB/RLS·실기기 및 후속 UI 배정 흐름 검증은 완료로 계산하지 않는다. commit/review와 Step 06은 시작하지 않는다.
+
+## Step 06 Execution — 2026-10-14
+
+기준 HEAD는 사용자 제공 `66b296c`이다. 제품 코드는 변경하지 않고 `tests/reading-drafts.test.ts`를 추가해 D02의 Book/Child 편집 필드 보존, null·빈 문자열, 반복 생성한 초안의 nested audio 참조 분리, `emptyReadingData`의 관찰 가능한 초기 shape와 UI 소비 정의/옵션을 검증했다. singleton 자체는 변경하지 않았고, Step 02의 unit runner 신규 파일 발견·실패 exit 전달·정리 증거를 재사용했다.
+
+| 명령 | 결과 | 범위와 한계 |
+| --- | --- | --- |
+| `npm run test:unit` | exit 0; 9 파일 PASS, fail/skip/todo 0 | 신규 `reading-drafts.test.ts`를 포함한 node:test unit suite |
+| `npm run check:contracts` | exit 0; Contract check passed | task/category 정의와 정적 계약 회귀 확인 |
+| `npm run typecheck` | exit 0 | `reading-types` 및 `BookDraft`/`ChildDraft` type-only 계약 포함 |
+
+- D02-N01은 `Book`의 초안 편집 필드(`id`, `contentType`, `series`, `title`, `volume`, `level`, `cover`, `audio`, `note`)와 `Child`의 모든 필드를 보존한다. `Book.active`는 `BookDraft`에 존재하지 않는 비편집 상태이므로 초안 계약에 넣지 않았다.
+- D02-E01은 null 기본값, 빈 문자열, 원본·첫 초안·둘째 초안·`emptyBookDraft` 사이의 nested audio 분리를 확인한다. 초안 또는 원본 audio를 바꾼 뒤 다른 대상이 오염되지 않는 관찰 결과를 확인했고, 공유 singleton을 변경하는 테스트는 만들지 않았다.
+- `emptyReadingData`는 빈 컬렉션/맵 shape만 읽는다. task label·`needsAudio`·category task 대응, UI가 순회하는 count/PASS-FAIL options만 검증하며 횟수·진행률 계산은 Step 08의 기존 책임과 중복하지 않았다.
+- 타입상 불가능한 객체를 `as any`로 만들지 않았다. invalid 폼 입력은 U01, 외부 row 입력은 S01에서 검증한다. DB/RLS·실기기와 Step 07은 범위 밖이다. 제품 결함 RED→GREEN은 없고 기존 동작의 GREEN 계약 확인이다.
+- 사용자 지시에 따라 commit, Step 07, 별도 code review는 수행하지 않았다.
 
 ## Final Verification
 
