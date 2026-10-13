@@ -25,11 +25,6 @@ import {
   sortTasks,
 } from "../lib/reading-calculations";
 import { emptyReadingData } from "../lib/reading-data";
-import {
-  formatPeriodRangeLabel,
-  getPeriodDateRange,
-  shiftSelectedDateKey,
-} from "../lib/reading-period";
 import type { Assignment, Book, ReadingData } from "../lib/reading-types";
 
 const assignment: Assignment = {
@@ -57,33 +52,54 @@ const candidateBooks: Book[] = ["처음 책", "다시 읽을 책", "선택한 �
   note: "",
 }));
 
-test("datesInRange returns inclusive date keys", () => {
-  assert.deepEqual(datesInRange("2026-06-10", "2026-06-12"), [
+test("정상 입력: datesInRange는 시작일과 종료일을 모두 포함한다", () => {
+  // Given
+  const startDate = "2026-06-10";
+  const endDate = "2026-06-12";
+
+  // When
+  const actual = datesInRange(startDate, endDate);
+
+  // Then
+  assert.deepEqual(actual, [
     "2026-06-10",
     "2026-06-11",
     "2026-06-12",
   ]);
 });
 
-test("datesInRange returns an empty array when the range is inverted", () => {
-  assert.deepEqual(datesInRange("2026-06-12", "2026-06-10"), []);
+test("경계값: datesInRange는 윤년 2월 29일 한 날짜 범위를 포함한다", () => {
+  // Given
+  const date = "2024-02-29";
+
+  // When
+  const actual = datesInRange(date, date);
+
+  // Then
+  assert.deepEqual(actual, ["2024-02-29"]);
 });
 
-test("formatDate displays compact month and day", () => {
-  assert.equal(formatDate("2026-06-10"), "6/10");
+test("잘못된 범위: datesInRange는 실제 배정 폼에서 가능한 역전 범위에 빈 목록을 반환한다", () => {
+  // Given
+  const startDate = "2026-06-12";
+  const endDate = "2026-06-10";
+
+  // When
+  const actual = datesInRange(startDate, endDate);
+
+  // Then
+  assert.deepEqual(actual, []);
 });
 
-test("activity periods support weekly default navigation and monthly views", () => {
-  assert.deepEqual(getPeriodDateRange("week", "2026-06-10"), {
-    startKey: "2026-06-07",
-    endKey: "2026-06-13",
-  });
-  assert.equal(shiftSelectedDateKey("2026-06-10", "week", 1), "2026-06-17");
-  assert.deepEqual(getPeriodDateRange("month", "2026-06-10"), {
-    startKey: "2026-06-01",
-    endKey: "2026-06-30",
-  });
-  assert.equal(formatPeriodRangeLabel("month", ["2026-06-01", "2026-06-30"]), "2026. 6");
+test("정상 입력: formatDate는 월/일을 간결하게 표시한다", () => {
+  // Given
+  const date = "2026-06-10";
+
+  // When
+  const actual = formatDate(date);
+
+  // Then
+  assert.equal(actual, "6/10");
 });
 
 test("normalizeText trims, folds spaces, and lowercases", () => {

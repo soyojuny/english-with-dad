@@ -4,7 +4,7 @@
 
 In Progress
 
-Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했으며 Step 05–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
+Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS로 구현 완료했으며 Step 06–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
 
 ## Planning Status
 
@@ -62,7 +62,7 @@ Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0
 | 0 | 02 단위 테스트 실행기와 공통 fixture | Complete | test:unit/typecheck PASS; root harness 8 PASS·direct unit 110 PASS; source baseline 기록. 루트 Standards/Spec 각 0 findings, main 1573172 커밋. |
 | 0 | 03 컴포넌트·hook·서버 테스트 기반 | Complete | component 6/server 2/unit 110/probe 2 PASS, typecheck PASS. 기본 TMPDIR probe도 2 PASS. ENOSPC·임시 probe TS5097과 해결은 아래 기록. 루트 Standards/Spec 각 0 findings, main 8ee525c 커밋. |
 | 0 | 04 브라우저 fixture와 실제 Next 실행 구분 | Complete | verify exit 0; component 6/server 2/harness 13/browser 9 PASS; 최종 typecheck exit 0. 재검토 중 Spec의 JSON artifact 1건을 보완·재검증했으며, 최종 Standards 0 findings/Spec 0 findings. |
-| 1 | 05 날짜와 주·월 경계 | Pending | 미실행 |
+| 1 | 05 날짜와 주·월 경계 | Complete | unit 기본·Asia/Seoul·UTC 모두 exit 0, 각 8 파일 PASS; malformed 날짜는 Q01로 유지. |
 | 1 | 06 초기 데이터와 입력 초안 복사 | Pending | 미실행 |
 | 1 | 07 자료 준비 상태와 배정 후보 | Pending | 미실행 |
 | 1 | 08 횟수·진행률·활동 기록 | Pending | 미실행 |
@@ -198,6 +198,20 @@ afterEach는 DOM/storage/timer/spy/global/env를 복원하고 StrictMode effect�
 모든 browser profile/build/fixture TMPDIR와 browser cache는 ignored verification-artifacts 아래다. 각 context·HTTP server·Next process group·임시 복사본/bundle을 finally에서 정리하며 실패 artifact는 보존한다. page.route는 client SDK HTTP만 대체하고 SSR은 실제 로컬 Auth HTTP를 사용한다. 알려진 Next dev npm 버전 확인 한 건은 외부 전송 없이 503으로 답하며 다른 예상 밖 요청은 실패시킨다. 실제 Auth/JWT/OAuth·DB/RLS·실기기 보장과 상세 기능/coverage 검증은 후속이다. code-review·commit은 root 담당이며 Step 05는 시작하지 않았다.
 
 최초 Standards 2건은 수정했다. fixture 날짜는 Node 로컬 TZ 계산 대신 고정 한국 날짜를 사용한다. UI 준비는 locator/명시 fixture 상태로 기다리고, 토스트 이후 3초·요청 timeout 15초는 설치·정지한 Playwright clock으로 진행한다. 기존 7개 행동/assertion은 유지한다. 재검토 중 Spec은 T01-F06의 독립 requests.json artifact 누락 1건을 발견했고, teardown 실패 screenshot을 context 종료 전 저장하며 요청 JSON을 별도 파일로 저장·attach하도록 보완했다. T01-F06 단독 1 PASS, 최종 harness 13 PASS, TZ browser 9 PASS와 최종 typecheck exit 0으로 해소한 뒤 최종 Standards 0 findings, Spec 0 findings를 확인했다.
+
+## Step 05 Execution — 2026-10-14
+
+기준 HEAD는 사용자 제공 `12b4514`이다. 제품 코드는 변경하지 않고 `tests/reading-period.test.ts`를 추가하고 기존 `tests/reading-calculations.test.ts`의 날짜 범위 회귀를 Given–When–Then 구조로 최소 보강했다. Step 02의 unit runner가 새 파일을 발견하고 실패를 전달한다는 증거를 재사용했다.
+
+| 명령 | 결과 | 범위와 한계 |
+| --- | --- | --- |
+| `npm run test:unit` | exit 0; 8 파일 PASS, fail/skip/todo 0 | 신규 period 파일과 기존 계산 회귀 포함 |
+| `TZ=Asia/Seoul npm run test:unit` | exit 0; 8 파일 PASS, fail/skip/todo 0 | UTC ISO `2026-06-10T00:05:00.000Z`의 formatTime=09:05 확인 |
+| `TZ=UTC npm run test:unit` | exit 0; 8 파일 PASS, fail/skip/todo 0 | 같은 ISO의 formatTime=00:05 확인 |
+
+- D01은 로컬 `dateKey`, 포함 범위와 역전 범위, 윤년 한 날짜·월말, 일요일 시작 주간·연말/연초, week 7일 이동, month 대상 월 1일, 주/월 라벨과 빈 라벨 fallback을 명시한다.
+- malformed/존재하지 않는 날짜 문자열의 정책은 Q01이다. `type=date`의 정상 UI 경로는 유효 날짜만 제출하고 역전 범위는 폼이 선검사한다. 따라서 순수 helper에 타입 밖 문자열을 강제해 현재 관찰 결과를 계약으로 만들지 않았다. 외부 row/URL 경계에서 이 입력을 허용하거나 거부할 제품 계약은 후속 결정이 필요하다.
+- 이번 step은 unit 범위만 검증했다. DB/RLS·실기기 및 후속 UI 배정 흐름 검증은 완료로 계산하지 않는다. commit/review와 Step 06은 시작하지 않는다.
 
 ## Final Verification
 

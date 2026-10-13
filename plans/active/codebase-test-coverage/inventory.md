@@ -11,9 +11,9 @@
 | 파일 | 현재 확인한 검증 | 추가 책임 / step | 시나리오 / 테스트·결과 참조 |
 | --- | --- | --- | --- |
 | lib/reading-types.ts | typecheck, contracts | 타입 전용; 06·08의 행동 계약 및 전체 typecheck | D02·D06·D07·D08 (타입 전용) |
-| lib/reading-data.ts | 일부 계산 테스트, contracts | dateKey·정의 규칙·초기 데이터, 05·06·08 | D01·D02·D06·D07·U05 |
-| lib/reading-calculations.ts | reading-calculations.test.ts | 날짜·검색·제한·매트릭스·로그·진행률 공백, 05·07·08 | D01·D03·D04·D05·D06·D07·D08·U06 |
-| lib/reading-period.ts | 기존 계산 테스트에서 일부 확인 | 주/월/연말/윤년과 이동·라벨 경계, 05 | D01 |
+| lib/reading-data.ts | dateKey: reading-period.test.ts, contracts | 정의 규칙·초기 데이터, 06·08 | D01(05 PASS)·D02·D06·D07·U05 |
+| lib/reading-calculations.ts | datesInRange/formatDate: reading-calculations.test.ts; formatDate/formatTime: reading-period.test.ts | 검색·제한·매트릭스·로그·진행률 공백, 07·08 | D01(05 PASS)·D03·D04·D05·D06·D07·D08·U06 |
+| lib/reading-period.ts | reading-period.test.ts | 주/월/연말/윤년과 이동·라벨 경계, 05 완료 | D01(05 PASS) |
 | lib/reading-drafts.ts | 직접 테스트 파일 없음 | null 기본값·복사·참조 오염, 06 | D02 |
 | lib/child-task-policy.ts | child-task-policy.test.ts | 완료 표시·선택·snapshot 기존 규칙 대응 및 공백, 08 | D07·H01·H03·U06 |
 | lib/task-completion.ts | task-completion.test.ts | 기존 비동기/결과 불명확 회귀 유지, 15 | S07·H03·U07 |

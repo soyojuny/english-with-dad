@@ -8,7 +8,7 @@
 
 | ID | 계약 | 기대 동작 / 확인 지점 | 담당 step | 계층 | 운영 파일 | 테스트 경로 (후속 제안 포함) | 기존 증거 / 현재 결과 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| D01 | 날짜·기간 | 일요일 시작 주간·윤년/월말·포함 범위·주/월 이동 | 05 | unit | lib/reading-data.ts; lib/reading-calculations.ts; lib/reading-period.ts | tests/reading-calculations.test.ts; tests/reading-period.test.ts | E01 일부; 신규 대기 |
+| D01 | 날짜·기간 | 일요일 시작 주간·윤년/월말·포함 범위·주/월 이동 | 05 | unit | lib/reading-data.ts; lib/reading-calculations.ts; lib/reading-period.ts | tests/reading-calculations.test.ts; tests/reading-period.test.ts | Step 05 PASS: 3개 TZ 명령에서 8 unit 파일 PASS; malformed 날짜는 Q01 |
 | D02 | 초안·데이터 정의 | null 기본값·자료 필드 보존·audio 참조 분리·초기 컬렉션/정의/옵션 | 06 | unit | lib/reading-drafts.ts; lib/reading-data.ts | tests/reading-drafts.test.ts | 없음; 신규 대기 |
 | D03 | 자료 준비 | 일반 책/단어 읽기의 표지·필수 링크 차이 | 07·23 | unit/browser | lib/reading-calculations.ts; app/reading-manager-client.tsx | tests/reading-calculations.test.ts; tests/browser/profile-material.spec.ts | E01 일부; 신규 대기 |
 | D04 | URL 경계 | 빈 값 허용과 필수 입력 구분; http/https만 유효 | 07·23 | unit/browser | lib/reading-calculations.ts; app/reading-manager-client.tsx | tests/reading-calculations.test.ts; tests/browser/profile-material.spec.ts | E01 일부; 신규 대기 |
@@ -74,7 +74,11 @@
 
 | 사례 ID | Given 입력/상태 | When 공개 행동 | Then 고정 기대값·근거 | 테스트 파일::테스트명 | 분류 | 명령·결과·artifact |
 | --- | --- | --- | --- | --- | --- | --- |
-| D01-E01 (작성 대상) | 2024-02-29 | month 범위 조회 | 02-01~02-29; Step 05 계약 | tests/reading-period.test.ts::미작성 | edge | 대기 |
+| D01-N01 | 2026-06-10~12 | datesInRange 조회 | 양 끝 포함한 3일 | tests/reading-calculations.test.ts::정상 입력: datesInRange는 시작일과 종료일을 모두 포함한다 | normal | 3개 Step 05 unit 명령 PASS |
+| D01-E01 | 2024-02-29 | month 범위 조회 | 02-01~02-29 | tests/reading-period.test.ts::경계값: 월간 범위는 윤년 2월의 마지막 날을 포함한다 | edge | 3개 Step 05 unit 명령 PASS |
+| D01-E02 | 2027-01-01, 2026-01-31, 빈 라벨 | 주/월 범위·이동·라벨 조회 | 일~토 범위, 주 7일 이동, month 목적 월 1일, 고정 오늘 fallback | tests/reading-period.test.ts::경계값: 주간 범위는 일요일에 시작해 연말과 연초를 모두 포함한다 등 | edge | 3개 Step 05 unit 명령 PASS |
+| D01-N02 | 2026-06-10T00:05:00.000Z | formatTime 조회 | Asia/Seoul 09:05, UTC 00:05의 로컬 시각 | tests/reading-period.test.ts::정상 입력: formatTime은 UTC ISO 시각을 실행 환경의 로컬 시각으로 표시한다 | normal | 각 TZ unit 명령 PASS |
+| D01-F01 | 2026-06-12~10 | datesInRange 조회 | 실제 배정 폼에서 선검사하는 역전 범위는 [] | tests/reading-calculations.test.ts::잘못된 범위: datesInRange는 실제 배정 폼에서 가능한 역전 범위에 빈 목록을 반환한다 | invalid | 3개 Step 05 unit 명령 PASS |
 
 새 기능 규칙을 임의로 만들지 않는다. 최종 review는 이 표와 실제 발견/실행된 테스트를 대조한다.
 
@@ -84,7 +88,7 @@
 
 | ID | 정상 | 경계 | invalid/실패 또는 N/A 이유 |
 | --- | --- | --- | --- |
-| D01 | 고정 날짜의 주/월 범위·표시 | 일요일·월말·윤년·연말·포함 양 끝 | 역전 범위는 []; malformed 날짜 정책은 Q01 |
+| D01 | 고정 날짜의 주/월 범위·표시·로컬 formatTime | 일요일·월말·윤년·연말·한 날짜·빈 라벨 fallback·포함 양 끝 | 역전 범위는 []; malformed 날짜 정책은 Q01 |
 | D02 | book/child의 모든 편집 필드 복사·초기 컬렉션/label/task 정의/옵션 | null 초안·audio 참조 분리 | 타입 밖 객체 N/A: 폼 검증은 U01 |
 | D03 | 일반 책은 표지/읽기/정따 준비 상태 표시 | 단어 읽기는 listen만 필요·기본 아이콘 | 누락 링크는 준비 부족 표시; 저장 거부와 구분 |
 | D04 | http/https URL 허용 | 공백은 helper에서 true; 단어 읽기 저장에는 필수 | ftp/javascript/깨진 URL은 false·폼 저장 차단 |
@@ -143,7 +147,7 @@ Step 01은 아래 파일과 테스트명을 정적으로 대조했다. E01~E06�
 
 | 증거 | 실제 경로 | 대표 테스트명 / 보존 대상 | 실행 상태와 한계 |
 | --- | --- | --- | --- |
-| E01 | tests/reading-calculations.test.ts | datesInRange returns inclusive date keys; activity periods support weekly default navigation and monthly views; isValidExternalUrl allows empty, http, and https values only; word reading materials use extra study assignment defaults and the listen URL | 과거 unit baseline; 18개 test 선언 대조·새 경계 대기 |
+| E01 | tests/reading-calculations.test.ts; tests/reading-period.test.ts | datesInRange 양 끝/역전/한 날짜, 주·월 범위/이동/라벨, dateKey·formatDate·formatTime | Step 05: 기본·TZ=Asia/Seoul·TZ=UTC 각각 unit 8 파일 PASS; malformed 날짜는 Q01 |
 | E02 | tests/child-task-policy.test.ts | audio completion remains manual, requires a launch and does not require returnedAt; selection storage keys isolate owner, child and date including separators; completion snapshots never regress a later count | 과거 unit baseline; 11개 선언·hook cleanup 미증명 |
 | E03 | tests/task-completion.test.ts | persisted-but-response-lost is reconciled without another write or increment; dispose/profile switch ignores late save responses and keeps owners separate | 과거 unit baseline; 19개 선언·실제 DB 경쟁 미증명 |
 | E04 | tests/audio-return.test.ts | initial focus, visible and pageshow are not departure evidence; dispose/profile switch suppresses late save callbacks and all subsequent events | 과거 unit baseline; 23개 선언·실기기 미증명 |
