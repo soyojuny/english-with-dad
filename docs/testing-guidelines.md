@@ -113,6 +113,22 @@ npm run test:unit
 
 이 명령은 `tsconfig.test.json`으로 TypeScript 테스트를 `.test-build/`에 컴파일하고, `scripts/run-unit-tests.mjs`를 통해 Node 테스트 러너로 실행한다. 생성된 `.test-build/` 파일은 직접 편집하지 않는다.
 
+신규 계층은 기존 node:test와 따로 실행한다. 단위 컴파일에 다른 계층의 테스트를 넣지 않는다.
+
+| 계층 | 실제 경로 | 실행 명령 |
+| --- | --- | --- |
+| 컴포넌트·hook | tests/components/·tests/hooks/ | npm run test:component (jsdom) |
+| 서버 경계 | tests/server/ | npm run test:server (Node) |
+| 하네스 발견/실패/정리 | tests/harness/*.test.mjs | npm run test:harness |
+| client HTTP 브라우저 | tests/browser/client/*.spec.mjs | npm run test:audio-browser 또는 test:browser:client |
+| 실제 Next/Auth HTTP 브라우저 | tests/browser/next/*.spec.mjs | npm run test:browser:next |
+
+`npm run test:browser`는 두 브라우저 프로젝트를 함께 발견한다. UI/서버 mock은 네트워크를
+명시 대체하고 test 종료 시 DOM/storage/env/spy/timer를 복원한다. 브라우저는 독립 context를
+사용한다. async Page·middleware의 SSR HTTP는 실제 Next와 로컬 HTTP 대역으로 검사하며,
+브라우저 route 대체 결과와 구분한다. cache/임시파일/실패 artifact의 경로와 실행 조건은
+[개발 하네스](development-harness.md#오디오-완료-화면-회귀-테스트)에 기록한다.
+
 기능 변경의 전체 검증은 `npm run verify`로 수행한다. UI와 외부 앱 전환 등 브라우저 검증의 범위와 실행 방법은 [개발 하네스](development-harness.md)를 따른다.
 
 ## 리뷰 체크리스트

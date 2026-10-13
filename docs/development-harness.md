@@ -247,18 +247,48 @@ npm run build
 선택 복원, 저장 중 클릭 차단, 지속적인 오류 안내, 복귀 저장 응답 지연 중 시간 계산,
 실패 후 동일 요청 재시도, 응답 유실 후 결과 확인, 결과 조회 지연 후 복구를 검사한다.
 
-브라우저 도구는 프로젝트 의존성에 추가하지 않고 임시 디렉터리에 설치한다.
+도구는 package.json/lock의 exact devDependencies인 `@playwright/test@1.64.0`,
+`esbuild@0.28.2`를 사용한다. 별도 임시 npm 설치나 Chromium 실행 파일 지정은 필요하지 않다.
+현재 호환성 검증 환경은 Node 22.23.2/Linux이며 Chromium은 Playwright가 관리한다.
 
 ```bash
-npm install --prefix /tmp/ewd-audio-browser playwright esbuild
-# 해당 Playwright 버전의 Chromium이 없으면 설치한다.
-/tmp/ewd-audio-browser/node_modules/.bin/playwright install chromium
-EWD_BROWSER_TOOLS_DIR=/tmp/ewd-audio-browser npm run test:audio-browser
+export TMPDIR="$PWD/verification-artifacts/tmp"
+export PLAYWRIGHT_BROWSERS_PATH="$PWD/verification-artifacts/playwright-browsers"
+export npm_config_cache="$PWD/verification-artifacts/npm-cache"
+mkdir -p "$TMPDIR"
+# 해당 버전의 Chromium이 없을 때만 다운로드한다.
+node node_modules/@playwright/test/cli.js install chromium --no-remove
+npm run test:audio-browser
+npm run test:browser:next
+# 두 프로젝트를 함께 실행한다.
+npm run test:browser
 ```
 
-`EWD_CHROMIUM_PATH`로 기존 Chromium 실행 파일을 지정할 수도 있다. 결과 JSON과 화면 캡처는
-명령 출력에 표시된 시스템 임시 디렉터리에 저장한다. 이 검사는 자동 `verify`에 포함하지 않는다.
-실제 안드로이드 설치형 PWA와 외부 오디오 앱 전환 검증은 별도로 수행한다.
+`test:audio-browser`와 `test:browser:client`는 `client-http` 프로젝트의 같은 7개 회귀를
+발견한다. esbuild로 실제 ReadingManagerClient를 번들링하고 브라우저의 Supabase HTTP만
+대체한다. 이 결과는 실제 Next SSR/Auth 검증이 아니다.
+
+`test:browser:next`는 `next-auth-http` 프로젝트다. app/lib/public과 설정의 임시 복사본에서
+실제 Next dev 서버와 middleware/async Page를 실행하고, 서버 SDK도 로컬 Auth HTTP 서버를
+호출한다. `.env.local`을 복사하지 않으며 URL/key는 합성 fixture 값이다. 비로그인 SSR HTML과
+합성 session cookie 로그인 SSR HTML·서버 Auth 요청을 확인한다. SSR을 page.route로 대체하지
+않는다. 실제 Supabase/OAuth/DB/RLS가 성공했다는 의미는 아니다.
+
+운영 URL은 허용하지 않는다. 브라우저는 지정된 loopback origin만 허용하고, client HTTP와
+Auth HTTP 대역은 등록한 경로/메서드만 응답한다. Next child의 fetch는 로컬 Auth origin만
+허용한다. Next dev의 알려진 npm 버전 확인 요청 한 건은 외부 전송 없이 503으로 대체한다.
+다른 요청은 차단하고 catch하더라도 teardown에서 실패한다. 이 guard는 앱의 fetch 경계이며
+임의 Node socket의 보안 sandbox를 제공하지 않는다. service worker는 이 계층에서 block한다.
+
+매 명령은 `verification-artifacts/browser-<time>-<pid>/`에 JSON report/요청 attachment를 남기고
+실패에는 trace.zip·screenshot·오류 맥락을 보존한다. 서버 시작 실패는 Next 로그와 cleanup.json을
+남긴다. 별도 시작 실패 probe에는 브라우저가 없어 trace/화면은 N/A다. Playwright가 test마다
+context를 닫고, fixture가 지연 응답을 풀고 HTTP 서버·Next process group·임시 bundle/build를
+finally에서 정리한다. 실패 artifact와 버전별 브라우저 cache만 보존한다.
+
+이 검사는 기본 `verify`와 별도다. phase 0 종료에는 verify와 component/server/harness/browser를
+함께 실행하고 browser 두 프로젝트를 각각 독립 명령으로 두 번 확인한다. 실제 안드로이드
+설치형 PWA와 외부 오디오 앱 전환 검증은 후속으로 남긴다. [Playwright fixture 수명주기](https://playwright.dev/docs/test-fixtures), [네트워크 대체](https://playwright.dev/docs/network).
 
 ## 다음 하네스 후보
 

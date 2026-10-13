@@ -4,7 +4,7 @@
 
 In Progress
 
-Step 01·02는 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172로 커밋됐다. Step 03 구현·필수 검사·루트 Standards/Spec 각 0 findings를 확인했으며 커밋을 루트에 인계한다. Step 04–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
+Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했으며 Step 05–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
 
 ## Planning Status
 
@@ -14,9 +14,9 @@ Step 01·02는 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f
 
 ## Plan Conformance
 
-- Step 01은 계획 문서만, Step 02는 단위 러너·컴파일 경계·공통 fixture를 변경했다. Step 03은 환경별 설정·호환성 테스트·dev 도구와 명령을 추가한다.
-- 제품 app/lib/Supabase migration은 변경하지 않았다. Step 03의 dev 도구 exact pin 설치와 lock 변경은 루트가 수행했다.
-- 사용자의 전체 순차 구현·step별 커밋 요청을 반영했다. 현재 개발 pane은 전달된 Step 03만 수행하고 검토·커밋·다음 step 전달은 루트가 맡는다. push·배포 권한은 없다. 사용자 제공 초기 계획 문서 38개는 첫 step 커밋 범위다.
+- Step 01은 계획 문서만, Step 02는 단위 러너·컴파일 경계·공통 fixture, Step 03은 환경별 설정·호환성 테스트를 변경했다. Step 04는 browser 프로젝트·HTTP fixture·실행/실패/정리 검증과 관련 문서를 추가한다.
+- 제품 app/lib/Supabase migration은 변경하지 않았다. Step 03–04의 dev 도구 exact pin 설치와 lock 변경은 루트가 수행했다.
+- 사용자의 전체 순차 구현·step별 커밋 요청을 반영했다. Step 04 개발 pane은 이 step만 수행했고 검토·커밋·다음 step 전달은 루트가 맡았다. push·배포 권한은 없다. 사용자 제공 초기 계획 문서 38개는 첫 step 커밋 범위다.
 - 기존 node:test와 오디오 브라우저 회귀를 유지하며 신규 계층을 분리하는 계획이다.
 - DB query 조건 검사와 실제 DB/RLS, browser simulation과 실기기를 구분한다.
 - 용어와 도메인 규칙을 바꾸지 않아 docs/CONTEXT.md·ADR 추가는 필요하지 않다.
@@ -54,14 +54,14 @@ Step 01·02는 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f
 
 ## Step History
 
-계획 작성 시 모든 step은 Pending이었다. 현재 Step 01–03 구현이 Complete이며 진행 결과와 검토·커밋 상태는 각 task Execution Record와 이 표에 함께 기록한다.
+계획 작성 시 모든 step은 Pending이었다. 현재 Step 01–04 구현이 Complete이며 진행 결과와 검토·커밋 상태는 각 task Execution Record와 이 표에 함께 기록한다.
 
 | Phase | Step | Status | 실행한 검사/결과 |
 | --- | --- | --- | --- |
 | 0 | 01 검증 계약과 전체 코드 목록 확정 | Complete | check:contracts exit 0; 문서/파일/API/증거 대조 exit 0. 루트 Standards/Spec 0 findings, main 7dd0f93 커밋. |
 | 0 | 02 단위 테스트 실행기와 공통 fixture | Complete | test:unit/typecheck PASS; root harness 8 PASS·direct unit 110 PASS; source baseline 기록. 루트 Standards/Spec 각 0 findings, main 1573172 커밋. |
-| 0 | 03 컴포넌트·hook·서버 테스트 기반 | Complete | component 6/server 2/unit 110/probe 2 PASS, typecheck PASS. 기본 TMPDIR probe도 2 PASS. ENOSPC·임시 probe TS5097과 해결은 아래 기록. 루트 Standards/Spec 각 0 findings; 커밋 인계. |
-| 0 | 04 브라우저 fixture와 실제 Next 실행 구분 | Pending | 미실행 |
+| 0 | 03 컴포넌트·hook·서버 테스트 기반 | Complete | component 6/server 2/unit 110/probe 2 PASS, typecheck PASS. 기본 TMPDIR probe도 2 PASS. ENOSPC·임시 probe TS5097과 해결은 아래 기록. 루트 Standards/Spec 각 0 findings, main 8ee525c 커밋. |
+| 0 | 04 브라우저 fixture와 실제 Next 실행 구분 | Complete | verify exit 0; component 6/server 2/harness 13/browser 9 PASS; 최종 typecheck exit 0. 재검토 중 Spec의 JSON artifact 1건을 보완·재검증했으며, 최종 Standards 0 findings/Spec 0 findings. |
 | 1 | 05 날짜와 주·월 경계 | Pending | 미실행 |
 | 1 | 06 초기 데이터와 입력 초안 복사 | Pending | 미실행 |
 | 1 | 07 자료 준비 상태와 배정 후보 | Pending | 미실행 |
@@ -174,9 +174,30 @@ Step 01·02는 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f
 
 기본 검사의 TMPDIR는 `$PWD/verification-artifacts/tmp`이며 위 기본 TMPDIR probe만 미지정으로 실행했다. 최초 server/typecheck는 실행 전 sandbox mount ENOSPC(exit 101), root 최초 typecheck는 병렬 probe를 제품 `**/*.ts`가 발견해 TS5097(step03-typecheck.log)이었다. root의 공간 확보 후 실행됐고, tsconfig.json.exclude에 생성 verification-artifacts만 추가해 마지막 typecheck가 통과했다. 허용된 하네스 경계 수정이며 제품 기능 수정이 아니다. 개발 pane은 성공한 검사를 반복하지 않았다.
 
-afterEach는 DOM/storage/timer/spy/global/env를 복원하고 StrictMode effect의 listener/interval 해제를 확인했다. 임시 probe는 t.after로 제거한다. 전체 A01/A02/A04/C02/H02 검증·source coverage 재측정·실제 DB/RLS/OAuth/async Page/실기기는 후속이며, phase 전체 verify는 Step 04 이후다. 루트 Standards/Spec 각 0 findings 및 최종 typecheck 로그 확인 완료, 커밋 인계; 개발 pane은 Step 04를 시작하지 않았다.
+afterEach는 DOM/storage/timer/spy/global/env를 복원하고 StrictMode effect의 listener/interval 해제를 확인했다. 임시 probe는 t.after로 제거한다. 전체 A01/A02/A04/C02/H02 검증·source coverage 재측정·실제 DB/RLS/OAuth/async Page/실기기는 후속이며, phase 전체 verify는 Step 04 이후다. 루트 Standards/Spec 각 0 findings 및 최종 typecheck 로그 확인 후 main `8ee525c` 커밋 완료; 당시 개발 pane은 Step 04를 시작하지 않았다.
 
 앱 직접 Next/React/Supabase 버전은 유지됐다. lock의 공유 nanoid 3.3.12→3.3.20, source-map-js 1.2.1→1.2.2 patch dedupe는 설치 범위다. audit 3건은 기존 next/postcss/sharp 동일 버전이며 신규 테스트 도구에는 없다는 루트 확인을 기록한다(verification-artifacts/step03-audit.json). 이번 범위에서 보안 업그레이드는 하지 않았고 별도 앱 의존성 후속으로 남긴다.
+
+## Step 04 Execution — 2026-10-13
+
+기준 main `8ee525c`. root가 @playwright/test 1.64.0/esbuild 0.28.2 exact pin과 Chromium 156.0.8078.4 설치·launch/close sanity를 확인했다. package 편집은 설치 종료 후 시작했다. 기존 audio 명령은 client-http 프로젝트 CLI wrapper이며 7개 회귀의 이름/행동/assertion을 보존했다. next-auth-http는 실제 Next 복사본/로컬 Auth HTTP/합성 session cookie를 사용한다. 앱·framework·next.config 변경은 없다.
+
+| 명령·경계 | 결과 / 증거 |
+| --- | --- |
+| root 최초 test:browser:next | 2 FAIL; verification-artifacts/step04-next-feasibility.log. framework registry 요청 차단 및 프로필 선택 전 로그아웃 기대가 원인; 실패 trace/화면/요청·Next 로그·cleanup 보존 |
+| root 수정 후 test:browser:next | exit 0, 2 PASS(27.6s); step04-next-feasibility-final.log. 실제 SSR HTML 및 middleware/Page Auth HTTP를 확인 |
+| root test:audio-browser | exit 0, 기존 7 PASS(28.9s); step04-audio.log |
+| root npm run verify / test:component / test:server | 모두 exit 0, component 6/server 2 PASS; verification-artifacts/phase00-{verify,component,server}.log |
+| root 최초 npm run test:harness | 12 PASS/1 FAIL; phase00-harness.log. T01-F06 자식 CLI nonzero·trace·화면은 존재했으나 :88의 독립 요청 JSON 파일 검사 FAIL |
+| root 2차 test:harness | 12 PASS/1 FAIL; phase00-harness-final.log. screenshot/trace는 생성됐으나 :88의 독립 요청 JSON 파일 검사 FAIL |
+| root JSON 저장 보완 후 T01-F06 단독 | exit 0, 1 PASS; step04-artifact-final.log. 독립 requests.json 파일을 확인 |
+| root 최종 npm run test:harness | exit 0, 13 PASS; phase00-harness-final-2.log |
+| root TZ=America/Los_Angeles npm run test:browser | exit 0, 9 PASS(34.1s); phase00-browser.log. client 7/Next 2의 두 번째 독립 실행 및 날짜/제어 시계 수정 확인 |
+| root 최종 npm run typecheck | exit 0; step04-typecheck-final.log |
+
+모든 browser profile/build/fixture TMPDIR와 browser cache는 ignored verification-artifacts 아래다. 각 context·HTTP server·Next process group·임시 복사본/bundle을 finally에서 정리하며 실패 artifact는 보존한다. page.route는 client SDK HTTP만 대체하고 SSR은 실제 로컬 Auth HTTP를 사용한다. 알려진 Next dev npm 버전 확인 한 건은 외부 전송 없이 503으로 답하며 다른 예상 밖 요청은 실패시킨다. 실제 Auth/JWT/OAuth·DB/RLS·실기기 보장과 상세 기능/coverage 검증은 후속이다. code-review·commit은 root 담당이며 Step 05는 시작하지 않았다.
+
+최초 Standards 2건은 수정했다. fixture 날짜는 Node 로컬 TZ 계산 대신 고정 한국 날짜를 사용한다. UI 준비는 locator/명시 fixture 상태로 기다리고, 토스트 이후 3초·요청 timeout 15초는 설치·정지한 Playwright clock으로 진행한다. 기존 7개 행동/assertion은 유지한다. 재검토 중 Spec은 T01-F06의 독립 requests.json artifact 누락 1건을 발견했고, teardown 실패 screenshot을 context 종료 전 저장하며 요청 JSON을 별도 파일로 저장·attach하도록 보완했다. T01-F06 단독 1 PASS, 최종 harness 13 PASS, TZ browser 9 PASS와 최종 typecheck exit 0으로 해소한 뒤 최종 Standards 0 findings, Spec 0 findings를 확인했다.
 
 ## Final Verification
 

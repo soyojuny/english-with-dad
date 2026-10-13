@@ -2,7 +2,7 @@
 
 ## 적용 방식
 
-아래 43개 ID는 필수 자동 시나리오 묶음이다. 하나의 ID가 테스트 하나를 뜻하지 않는다. Step 01에서 코드/공개 API, 기대 동작, 기존 증거와 작성할 테스트 경로를 연결했다. **계약 목록 확정·Step 02 단위 기반·Step 03 환경별 호환성 검증은 완료했고 다른 신규 런타임 검증은 대기**다. 각 담당 step에서 사례를 `<ID>-N01/E01/F01`로 나누고 테스트명·실행 결과를 기록한다. 기존 회귀 일부가 있다는 이유로 묶음 전체를 PASS 처리하지 않는다.
+아래 43개 ID는 필수 자동 시나리오 묶음이다. 하나의 ID가 테스트 하나를 뜻하지 않는다. Step 01에서 코드/공개 API, 기대 동작, 기존 증거와 작성할 테스트 경로를 연결했다. **계약 목록 확정·Step 02 단위 기반·Step 03 환경별 호환성·Step 04 브라우저 실행 경계 검증은 완료했고, 나머지 신규 런타임 검증은 대기**다. 각 담당 step에서 사례를 `<ID>-N01/E01/F01`로 나누고 테스트명·실행 결과를 기록한다. 기존 회귀 일부가 있다는 이유로 묶음 전체를 PASS 처리하지 않는다.
 
 기대 결과가 계약/문서로 확인되지 않은 invalid 입력은 현재 출력값을 복사하지 않고 확인 필요 또는 결함으로 기록한다. 이미 있는 테스트는 대응시키고 미검증 사례만 추가한다. query 대역/HTTP fixture는 실제 DB·RLS 증거가 아니다.
 
@@ -149,7 +149,7 @@ Step 01은 아래 파일과 테스트명을 정적으로 대조했다. E01~E06�
 | E04 | tests/audio-return.test.ts | initial focus, visible and pageshow are not departure evidence; dispose/profile switch suppresses late save callbacks and all subsequent events | 과거 unit baseline; 23개 선언·실기기 미증명 |
 | E05 | tests/completion-store.test.ts | subsequent guarded completion updates only its owner, assignment, task and expected count; guarded save rejects invalid count transitions without a write | 과거 unit baseline; 10개 선언·SDK query 대역 |
 | E06 | tests/audio-return-store.test.ts | saveAudioReturn updates only returned_at on the matching unreturned launch; fetchAudioLaunch scopes owner, assignment and task and maps the persisted launch | 과거 unit baseline; 12개 선언·SDK query 대역 |
-| E07 | scripts/smoke-audio-completion.mjs | selection-reload; saving-status; persistent-error; return-before-save-response; failed-save-retry; lost-response-result-check; stalled-result-check-recovery | 7개 run 선언 보존; client bundle/HTTP fixture·이번 실행 없음 |
+| E07 | scripts/smoke-audio-completion.mjs → tests/browser/client/audio-completion.spec.mjs | selection-reload; saving-status; persistent-error; return-before-save-response; failed-save-retry; lost-response-result-check; stalled-result-check-recovery | Step 04: 기존 7개 test 이름/행동/assertion 보존·독립 client HTTP 실행 7 PASS; SSR 검증과 구분 |
 | E08 | scripts/check-contracts.mjs; scripts/check-pwa.mjs; package.json | contracts/SW/PWA/typecheck/build 정적 gate, 기존 unit 실행기 | 이번 check:contracts만 PASS; 다른 gate는 과거 기록/정적 대조·런타임 보장 아님 |
 
 ## 결정 필요 입력 경계
@@ -204,3 +204,19 @@ Step 01은 아래 파일과 테스트명을 정적으로 대조했다. E01~E06�
 | T01-F05 | Node에서 RTL hook 실행 → 실제 wrong-environment-probe 실패 1개·document is not defined·nonzero | tests/harness/component-server-runner.test.mjs::T01-F05 | PASS |
 
 실행 결과: component 3파일·6 test, server 2 test, probe 2 test PASS; 기존 unit 110 PASS와 typecheck exit 0. 로그와 최초 실패·해결은 task Execution Record 및 review의 Step 03 Execution에 연결한다. 제품 hook H02의 15초/요청 경쟁과 실제 Next async Page/DB/RLS/OAuth는 이 호환성 검증에 포함하지 않는다.
+
+## Step 04 브라우저 실행 경계
+
+| 사례 ID | 입력/행동 → 고정 기대 결과 | 실제 파일::테스트명 | 결과 |
+| --- | --- | --- | --- |
+| E07·H01 | 선택된 아동/배정 재로드 → 책 2 선택/1회 완료 유지 | tests/browser/client/audio-completion.spec.mjs::selection-reload | PASS |
+| E07·C03/U05 | 저장 지연/503/동일 요청 재시도 → 클릭 차단/오류 유지/1회 저장·재로드 유지 | 같은 파일::saving-status; persistent-error; failed-save-retry | 3 PASS |
+| E07·U06/U07 | 복귀 저장 지연/응답 유실/조회 지연 → 복귀 시간 반영/추가 write 없음/조회 복구 | 같은 파일::return-before-save-response; lost-response-result-check; stalled-result-check-recovery | 3 PASS |
+| T01-N05·A03 일부 | 실제 Next 비로그인 SSR → 200/Google 로그인 HTML·Auth user HTTP 0 | tests/browser/next/auth-feasibility.spec.mjs::T01-N05 | PASS |
+| T01-N06·A03 일부 | 합성 own session cookie/실제 Next → 200/학습 shell·프로필 선택·middleware/Page의 로컬 Auth HTTP | 같은 파일::T01-N06 | PASS |
+| T01-N07 | 임시 신규 spec → 실제 client fixture/assertion 발견·1 passed·exit 0 | tests/harness/browser-runner.test.mjs::T01-N07 | PASS |
+| T01-F06 | 미등록 외부 fetch 오류 catch → 1 failed/nonzero·trace/screenshot/URL 기록 | 같은 파일::T01-F06 | 1 PASS; 독립 요청 JSON artifact 저장 확인 |
+| T01-F07 | 실제 Next 시작 포트 점유 → EADDRINUSE/시작 실패·로그·process/temp 정리 | 같은 파일::T01-F07 | PASS |
+| T01-E11 | client/Next 각 독립 명령 후 통합 명령 → 새 context/fixture로 동일 7+2 PASS | package.json::test:audio-browser; test:browser:next; test:browser | 두 번째 실행 9 PASS; TZ America/Los_Angeles |
+
+독립 1차 로그는 verification-artifacts/step04-audio.log·step04-next-feasibility-final.log다. T01-F06은 requests.json 저장 뒤 verification-artifacts/step04-artifact-final.log에서 단독 1 PASS, 최종 harness는 phase00-harness-final-2.log에서 13 PASS다. 최초 feasibility의 harness 기대/Next dev 버전 조회 문제와 수정은 review Step 04 Execution에 구분한다. profile 선택/재로드는 기존 fixture 흐름이며 다른 child 전환의 상세 기능은 후속에 남긴다. 실패 입력은 실제 HTTP/서버 시작 경계다. 실제 OAuth/서명·DB/RLS·실기기나 전체 A03 완료를 주장하지 않는다.

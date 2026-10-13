@@ -2,7 +2,7 @@
 
 ## 기준과 판정
 
-2026-10-13에 현재 저장소를 조사했다. Step 01에서 운영 파일/공개 API와 **구현 대상 배정표**를 대조했다. 계약 목록 확정은 완료했지만 런타임 검증 완료 결과가 아니다. 각 행의 시나리오 ID는 [시나리오 표](scenarios.md)의 테스트 경로·기존 증거·신규 대기 상태에 연결된다. 후속 실행 결과는 그 표와 task Execution Record에 갱신한다.
+2026-10-13에 현재 저장소를 조사했다. Step 01에서 운영 파일/공개 API와 **구현 대상 배정표**를 대조했다. 계약 목록 확정은 완료했지만 전체 런타임 검증 완료 결과가 아니다. 각 행의 시나리오 ID는 [시나리오 표](scenarios.md)의 테스트 경로·기존 증거·Step별 실행 결과에 연결된다. 후속 실행 결과는 그 표와 task Execution Record에 갱신한다.
 
 기존 있음 = 직접 또는 기존 테스트 파일에 함께 검증된 동작이 있다. 정적 검사 = 구문/텍스트/타입/빌드 확인이며 런타임 검증을 뜻하지 않는다. 모든 파일에 테스트를 1개씩 기계적으로 생성하지 않고 관찰 가능한 행동이 있는 적절한 계층을 지정한다.
 
@@ -187,3 +187,10 @@ store의 23개 함수는 위 개별 행에 대응한다. 나머지 export는 아
 - vitest.server.config.ts와 tests/support/common-setup.ts: tests/server/auth-callback.test.ts의 A02-N01/E01은 실제 GET·NextRequest/NextResponse와 lib/supabase/server.ts를 사용하고 next/headers·SDK factory만 대체한다(2 PASS). A01/A02의 전체 공백은 Step 16–17에 유지한다.
 - tests/harness/component-server-runner.test.mjs의 T01-F04/F05는 실제 CLI test 발견과 잡아낸 예상 밖 fetch/잘못된 DOM 환경의 nonzero 전달을 검사한다(2 PASS). 임시 파일은 TMPDIR 아래 생성 후 t.after 제거, subprocess NODE_TEST_CONTEXT 제외. tsconfig.json은 생성 verification-artifacts만 제외하며 신규 테스트·설정의 typecheck는 PASS다.
 - package.json의 test:component/test:server와 exact dev 도구·lock 변경은 이번 Step 03 범위다. 기존 unit의 include/컴파일/실행기와 6파일 본문은 유지한다. 제품 source coverage 수치는 추가 측정하지 않았으며 Step 02 baseline의 미import 공백은 그대로 추적한다.
+
+## Step 04 브라우저 하네스 증거
+
+- scripts/smoke-audio-completion.mjs는 기존 명령을 Playwright client-http 프로젝트로 연결한다. tests/browser/client/audio-completion.spec.mjs의 기존 7개 이름/행동/assertion이 독립 실행 7 PASS다(E07·H01/C03/U05/U06/U07). tests/browser/support/client-fixture.mjs는 실제 ReadingManagerClient bundle과 SDK HTTP를 대체하며 실제 Next SSR 검사가 아니다.
+- playwright.config.ts의 next-auth-http와 tests/browser/next/auth-feasibility.spec.mjs(T01-N05/N06·A03 일부)는 독립 실행 2 PASS다. tests/browser/support/next-server.mjs·next-fixture.mjs가 실제 middleware/Page/NextRequest HTTP와 로컬 Auth HTTP를 연결한다. root app/lib/middleware/next.config 제품 소스는 변경하지 않고 .env.local 없는 복사본에서 실행한다.
+- tests/harness/browser-runner.test.mjs(T01-N07/F06/F07)는 신규 발견·미등록 요청 nonzero/trace/화면/요청 artifact·실제 Next 시작 실패/정리를 검사한다. network.mjs·next-network-guard.cjs는 브라우저 loopback과 Next SDK fetch 경계를 고정한다. 최초·2차 harness의 T01-F06 요청 JSON 누락은 별도 파일 저장으로 보완했고 단독 1 PASS 및 최종 harness 13 PASS다.
+- package.json/lock은 repo exact dev 도구를 고정하며 별도 직접 playwright 설치는 없다. docs/development-harness.md·testing-guidelines.md에 명령/계층/artifact 경계를 승격했다. source coverage 재측정이나 임의 gate는 없고 Step 02 미import baseline을 유지한다.
