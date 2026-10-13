@@ -20,6 +20,7 @@ import {
   getTaskAudioUrl,
   getUpcomingAssignments,
   hasCustomCover,
+  isWordReadingMaterial,
   isValidExternalUrl,
   normalizeText,
   sortTasks,
@@ -102,46 +103,96 @@ test("정상 입력: formatDate는 월/일을 간결하게 표시한다", () => 
   assert.equal(actual, "6/10");
 });
 
-test("normalizeText trims, folds spaces, and lowercases", () => {
-  assert.equal(normalizeText("  Bear   Says   Thanks  "), "bear says thanks");
+test("경계값: normalizeText는 공백을 접고 대소문자를 구분하지 않는다", () => {
+  // Given
+  const value = "  Bear   Says   Thanks  ";
+
+  // When
+  const actual = normalizeText(value);
+
+  // Then
+  assert.equal(actual, "bear says thanks");
 });
 
-test("assignment candidates show only unassigned books until a search includes assignment history", () => {
-  assert.deepEqual(
-    getAssignmentBookCandidates({
-      books: candidateBooks,
-      selectedBookIds: ["book-3"],
-      assignedBookIds: ["book-2"],
-      seriesFilter: "all",
-      search: "",
-    }).map((book) => book.id),
-    ["book-1"],
-  );
+test("정상 입력: 배정 후보는 검색할 때만 배정 이력을 포함하고 시리즈와 정규화된 제목을 적용한다", () => {
+  // Given
+  const input = {
+    books: candidateBooks,
+    selectedBookIds: ["book-3"],
+    assignedBookIds: ["book-2"],
+    seriesFilter: "반복 시리즈",
+    search: "  다시   읽을 ",
+  };
 
-  assert.deepEqual(
-    getAssignmentBookCandidates({
-      books: candidateBooks,
-      selectedBookIds: ["book-3"],
-      assignedBookIds: ["book-2"],
-      seriesFilter: "all",
-      search: "다시 읽을",
-    }).map((book) => book.id),
-    ["book-2"],
-  );
+  // When
+  const actual = getAssignmentBookCandidates(input).map((book) => book.id);
+
+  // Then
+  assert.deepEqual(actual, ["book-2"]);
 });
 
-test("upcoming assignments include today and all future dates for the selected child", () => {
+test("경계값: 배정 후보는 무검색 10개와 검색 20개 상한을 최근 자료 순으로 적용하고 입력을 바꾸지 않는다", () => {
+  // Given
+  const books = Array.from({ length: 22 }, (_, index): Book => ({
+    ...candidateBooks[0],
+    id: `candidate-${index + 1}`,
+    title: `Story ${index + 1}`,
+    series: index < 21 ? "Series A" : "Series B",
+  }));
+  const selectedBookIds = new Set(["candidate-22"]);
+  const assignedBookIds = new Set(["candidate-21"]);
+  const originalBookIds = books.map((book) => book.id);
+  const originalSelectedIds = [...selectedBookIds];
+  const originalAssignedIds = [...assignedBookIds];
+
+  // When
+  const withoutSearch = getAssignmentBookCandidates({
+    books,
+    selectedBookIds,
+    assignedBookIds,
+    seriesFilter: "all",
+    search: "",
+  });
+  const withSearch = getAssignmentBookCandidates({
+    books,
+    selectedBookIds,
+    assignedBookIds,
+    seriesFilter: "Series A",
+    search: "story",
+  });
+
+  // Then
+  assert.deepEqual(withoutSearch.map((book) => book.id), [
+    "candidate-20", "candidate-19", "candidate-18", "candidate-17", "candidate-16",
+    "candidate-15", "candidate-14", "candidate-13", "candidate-12", "candidate-11",
+  ]);
+  assert.deepEqual(withSearch.map((book) => book.id), [
+    "candidate-21", "candidate-20", "candidate-19", "candidate-18", "candidate-17",
+    "candidate-16", "candidate-15", "candidate-14", "candidate-13", "candidate-12",
+    "candidate-11", "candidate-10", "candidate-9", "candidate-8", "candidate-7",
+    "candidate-6", "candidate-5", "candidate-4", "candidate-3", "candidate-2",
+  ]);
+  assert.deepEqual(books.map((book) => book.id), originalBookIds);
+  assert.deepEqual([...selectedBookIds], originalSelectedIds);
+  assert.deepEqual([...assignedBookIds], originalAssignedIds);
+});
+
+test("경계값: 예정 배정은 선택한 아동의 오늘과 미래만 날짜순으로 반환하고 입력을 바꾸지 않는다", () => {
+  // Given
   const assignments: Assignment[] = [
     { ...assignment, id: "past", date: "2026-06-20" },
-    { ...assignment, id: "today", date: "2026-06-21" },
     { ...assignment, id: "future", date: "2026-07-01" },
+    { ...assignment, id: "today", date: "2026-06-21" },
     { ...assignment, id: "other-child", childId: "child-2", date: "2026-06-22" },
   ];
+  const originalIds = assignments.map((item) => item.id);
 
-  assert.deepEqual(
-    getUpcomingAssignments(assignments, "child-1", "2026-06-21").map((item) => item.id),
-    ["today", "future"],
-  );
+  // When
+  const actual = getUpcomingAssignments(assignments, "child-1", "2026-06-21");
+
+  // Then
+  assert.deepEqual(actual.map((item) => item.id), ["today", "future"]);
+  assert.deepEqual(assignments.map((item) => item.id), originalIds);
 });
 
 test("quiz results become book activity logs without requiring a task completion", () => {
@@ -216,40 +267,87 @@ test("copywork completions become extra study activity logs", () => {
   ]);
 });
 
-test("cover and book setup issue helpers identify missing setup", () => {
-  assert.equal(hasCustomCover("/assets/app-icon.svg"), false);
-  assert.equal(hasCustomCover("data:image/png;base64,abc"), true);
-  assert.deepEqual(
-    getBookSetupIssues({
-      cover: "/assets/app-icon.svg",
-      audio: { listen: "", shadow: "https://example.com/shadow" },
-    }),
-    ["표지", "읽기 링크"],
-  );
-  assert.deepEqual(
-    getBookSetupIssues({
-      contentType: "wordReading",
-      cover: "",
-      audio: { listen: "", shadow: "" },
-    }),
-    ["단어 읽기 링크"],
-  );
-  assert.deepEqual(
-    getBookSetupIssues({
-      contentType: "wordReading",
-      cover: "",
-      audio: { listen: "https://example.com/word", shadow: "" },
-    }),
-    [],
-  );
+test("정상 입력: 일반 책과 단어 읽기는 서로 다른 자료 준비 항목을 확인한다", () => {
+  // Given
+  const regularBook = {
+    contentType: "book" as const,
+    cover: "/assets/app-icon.svg",
+    audio: { listen: "", shadow: "https://example.com/shadow" },
+  };
+  const wordReading = {
+    contentType: "wordReading" as const,
+    cover: "",
+    audio: { listen: "https://example.com/word", shadow: "" },
+  };
+
+  // When
+  const regularIssues = getBookSetupIssues(regularBook);
+  const wordReadingIssues = getBookSetupIssues(wordReading);
+  const hasDefaultCover = hasCustomCover("/assets/app-icon.svg");
+  const hasUploadedCover = hasCustomCover("data:image/png;base64,abc");
+  const regularIsWordReading = isWordReadingMaterial(regularBook);
+  const wordReadingIsWordReading = isWordReadingMaterial(wordReading);
+
+  // Then
+  assert.equal(hasDefaultCover, false);
+  assert.equal(hasUploadedCover, true);
+  assert.equal(regularIsWordReading, false);
+  assert.equal(wordReadingIsWordReading, true);
+  assert.deepEqual(regularIssues, ["표지", "읽기 링크"]);
+  assert.deepEqual(wordReadingIssues, []);
 });
 
-test("isValidExternalUrl allows empty, http, and https values only", () => {
-  assert.equal(isValidExternalUrl(""), true);
-  assert.equal(isValidExternalUrl("https://example.com/audio"), true);
-  assert.equal(isValidExternalUrl("http://example.com/audio"), true);
-  assert.equal(isValidExternalUrl("ftp://example.com/audio"), false);
-  assert.equal(isValidExternalUrl("not a url"), false);
+test("경계값: 단어 읽기는 표지와 shadow 링크 없이 listen 링크만 있으면 준비된다", () => {
+  // Given
+  const wordReading = {
+    contentType: "wordReading" as const,
+    cover: "",
+    audio: { listen: "   ", shadow: "" },
+  };
+
+  // When
+  const actual = getBookSetupIssues(wordReading);
+
+  // Then
+  assert.deepEqual(actual, ["단어 읽기 링크"]);
+});
+
+test("정상 입력: URL helper는 빈 값과 http/https를 허용한다", () => {
+  // Given
+  const allowedValues = ["", "   ", "https://example.com/audio", "http://example.com/audio"];
+
+  // When
+  const allowedResults = allowedValues.map(isValidExternalUrl);
+
+  // Then
+  assert.deepEqual(allowedResults, [true, true, true, true]);
+});
+
+test("잘못된 입력: URL helper는 javascript, data, ftp와 깨진 URL을 거부한다", () => {
+  // Given
+  const rejectedValues = ["javascript:alert(1)", "data:text/plain,hello", "ftp://example.com/audio", "not a url"];
+
+  // When
+  const rejectedResults = rejectedValues.map(isValidExternalUrl);
+
+  // Then
+  assert.deepEqual(rejectedResults, [false, false, false, false]);
+});
+
+test("경계값: 빈 URL 허용은 helper 계약이고 일반 책의 필수 준비 항목을 충족시키지는 않는다", () => {
+  // Given
+  const book = {
+    cover: "",
+    audio: { listen: "", shadow: "" },
+  };
+
+  // When
+  const isEmptyUrlAllowed = isValidExternalUrl(book.audio.listen);
+  const setupIssues = getBookSetupIssues(book);
+
+  // Then
+  assert.equal(isEmptyUrlAllowed, true);
+  assert.deepEqual(setupIssues, ["표지", "읽기 링크", "정따 링크"]);
 });
 
 test("task counts fall back to legacy task presence", () => {
@@ -337,7 +435,8 @@ test("task formatting follows canonical task order", () => {
   );
 });
 
-test("word reading materials use extra study assignment defaults and the listen URL", () => {
+test("정상 입력: 자료 유형별 활동, 기본 task와 오디오 링크는 UI 허용 선택을 따른다", () => {
+  // Given
   const regularBook = {
     contentType: "book" as const,
     audio: { listen: "https://example.com/listen", shadow: "https://example.com/shadow" },
@@ -346,32 +445,67 @@ test("word reading materials use extra study assignment defaults and the listen 
     contentType: "wordReading" as const,
     audio: { listen: "https://example.com/word", shadow: "" },
   };
-  assert.deepEqual(getAvailableActivityCategories(regularBook), [
+
+  // When
+  const regularCategories = getAvailableActivityCategories(regularBook);
+  const wordReadingCategories = getAvailableActivityCategories(wordReading);
+  const regularDefaultTasks = getDefaultTasksForMaterial(regularBook);
+  const wordReadingDefaultTasks = getDefaultTasksForMaterial(wordReading);
+  const regularActivityTasks = regularCategories.map((category) => getActivityTasksForMaterial(category, regularBook));
+  const wordReadingActivityTasks = wordReadingCategories.map((category) => getActivityTasksForMaterial(category, wordReading));
+  const regularListenUrl = getTaskAudioUrl(regularBook, "listen");
+  const regularShadowUrl = getTaskAudioUrl(regularBook, "shadow");
+  const regularSelfUrl = getTaskAudioUrl(regularBook, "self");
+  const wordReadingUrl = getTaskAudioUrl(wordReading, "wordRead");
+  const regularWordReadUrl = getTaskAudioUrl({ contentType: "book", audio: wordReading.audio }, "wordRead");
+  const copyworkUrl = getTaskAudioUrl(regularBook, "copywork");
+
+  // Then
+  assert.deepEqual(regularDefaultTasks, ["listen", "shadow", "self"]);
+  assert.deepEqual(wordReadingDefaultTasks, ["wordRead"]);
+  assert.deepEqual(regularCategories, [
     "focusListen",
     "readAloud",
     "englishPicture",
     "extraStudy",
   ]);
-  assert.deepEqual(getActivityTasksForMaterial("extraStudy", regularBook), ["copywork"]);
-  assert.deepEqual(getActivityTasksForMaterial("extraStudy", wordReading), ["wordRead"]);
-  assert.deepEqual(getAvailableActivityCategories(wordReading), ["extraStudy"]);
-  assert.deepEqual(getDefaultTasksForMaterial(wordReading), ["wordRead"]);
-  assert.equal(getTaskAudioUrl(wordReading, "wordRead"), "https://example.com/word");
-  assert.equal(getTaskAudioUrl({ contentType: "book", audio: wordReading.audio }, "wordRead"), "");
-  assert.equal(getTaskAudioUrl(regularBook, "copywork"), "");
+  assert.deepEqual(regularActivityTasks, [
+    ["listen", "shadow", "self"],
+    ["listen", "shadow", "self"],
+    ["listen"],
+    ["copywork"],
+  ]);
+  assert.deepEqual(wordReadingCategories, ["extraStudy"]);
+  assert.deepEqual(wordReadingActivityTasks, [["wordRead"]]);
+  assert.equal(regularListenUrl, "https://example.com/listen");
+  assert.equal(regularShadowUrl, "https://example.com/shadow");
+  assert.equal(regularSelfUrl, "");
+  assert.equal(wordReadingUrl, "https://example.com/word");
+  assert.equal(regularWordReadUrl, "");
+  assert.equal(copyworkUrl, "");
 });
 
-test("extra study edit fallback stays material-aware when assignment tasks are empty", () => {
+test("경계값: 빈 배정 task는 자료별 활동 task로 복원하고 명시 task는 보존한다", () => {
+  // Given
+  const emptyExtraStudyAssignment = { activityCategory: "extraStudy" as const, tasks: [] };
+  const explicitTaskAssignment = { activityCategory: "extraStudy" as const, tasks: ["copywork" as const] };
+
+  // When
+  const regularFallback = getEditableTasksForAssignment(emptyExtraStudyAssignment, { contentType: "book" });
+  const wordReadingFallback = getEditableTasksForAssignment(emptyExtraStudyAssignment, { contentType: "wordReading" });
+  const explicitTasks = getEditableTasksForAssignment(explicitTaskAssignment, { contentType: "wordReading" });
+
+  // Then
   assert.deepEqual(
-    getEditableTasksForAssignment({ activityCategory: "extraStudy", tasks: [] }, { contentType: "book" }),
+    regularFallback,
     ["copywork"],
   );
   assert.deepEqual(
-    getEditableTasksForAssignment({ activityCategory: "extraStudy", tasks: [] }, { contentType: "wordReading" }),
+    wordReadingFallback,
     ["wordRead"],
   );
   assert.deepEqual(
-    getEditableTasksForAssignment({ activityCategory: "extraStudy", tasks: ["copywork"] }, { contentType: "wordReading" }),
+    explicitTasks,
     ["copywork"],
   );
 });

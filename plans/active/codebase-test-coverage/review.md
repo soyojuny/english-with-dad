@@ -4,7 +4,7 @@
 
 In Progress
 
-Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS로 구현 완료했으며 Step 07–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
+Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS로 구현 완료했으며 Step 08–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
 
 ## Planning Status
 
@@ -64,7 +64,7 @@ Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0
 | 0 | 04 브라우저 fixture와 실제 Next 실행 구분 | Complete | verify exit 0; component 6/server 2/harness 13/browser 9 PASS; 최종 typecheck exit 0. 재검토 중 Spec의 JSON artifact 1건을 보완·재검증했으며, 최종 Standards 0 findings/Spec 0 findings. |
 | 1 | 05 날짜와 주·월 경계 | Complete | unit 기본·Asia/Seoul·UTC 모두 exit 0, 각 8 파일 PASS; malformed 날짜는 Q01로 유지. |
 | 1 | 06 초기 데이터와 입력 초안 복사 | Pending | 미실행 |
-| 1 | 07 자료 준비 상태와 배정 후보 | Pending | 미실행 |
+| 1 | 07 자료 준비 상태와 배정 후보 | Complete | root 최종 `test:unit` exit 0; 127 PASS/fail·skip·todo 0. Standards/Spec 최종 0 findings; Step 02 runner 증거 재사용. |
 | 1 | 08 횟수·진행률·활동 기록 | Pending | 미실행 |
 | 2 | 09 전체·프로필 조회와 row 매핑 | Pending | 미실행 |
 | 2 | 10 오늘·예정 배정의 embedded 데이터 조회 | Pending | 미실행 |
@@ -228,6 +228,22 @@ afterEach는 DOM/storage/timer/spy/global/env를 복원하고 StrictMode effect�
 - `emptyReadingData`는 빈 컬렉션/맵 shape만 읽는다. task label·`needsAudio`·category task 대응, UI가 순회하는 count/PASS-FAIL options만 검증하며 횟수·진행률 계산은 Step 08의 기존 책임과 중복하지 않았다.
 - 타입상 불가능한 객체를 `as any`로 만들지 않았다. invalid 폼 입력은 U01, 외부 row 입력은 S01에서 검증한다. DB/RLS·실기기와 Step 07은 범위 밖이다. 제품 결함 RED→GREEN은 없고 기존 동작의 GREEN 계약 확인이다.
 - 사용자 지시에 따라 commit, Step 07, 별도 code review는 수행하지 않았다.
+
+## Step 07 Execution — 2026-10-14
+
+기준 HEAD는 사용자 제공 `5dd5468`이다. 제품 코드는 변경하지 않고 기존 `tests/reading-calculations.test.ts`를 최소 확장했다. Step 02의 unit runner가 새/수정 테스트를 발견하고 assertion 실패를 nonzero로 전달하며 stale 산출물을 정리한다는 증거를 재사용했다.
+
+| 명령 | 결과 | 범위와 한계 |
+| --- | --- | --- |
+| root 최종 `npm run test:unit` | exit 0; 127 PASS, fail/skip/todo 0 | `verification-artifacts/step07-unit-root-final.log`; 수정한 계산 회귀와 기존 node:test unit suite 포함 |
+
+- D03은 일반 책의 표지/읽기/정따 준비 상태와 단어 읽기의 listen-only 준비 상태, `hasCustomCover`와 `isWordReadingMaterial`을 확인한다.
+- D04는 빈 URL의 optional helper 허용과 자료 준비의 필수 입력 부족을 분리하고, http/https 허용 및 javascript/data/ftp/깨진 URL 거부를 확인한다.
+- D05는 공백·대소문자 정규화 검색, series, 선택 제외, 검색 시 배정 이력 포함, 무검색 10/검색 20 상한, 역삽입 순서, 배열/Set 불변성 및 child/오늘/미래/날짜순 예정 목록을 확인한다. SQL wildcard 정책은 Q02 및 Step 12 store 경계에 유지했다.
+- D06은 실제 UI가 허용하는 category/task만으로 일반 책/단어 읽기 활동, 기본 task, task 오디오 URL과 empty-task fallback을 확인했다. 타입 밖 category/task는 `as any`로 생성하지 않았으며, 해당 invalid 분류는 UI 경로상 적용 불가로 scenarios.md에 기록했다.
+- 최초 실행은 테스트 fixture의 일반 책 `contentType` 누락으로 TypeScript compile FAIL이었다. fixture에 실제 도메인 값 `book`을 명시한 뒤 재실행해 PASS했으며, 제품 결함이나 제품 코드 수정은 없었다.
+- code-review 최초 Standards P2는 GWT Then의 검증 대상 호출과 URL 정상/invalid 시나리오 결합 2건, Spec P3는 whitespace-only URL 허용과 일반 책 self task의 no-audio 2건을 지적했다. 모두 수정하고 stale scenarios 테스트명 P2까지 정정했으며 최종 Standards 0 findings, Spec 0 findings이다.
+- DB/RLS·실기기·폼 저장/browser 흐름은 이번 순수 helper 범위 밖이며 각각 후속 Step 12, 19, 23, 24에 남긴다. commit, 별도 code review 및 Step 08은 사용자 지시에 따라 수행하지 않았다.
 
 ## Final Verification
 

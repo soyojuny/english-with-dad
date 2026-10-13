@@ -12,7 +12,7 @@
 | --- | --- | --- | --- |
 | lib/reading-types.ts | typecheck, contracts | 타입 전용; 06·08의 행동 계약 및 전체 typecheck | D02(06 2026-10-14 PASS)·D06·D07·D08 (타입 전용) |
 | lib/reading-data.ts | dateKey: reading-period.test.ts, definitions/initial data: reading-drafts.test.ts, contracts | 정의 규칙·초기 데이터, 08 | D01(05 PASS)·D02(06 2026-10-14 PASS)·D06·D07·U05 |
-| lib/reading-calculations.ts | datesInRange/formatDate: reading-calculations.test.ts; formatDate/formatTime: reading-period.test.ts | 검색·제한·매트릭스·로그·진행률 공백, 07·08 | D01(05 PASS)·D03·D04·D05·D06·D07·D08·U06 |
+| lib/reading-calculations.ts | datesInRange/formatDate 및 자료 준비·URL·후보·활동/예정 목록: reading-calculations.test.ts; formatDate/formatTime: reading-period.test.ts | 로그·진행률 공백, 08 | D01(05 PASS)·D03–D06(07 2026-10-14 PASS)·D07·D08·U06 |
 | lib/reading-period.ts | reading-period.test.ts | 주/월/연말/윤년과 이동·라벨 경계, 05 완료 | D01(05 PASS) |
 | lib/reading-drafts.ts | reading-drafts.test.ts | null 기본값·복사·참조 오염 | D02(06 2026-10-14 PASS) |
 | lib/child-task-policy.ts | child-task-policy.test.ts | 완료 표시·선택·snapshot 기존 규칙 대응 및 공백, 08 | D07·H01·H03·U06 |
