@@ -180,3 +180,10 @@ store의 23개 함수는 위 개별 행에 대응한다. 나머지 export는 아
 - unit은 루트 tests/*.test.ts + tests/unit/**/*.test.ts + tests/helpers/**/*.ts, 하네스는 npm run test:harness의 tests/harness/*.test.mjs다. 새 component/hook/server/browser 소스는 unit include에 넣지 않는다. 타입 import로 필요한 의존성이 포함되는 TypeScript 특성까지 완전한 모듈 격리로 주장하지 않는다.
 - 실제 unit 단독 실행: 기존 6파일 106개 + 신규 4개 = 110개 test PASS. Step 01의 93개는 소스의 top-level test 선언 수였으며 parameterized 등록 후 실행 개수와 다르다.
 - 전체 source 범위·unit 미import 7개를 포함한 baseline은 [review.md](review.md)의 Step 02 Coverage Baseline에서 추적한다. 이번 신규 helper/test는 제품 source 커버리지에서 제외하고 runtime 앱 파일을 제외해 수치를 올리지 않는다.
+
+## Step 03 환경별 하네스 증거
+
+- vitest.component.config.ts와 tests/support/component-setup.ts: tests/components/assignment-quiz-score.test.tsx의 C02-N01/T01-E07, auth-panel.test.tsx의 A04-N01, tests/hooks/lifecycle-harness.test.tsx의 T01-E08/E09/E10에서 실제 클릭·rerender·unmount·StrictMode 및 DOM/storage/env/spy/timer/listener 정리 확인(6 test PASS). 수명주기 hook은 test-only probe이며 제품 hook H02 완료로 계산하지 않는다.
+- vitest.server.config.ts와 tests/support/common-setup.ts: tests/server/auth-callback.test.ts의 A02-N01/E01은 실제 GET·NextRequest/NextResponse와 lib/supabase/server.ts를 사용하고 next/headers·SDK factory만 대체한다(2 PASS). A01/A02의 전체 공백은 Step 16–17에 유지한다.
+- tests/harness/component-server-runner.test.mjs의 T01-F04/F05는 실제 CLI test 발견과 잡아낸 예상 밖 fetch/잘못된 DOM 환경의 nonzero 전달을 검사한다(2 PASS). 임시 파일은 TMPDIR 아래 생성 후 t.after 제거, subprocess NODE_TEST_CONTEXT 제외. tsconfig.json은 생성 verification-artifacts만 제외하며 신규 테스트·설정의 typecheck는 PASS다.
+- package.json의 test:component/test:server와 exact dev 도구·lock 변경은 이번 Step 03 범위다. 기존 unit의 include/컴파일/실행기와 6파일 본문은 유지한다. 제품 source coverage 수치는 추가 측정하지 않았으며 Step 02 baseline의 미import 공백은 그대로 추적한다.

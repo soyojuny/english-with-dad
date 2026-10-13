@@ -4,7 +4,7 @@
 
 In Progress
 
-Step 01은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93으로 커밋됐다. Step 02 구현·필수 검사·루트 Standards/Spec 검토(각 0 findings)는 완료했으며 커밋은 루트에 인계한다. Step 03–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
+Step 01·02는 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172로 커밋됐다. Step 03 구현·필수 검사·루트 Standards/Spec 각 0 findings를 확인했으며 커밋을 루트에 인계한다. Step 04–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
 
 ## Planning Status
 
@@ -14,9 +14,9 @@ Step 01은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93�
 
 ## Plan Conformance
 
-- Step 01은 계획 문서만 변경했다. Step 02는 단위 러너·컴파일 경계·package 명령·공통 fixture·해당 회귀 및 실행 기록만 변경한다.
-- 제품 app/lib/Supabase migration·의존성과 lock은 변경하지 않았다.
-- 사용자의 전체 순차 구현·step별 커밋 요청을 반영했다. 현재 개발 pane은 전달된 Step 02만 수행하고 검토·커밋·다음 step 전달은 루트가 맡는다. push·배포 권한은 없다. 사용자 제공 초기 계획 문서 38개는 첫 step 커밋 범위다.
+- Step 01은 계획 문서만, Step 02는 단위 러너·컴파일 경계·공통 fixture를 변경했다. Step 03은 환경별 설정·호환성 테스트·dev 도구와 명령을 추가한다.
+- 제품 app/lib/Supabase migration은 변경하지 않았다. Step 03의 dev 도구 exact pin 설치와 lock 변경은 루트가 수행했다.
+- 사용자의 전체 순차 구현·step별 커밋 요청을 반영했다. 현재 개발 pane은 전달된 Step 03만 수행하고 검토·커밋·다음 step 전달은 루트가 맡는다. push·배포 권한은 없다. 사용자 제공 초기 계획 문서 38개는 첫 step 커밋 범위다.
 - 기존 node:test와 오디오 브라우저 회귀를 유지하며 신규 계층을 분리하는 계획이다.
 - DB query 조건 검사와 실제 DB/RLS, browser simulation과 실기기를 구분한다.
 - 용어와 도메인 규칙을 바꾸지 않아 docs/CONTEXT.md·ADR 추가는 필요하지 않다.
@@ -54,13 +54,13 @@ Step 01은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93�
 
 ## Step History
 
-계획 작성 시 모든 step은 Pending이었다. 현재 Step 01·02가 Complete이며 진행 결과는 각 task Execution Record와 이 표에 함께 기록한다.
+계획 작성 시 모든 step은 Pending이었다. 현재 Step 01–03 구현이 Complete이며 진행 결과와 검토·커밋 상태는 각 task Execution Record와 이 표에 함께 기록한다.
 
 | Phase | Step | Status | 실행한 검사/결과 |
 | --- | --- | --- | --- |
 | 0 | 01 검증 계약과 전체 코드 목록 확정 | Complete | check:contracts exit 0; 문서/파일/API/증거 대조 exit 0. 루트 Standards/Spec 0 findings, main 7dd0f93 커밋. |
-| 0 | 02 단위 테스트 실행기와 공통 fixture | Complete | test:unit/typecheck PASS; root harness 8 PASS·direct unit 110 PASS; source baseline 기록. 루트 Standards/Spec 각 0 findings; 커밋 인계. |
-| 0 | 03 컴포넌트·hook·서버 테스트 기반 | Pending | 미실행 |
+| 0 | 02 단위 테스트 실행기와 공통 fixture | Complete | test:unit/typecheck PASS; root harness 8 PASS·direct unit 110 PASS; source baseline 기록. 루트 Standards/Spec 각 0 findings, main 1573172 커밋. |
+| 0 | 03 컴포넌트·hook·서버 테스트 기반 | Complete | component 6/server 2/unit 110/probe 2 PASS, typecheck PASS. 기본 TMPDIR probe도 2 PASS. ENOSPC·임시 probe TS5097과 해결은 아래 기록. 루트 Standards/Spec 각 0 findings; 커밋 인계. |
 | 0 | 04 브라우저 fixture와 실제 Next 실행 구분 | Pending | 미실행 |
 | 1 | 05 날짜와 주·월 경계 | Pending | 미실행 |
 | 1 | 06 초기 데이터와 입력 초안 복사 | Pending | 미실행 |
@@ -131,7 +131,7 @@ Step 01은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93�
 - NODE_TEST_CONTEXT는 subprocess env 복사본에서만 제거한다. 부모 env 변경/skip 처리 없이 실제 실패 출력과 nonzero를 확인했다. 이는 승인 범위의 하네스 수정이며 제품 결함 수정은 아니다.
 - 임시 프로젝트/복사본/symlink는 test마다 t.after로 제거한다. Promise/시계/도메인/query state는 인스턴스별 독립이며 global Date/timer/env 교체와 범용 query 대역은 없다. node_modules는 읽기 참조하고 DB/네트워크는 실행하지 않는다.
 - source baseline은 아래에 기록했다. DOM/storage/listener·다른 하네스 도구는 후속 step에 남기고 DB/RLS·실기기·OAuth 제외를 유지한다. phase 0 전체 완료 전이므로 verify/build/browser 추가 실행은 없다.
-- 루트 Standards/Spec 각 0 findings. 커밋은 루트 담당이며 개발 pane은 commit/push/Step 03/agent/Herdr를 수행하지 않았다.
+- 루트 Standards/Spec 각 0 findings 후 main `1573172` 커밋 완료. 당시 개발 pane은 commit/push/Step 03/agent/Herdr를 수행하지 않았다.
 
 ## Step 02 Coverage Baseline — 2026-10-13
 
@@ -159,6 +159,24 @@ Step 01은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93�
 이 수치는 named 함수의 실행 공백을 찾는 초기 증거이며 TypeScript 원본 line/branch 커버리지 퍼센트가 아니다. 익명 callback, 분기 hit와 source-map 집계는 아직 정량화하지 않았고, 미import 파일의 함수 총수도 엔진이 발견하지 않아 `미측정`으로 남긴다. importer만의 높은 수치로 전체 통과를 주장하지 않는다. 전역 퍼센트 gate는 없다. Step 32에서 원본 source mapping·미import 포함 계층별 보고와 기존 대비 후퇴 방식을 확정한다.
 
 제외: 타입 전용 lib/reading-types.ts(타입 계약은 typecheck), tests/fixture, 자산·설정·문서, ignored legacy 및 생성 산출물. 서버/브라우저/SW 코드는 미검증 공백이며 coverage 제외가 아니다. 쿼리 대역의 함수 실행은 실제 DB/RLS 보장이 아니다.
+
+## Step 03 Execution — 2026-10-13
+
+기준 main `1573172`. Vitest 5.0.4/Vite 7.3.7/RTL 16.3.3/DOM 10.4.2/user-event 14.6.7/jsdom 30.1.2를 루트가 exact pin 설치했다. jsdom component/hook·Node server 설정, 경계 mock 및 실패 probe를 추가하고 기존 node:test·제품 소스를 유지했다. JSX automatic transform으로 추가 React plugin은 필요하지 않았다.
+
+| 명령·경계 | 최종 결과 / 증거 |
+| --- | --- |
+| 개발 pane npm run test:component | exit 0, 3파일·6 test PASS(실제 실행 출력) |
+| root npm run test:server / npm run test:unit | exit 0, 각 2/110 test PASS; verification-artifacts/step03-server.log·step03-unit.log |
+| root node --test tests/harness/component-server-runner.test.mjs | exit 0, 2 test PASS·fail/skip/todo 0; step03-probe.log. 자식 CLI의 실제 1 failed·원인·nonzero를 각각 확인 |
+| root 동일 probe, TMPDIR 미지정 | exit 0, 2 test PASS·fail/skip/todo 0; verification-artifacts/step03-default-tmp-probe.log. 기본 /tmp의 의존성 resolve 문제 없음 |
+| 개발 pane npm run typecheck, 수정 후 | exit 0; verification-artifacts/step03-typecheck-final.log |
+
+기본 검사의 TMPDIR는 `$PWD/verification-artifacts/tmp`이며 위 기본 TMPDIR probe만 미지정으로 실행했다. 최초 server/typecheck는 실행 전 sandbox mount ENOSPC(exit 101), root 최초 typecheck는 병렬 probe를 제품 `**/*.ts`가 발견해 TS5097(step03-typecheck.log)이었다. root의 공간 확보 후 실행됐고, tsconfig.json.exclude에 생성 verification-artifacts만 추가해 마지막 typecheck가 통과했다. 허용된 하네스 경계 수정이며 제품 기능 수정이 아니다. 개발 pane은 성공한 검사를 반복하지 않았다.
+
+afterEach는 DOM/storage/timer/spy/global/env를 복원하고 StrictMode effect의 listener/interval 해제를 확인했다. 임시 probe는 t.after로 제거한다. 전체 A01/A02/A04/C02/H02 검증·source coverage 재측정·실제 DB/RLS/OAuth/async Page/실기기는 후속이며, phase 전체 verify는 Step 04 이후다. 루트 Standards/Spec 각 0 findings 및 최종 typecheck 로그 확인 완료, 커밋 인계; 개발 pane은 Step 04를 시작하지 않았다.
+
+앱 직접 Next/React/Supabase 버전은 유지됐다. lock의 공유 nanoid 3.3.12→3.3.20, source-map-js 1.2.1→1.2.2 patch dedupe는 설치 범위다. audit 3건은 기존 next/postcss/sharp 동일 버전이며 신규 테스트 도구에는 없다는 루트 확인을 기록한다(verification-artifacts/step03-audit.json). 이번 범위에서 보안 업그레이드는 하지 않았고 별도 앱 의존성 후속으로 남긴다.
 
 ## Final Verification
 

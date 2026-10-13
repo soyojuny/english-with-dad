@@ -2,7 +2,7 @@
 
 ## 적용 방식
 
-아래 43개 ID는 필수 자동 시나리오 묶음이다. 하나의 ID가 테스트 하나를 뜻하지 않는다. Step 01에서 코드/공개 API, 기대 동작, 기존 증거와 작성할 테스트 경로를 연결했다. **계약 목록 확정과 Step 02의 단위 러너/fixture 검증은 완료했고 다른 신규 런타임 검증은 대기**다. 각 담당 step에서 사례를 `<ID>-N01/E01/F01`로 나누고 테스트명·실행 결과를 기록한다. 기존 회귀 일부가 있다는 이유로 묶음 전체를 PASS 처리하지 않는다.
+아래 43개 ID는 필수 자동 시나리오 묶음이다. 하나의 ID가 테스트 하나를 뜻하지 않는다. Step 01에서 코드/공개 API, 기대 동작, 기존 증거와 작성할 테스트 경로를 연결했다. **계약 목록 확정·Step 02 단위 기반·Step 03 환경별 호환성 검증은 완료했고 다른 신규 런타임 검증은 대기**다. 각 담당 step에서 사례를 `<ID>-N01/E01/F01`로 나누고 테스트명·실행 결과를 기록한다. 기존 회귀 일부가 있다는 이유로 묶음 전체를 PASS 처리하지 않는다.
 
 기대 결과가 계약/문서로 확인되지 않은 invalid 입력은 현재 출력값을 복사하지 않고 확인 필요 또는 결함으로 기록한다. 이미 있는 테스트는 대응시키고 미검증 사례만 추가한다. query 대역/HTTP fixture는 실제 DB·RLS 증거가 아니다.
 
@@ -49,7 +49,7 @@
 | M03 | 카메라/업로드 | 필드 적용·권한/미지원·late stream·track/interval 정리 | 28 | browser API 대역 | app/reading-manager-client.tsx | tests/browser/camera-upload.spec.ts | 없음; 신규 대기 |
 | P01 | SW 실행 | install/activate·cache cleanup·GET/nonGET·offline fallback | 29 | worker 대역/Next browser | public/sw.js; public/manifest.webmanifest | tests/harness/service-worker.test.mjs; tests/browser/pwa.spec.ts | E08 정적만; 신규 대기 |
 | P02 | 모바일 표시 | 360/390px·긴 한국어·버튼·dialog·의도된 표 스크롤 | 30 | browser | app/layout.tsx; styles.css; public/manifest.webmanifest; public/assets/** | tests/browser/mobile-layout.spec.ts | E07 모바일 실행 일부·E08 정적; 신규 대기 |
-| T01 | 러너/하네스 | 새 파일 발견·삭제 산출물·0개/실패 exit·임시 fixture | 02·31 | harness | scripts/run-unit-tests.mjs; scripts/check-contracts.mjs; scripts/check-pwa.mjs; scripts/plan-workflow.mjs; scripts/plan-archive.mjs; scripts/git-publish.mjs; scripts/smoke-audio-completion.mjs; tests/helpers/completion-supabase-fake.ts; tests/helpers/async-fixtures.ts; tests/helpers/reading-fixture.ts | tests/harness/unit-runner.test.mjs; tests/unit/test-fixtures.test.ts; tests/harness/*.test.mjs | Step 02: harness 8·fixture 4 PASS; Step 31 다른 도구 대기 |
+| T01 | 러너/하네스 | 새 파일 발견·삭제 산출물·0개/실패 exit·임시 fixture | 02·03·31 | harness/component/hook | scripts/run-unit-tests.mjs; scripts/check-contracts.mjs; scripts/check-pwa.mjs; scripts/plan-workflow.mjs; scripts/plan-archive.mjs; scripts/git-publish.mjs; scripts/smoke-audio-completion.mjs; tests/helpers/completion-supabase-fake.ts; tests/helpers/async-fixtures.ts; tests/helpers/reading-fixture.ts; vitest.component.config.ts; vitest.server.config.ts; tests/support/ | tests/harness/unit-runner.test.mjs; tests/unit/test-fixtures.test.ts; tests/harness/component-server-runner.test.mjs; tests/hooks/lifecycle-harness.test.tsx; tests/components/assignment-quiz-score.test.tsx | Step 02: harness 8·fixture 4 PASS; Step 03 실행 기록 아래; Step 31 다른 도구 대기 |
 | T02 | 전체 검증 | 필수 suite 탐색·독립/전체 실행·coverage 공백·로그 인계 | 32·33 | 전체 자동 | package.json; package-lock.json; tsconfig.json; tsconfig.test.json; next.config.mjs; .gitignore; next-env.d.ts; AGENTS.md; README.md; docs/**; plans/**; .env.example | review.md; inventory.md; scenarios.md; 후속 coverage report 경로 확정 | Step 02 source baseline 기록; 전체 gate/coverage는 Step 32–33 대기 |
 
 ## 우선순위와 실패 처리
@@ -186,3 +186,21 @@ Step 01은 아래 파일과 테스트명을 정적으로 대조했다. E01~E06�
 실행 증거: root의 `/tmp/ewd-step02-root-harness-final.log`(npm 8 PASS)·`/tmp/ewd-step02-root-harness-direct-escalated.log`(direct 8 PASS), `/tmp/ewd-step02-unit-direct.log`(각 emitted unit 파일 직접 실행 총 110 PASS), `/tmp/ewd-step02-typecheck.log`(exit 0). root 재실행 전 sandbox EPERM과 NODE_TEST_CONTEXT 재귀 skip 실패는 review.md에 별도 기록한다.
 
 임시 프로젝트는 test마다 t.after로 제거하고 저장소/node_modules는 읽기 전용 symlink로 참조한다. subprocess env 복사본에서 NODE_TEST_CONTEXT를 제거하며 부모 env는 변경하지 않는다. helper는 신뢰된 타입의 테스트 입력만 받고 invalid 데이터 생성기를 일반화하지 않는다. Promise 거부는 실제 실패 계약으로 검증한다. DOM/storage/timer listener cleanup은 이 step에서 만들지 않아 N/A이고 Step 03·21·22에서 남아 있다.
+
+## Step 03 호환성 사례
+
+근거는 Step 03 실행·격리 계약과 기존 PASS/FAIL·OAuth·callback 계약이다. 전체 A01/A02/A04/C02/H02 묶음 완료를 뜻하지 않는다. quiz 타입 밖 값 강제는 N/A이며 실패 입력은 실제 fetch/환경 경계로 검증한다. 모든 테스트와 생성 probe 본문은 Given–When–Then이다.
+
+| 사례 ID | 입력/행동 → 고정 기대 결과 | 실제 파일::테스트명 ID | 결과 |
+| --- | --- | --- | --- |
+| C02-N01 | 결과 null에서 PASS 클릭 → PASS callback 1회, props 갱신 전 선택은 비선택 유지 | tests/components/assignment-quiz-score.test.tsx::C02-N01 | PASS |
+| T01-E07 | StrictMode·새 배정/FAIL/callback rerender·unmount → 새 callback 1회/선택 표시/DOM 제거 | tests/components/assignment-quiz-score.test.tsx::T01-E07 | PASS |
+| A04-N01 | Google 클릭 → publishable env 전달·google/select_account·현재 origin callback·제출 disabled | tests/components/auth-panel.test.tsx::A04-N01 | PASS |
+| T01-E08 | test-only StrictMode effect·tick/event·unmount → 각각 1회·잔여 timer 0·후속 event 무효 | tests/hooks/lifecycle-harness.test.tsx::T01-E08 | PASS |
+| T01-E09/E10 | DOM/storage/env/spy/timer 생성 후 다음 test → 비상속; 다음 test는 독립 실행도 가능 | tests/hooks/lifecycle-harness.test.tsx::T01-E09/E10 | PASS |
+| A02-N01·A01 일부 | Node code 교환·cookie adapter → 같은 origin /today, 307/private no-store·factory env/cookie 전달 | tests/server/auth-callback.test.ts::A02-N01 | PASS |
+| A02-E01 | code 없음 → SDK 호출 0·/auth/error, 307/private no-store | tests/server/auth-callback.test.ts::A02-E01 | PASS |
+| T01-F04 | fetch rejection을 catch → 실제 caught-network-probe 실패 1개·Unexpected fetch·nonzero | tests/harness/component-server-runner.test.mjs::T01-F04 | PASS |
+| T01-F05 | Node에서 RTL hook 실행 → 실제 wrong-environment-probe 실패 1개·document is not defined·nonzero | tests/harness/component-server-runner.test.mjs::T01-F05 | PASS |
+
+실행 결과: component 3파일·6 test, server 2 test, probe 2 test PASS; 기존 unit 110 PASS와 typecheck exit 0. 로그와 최초 실패·해결은 task Execution Record 및 review의 Step 03 Execution에 연결한다. 제품 hook H02의 15초/요청 경쟁과 실제 Next async Page/DB/RLS/OAuth는 이 호환성 검증에 포함하지 않는다.

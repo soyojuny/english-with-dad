@@ -2,7 +2,7 @@
 
 ## Status
 
-Pending — 계획만 작성했으며 구현하지 않았다.
+Complete — 구현·필수 검사 PASS, root Standards/Spec 각 0 findings. 커밋은 root에 인계한다.
 
 ## Phase
 
@@ -33,11 +33,11 @@ Vitest + React Testing Library + DOM 환경을 신규 UI 테스트에 사용하�
 
 ## Acceptance Criteria
 
-- [ ] node:test를 전면 이관하지 않고 UI와 서버 테스트가 각각 단독 실행된다.
-- [ ] 대상 계약과 테스트 경로/시나리오 ID를 inventory.md 및 scenarios.md에 연결했다.
-- [ ] 기존 관련 회귀를 보존하고 정상·경계·invalid의 적용 여부를 기록했다.
-- [ ] 테스트가 독립 실행되며 실행 발견·실패 전달·환경/대역 정리가 확인된다.
-- [ ] 필요한 검사를 실행했고 명령·결과·제한을 기록했다.
+- [x] node:test를 전면 이관하지 않고 UI와 서버 테스트가 각각 단독 실행된다.
+- [x] 대상 계약과 테스트 경로/시나리오 ID를 inventory.md 및 scenarios.md에 연결했다.
+- [x] 기존 관련 회귀를 보존하고 정상·경계·invalid의 적용 여부를 기록했다.
+- [x] 테스트가 독립 실행되며 실행 발견·실패 전달·환경/대역 정리가 확인된다.
+- [x] 필요한 검사를 실행했고 명령·결과·제한을 기록했다.
 
 ## Required Verification
 
@@ -56,8 +56,10 @@ Vitest + React Testing Library + DOM 환경을 신규 UI 테스트에 사용하�
 
 | 항목 | 기록 |
 | --- | --- |
-| 테스트 경로·시나리오 | 미작성 |
-| 실행 명령/결과 | 미실행 |
-| 신규 동작/기존 동작 | 구현 시 기록 |
-| 결함 재현 RED → GREEN | 결함 수정이 승인된 경우에만 기록; 정상 기존 동작은 GREEN 확인 |
-| 미검증·제외·후속 | 구현 시 기록 |
+| 테스트 경로·시나리오 | tests/components/assignment-quiz-score.test.tsx(C02-N01·T01-E07), auth-panel.test.tsx(A04-N01); tests/hooks/lifecycle-harness.test.tsx(T01-E08/E09/E10); tests/server/auth-callback.test.ts(A02-N01/E01·A01 cookie factory 경계); tests/harness/component-server-runner.test.mjs(T01-F04/F05) |
+| 실행 명령/결과 | 기본 검사는 TMPDIR=$PWD/verification-artifacts/tmp. 개발 pane test:component exit 0, 3파일·6 test PASS. root test:server 2 PASS, test:unit 110 PASS, node --test tests/harness/component-server-runner.test.mjs 2 PASS: verification-artifacts/step03-{server,unit,probe}.log. 최종 npm run typecheck exit 0: step03-typecheck-final.log. root가 TMPDIR 미지정 동일 probe도 exit 0·2 PASS 확인: step03-default-tmp-probe.log; 기본 /tmp의 의존성 resolve 문제 없음 |
+| 신규 동작/기존 동작 | jsdom component/hook·Node server 설정 및 test:component/test:server 추가. React JSX automatic transform으로 별도 React plugin 없이 실제 컴포넌트·NextRequest/NextResponse·SDK factory 경계 검사. 기존 node:test/단위 컴파일 설정·제품 소스는 유지 |
+| 결함 재현 RED → GREEN | 제품 결함 수정 없음. 두 의도적 실패 probe는 실제 test 1 failed·원인·nonzero를 확인했다. 최초 server/typecheck는 sandbox mount ENOSPC(exit 101). root 최초 typecheck는 병렬 생성 probe 탐색으로 TS5097(step03-typecheck.log); tsconfig.json.exclude에 verification-artifacts만 추가 후 PASS. 테스트 소스는 typecheck 대상으로 유지 |
+| 미검증·제외·후속 | 퀴즈 타입 밖 값 강제 N/A; invalid는 실제 네트워크/환경 경계로 검사. StrictMode test-only hook은 하네스 수명주기 증거이며 제품 요청 hook 완료가 아니다. 실제 DB/RLS·OAuth·async Page·실기기 미검증. phase 0 전체 verify는 Step 04 이후. 기존 next/postcss/sharp audit 3건은 verification-artifacts/step03-audit.json으로 후속 기록, 이번 앱 security upgrade 없음 |
+
+정리: DOM unmount→storage 초기화→timer/spy/global/env 복원 순서로 afterEach를 실행한다. effect 자체 listener/interval 해제와 다음 test의 DOM/storage/env/spy/timer 비상속을 검증한다. 임시 probe는 TMPDIR 아래 test별 디렉터리에서 생성하고 t.after로 삭제하며 CLI env 복사본의 NODE_TEST_CONTEXT만 제거한다. fetch/XHR는 명시 대역 없으면 차단하고 잡아낸 오류도 teardown에서 실패시킨다.
