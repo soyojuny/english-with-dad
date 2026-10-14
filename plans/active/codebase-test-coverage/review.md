@@ -4,7 +4,7 @@
 
 In Progress
 
-Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS로 구현 완료했으며 Step 08–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
+Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 09–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
 
 ## Planning Status
 
@@ -65,7 +65,7 @@ Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0
 | 1 | 05 날짜와 주·월 경계 | Complete | unit 기본·Asia/Seoul·UTC 모두 exit 0, 각 8 파일 PASS; malformed 날짜는 Q01로 유지. |
 | 1 | 06 초기 데이터와 입력 초안 복사 | Pending | 미실행 |
 | 1 | 07 자료 준비 상태와 배정 후보 | Complete | root 최종 `test:unit` exit 0; 127 PASS/fail·skip·todo 0. Standards/Spec 최종 0 findings; Step 02 runner 증거 재사용. |
-| 1 | 08 횟수·진행률·활동 기록 | Pending | 미실행 |
+| 1 | 08 횟수·진행률·활동 기록 | Complete | root 최종 `test:unit` 9개 발견 파일 PASS(fail/skip/todo 0), `check:contracts`/`git diff --check` PASS, Standards/Spec 각 0 findings. Phase 1 `verify` PASS; 제품 코드 변경 없음. |
 | 2 | 09 전체·프로필 조회와 row 매핑 | Pending | 미실행 |
 | 2 | 10 오늘·예정 배정의 embedded 데이터 조회 | Pending | 미실행 |
 | 2 | 11 부모 활동 범위 조회 | Pending | 미실행 |
@@ -244,6 +244,15 @@ afterEach는 DOM/storage/timer/spy/global/env를 복원하고 StrictMode effect�
 - 최초 실행은 테스트 fixture의 일반 책 `contentType` 누락으로 TypeScript compile FAIL이었다. fixture에 실제 도메인 값 `book`을 명시한 뒤 재실행해 PASS했으며, 제품 결함이나 제품 코드 수정은 없었다.
 - code-review 최초 Standards P2는 GWT Then의 검증 대상 호출과 URL 정상/invalid 시나리오 결합 2건, Spec P3는 whitespace-only URL 허용과 일반 책 self task의 no-audio 2건을 지적했다. 모두 수정하고 stale scenarios 테스트명 P2까지 정정했으며 최종 Standards 0 findings, Spec 0 findings이다.
 - DB/RLS·실기기·폼 저장/browser 흐름은 이번 순수 helper 범위 밖이며 각각 후속 Step 12, 19, 23, 24에 남긴다. commit, 별도 code review 및 Step 08은 사용자 지시에 따라 수행하지 않았다.
+
+## Step 08 Execution — 2026-10-14
+
+- 기준 HEAD `d2ff9f8`에서 tests/reading-calculations.test.ts와 tests/child-task-policy.test.ts만 확장했다. 제품·설정·의존성 코드는 변경하지 않았다.
+- 최초 review findings: P1은 `focusListen`에 wordRead/copywork를 넣은 invalid domain fixture, P2는 `completedCount: 1`/`targetCount: 2`의 부분 완료 button 회귀 누락이었다. Standards는 quiz enabled/disabled와 GWT, 진행률·formatting 시나리오 결합을 지적했다. 후속 Standards finding은 task count·task count builder·completion/progress·policy/merge의 결합 case를 독립 GWT test로 나누도록 요구했다. 모두 테스트로 수정했고 최종 Standards 0 findings, Spec 0 findings으로 해소를 확인했다.
+- D07은 explicit/legacy 1/0, 0/category 밖 task 제거, completion count, 목표 cap, 0 task, quiz 전용 pending/PASS/FAIL/disabled를 각각 확인한다. policy는 launch만/복귀/부분 완료/목표 완료, loading/error/기록 없음과 completion·audio snapshot의 count/returnedAt 비퇴행을 확인한다.
+- D08은 유효한 regular `focusListen`(listen/shadow/self + FAIL quiz), regular `extraStudy`(copywork), `word-book-1` `extraStudy`(wordRead) 배정으로 복합 key, minutes/count/category/title/note와 assignment 입력 순서를 확인한다. `formatTime`의 로컬 시각 계약 때문에 최초 UTC fixture 기대 `00:xx`가 Asia/Seoul 실제 `09:xx`와 달라 실패했고, 고정 local datetime fixture로 정정 후 GREEN이었다. 이는 테스트 fixture 오류이며 제품 결함은 아니다.
+- root 최종 `npm run test:unit` exit 0(9개 발견 파일 PASS, fail/skip/todo 0; `verification-artifacts/step08-unit-root-final.log`), `npm run check:contracts` exit 0, `git diff --check` exit 0을 확인했다. Step 02의 발견/실패 전달·fixture 독립 증거를 재사용했다. Phase 1 경계 `npm run verify` exit 0으로 check:contracts/check:sw/check:pwa/unit/typecheck/build 전체 PASS를 `verification-artifacts/phase01-verify.log`에 기록했다.
+- invalid는 타입 밖 task/category/log 객체를 만들지 않는 N/A다. 외부 row는 S01, 저장 count 오류는 S07, 실제 링크 실행·브라우저/실기기는 U06/25 및 후속 단계에 남긴다. commit과 Step 09는 수행하지 않았다.
 
 ## Final Verification
 

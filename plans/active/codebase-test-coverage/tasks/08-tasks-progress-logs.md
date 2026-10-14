@@ -2,7 +2,7 @@
 
 ## Status
 
-Pending — 계획만 작성했으며 구현하지 않았다.
+Complete — 2026-10-14 최종 review와 Phase 1 경계 verify까지 PASS. 제품 코드는 변경하지 않았다.
 
 ## Phase
 
@@ -32,11 +32,11 @@ Phase 1 — 도메인과 순수 로직.
 
 ## Acceptance Criteria
 
-- [ ] 오디오 링크 열기나 복귀 자체를 완료로 계산하지 않는 규칙을 유지한다.
-- [ ] 대상 계약과 테스트 경로/시나리오 ID를 inventory.md 및 scenarios.md에 연결했다.
-- [ ] 기존 관련 회귀를 보존하고 정상·경계·invalid의 적용 여부를 기록했다.
-- [ ] 테스트가 독립 실행되며 실행 발견·실패 전달·환경/대역 정리가 확인된다.
-- [ ] 필요한 검사를 실행했고 명령·결과·제한을 기록했다.
+- [x] 오디오 링크 열기나 복귀 자체를 완료로 계산하지 않는 규칙을 유지한다.
+- [x] 대상 계약과 테스트 경로/시나리오 ID를 inventory.md 및 scenarios.md에 연결했다.
+- [x] 기존 관련 회귀를 보존하고 정상·경계·invalid의 적용 여부를 기록했다.
+- [x] 테스트가 독립 실행되며 실행 발견·실패 전달·환경/대역 정리가 확인된다.
+- [x] root 최종 unit·contracts·diff check, final Standards/Spec, Phase 1 boundary verify 결과를 기록했다.
 
 ## Required Verification
 
@@ -53,8 +53,8 @@ Phase 1 — 도메인과 순수 로직.
 
 | 항목 | 기록 |
 | --- | --- |
-| 테스트 경로·시나리오 | 미작성 |
-| 실행 명령/결과 | 미실행 |
-| 신규 동작/기존 동작 | 구현 시 기록 |
-| 결함 재현 RED → GREEN | 결함 수정이 승인된 경우에만 기록; 정상 기존 동작은 GREEN 확인 |
-| 미검증·제외·후속 | 구현 시 기록 |
+| 테스트 경로·시나리오 | D07: `정상 입력: getAssignmentTaskCount는 명시 횟수를 우선한다`, `경계값: getAssignmentTaskCount는 legacy task 존재를 1회로 fallback한다`, `경계값: getAssignmentTaskCount는 배정되지 않은 task에 0을 반환한다`; `경계값: buildAssignmentTaskCounts는 category의 0회 task를 제외한다`, `경계값: buildAssignmentTaskCounts는 category 밖 task를 제외한다`, `정상 입력: buildAssignmentTaskCounts는 명시 선택 task만 남긴다`; `정상 입력: getCompletionCount는 assignment:task 복합 key의 기록 횟수를 읽는다`, `경계값: getCompletionCount는 기록 없는 task에 0을 반환한다`; `경계값: countAssignmentProgress는 목표 초과 완료를 cap한다`, `경계값: countAssignmentProgress는 0 task에 0%를 반환한다`; quiz pending/PASS/FAIL/disabled 4개 test와 format 8개 test; `경계값: 목표 2회 중 1회 완료는 오디오 수동 완료 버튼을 계속 표시한다`를 포함한 child policy GWT. D08: `정상 입력: 활동 기록은 유효 배정의 복합 key와 입력 순서대로 task와 FAIL 퀴즈를 연결한다`과 자료 누락 test; valid regular focusListen, regular copywork, word-book-1 wordRead fixture. |
+| 실행 명령/결과 | root 최종 2026-10-14 `npm run test:unit` exit 0 (9개 발견 파일 PASS, fail/skip/todo 0; `verification-artifacts/step08-unit-root-final.log`); `npm run check:contracts` exit 0; `git diff --check` exit 0. final Standards 0 findings, final Spec 0 findings. Phase 1 경계 `npm run verify` exit 0(check:contracts/check:sw/check:pwa/unit/typecheck/build 전체 PASS; `verification-artifacts/phase01-verify.log`). Step 02의 신규 파일 발견·실패 exit·독립 fixture 증거를 재사용한다. |
+| 신규 동작/기존 동작 | 제품 동작은 변경하지 않았다. P1 invalid fixture를 유효 도메인 배정 3개로 교체했고, P2 부분 완료 button 회귀를 복원했다. 후속 Standards finding의 task count·builder·completion/progress·policy/merge 결합 case도 독립 GWT test로 분리했으며 final Standards 0 findings, final Spec 0 findings으로 해소를 확인했다. |
+| 결함 재현 RED → GREEN | 활동 로그 note의 UTC 기대값이 로컬 `formatTime` 계약과 달라 최초 unit FAIL이었다. `Z` fixture를 고정 local datetime으로 바꿔 환경 독립 `00:xx`를 검증했고 재실행 GREEN; 이는 테스트 fixture 오류이며 제품 결함·제품 수정은 없다. |
+| 미검증·제외·후속 | 타입 밖 task/category/log 객체는 UI 경로에 없고 `as any`를 쓰지 않았다(D07/D08 invalid N/A). 외부 row 검증은 S01, 저장 count 오류는 S07, 링크 실행/실기기 흐름은 U06/25에 남긴다. Phase 1 boundary verify는 완료했으며, UI/browser 후속 step은 남긴다. |
