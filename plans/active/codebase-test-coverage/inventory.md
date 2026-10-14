@@ -48,8 +48,8 @@ lib/supabase/reading-store.ts의 모든 공개 함수는 아래에서 개별 검
 | lib/supabase/server.ts | build 실행 경로 | cookie 읽기/쓰기·예외, 16 | A01 |
 | lib/supabase/middleware.ts | build | cookie·추가 헤더·getUser·미설정, 17 | A03 |
 | middleware.ts | build | delegate·matcher 적용/제외 경로, 17 | A03 |
-| reading-store: fetchReadingData | 직접 테스트 없음 | 6개 컬렉션 매핑·필터·오류, 09 | S01 |
-| reading-store: fetchReadingProfileData | 브라우저 간접 | 아동 매핑·owner·순서·오류, 09 | S01 |
+| reading-store: fetchReadingData | tests/reading-store-read.test.ts::`정상 입력: 전체 조회는 여섯 컬렉션을 snake_case row에서 owner 범위의 도메인 데이터로 매핑한다`; `경계값: 전체 조회는 모든 data null을 빈 컬렉션과 record로 반환한다`; `경계값: 전체 조회는 모든 빈 row 목록을 빈 컬렉션과 record로 반환한다`; nullable·invalid quiz/audio 경계 | 6개 컬렉션 매핑·projection·필터·오류, 09 Complete | S01 |
+| reading-store: fetchReadingProfileData | tests/reading-store-read.test.ts::`정상 입력: 프로필 조회는 owner 아동을 생성일 순서의 도메인 자료로 매핑한다`; `경계값: 프로필 조회는 data null을 빈 children으로 반환한다`; `경계값: 프로필 조회는 빈 row 목록을 빈 children으로 반환한다` | 아동 매핑·projection·owner·순서·오류, 09 Complete | S01 |
 | reading-store: fetchChildTodayData | 브라우저 간접 | embedded 관계·scope·오류, 10 | S02 |
 | reading-store: fetchUpcomingAssignmentData | 직접 테스트 없음 | 미래 경계·책 중복 제거, 10 | S02 |
 | reading-store: fetchParentActivityData | 직접 테스트 없음 | 기간·ID dedup·후속 조회·오류, 11 | S03 |
