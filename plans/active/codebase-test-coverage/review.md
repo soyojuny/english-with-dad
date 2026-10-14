@@ -4,7 +4,7 @@
 
 In Progress
 
-Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 09–11은 Complete, Step 12–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
+Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 09–12는 Complete, Step 13–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
 
 ## Planning Status
 
@@ -91,7 +91,7 @@ Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0
 | 2 | 09 전체·프로필 조회와 row 매핑 | Complete | `tests/reading-store-read.test.ts`로 projection·owner·정렬, null/빈/nullable·유효하지 않은 quiz 문자열 정규화, 각 DB error와 Promise rejection을 query 대역으로 검증. root final `test:unit` exit 0, 10 files PASS/fail·skip·todo 0 (`verification-artifacts/step09-unit-root-final.log`); contracts/typecheck/build/diff check exit 0; 최종 Standards/Spec 0 findings. 실제 DB/migration 적용/RLS 미검증. |
 | 2 | 10 오늘·예정 배정의 embedded 데이터 조회 | Complete | `tests/reading-store-child.test.ts`가 select와 `{operator, column, value}`의 today eq/upcoming gte owner·child·date 범위 및 정렬을 강제한다. object/array/null·빈 응답·복합 key와 예정 범위/정렬/scope/dedup, DB error·Promise rejection은 독립 GWT다. root final `test:unit` exit 0, 11개 발견 파일 PASS/fail·skip·todo 0 (`verification-artifacts/step10-unit-root-final.log`); contracts/typecheck/build/diff check exit 0; 최종 Standards/Spec 0 findings. 실제 DB/FK/RLS 미검증. |
 | 2 | 11 부모 활동 범위 조회 | Complete | `tests/reading-store-parent.test.ts`가 order-independent table-keyed exact table/select/operator/order/in 대역으로 기간·owner·공유 book ID dedup·빈 후속 조회 생략·수동 기록·초기/후속 data null·3개 기본값과 1차/후속 DB error·대표 Promise rejection을 검증. assignment ID dedup은 PK상 정상 DB 응답 N/A인 방어 로직. root final `test:unit` 12 files PASS (`verification-artifacts/step11-unit-root-final.log`), contracts/typecheck/pane build/diff check exit 0, Standards/Spec 0 findings; 실제 DB/migration/FK/RLS 미검증. |
-| 2 | 12 자료 관리·시리즈·배정 이력 조회 | Pending | 미실행 |
+| 2 | 12 자료 관리·시리즈·배정 이력 조회 | Complete | root final `test:unit` exit 0, 13 files PASS/fail·skip·todo 0 (`verification-artifacts/step12-unit-root-final.log`); contracts/typecheck/pane build/diff check exit 0, Standards/Spec 0 findings. 실제 DB/RPC SQL/migration/RLS 미검증. |
 | 2 | 13 아동·자료 저장과 활성 상태 | Pending | 미실행 |
 | 2 | 14 배정·퀴즈·수동 기록 저장 | Pending | 미실행 |
 | 2 | 15 완료·실행 저장 기존 회귀 보강 | Pending | 미실행 |
@@ -275,6 +275,15 @@ afterEach는 DOM/storage/timer/spy/global/env를 복원하고 StrictMode effect�
 - D08은 유효한 regular `focusListen`(listen/shadow/self + FAIL quiz), regular `extraStudy`(copywork), `word-book-1` `extraStudy`(wordRead) 배정으로 복합 key, minutes/count/category/title/note와 assignment 입력 순서를 확인한다. `formatTime`의 로컬 시각 계약 때문에 최초 UTC fixture 기대 `00:xx`가 Asia/Seoul 실제 `09:xx`와 달라 실패했고, 고정 local datetime fixture로 정정 후 GREEN이었다. 이는 테스트 fixture 오류이며 제품 결함은 아니다.
 - root 최종 `npm run test:unit` exit 0(9개 발견 파일 PASS, fail/skip/todo 0; `verification-artifacts/step08-unit-root-final.log`), `npm run check:contracts` exit 0, `git diff --check` exit 0을 확인했다. Step 02의 발견/실패 전달·fixture 독립 증거를 재사용했다. Phase 1 경계 `npm run verify` exit 0으로 check:contracts/check:sw/check:pwa/unit/typecheck/build 전체 PASS를 `verification-artifacts/phase01-verify.log`에 기록했다.
 - invalid는 타입 밖 task/category/log 객체를 만들지 않는 N/A다. 외부 row는 S01, 저장 count 오류는 S07, 실제 링크 실행·브라우저/실기기는 U06/25 및 후속 단계에 남긴다. commit과 Step 09는 수행하지 않았다.
+
+## Step 12 Execution — 2026-10-14
+
+- 기준 HEAD는 사용자 제공 `9b8a66d`이며, `tests/reading-store-library.test.ts`만 추가했다. 제품 코드, migration, 설정, 의존성은 변경하지 않았다.
+- 제한 query/RPC 대역은 `fetchBookManageData`, `fetchBookSeriesNames`, `fetchLibraryData`, `fetchAssignedBookIds`의 exact table/select/order와 operator/column/value filter multiset을 확인한다. started table과 `then` 실행 table을 분리해 예상 호출의 시작·실행을 모두 확인하며 Promise.all 호출 순서에는 결합하지 않는다.
+- S04는 자료 유형 매핑, named/all series, title 검색과 현재 `%`/`_` raw `ilike` 전달, manage data null, series RPC의 trim/blank/dedup/sort·data null/error null no-fallback, RPC response error의 owner-scoped fallback과 fallback error/rejection, active-only/empty library, 배정 book ID의 dedup/data null/empty ID/error를 각각 Given–When–Then으로 기록했다. RPC Promise rejection은 현재 구현이 fallback하지 않고 동일 오류를 전파하는 계약도 구분했다.
+- 최초 findings는 filter 순서 결합, `from` 뒤 실제 execute 미확인, plan 상태 접미사, fallback query rejection 및 null/empty 경계 공백이었다. filter multiset과 started/executed table 검증으로 순서·실행 문제를 해소했고, 접미사를 복원했으며 독립 fallback rejection·null/empty GWT를 추가했다.
+- root 최종 `npm run test:unit` exit 0, 13개 발견 파일 PASS, fail/skip/todo 0 (`verification-artifacts/step12-unit-root-final.log`); `npm run check:contracts`·`npm run typecheck` exit 0, pane `npm run build` exit 0, `git diff --check` exit 0. 최종 Standards 0 findings, 최종 Spec 0 findings이며 제품 결함 RED 또는 제품 코드 변경은 없었다.
+- 제한: RPC response error는 fallback하지만 RPC Promise rejection은 현재 구현상 직접 전파한다. raw `%`/`_` 검색은 Q02의 현재 `ilike` 전달 계약만 기록한다. 이 대역은 실제 DB, RPC SQL, migration 적용 또는 RLS를 실행하지 않는다.
 
 ## Final Verification
 

@@ -2,7 +2,7 @@
 
 ## Status
 
-Pending — 계획만 작성했으며 구현하지 않았다.
+Complete — 최종 검토와 필수 검사를 완료했다.
 
 ## Phase
 
@@ -33,11 +33,11 @@ Phase 2 — Supabase 저장소 대역 검증.
 
 ## Acceptance Criteria
 
-- [ ] 모든 RPC 오류에서 fallback하는 현재 동작을 기록하고 RPC의 실제 SQL 실행은 후속 검증에 남긴다.
-- [ ] 대상 계약과 테스트 경로/시나리오 ID를 inventory.md 및 scenarios.md에 연결했다.
-- [ ] 기존 관련 회귀를 보존하고 정상·경계·invalid의 적용 여부를 기록했다.
-- [ ] 테스트가 독립 실행되며 실행 발견·실패 전달·환경/대역 정리가 확인된다.
-- [ ] 필요한 검사를 실행했고 명령·결과·제한을 기록했다.
+- [x] RPC response error fallback과 RPC Promise rejection의 직접 전파를 기록하고 RPC의 실제 SQL 실행은 후속 검증에 남긴다.
+- [x] 대상 계약과 테스트 경로/시나리오 ID를 inventory.md 및 scenarios.md에 연결했다.
+- [x] 기존 관련 회귀를 보존하고 정상·경계·invalid의 적용 여부를 기록했다.
+- [x] 테스트가 독립 실행되며 실행 발견·실패 전달·환경/대역 정리가 확인된다.
+- [x] 필요한 검사를 실행했고 명령·결과·제한을 기록했다.
 
 ## Required Verification
 
@@ -53,8 +53,8 @@ Phase 2 — Supabase 저장소 대역 검증.
 
 | 항목 | 기록 |
 | --- | --- |
-| 테스트 경로·시나리오 | 미작성 |
-| 실행 명령/결과 | 미실행 |
-| 신규 동작/기존 동작 | 구현 시 기록 |
-| 결함 재현 RED → GREEN | 결함 수정이 승인된 경우에만 기록; 정상 기존 동작은 GREEN 확인 |
-| 미검증·제외·후속 | 구현 시 기록 |
+| 테스트 경로·시나리오 | `tests/reading-store-library.test.ts`; S04 |
+| 실행 명령/결과 | root 최종 `npm run test:unit` exit 0, 13개 발견 파일 PASS, fail/skip/todo 0 (`verification-artifacts/step12-unit-root-final.log`); `npm run check:contracts`·`npm run typecheck` exit 0, pane `npm run build` exit 0, `git diff --check` exit 0 |
+| 신규 동작/기존 동작 | 공개 API의 select/filter multiset/order/RPC 호출, started/executed query 완료, row 매핑, active-only/empty, manage data null, RPC data null/error null no-fallback·response error fallback 및 fallback error/rejection 전파, ID dedup/data null/empty ID를 제한 대역으로 확인 |
+| 결함 재현 RED → GREEN | 제품 결함 RED 없음. 테스트 fixture 타입 오류를 수정한 뒤 전체 검사가 GREEN이며 제품 코드는 변경하지 않음 |
+| 미검증·제외·후속 | 대역은 실제 DB/RPC SQL/migration/RLS를 실행하지 않는다. RPC Promise rejection은 현재 구현대로 fallback하지 않고 그대로 전파한다. `%`/`_` 검색 이스케이프 정책은 현재 raw `ilike` 전달 계약(Q02)만 기록 |

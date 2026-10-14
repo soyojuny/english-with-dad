@@ -53,10 +53,10 @@ lib/supabase/reading-store.ts의 모든 공개 함수는 아래에서 개별 검
 | reading-store: fetchChildTodayData | tests/reading-store-child.test.ts의 object/array/null 관계, 빈 row/data null, completion·audio 복합 key 및 오류 전파 독립 테스트 | embedded 관계·scope·오류, 10 Complete | S02 |
 | reading-store: fetchUpcomingAssignmentData | tests/reading-store-child.test.ts의 시작일/과거·정렬·owner-child 범위·책 dedup, 빈 row/data null 및 오류 전파 독립 테스트 | 미래 경계·책 중복 제거, 10 Complete | S02 |
 | reading-store: fetchParentActivityData | tests/reading-store-parent.test.ts의 기간 양 끝·owner·공유 book ID의 정확한 후속 `in`, 빈 assignment의 수동 기록 보존/후속 조회 생략, 초기/후속 `data null`, `task_counts`/`quiz_enabled`/`content_type` 기본값, 1차·후속 DB error 및 대표 Promise rejection | 기간·book ID dedup·후속 조회·오류, 11 Complete; assignment ID dedup은 PK상 정상 DB 응답 N/A인 방어 로직 | S03 |
-| reading-store: fetchBookManageData | 직접 테스트 없음 | 검색/시리즈 필터·정렬·오류, 12 | S04 |
-| reading-store: fetchBookSeriesNames | 직접 테스트 없음 | RPC 결과 정리·오류 fallback, 12 | S04 |
-| reading-store: fetchLibraryData | 직접 테스트 없음 | 활성 자료·owner·오류, 12 | S04 |
-| reading-store: fetchAssignedBookIds | 직접 테스트 없음 | owner 전체 이력·ID dedup·오류, 12 | S04 |
+| reading-store: fetchBookManageData | tests/reading-store-library.test.ts의 시리즈/title/all, raw `%`/`_` `ilike`, book 매핑·data null·DB error | 검색/시리즈 필터·정렬·오류, 12 Complete | S04 |
+| reading-store: fetchBookSeriesNames | tests/reading-store-library.test.ts의 RPC trim/blank/dedup/sort, data null/error null no-fallback, response error fallback, fallback error·fallback rejection·RPC rejection | RPC 결과 정리·오류 fallback, 12 Complete | S04 |
+| reading-store: fetchLibraryData | tests/reading-store-library.test.ts의 owner/active/created_at·매핑, empty rows 및 Promise rejection | 활성 자료·owner·오류, 12 Complete | S04 |
+| reading-store: fetchAssignedBookIds | tests/reading-store-library.test.ts의 owner 전체 이력, dedup, data null/empty ID, DB error | owner 전체 이력·ID dedup·오류, 12 Complete | S04 |
 | reading-store: saveChild | 직접 테스트 없음 | insert/update·payload·error, 13 | S05 |
 | reading-store: saveBook | 직접 테스트 없음 | insert/update·유형·선택 문자열·error, 13 | S05 |
 | reading-store: setBookActive | 직접 테스트 없음 | owner/id·상태·error, 13 | S05 |
