@@ -2,7 +2,7 @@
 
 ## Status
 
-Pending — 계획만 작성했으며 구현하지 않았다.
+Complete — 구현과 필수 검증 기록을 완료했다.
 
 ## Phase
 
@@ -31,11 +31,11 @@ owner·child·date 범위 필터와 embedded book/completions/audioLaunches 매�
 
 ## Acceptance Criteria
 
-- [ ] embedded 관계를 지원하는 SQL/외래키 자체는 후속 DB 검증으로 분리한다.
-- [ ] 대상 계약과 테스트 경로/시나리오 ID를 inventory.md 및 scenarios.md에 연결했다.
-- [ ] 기존 관련 회귀를 보존하고 정상·경계·invalid의 적용 여부를 기록했다.
-- [ ] 테스트가 독립 실행되며 실행 발견·실패 전달·환경/대역 정리가 확인된다.
-- [ ] 필요한 검사를 실행했고 명령·결과·제한을 기록했다.
+- [x] embedded 관계를 지원하는 SQL/외래키 자체는 후속 DB 검증으로 분리한다.
+- [x] 대상 계약과 테스트 경로/시나리오 ID를 inventory.md 및 scenarios.md에 연결했다.
+- [x] 기존 관련 회귀를 보존하고 정상·경계·invalid의 적용 여부를 기록했다.
+- [x] 테스트가 독립 실행되며 실행 발견·실패 전달·환경/대역 정리가 확인된다.
+- [x] 필요한 검사를 실행했고 명령·결과·제한을 기록했다.
 
 ## Required Verification
 
@@ -51,8 +51,8 @@ owner·child·date 범위 필터와 embedded book/completions/audioLaunches 매�
 
 | 항목 | 기록 |
 | --- | --- |
-| 테스트 경로·시나리오 | 미작성 |
-| 실행 명령/결과 | 미실행 |
-| 신규 동작/기존 동작 | 구현 시 기록 |
-| 결함 재현 RED → GREEN | 결함 수정이 승인된 경우에만 기록; 정상 기존 동작은 GREEN 확인 |
-| 미검증·제외·후속 | 구현 시 기록 |
+| 테스트 경로·시나리오 | `tests/reading-store-child.test.ts`, S02 — today object/array/null·빈 row/data null·복합 key와 upcoming 시작일/과거·정렬·owner-child 범위·dedup·빈 row/data null, 각 API 오류 전파를 독립 GWT로 검증 |
+| 실행 명령/결과 | root 최종 `npm run test:unit` exit 0, 11개 발견 파일 PASS, fail/skip/todo 0 (`verification-artifacts/step10-unit-root-final.log`); `npm run check:contracts`·`npm run typecheck` exit 0, pane `npm run build` exit 0, `git diff --check` exit 0; 최종 Standards 0 findings, 최종 Spec 0 findings |
+| 신규 동작/기존 동작 | 제품 코드는 바꾸지 않고 기존 공개 API의 GREEN 계약을 대역으로 추가 |
+| 결함 재현 RED → GREEN | 제품 결함 RED는 아직 확인되지 않음; 발견 시 제품 코드는 수정하지 않고 보고 |
+| 미검증·제외·후속 | 대역은 실제 DB/FK/RLS 또는 embedded 관계를 지원하는 SQL 자체를 실행하지 않음 |

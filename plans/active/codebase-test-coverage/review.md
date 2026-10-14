@@ -4,7 +4,7 @@
 
 In Progress
 
-Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 09는 Complete이며 Step 10–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
+Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 09–10은 Complete, Step 11–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
 
 ## Planning Status
 
@@ -38,6 +38,13 @@ Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0
 - 해소: 독립 Given–When–Then 테스트로 분리하고 `quiz_score`/`returned_at` null, `quiz_score: "UNKNOWN"`의 null 정규화, 정확한 snake_case select projection을 보강했다.
 - 최종: root `npm run test:unit` exit 0, 10개 발견 파일 PASS, fail/skip/todo 0 (`verification-artifacts/step09-unit-root-final.log`); `npm run check:contracts`·`npm run typecheck` exit 0, pane `npm run build` exit 0, `git diff --check` exit 0. 최종 Standards 0 findings, 최종 Spec 0 findings.
 - 제한: query 대역은 실제 DB, migration 적용 또는 RLS를 실행하지 않았으며 이를 검증 증거로 주장하지 않는다.
+
+## Step 10 Completion — 2026-10-14
+
+- 최초 findings: upcoming 시작일 조건의 `gte` 연산자, embedded 관계 FK 이름을 포함한 select fixture, 여러 결과를 한 테스트에 결합한 구조, 빈 row/data null의 성공 계약, completion·audio의 assignment-task 복합 key 검증이 부족했다.
+- 해소: 제한 query 대역이 exact `eq`/`gte` 필터·FK 관계 select·날짜 정렬을 강제하도록 하고, object/array/null·빈 row/data null·오류 전파와 복합 key를 독립 Given–When–Then 테스트로 분리했다.
+- 최종: root `npm run test:unit` exit 0, 11개 발견 파일 PASS, fail/skip/todo 0 (`verification-artifacts/step10-unit-root-final.log`); `npm run check:contracts`·`npm run typecheck` exit 0, pane `npm run build` exit 0, `git diff --check` exit 0. 최종 Standards 0 findings, 최종 Spec 0 findings.
+- 제한: query 대역은 실제 DB, embedded 관계 SQL/FK 또는 RLS를 실행하지 않았으며 이를 검증 증거로 주장하지 않는다.
 
 ## Verification Run
 
@@ -74,7 +81,7 @@ Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0
 | 1 | 07 자료 준비 상태와 배정 후보 | Complete | root 최종 `test:unit` exit 0; 127 PASS/fail·skip·todo 0. Standards/Spec 최종 0 findings; Step 02 runner 증거 재사용. |
 | 1 | 08 횟수·진행률·활동 기록 | Complete | root 최종 `test:unit` 9개 발견 파일 PASS(fail/skip/todo 0), `check:contracts`/`git diff --check` PASS, Standards/Spec 각 0 findings. Phase 1 `verify` PASS; 제품 코드 변경 없음. |
 | 2 | 09 전체·프로필 조회와 row 매핑 | Complete | `tests/reading-store-read.test.ts`로 projection·owner·정렬, null/빈/nullable·유효하지 않은 quiz 문자열 정규화, 각 DB error와 Promise rejection을 query 대역으로 검증. root final `test:unit` exit 0, 10 files PASS/fail·skip·todo 0 (`verification-artifacts/step09-unit-root-final.log`); contracts/typecheck/build/diff check exit 0; 최종 Standards/Spec 0 findings. 실제 DB/migration 적용/RLS 미검증. |
-| 2 | 10 오늘·예정 배정의 embedded 데이터 조회 | Pending | 미실행 |
+| 2 | 10 오늘·예정 배정의 embedded 데이터 조회 | Complete | `tests/reading-store-child.test.ts`가 select와 `{operator, column, value}`의 today eq/upcoming gte owner·child·date 범위 및 정렬을 강제한다. object/array/null·빈 응답·복합 key와 예정 범위/정렬/scope/dedup, DB error·Promise rejection은 독립 GWT다. root final `test:unit` exit 0, 11개 발견 파일 PASS/fail·skip·todo 0 (`verification-artifacts/step10-unit-root-final.log`); contracts/typecheck/build/diff check exit 0; 최종 Standards/Spec 0 findings. 실제 DB/FK/RLS 미검증. |
 | 2 | 11 부모 활동 범위 조회 | Pending | 미실행 |
 | 2 | 12 자료 관리·시리즈·배정 이력 조회 | Pending | 미실행 |
 | 2 | 13 아동·자료 저장과 활성 상태 | Pending | 미실행 |

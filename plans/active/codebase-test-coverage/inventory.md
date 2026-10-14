@@ -50,8 +50,8 @@ lib/supabase/reading-store.ts의 모든 공개 함수는 아래에서 개별 검
 | middleware.ts | build | delegate·matcher 적용/제외 경로, 17 | A03 |
 | reading-store: fetchReadingData | tests/reading-store-read.test.ts::`정상 입력: 전체 조회는 여섯 컬렉션을 snake_case row에서 owner 범위의 도메인 데이터로 매핑한다`; `경계값: 전체 조회는 모든 data null을 빈 컬렉션과 record로 반환한다`; `경계값: 전체 조회는 모든 빈 row 목록을 빈 컬렉션과 record로 반환한다`; nullable·invalid quiz/audio 경계 | 6개 컬렉션 매핑·projection·필터·오류, 09 Complete | S01 |
 | reading-store: fetchReadingProfileData | tests/reading-store-read.test.ts::`정상 입력: 프로필 조회는 owner 아동을 생성일 순서의 도메인 자료로 매핑한다`; `경계값: 프로필 조회는 data null을 빈 children으로 반환한다`; `경계값: 프로필 조회는 빈 row 목록을 빈 children으로 반환한다` | 아동 매핑·projection·owner·순서·오류, 09 Complete | S01 |
-| reading-store: fetchChildTodayData | 브라우저 간접 | embedded 관계·scope·오류, 10 | S02 |
-| reading-store: fetchUpcomingAssignmentData | 직접 테스트 없음 | 미래 경계·책 중복 제거, 10 | S02 |
+| reading-store: fetchChildTodayData | tests/reading-store-child.test.ts의 object/array/null 관계, 빈 row/data null, completion·audio 복합 key 및 오류 전파 독립 테스트 | embedded 관계·scope·오류, 10 Complete | S02 |
+| reading-store: fetchUpcomingAssignmentData | tests/reading-store-child.test.ts의 시작일/과거·정렬·owner-child 범위·책 dedup, 빈 row/data null 및 오류 전파 독립 테스트 | 미래 경계·책 중복 제거, 10 Complete | S02 |
 | reading-store: fetchParentActivityData | 직접 테스트 없음 | 기간·ID dedup·후속 조회·오류, 11 | S03 |
 | reading-store: fetchBookManageData | 직접 테스트 없음 | 검색/시리즈 필터·정렬·오류, 12 | S04 |
 | reading-store: fetchBookSeriesNames | 직접 테스트 없음 | RPC 결과 정리·오류 fallback, 12 | S04 |
