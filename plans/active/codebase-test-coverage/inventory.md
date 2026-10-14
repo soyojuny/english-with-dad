@@ -52,7 +52,7 @@ lib/supabase/reading-store.ts의 모든 공개 함수는 아래에서 개별 검
 | reading-store: fetchReadingProfileData | tests/reading-store-read.test.ts::`정상 입력: 프로필 조회는 owner 아동을 생성일 순서의 도메인 자료로 매핑한다`; `경계값: 프로필 조회는 data null을 빈 children으로 반환한다`; `경계값: 프로필 조회는 빈 row 목록을 빈 children으로 반환한다` | 아동 매핑·projection·owner·순서·오류, 09 Complete | S01 |
 | reading-store: fetchChildTodayData | tests/reading-store-child.test.ts의 object/array/null 관계, 빈 row/data null, completion·audio 복합 key 및 오류 전파 독립 테스트 | embedded 관계·scope·오류, 10 Complete | S02 |
 | reading-store: fetchUpcomingAssignmentData | tests/reading-store-child.test.ts의 시작일/과거·정렬·owner-child 범위·책 dedup, 빈 row/data null 및 오류 전파 독립 테스트 | 미래 경계·책 중복 제거, 10 Complete | S02 |
-| reading-store: fetchParentActivityData | 직접 테스트 없음 | 기간·ID dedup·후속 조회·오류, 11 | S03 |
+| reading-store: fetchParentActivityData | tests/reading-store-parent.test.ts의 기간 양 끝·owner·공유 book ID의 정확한 후속 `in`, 빈 assignment의 수동 기록 보존/후속 조회 생략, 초기/후속 `data null`, `task_counts`/`quiz_enabled`/`content_type` 기본값, 1차·후속 DB error 및 대표 Promise rejection | 기간·book ID dedup·후속 조회·오류, 11 Complete; assignment ID dedup은 PK상 정상 DB 응답 N/A인 방어 로직 | S03 |
 | reading-store: fetchBookManageData | 직접 테스트 없음 | 검색/시리즈 필터·정렬·오류, 12 | S04 |
 | reading-store: fetchBookSeriesNames | 직접 테스트 없음 | RPC 결과 정리·오류 fallback, 12 | S04 |
 | reading-store: fetchLibraryData | 직접 테스트 없음 | 활성 자료·owner·오류, 12 | S04 |
