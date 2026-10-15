@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { expect, test, vi } from "vitest";
 import { AssignmentQuizScore } from "../../app/assignment-quiz-score";
 
-test("C02-N01: 결과가 없을 때 PASS 클릭은 저장 callback에 PASS를 전달한다", async () => {
+test("C02-N01: 결과가 없을 때 PASS 클릭은 저장 callback에 PASS를 전달하고 선택 전 표시는 유지한다", async () => {
   // Given
   const onSave = vi.fn();
   const user = userEvent.setup();
@@ -16,6 +16,25 @@ test("C02-N01: 결과가 없을 때 PASS 클릭은 저장 callback에 PASS를 �
   // Then
   expect(onSave).toHaveBeenCalledExactlyOnceWith("PASS");
   expect(screen.getByRole("button", { name: "PASS" }).classList.contains("secondary-button")).toBe(true);
+});
+
+test("C02-N02: PASS와 FAIL은 현재 score에 맞춰 선택 표시되고 각각 저장 callback을 전달한다", async () => {
+  // Given
+  const onSave = vi.fn();
+  const user = userEvent.setup();
+  const view = render(<AssignmentQuizScore assignmentId="assignment-1" score="PASS" onSave={onSave} />);
+
+  // When
+  await user.click(screen.getByRole("button", { name: "PASS" }));
+  view.rerender(<AssignmentQuizScore assignmentId="assignment-1" score="FAIL" onSave={onSave} />);
+  await user.click(screen.getByRole("button", { name: "FAIL" }));
+
+  // Then
+  expect(screen.getByRole("button", { name: "FAIL" }).classList.contains("primary-button")).toBe(true);
+  expect(screen.getByRole("button", { name: "PASS" }).classList.contains("secondary-button")).toBe(true);
+  expect(onSave).toHaveBeenNthCalledWith(1, "PASS");
+  expect(onSave).toHaveBeenNthCalledWith(2, "FAIL");
+  expect(onSave).toHaveBeenCalledTimes(2);
 });
 
 test("T01-E07: StrictMode rerender는 새 선택과 callback을 적용하고 unmount는 DOM을 제거한다", async () => {

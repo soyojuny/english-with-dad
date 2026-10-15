@@ -22,9 +22,9 @@
 | lib/qr-reader.ts | 직접 자동 테스트 없음 | 경계 대역 + 실제 jsQR/canvas fixture, 27 | M02 |
 | app/use-child-assignment-selection.ts | policy/브라우저 간접 검사 | effect·storage 예외·scope 수명주기, 21 | H01·H03 |
 | app/use-child-task-requests.ts | coordinator/브라우저 간접 검사 | timer 경계·listener/cleanup·late response, 22 | H02·H03·U07 |
-| app/assignment-book-picker.tsx | 수동 UI 지침 | 선택·활동·폼 전달·rerender, 19 | C01·D06 |
-| app/assignment-edit-form.tsx | 수동 UI 지침 | 횟수·fallback·퀴즈·취소/제출, 19 | C01·D06 |
-| app/assignment-quiz-score.tsx | 수동 UI 지침 | PASS/FAIL 선택·표시, 19 | C02 |
+| app/assignment-book-picker.tsx | `tests/components/assignment-book-picker.test.tsx` | 선택·활동·폼 전달·rerender, 19 Complete | Step 19 root component 6 files/28 PASS + 2 expected-fail, exit 0 (`verification-artifacts/step19-component-root-final.log`); C01-N01/E01/E02·D06-N02/N03/E02 (6 PASS) |
+| app/assignment-edit-form.tsx | `tests/components/assignment-edit-form.test.tsx` | 횟수·fallback·퀴즈·취소/제출, 19 Complete | C01-N02/N03/N04·C01-E03(빈 일반 책 영어 그림책의 listen fallback `0`·quiz Y, 4 PASS)·D06-E03/E04 (확인된 같은 quiz visibility 결함의 regular/wordReading 재현, 2 expected-fail) |
+| app/assignment-quiz-score.tsx | `tests/components/assignment-quiz-score.test.tsx` | PASS/FAIL 선택·표시, 19 Complete | C02-N01/N02·T01-E07 (3 PASS; Step 03 회귀 보존) |
 | app/task-completion-feedback.tsx | 오디오 브라우저 일부 간접 검사 | 상태·role·버튼/callback, 20 | C03 |
 | app/activity-log-cell.tsx | 수동 UI 지침 | 그룹·합계·퀴즈·수동 삭제, 20 | C04·D08·U08 |
 | app/material-thumb.tsx | 수동 UI 지침 | 이미지 대체 표시·alt·메타, 20 | C04 |
@@ -141,9 +141,9 @@ store의 23개 함수는 위 개별 행에 대응한다. 나머지 export는 아
 | 파일 | 공개 export | 시나리오 / 테스트 경로·증거 참조 |
 | --- | --- | --- |
 | app/activity-log-cell.tsx | `ActivityLogCell` | C04·D08·U08 |
-| app/assignment-book-picker.tsx | `AssignmentBookPicker` | C01·D06 |
-| app/assignment-edit-form.tsx | `AssignmentEditForm` | C01·D06 |
-| app/assignment-quiz-score.tsx | `AssignmentQuizScore` | C02 |
+| app/assignment-book-picker.tsx | `AssignmentBookPicker` | C01-N01/E01/E02·D06-N02/N03/E02 (Step 19 Complete) |
+| app/assignment-edit-form.tsx | `AssignmentEditForm` | C01-N02/N03/N04·C01-E03(빈 일반 책 영어 그림책 listen fallback `0`·quiz Y)·D06-E03/E04 (Step 19 Complete; 같은 quiz visibility 결함의 2 expected-fail 재현) |
+| app/assignment-quiz-score.tsx | `AssignmentQuizScore` | C02-N01/N02·T01-E07 (Step 19 Complete; Step 03 회귀 보존) |
 | app/auth/callback/route.ts | `GET` | A02 |
 | app/auth/error/page.tsx | `AuthErrorPage` | A03 |
 | app/auth-panel.tsx | `AuthPanel` | A04 |
