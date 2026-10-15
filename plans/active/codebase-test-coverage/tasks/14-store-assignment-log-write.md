@@ -2,7 +2,7 @@
 
 ## Status
 
-Pending — 계획만 작성했으며 구현하지 않았다.
+Complete — 최종 리뷰와 필수 검사를 완료했다.
 
 ## Phase
 
@@ -35,11 +35,11 @@ Phase 2 — Supabase 저장소 대역 검증.
 
 ## Acceptance Criteria
 
-- [ ] 실제 unique 제약·cascade·원자성은 mock으로 증명하지 않고 follow-up에 연결한다.
-- [ ] 대상 계약과 테스트 경로/시나리오 ID를 inventory.md 및 scenarios.md에 연결했다.
-- [ ] 기존 관련 회귀를 보존하고 정상·경계·invalid의 적용 여부를 기록했다.
-- [ ] 테스트가 독립 실행되며 실행 발견·실패 전달·환경/대역 정리가 확인된다.
-- [ ] 필요한 검사를 실행했고 명령·결과·제한을 기록했다.
+- [x] 실제 unique 제약·cascade·원자성은 mock으로 증명하지 않고 follow-up에 연결한다.
+- [x] 대상 계약과 테스트 경로/시나리오 ID를 inventory.md 및 scenarios.md에 연결했다.
+- [x] 기존 관련 회귀를 보존하고 정상·경계·invalid의 적용 여부를 기록했다.
+- [x] 테스트가 독립 실행되며 실행 발견·실패 전달·환경/대역 정리가 확인된다.
+- [x] 필요한 검사를 실행했고 명령·결과·제한을 기록했다.
 
 ## Required Verification
 
@@ -55,8 +55,8 @@ Phase 2 — Supabase 저장소 대역 검증.
 
 | 항목 | 기록 |
 | --- | --- |
-| 테스트 경로·시나리오 | 미작성 |
-| 실행 명령/결과 | 미실행 |
-| 신규 동작/기존 동작 | 구현 시 기록 |
-| 결함 재현 RED → GREEN | 결함 수정이 승인된 경우에만 기록; 정상 기존 동작은 GREEN 확인 |
-| 미검증·제외·후속 | 구현 시 기록 |
+| 테스트 경로·시나리오 | `tests/reading-store-assignment-write.test.ts` 및 `tests/reading-store-manual-log.test.ts`, S06 |
+| 실행 명령/결과 | root final `TMPDIR="$PWD/verification-artifacts/tmp" npm run test:unit` exit 0, 16 discovered files, fail/skip/todo 0 (`verification-artifacts/step14-unit-root-final.log`); `npm run check:contracts`, `npm run typecheck`, 개발 pane `npm run build`, `git diff --check` 모두 exit 0 |
+| 신규 동작/기존 동작 | 제품 코드는 변경하지 않았다. 제한 mutation fake가 plan별 `from → mutation → eq → select → single → execute` event sequence, exact payload/options/filter/select/single과 반환 매핑, 빈 batch·quiz Y/N·빈 note/0분·독립 실패 전파를 검증한다. |
+| 최종 리뷰 | Standards review 0 findings, Spec review 0 findings. `tests/reading-store-assignment-write.test.ts` 14개와 `tests/reading-store-manual-log.test.ts` 7개, 합계 21개 테스트를 확인했다. 제품 결함은 발견하지 않았다. |
+| 미검증·제외·후속 | 실제 DB unique 제약, cascade, transaction atomicity, migration 적용, RLS는 mock으로 증명하지 않았다. `deleteAssignment`의 0행은 현재 SDK response만으로 감지할 수 없어 Q03/후속으로 남긴다. 타입 밖 입력은 공개 TypeScript API 경계에서 만들지 않아 N/A다. |

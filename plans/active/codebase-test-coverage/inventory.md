@@ -60,12 +60,12 @@ lib/supabase/reading-store.ts의 모든 공개 함수는 아래에서 개별 검
 | reading-store: saveChild | tests/reading-store-material-write.test.ts의 신규 insert·기존 update·DB error | insert/update·payload·owner/id·error, 13 Complete | S05 |
 | reading-store: saveBook | tests/reading-store-material-write.test.ts의 일반/단어 읽기 insert·비활성 update·null content_type row·data null | insert/update·유형·선택 문자열·active 보존·error, 13 Complete | S05 |
 | reading-store: setBookActive | tests/reading-store-material-write.test.ts의 비활성화/재활성화·Promise rejection | owner/id·상태·error, 13 Complete | S05 |
-| reading-store: saveAssignments | 직접 테스트 없음 | batch·conflict key·매핑·error, 14 | S06 |
-| reading-store: saveAssignmentQuizScore | 직접 테스트 없음 | 결과·owner/id·error, 14 | S06 |
-| reading-store: saveAssignmentTaskCounts | 직접 테스트 없음 | counts·quiz off reset·error, 14 | S06 |
-| reading-store: deleteAssignment | 직접 테스트 없음 | owner/id·error, 14 | S06 |
-| reading-store: saveManualLog | 직접 테스트 없음 | payload·매핑·error, 14 | S06 |
-| reading-store: deleteManualLog | 직접 테스트 없음 | owner/id·error, 14 | S06 |
+| reading-store: saveAssignments | tests/reading-store-assignment-write.test.ts의 batch 전체 payload/owner/conflict key, quiz N score null·Y score key 생략, 반환 매핑, 빈 batch data null, DB error | upsert·매핑·빈 batch·오류, 14 Complete | S06 |
+| reading-store: saveAssignmentQuizScore | tests/reading-store-assignment-write.test.ts의 PASS/FAIL, owner/id, exact select/single, data null·DB error·Promise rejection | 결과·scope·매핑·오류, 14 Complete | S06 |
+| reading-store: saveAssignmentTaskCounts | tests/reading-store-assignment-write.test.ts의 tasks/counts/quiz payload, quiz Y score 보존·Y→N null, owner/id·반환·DB error·data null | counts·quiz 초기화·scope·오류, 14 Complete | S06 |
+| reading-store: deleteAssignment | tests/reading-store-assignment-write.test.ts의 delete owner/id·undefined 성공 반환·DB error | scope·오류, 14 Complete; 0행 정책 Q03 | S06 |
+| reading-store: saveManualLog | tests/reading-store-manual-log.test.ts의 전체 insert payload/owner, exact select/single·row 매핑, 빈 note/0분, data null·DB error | insert·경계·매핑·오류, 14 Complete | S06 |
+| reading-store: deleteManualLog | tests/reading-store-manual-log.test.ts의 delete owner/id·id select/single·반환 ID, data null·DB error·Promise rejection | scope·반환·오류, 14 Complete; 실제 0행은 single 응답 계약에 따름 | S06 |
 | reading-store: fetchCompletion | completion-store.test.ts | 기존 회귀 대응·공백, 15 | S07 |
 | reading-store: saveCompletionGuarded | completion-store.test.ts | expected-count·충돌·오류 기존 회귀, 15 | S07 |
 | reading-store: saveAudioLaunch | audio-return-store.test.ts | 기존 실행 저장 회귀, 15 | S08 |
