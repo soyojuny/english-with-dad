@@ -4,7 +4,7 @@
 
 In Progress
 
-Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 09–14는 Complete, Step 15–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
+Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 09–15는 Complete, Step 16–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
 
 ## Planning Status
 
@@ -94,7 +94,7 @@ Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0
 | 2 | 12 자료 관리·시리즈·배정 이력 조회 | Complete | root final `test:unit` exit 0, 13 files PASS/fail·skip·todo 0 (`verification-artifacts/step12-unit-root-final.log`); contracts/typecheck/pane build/diff check exit 0, Standards/Spec 0 findings. 실제 DB/RPC SQL/migration/RLS 미검증. |
 | 2 | 13 아동·자료 저장과 활성 상태 | Complete | `tests/reading-store-material-write.test.ts`가 insert/update payload, exact table/select/single, owner/id filter, 일반/단어 읽기 빈 선택 문자열·null content_type row 매핑, 비활성 edit 보존, 활성 변경과 error/data null/rejection을 제한 mutation 대역으로 검증. `TMPDIR="/home/joon/workspace/english-with-dad/verification-artifacts/tmp" npm run test:unit` exit 0, 14 discovered files, fail/skip/todo 0; contracts/typecheck/이전 개발 pane build/diff check exit 0; Standards/Spec 0 findings. 실제 DB/migration/RLS 미검증. |
 | 2 | 14 배정·퀴즈·수동 기록 저장 | Complete | `tests/reading-store-assignment-write.test.ts` 14개와 `tests/reading-store-manual-log.test.ts` 7개, 합계 21개가 bulk upsert conflict key/payload/매핑, quiz PASS/FAIL·Y→N null, task count, owner/id delete, manual log 경계와 대표 실패를 strict mutation fake로 검증. root final unit 16 files PASS, contracts/typecheck/pane build/diff check exit 0, Standards/Spec 0 findings. 제품 결함·제품 코드 변경 없음; 실제 unique/cascade/transaction/migration/RLS 및 삭제 0행 Q03은 미검증. |
-| 2 | 15 완료·실행 저장 기존 회귀 보강 | Pending | 미실행 |
+| 2 | 15 완료·실행 저장 기존 회귀 보강 | Complete | root final verify exit 0, unit 271/271 PASS, audio browser 7/7 PASS; Standards/Spec 각 0 findings. 실제 DB/RLS 미검증. |
 | 3 | 16 인증 설정과 Supabase client 경계 | Pending | 미실행 |
 | 3 | 17 인증 callback·middleware·서버 페이지 | Pending | 미실행 |
 | 3 | 18 로그인·로그아웃 UI | Pending | 미실행 |
@@ -301,6 +301,25 @@ afterEach는 DOM/storage/timer/spy/global/env를 복원하고 StrictMode effect�
 | `git diff --check` | exit 0 | 공백 오류 없음 |
 
 최종 Standards review와 Spec review는 각각 0 findings였다.
+
+## Step 15 Execution — 2026-10-15
+
+- Step 15은 Complete다. 제품 코드, migration, RLS, 설정 및 의존성은 변경하지 않았다. 기존 target test 68개와 client browser 7개는 이름·행동·assertion을 그대로 보존했다. target은 현재 80개이며, store query fake 추적 및 한국어 Given–When–Then 신규 12개만 추가했다.
+- S07은 `fetchCompletion`의 정확 owner/assignment/task projection/`maybeSingle`, fetch Promise rejection 및 guarded save insert/update의 exact payload·scope·projection/`maybeSingle` query trace와 mutation/reconciliation Promise rejection을 보강했다. 기존 테스트가 최초 insert, expected-count update, invalid no-write, 23505 reconciliation, missing/old-count conflict, SQLSTATE rejected/non-SQLSTATE uncertain 및 반환 mapping을 이미 다룬다. `task-completion`의 새 transport rejection은 coordinator가 `uncertain`으로 구분하는 실제 연결을 확인한다.
+- S08은 `saveAudioLaunch`, `fetchAudioLaunch`, `saveAudioReturn`의 정확 payload/filter/projection/terminal query를 별도 검사했다. launch DB error, fake의 null-data fallback rejection, Promise rejection과 fetch rejection도 추가했다. null-data fake는 `unwrap`의 앱 처리만 증명하며 실제 PostgREST 응답 형식을 증명하지 않는다. 기존 테스트가 launch의 새/기존 mapping, fetch row/null/DB error, return의 returned_at-only/0행/old launch/duplicate return 및 DB error/rejection을 다룬다. `audio-return` coordinator의 연타, 결과 지연, stale launch, scope/dispose callback 차단은 기존 회귀로 연결된다.
+- query fake의 23505·expected-count·returned_at null 상태 전이는 앱이 보낸 요청과 모의 상태 전이의 증거일 뿐이다. 실제 Postgres unique constraint, conditional update, transaction/격리 원자성, migration 적용, RLS owner 격리는 실행하지 않았고 후속 DB/RLS 범위다.
+- root 최종 Standards review와 Spec review는 각각 0 findings였다. 제품 결함과 제품 코드 변경은 없었다.
+
+| 명령 | 결과 |
+| --- | --- |
+| `TMPDIR="$PWD/verification-artifacts/tmp" npm run test:unit` | exit 0; 16 discovered files PASS, fail/skip/todo 0 |
+| `npm run test:audio-browser` | sandbox Chromium EPERM으로 최초 7 FAIL; 승인된 sandbox 밖 재실행 exit 0, 7 PASS |
+| `npm run check:contracts` | exit 0; Contract check passed |
+| `npm run typecheck` | exit 0 |
+| `npm run build` | exit 0; Next production build |
+| `TMPDIR="$PWD/verification-artifacts/tmp" npm run verify` | root exit 0; check:contracts/check:sw/check:pwa/test:unit/typecheck/build 모두 PASS, unit 271 pass·fail/cancelled/skipped/todo 0; `verification-artifacts/step15-verify-root-final.log` |
+| root `npm run test:audio-browser` | sandbox Chromium EPERM 뒤 승인된 sandbox 밖 재실행 exit 0, 7 passed; `verification-artifacts/step15-audio-browser-root-final.log` |
+| `git diff --check` | exit 0 |
 
 ## Final Verification
 

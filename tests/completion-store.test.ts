@@ -30,11 +30,61 @@ test("fetchCompletion selects only the owner's assignment and task and maps null
   assert.deepEqual(fake.writes, []);
 });
 
+test("정상 입력: 완료 조회는 정확한 범위와 projection으로 한 행을 매핑한다", async () => {
+  // Given
+  const fake = completionSupabaseFake([row]);
+
+  // When
+  const result = await fetchCompletion(fake.client, "owner-1", "assignment-1", "listen");
+
+  // Then
+  assert.deepEqual(result, record);
+  assert.deepEqual(fake.queries, [{
+    operation: "select",
+    values: {},
+    selected: ["assignment_id", "task_type", "completed_at", "minutes", "audio_opened_at", "count"],
+    filters: [
+      { column: "owner_user_id", value: "owner-1" },
+      { column: "assignment_id", value: "assignment-1" },
+      { column: "task_type", value: "listen" },
+    ],
+    terminal: "maybeSingle",
+  }]);
+});
+
+test("실패: 완료 조회의 Promise 거부는 원래 오류를 전파한다", async () => {
+  // Given
+  const fake = completionSupabaseFake();
+  const rejection = new Error("completion read disconnected");
+  fake.readPlans.push({ rejection });
+
+  // When
+  const actual = fetchCompletion(fake.client, "owner-1", "assignment-1", "listen");
+
+  // Then
+  await assert.rejects(actual, (error) => error === rejection);
+});
+
 test("first guarded completion inserts instead of upserting", async () => {
   const fake = completionSupabaseFake();
   assert.deepEqual(await saveCompletionGuarded(fake.client, "owner-1", payload, 0), { status: "saved", completion: record });
   assert.deepEqual(fake.rows, [row]);
   assert.equal(fake.writes[0].operation, "insert");
+  assert.deepEqual(fake.queries, [{
+    operation: "insert",
+    values: {
+      completed_at: payload.completedAt,
+      minutes: payload.minutes,
+      audio_opened_at: payload.audioOpenedAt,
+      count: payload.count,
+      owner_user_id: "owner-1",
+      assignment_id: payload.assignmentId,
+      task_type: payload.taskType,
+    },
+    selected: ["assignment_id", "task_type", "completed_at", "minutes", "audio_opened_at", "count"],
+    filters: [],
+    terminal: "maybeSingle",
+  }]);
 });
 
 test("a repeated first insert reconciles unique conflict without overwriting minutes or count", async () => {
@@ -57,6 +107,23 @@ test("subsequent guarded completion updates only its owner, assignment, task and
   assert.equal(result.completion?.value.count, 2);
   assert.deepEqual(fake.rows, [{ ...row, count: 2, minutes: 20 }, ...decoys]);
   assert.equal(fake.writes[0].operation, "update");
+  assert.deepEqual(fake.queries, [{
+    operation: "update",
+    values: {
+      completed_at: next.completedAt,
+      minutes: next.minutes,
+      audio_opened_at: next.audioOpenedAt,
+      count: next.count,
+    },
+    selected: ["assignment_id", "task_type", "completed_at", "minutes", "audio_opened_at", "count"],
+    filters: [
+      { column: "owner_user_id", value: "owner-1" },
+      { column: "assignment_id", value: next.assignmentId },
+      { column: "task_type", value: next.taskType },
+      { column: "count", value: 1 },
+    ],
+    terminal: "maybeSingle",
+  }]);
 });
 
 test("old expected-count retry cannot regress a newer completion", async () => {
@@ -111,4 +178,30 @@ test("fetch and unique-conflict reconciliation propagate read errors", async () 
   await assert.rejects(fetchCompletion(fake.client, "owner-1", "assignment-1", "listen"), /read denied/);
   fake.readPlans.push({ error: { code: "42501", message: "reconciliation denied" } });
   await assert.rejects(saveCompletionGuarded(fake.client, "owner-1", payload, 0), /reconciliation denied/);
+});
+
+test("실패: unique 충돌 재조회의 Promise 거부를 전파한다", async () => {
+  // Given
+  const reconciliationFake = completionSupabaseFake([row]);
+  const reconciliationRejection = new Error("reconciliation disconnected");
+  reconciliationFake.readPlans.push({ rejection: reconciliationRejection });
+
+  // When
+  const reconciliation = saveCompletionGuarded(reconciliationFake.client, "owner-1", payload, 0);
+
+  // Then
+  await assert.rejects(reconciliation, (error) => error === reconciliationRejection);
+});
+
+test("실패: 완료 저장 요청의 Promise 거부를 전파한다", async () => {
+  // Given
+  const fake = completionSupabaseFake();
+  const rejection = new Error("completion write disconnected");
+  fake.mutationPlans.push({ rejection });
+
+  // When
+  const actual = saveCompletionGuarded(fake.client, "owner-1", payload, 0);
+
+  // Then
+  await assert.rejects(actual, (error) => error === rejection);
 });

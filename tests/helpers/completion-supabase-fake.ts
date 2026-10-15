@@ -17,7 +17,20 @@ type MutationPlan = {
   before?: Promise<void>;
   after?: Promise<void>;
   error?: { message: string; code: string };
+  rejection?: Error;
   loseResponse?: boolean;
+};
+type ReadPlan = {
+  before?: Promise<void>;
+  error?: { message: string; code: string };
+  rejection?: Error;
+};
+export type CompletionQuery = {
+  operation: string;
+  values: Partial<CompletionRow>;
+  selected: string[] | undefined;
+  filters: { column: keyof CompletionRow; value: unknown }[];
+  terminal: "maybeSingle";
 };
 
 export function completionSupabaseFake(initialRows: CompletionRow[] = []) {
@@ -25,7 +38,8 @@ export function completionSupabaseFake(initialRows: CompletionRow[] = []) {
   const writes: { operation: string; values: Partial<CompletionRow> }[] = [];
   const reads: { column: keyof CompletionRow; value: unknown }[][] = [];
   const mutationPlans: MutationPlan[] = [];
-  const readPlans: { before?: Promise<void>; error?: { message: string; code: string } }[] = [];
+  const readPlans: ReadPlan[] = [];
+  const queries: CompletionQuery[] = [];
 
   function from(table: string) {
     assert.equal(table, "completions");
@@ -40,7 +54,9 @@ export function completionSupabaseFake(initialRows: CompletionRow[] = []) {
         const plan = operation === "select" ? readPlans.shift() : mutationPlans.shift();
         if (operation === "select") reads.push([...filters]);
         else writes.push({ operation, values: { ...values } });
+        queries.push({ operation, values: { ...values }, selected, filters: [...filters], terminal: "maybeSingle" });
         await plan?.before;
+        if (plan?.rejection) throw plan.rejection;
         if (plan?.error) return { data: null, error: plan.error };
 
         let affected = rows.filter((row) => filters.every(({ column, value }) => row[column] === value));
@@ -81,5 +97,5 @@ export function completionSupabaseFake(initialRows: CompletionRow[] = []) {
     };
     return query;
   }
-  return { client: { from } as unknown as Parameters<typeof saveCompletionGuarded>[0], rows, writes, reads, mutationPlans, readPlans };
+  return { client: { from } as unknown as Parameters<typeof saveCompletionGuarded>[0], rows, writes, reads, queries, mutationPlans, readPlans };
 }

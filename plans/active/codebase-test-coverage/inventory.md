@@ -66,11 +66,11 @@ lib/supabase/reading-store.ts의 모든 공개 함수는 아래에서 개별 검
 | reading-store: deleteAssignment | tests/reading-store-assignment-write.test.ts의 delete owner/id·undefined 성공 반환·DB error | scope·오류, 14 Complete; 0행 정책 Q03 | S06 |
 | reading-store: saveManualLog | tests/reading-store-manual-log.test.ts의 전체 insert payload/owner, exact select/single·row 매핑, 빈 note/0분, data null·DB error | insert·경계·매핑·오류, 14 Complete | S06 |
 | reading-store: deleteManualLog | tests/reading-store-manual-log.test.ts의 delete owner/id·id select/single·반환 ID, data null·DB error·Promise rejection | scope·반환·오류, 14 Complete; 실제 0행은 single 응답 계약에 따름 | S06 |
-| reading-store: fetchCompletion | completion-store.test.ts | 기존 회귀 대응·공백, 15 | S07 |
-| reading-store: saveCompletionGuarded | completion-store.test.ts | expected-count·충돌·오류 기존 회귀, 15 | S07 |
-| reading-store: saveAudioLaunch | audio-return-store.test.ts | 기존 실행 저장 회귀, 15 | S08 |
-| reading-store: fetchAudioLaunch | audio-return-store.test.ts | 기존 조회 회귀, 15 | S08 |
-| reading-store: saveAudioReturn | audio-return-store.test.ts | 조건부 첫 복귀·이전 실행 보호, 15 | S08 |
+| reading-store: fetchCompletion | `completion-store.test.ts`의 owner/assignment/task·row/null·DB error + Step 15 정확 projection/`maybeSingle`·Promise rejection | 범위·row mapping·오류, 15 Complete | S07 |
+| reading-store: saveCompletionGuarded | insert/update expected-count·invalid no-write·23505 reconciliation·missing/old conflict·SQLSTATE/non-SQLSTATE + Step 15 insert/update exact payload·scope·projection/`maybeSingle` query trace 및 mutation/reconciliation rejection | 기대 횟수·충돌·오류; 실제 원자성은 DB 미검증, 15 Complete | S07 |
+| reading-store: saveAudioLaunch | 기존 upsert payload/conflict key·새/기존 mapping + Step 15 projection/`single`·DB error·null data fallback rejection·Promise rejection | 실행 저장·오류, 15 Complete; null data는 fake 대역 증거이며 실제 PostgREST 응답 형식은 미검증 | S08 |
+| reading-store: fetchAudioLaunch | 기존 scope·row/null·DB error + Step 15 projection/`maybeSingle`·Promise rejection | 실행 조회·오류, 15 Complete | S08 |
+| reading-store: saveAudioReturn | 기존 returned_at-only·scope/opened_at/returned_at null·0-row·old/duplicate return·error/rejection + Step 15 projection/`maybeSingle` | 조건부 첫 복귀, 15 Complete; 실제 conditional update 원자성은 DB 미검증 | S08 |
 
 private row mapper는 공개 함수의 입출력으로 검증한다. 테스트 편의를 위해 mapper를 모두 export하지 않는다. 모든 store API의 owner 조건 검증은 앱 요청 계약이며 실제 RLS 동작과는 다른 증거다.
 

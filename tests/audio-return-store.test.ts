@@ -15,6 +15,14 @@ type QueryResult = {
   data: Record<string, unknown> | Record<string, unknown>[] | null;
   error: { message: string; code?: string } | null;
 };
+type AudioQuery = {
+  operation: "select" | "update" | "upsert";
+  values: Partial<LaunchRow>;
+  conflictColumns: (keyof LaunchRow)[];
+  selectedColumns: string[] | undefined;
+  conditions: { column: keyof LaunchRow; value: unknown }[];
+  terminal: "single" | "maybeSingle" | "many";
+};
 
 const openedAt = "2026-10-12T01:00:00.000Z";
 const returnedAt = "2026-10-12T01:10:00.000Z";
@@ -38,7 +46,7 @@ const returnPayload = {
 // In particular, an upsert of an old return really overwrites a newer launch here.
 function createSupabaseFake(
   initialRows: LaunchRow[],
-  failure?: { databaseError: { message: string } } | { rejection: Error },
+  failure?: { databaseError: { message: string } } | { rejection: Error } | { dataNull: true },
 ) {
   const rows = structuredClone(initialRows);
   const writes: {
@@ -46,6 +54,7 @@ function createSupabaseFake(
     values: Partial<LaunchRow>;
     onConflict?: string;
   }[] = [];
+  const queries: AudioQuery[] = [];
 
   function from(table: string) {
     assert.equal(table, "audio_launches");
@@ -58,10 +67,15 @@ function createSupabaseFake(
 
     function execute(cardinality: "many" | "single" | "maybeSingle") {
       execution ??= Promise.resolve().then((): QueryResult => {
+        queries.push({
+          operation, values: { ...values }, conflictColumns: [...conflictColumns],
+          selectedColumns, conditions: [...conditions], terminal: cardinality,
+        });
         if (failure && "rejection" in failure) throw failure.rejection;
         if (failure && "databaseError" in failure) {
           return { data: null, error: failure.databaseError };
         }
+        if (failure && "dataNull" in failure) return { data: null, error: null };
 
         let affected: LaunchRow[];
         if (operation === "update") {
@@ -136,6 +150,7 @@ function createSupabaseFake(
     client: { from } as unknown as Parameters<typeof saveAudioLaunch>[0],
     rows,
     writes,
+    queries,
   };
 }
 
@@ -155,6 +170,30 @@ test("saveAudioReturn updates only returned_at on the matching unreturned launch
   });
   assert.deepEqual(fake.rows, [{ ...initialRow, returned_at: returnedAt }, ...unrelatedRows]);
   assert.deepEqual(fake.writes, [{ operation: "update", values: { returned_at: returnedAt } }]);
+});
+
+test("정상 입력: 오디오 복귀 저장은 미복귀 실행만 정확한 조건과 projection으로 갱신한다", async () => {
+  // Given
+  const fake = createSupabaseFake([initialRow]);
+
+  // When
+  await saveAudioReturn(fake.client, "owner-1", returnPayload);
+
+  // Then
+  assert.deepEqual(fake.queries, [{
+    operation: "update",
+    values: { returned_at: returnedAt },
+    conflictColumns: [],
+    selectedColumns: ["assignment_id", "task_type", "opened_at", "returned_at"],
+    conditions: [
+      { column: "owner_user_id", value: "owner-1" },
+      { column: "assignment_id", value: "assignment-1" },
+      { column: "task_type", value: "listen" },
+      { column: "opened_at", value: openedAt },
+      { column: "returned_at", value: null },
+    ],
+    terminal: "maybeSingle",
+  }]);
 });
 
 for (const [condition, row] of [
@@ -248,6 +287,25 @@ test("saveAudioLaunch retains its existing insert upsert and return mapping", as
   }]);
 });
 
+test("정상 입력: 오디오 실행 저장은 충돌 키·projection·single로 실행 기록을 반환한다", async () => {
+  // Given
+  const fake = createSupabaseFake([]);
+
+  // When
+  const result = await saveAudioLaunch(fake.client, "owner-1", returnPayload);
+
+  // Then
+  assert.deepEqual(result, { key: "assignment-1:listen", value: { openedAt, returnedAt } });
+  assert.deepEqual(fake.queries, [{
+    operation: "upsert",
+    values: { ...initialRow, returned_at: returnedAt },
+    conflictColumns: ["owner_user_id", "assignment_id", "task_type"],
+    selectedColumns: ["assignment_id", "task_type", "opened_at", "returned_at"],
+    conditions: [],
+    terminal: "single",
+  }]);
+});
+
 test("saveAudioLaunch replaces the old launch and clears its return on the same conflict key", async () => {
   const unrelated = { ...initialRow, owner_user_id: "owner-2" };
   const fake = createSupabaseFake([{ ...initialRow, returned_at: returnedAt }, unrelated]);
@@ -281,6 +339,29 @@ test("fetchAudioLaunch scopes owner, assignment and task and maps the persisted 
   assert.deepEqual(fake.writes, []);
 });
 
+test("정상 입력: 오디오 실행 조회는 정확한 범위·projection·maybeSingle으로 매핑한다", async () => {
+  // Given
+  const fake = createSupabaseFake([{ ...initialRow, returned_at: returnedAt }]);
+
+  // When
+  const result = await fetchAudioLaunch(fake.client, "owner-1", "assignment-1", "listen");
+
+  // Then
+  assert.deepEqual(result, { key: "assignment-1:listen", value: { openedAt, returnedAt } });
+  assert.deepEqual(fake.queries, [{
+    operation: "select",
+    values: {},
+    conflictColumns: [],
+    selectedColumns: ["assignment_id", "task_type", "opened_at", "returned_at"],
+    conditions: [
+      { column: "owner_user_id", value: "owner-1" },
+      { column: "assignment_id", value: "assignment-1" },
+      { column: "task_type", value: "listen" },
+    ],
+    terminal: "maybeSingle",
+  }]);
+});
+
 test("fetchAudioLaunch returns null for no scoped row", async () => {
   const fake = createSupabaseFake([{ ...initialRow, owner_user_id: "owner-2" }]);
   assert.equal(await fetchAudioLaunch(fake.client, "owner-1", "assignment-1", "listen"), null);
@@ -289,4 +370,50 @@ test("fetchAudioLaunch returns null for no scoped row", async () => {
 test("fetchAudioLaunch propagates database errors", async () => {
   const fake = createSupabaseFake([], { databaseError: { message: "audio read denied" } });
   await assert.rejects(fetchAudioLaunch(fake.client, "owner-1", "assignment-1", "listen"), /audio read denied/);
+});
+
+test("실패: 오디오 실행 저장의 DB 오류를 전파한다", async () => {
+  // Given
+  const fake = createSupabaseFake([], { databaseError: { message: "launch write denied" } });
+
+  // When
+  const actual = saveAudioLaunch(fake.client, "owner-1", returnPayload);
+
+  // Then
+  await assert.rejects(actual, /launch write denied/);
+});
+
+test("실패: 오디오 실행 저장의 null data는 저장 실패로 거부한다", async () => {
+  // Given
+  const fake = createSupabaseFake([], { dataNull: true });
+
+  // When
+  const actual = saveAudioLaunch(fake.client, "owner-1", returnPayload);
+
+  // Then
+  await assert.rejects(actual, /오디오 실행 기록을 저장하지 못했습니다/);
+});
+
+test("실패: 오디오 실행 저장의 Promise 거부를 전파한다", async () => {
+  // Given
+  const rejection = new Error("launch network unavailable");
+  const fake = createSupabaseFake([], { rejection });
+
+  // When
+  const actual = saveAudioLaunch(fake.client, "owner-1", returnPayload);
+
+  // Then
+  await assert.rejects(actual, (error) => error === rejection);
+});
+
+test("실패: 오디오 실행 조회의 Promise 거부를 전파한다", async () => {
+  // Given
+  const rejection = new Error("audio read disconnected");
+  const fake = createSupabaseFake([], { rejection });
+
+  // When
+  const actual = fetchAudioLaunch(fake.client, "owner-1", "assignment-1", "listen");
+
+  // Then
+  await assert.rejects(actual, (error) => error === rejection);
 });

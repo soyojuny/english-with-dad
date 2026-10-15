@@ -112,6 +112,19 @@ test("explicit save failure requires retry and retains the exact immutable attem
   assert.equal(h.fake.rows[0].completed_at, input.completedAt);
 });
 
+test("실패: 전송 Promise 거부는 coordinator에서 결과 불명확 상태가 된다", async () => {
+  // Given
+  const h = harness();
+  h.fake.mutationPlans.push({ rejection: new Error("connection reset") });
+
+  // When
+  await h.coordinator.start(input);
+
+  // Then
+  assert.equal(h.coordinator.getState(key).status, "uncertain");
+  assert.equal(h.fake.writes.length, 1);
+});
+
 test("persisted-but-response-lost is reconciled without another write or increment", async () => {
   const h = harness();
   h.fake.mutationPlans.push({ loseResponse: true });
