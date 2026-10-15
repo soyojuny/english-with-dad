@@ -4,7 +4,7 @@
 
 In Progress
 
-Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 09–17은 Complete, Step 18–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
+Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 09–18은 Complete, Step 19–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
 
 ## Planning Status
 
@@ -97,7 +97,7 @@ Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0
 | 2 | 15 완료·실행 저장 기존 회귀 보강 | Complete | root final verify exit 0, unit 271/271 PASS, audio browser 7/7 PASS; Standards/Spec 각 0 findings. 실제 DB/RLS 미검증. |
 | 3 | 16 인증 설정과 Supabase client 경계 | Complete | root `npm run test:server` exit 0, 3 files/23 tests PASS(신규 config 14개·clients 7개, 기존 callback 2개; `verification-artifacts/step16-server-root-final.log`); root typecheck/contracts, 개발 pane build, diff check exit 0; Standards/Spec 0 findings. 제품 결함·제품 코드 변경 없음. 실제 Supabase Auth/session refresh/cookie serialization/OAuth/RLS 미검증. |
 | 3 | 17 인증 callback·middleware·서버 페이지 | Complete | root server 4 files/32 PASS + 1 expected-fail (`verification-artifacts/step17-server-root-final.log`), root Next browser 4 PASS (`verification-artifacts/step17-browser-next-root-final.log`); root typecheck/contracts/build/diff check exit 0; 최종 Standards/Spec 0 findings. 제품 코드 변경 없음. protocol-relative `next` validation 결함 1건은 same-origin redirect이며 외부 open redirect 아님; Q04 query/hash와 실제 OAuth/JWT/session persistence/DB/RLS 미검증. |
-| 3 | 18 로그인·로그아웃 UI | Pending | 미실행 |
+| 3 | 18 로그인·로그아웃 UI | Complete | root component 4 files/17 tests PASS (`verification-artifacts/step18-component-root-final.log`); root 개별 typecheck/contracts/build/diff check exit 0; Standards 0 findings, Spec 0 findings. Phase 3 경계 root `npm run verify` exit 0 (`verification-artifacts/step18-verify-root-final.log`; contracts/SW/PWA/unit/typecheck/build만 포함; component/server/browser는 포함하지 않음). 실제 Google/OAuth redirect/session persistence/DB/RLS 미검증. |
 | 4 | 19 배정 picker와 편집·퀴즈 컴포넌트 | Pending | 미실행 |
 | 4 | 20 완료 안내·활동 셀·자료 표시 | Pending | 미실행 |
 | 4 | 21 배정 선택 복원 hook | Pending | 미실행 |
@@ -328,6 +328,24 @@ afterEach는 DOM/storage/timer/spy/global/env를 복원하고 StrictMode effect�
 - 기존 실제 Next 비로그인·합성 cookie 로그인 SSR 2개는 변경하지 않았다. `tests/browser/next/auth-routes.spec.mjs`는 env 없는 임시 Next 복사본의 설정 안내 및 실제 `/auth/error` HTTP를 2개 추가한다. async Page를 DOM에 직접 렌더링하지 않았다. fixture의 context, Auth HTTP, Next process group, temporary root 및 failure artifact 정리는 기존 finally 계약을 재사용한다.
 - root `npm run test:server`는 4 files, 32 PASS + 1 expected-fail로 exit 0이다 (`verification-artifacts/step17-server-root-final.log`). sandbox 안 Chromium은 `sandbox_host_linux.cc` EPERM으로 시작하지 않아, 승인된 sandbox 밖 root `npm run test:browser:next`로 재실행해 기존 2개와 신규 2개, 총 4 PASS를 확인했다 (`verification-artifacts/step17-browser-next-root-final.log`). root `npm run typecheck`, `npm run check:contracts`, `npm run build`, `git diff --check`도 모두 exit 0이다. 과거 build와 병렬 최초 typecheck의 TS6053은 `.next/types` 생성물 경합이며 단독 재실행에서 해소됐다.
 - 실제 Supabase OAuth, JWT 서명, session serialization 또는 browser persistence, DB/RLS는 검증하지 않았다. callback next의 query/hash와 getUser 오류의 UI 정책은 Q04에 미확정으로 남긴다.
+
+## Step 18 Execution — 2026-10-15
+
+- Step 18은 **Complete**다. 제품 코드, Supabase 설정·migration·의존성은 변경하지 않고 `auth-panel` 기존 테스트를 확장하고 `signed-in-shell` 테스트를 추가했다. 각 test는 Given–When–Then으로 독립 실행하며, file-local `beforeEach`와 component setup의 afterEach가 SDK/router/mock, env, global window, DOM과 storage를 복원한다.
+- A04-N01은 Google `provider: "google"`, 현재 origin callback redirect와 `select_account`를 확인하고, A04-B01은 OAuth 요청 중 Google·로컬 로그인 버튼이 모두 비활성화되는 경계를 확인한다. A04-E01은 OAuth 오류 표시와 재시도를, N02와 E02–E06은 development flag/production·false flag 가시성, localhost Anonymous 성공 refresh, non-local hostname 차단, Anonymous disabled 한국어 안내 및 일반 오류를 확인한다.
+- A04-N03/E07/E08은 ReadingManagerClient 대역을 통해 logout 성공 뒤 transition router refresh, 오류 시 상태 표시와 refresh 금지, `isPending`의 `isSigningOut` 전달을 확인한다. 실제 Google/OAuth 네트워크는 호출하지 않았고 Supabase browser factory, router, browser hostname 및 ReadingManagerClient를 명시 대역했다.
+- 최초 test 실행은 test fixture의 Supabase 공개 env 누락과 하네스에 없는 jest-dom matcher 때문에 실패했다. fixture env와 기본 Vitest assertion으로 정정한 뒤 GREEN이며, 제품 결함이나 제품 코드 수정은 없었다. jsdom은 origin 간 navigation을 현실적으로 제공하지 않으므로 non-local hostname은 클릭 시점 `window.location.hostname` 대역으로만 확인한다. 실제 OAuth redirect/session persistence, DB/RLS는 이 컴포넌트 대역 범위 밖이다.
+
+| 명령 | 결과 |
+| --- | --- |
+| `TMPDIR="/home/joon/workspace/english-with-dad/verification-artifacts/tmp" npm run test:component` | exit 0; 4 files/17 tests PASS; `verification-artifacts/step18-component-root-final.log` |
+| `TMPDIR="/home/joon/workspace/english-with-dad/verification-artifacts/tmp" npm run typecheck` | exit 0 |
+| `TMPDIR="/home/joon/workspace/english-with-dad/verification-artifacts/tmp" npm run check:contracts` | exit 0; Contract check passed |
+| `TMPDIR="/home/joon/workspace/english-with-dad/verification-artifacts/tmp" npm run build` | exit 0; Next production build PASS |
+| `git diff --check` | exit 0 |
+| root `npm run verify` (Phase 3 경계) | exit 0; `check:contracts`·`check:sw`·`check:pwa`·`test:unit`·`typecheck`·`build` PASS; `verification-artifacts/step18-verify-root-final.log`. component/server/browser는 이 명령에 포함되지 않는다. |
+
+- 최종 Standards 0 findings, Spec 0 findings. root 개별 `typecheck`·`check:contracts`·`build`·`git diff --check`도 exit 0이다.
 
 ## Final Verification
 

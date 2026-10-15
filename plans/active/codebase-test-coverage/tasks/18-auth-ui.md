@@ -2,7 +2,7 @@
 
 ## Status
 
-Pending — 계획만 작성했으며 구현하지 않았다.
+Complete — 컴포넌트 테스트와 실행 증적을 추가했고, 제품 코드는 변경하지 않았다. 최종 Standards 0 findings, Spec 0 findings.
 
 ## Phase
 
@@ -31,11 +31,11 @@ Google OAuth 요청 설정, 로컬 Anonymous 로그인 허용 조건·설명, �
 
 ## Acceptance Criteria
 
-- [ ] 실제 Google 계정 로그인을 자동 테스트에 요구하지 않고 UI 요청 계약만 확인한다.
-- [ ] 대상 계약과 테스트 경로/시나리오 ID를 inventory.md 및 scenarios.md에 연결했다.
-- [ ] 기존 관련 회귀를 보존하고 정상·경계·invalid의 적용 여부를 기록했다.
-- [ ] 테스트가 독립 실행되며 실행 발견·실패 전달·환경/대역 정리가 확인된다.
-- [ ] 필요한 검사를 실행했고 명령·결과·제한을 기록했다.
+- [x] 실제 Google 계정 로그인을 자동 테스트에 요구하지 않고 UI 요청 계약만 확인한다.
+- [x] 대상 계약과 테스트 경로/시나리오 ID를 inventory.md 및 scenarios.md에 연결했다.
+- [x] 기존 관련 회귀를 보존하고 정상·경계·invalid의 적용 여부를 기록했다.
+- [x] 테스트가 독립 실행되며 실행 발견·실패 전달·환경/대역 정리가 확인된다.
+- [x] 필요한 검사를 실행했고 명령·결과·제한을 기록했다.
 
 ## Required Verification
 
@@ -53,8 +53,8 @@ Google OAuth 요청 설정, 로컬 Anonymous 로그인 허용 조건·설명, �
 
 | 항목 | 기록 |
 | --- | --- |
-| 테스트 경로·시나리오 | 미작성 |
-| 실행 명령/결과 | 미실행 |
-| 신규 동작/기존 동작 | 구현 시 기록 |
-| 결함 재현 RED → GREEN | 결함 수정이 승인된 경우에만 기록; 정상 기존 동작은 GREEN 확인 |
-| 미검증·제외·후속 | 구현 시 기록 |
+| 테스트 경로·시나리오 | `tests/components/auth-panel.test.tsx` A04-N01/N02/B01/E01–E06, `tests/components/signed-in-shell.test.tsx` A04-N03/E07/E08 |
+| 실행 명령/결과 | root `TMPDIR="/home/joon/workspace/english-with-dad/verification-artifacts/tmp" npm run test:component` exit 0; 4 files/17 tests PASS (`verification-artifacts/step18-component-root-final.log`). root 개별 `npm run typecheck`, `npm run check:contracts`, `npm run build`, `git diff --check` 모두 exit 0. Phase 3 경계 root `npm run verify` exit 0 (`verification-artifacts/step18-verify-root-final.log`; `check:contracts`·`check:sw`·`check:pwa`·`test:unit`·`typecheck`·`build`만 포함하며 component/server/browser는 포함하지 않음). |
+| 신규 동작/기존 동작 | 제품 코드는 변경하지 않았다. Supabase browser factory, router, browser hostname, ReadingManagerClient를 명시 대역해 OAuth/Anonymous/logout UI 요청만 검사한다. |
+| 결함 재현 RED → GREEN | 최초 실행은 테스트가 Supabase 공개 env를 독립 설정하지 않고 이 하네스가 제공하지 않는 jest-dom matcher를 사용해 실패했다. 각 테스트 fixture env와 기본 Vitest assertion으로 정정 뒤 GREEN; 제품 결함/제품 수정 없음. |
+| 미검증·제외·후속 | 실제 Google/OAuth redirect·session persistence·DB/RLS는 제외한다. jsdom의 hostname 변경은 실제 navigation이 아니라 클릭 시점 `window.location.hostname` 전역 대역으로 제한한다. |

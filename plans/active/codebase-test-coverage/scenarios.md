@@ -27,7 +27,7 @@
 | A01 | env·client | 설정 일부 누락·로컬 flag·cookie 읽기/쓰기 | 16 | server 대역 | lib/supabase/config.ts; lib/supabase/client.ts; lib/supabase/server.ts | tests/server/supabase-config.test.ts; tests/server/supabase-clients.test.ts | Step 16 Complete: config 14개·clients 7개와 기존 callback 2개, root server 3 files/23 tests PASS (`verification-artifacts/step16-server-root-final.log`); Standards/Spec 0 findings, typecheck/contracts/개발 pane build/diff check exit 0. 실제 Auth/session refresh/cookie serialization/OAuth/RLS 미검증 |
 | A02 | callback | code 성공/실패/없음·redirect 계약·private no-store | 17 Complete | server | app/auth/callback/route.ts | tests/server/auth-callback.test.ts | root server 4 files/32 PASS + 1 expected-fail (`verification-artifacts/step17-server-root-final.log`). protocol-relative 입력은 `/`가 계약이나 현재 same-origin `https://reading.invalid//outside.invalid/path`로 redirect하는 validation 결함이며 외부 open redirect는 아님; query/hash 정책은 Q04 미확정, 실제 OAuth/JWT/session persistence/DB/RLS 미검증 |
 | A03 | middleware·Page | 추가 cookie/header·matcher 제외·설정/로그인 분기 | 17 Complete | server/Next browser | lib/supabase/middleware.ts; middleware.ts; app/page.tsx; app/auth/error/page.tsx | tests/server/auth-middleware.test.ts; tests/browser/next/auth-routes.spec.mjs; tests/browser/next/auth-feasibility.spec.mjs | root server 4 files/32 PASS + 1 expected-fail (`verification-artifacts/step17-server-root-final.log`); root Next browser 4 PASS (`verification-artifacts/step17-browser-next-root-final.log`). 실제 OAuth/JWT/session persistence/DB/RLS 미검증 |
-| A04 | 인증 UI | OAuth 요청·localhost 조건·Anonymous 거부·logout 오류 | 18 | component | app/auth-panel.tsx; app/signed-in-shell.tsx | tests/components/auth-panel.test.tsx; tests/components/signed-in-shell.test.tsx | 없음; 신규 대기 |
+| A04 | 인증 UI | OAuth 요청·localhost 조건·Anonymous 거부·logout 오류 | 18 Complete | component | app/auth-panel.tsx; app/signed-in-shell.tsx | tests/components/auth-panel.test.tsx; tests/components/signed-in-shell.test.tsx | root component 4 files/17 tests PASS (`verification-artifacts/step18-component-root-final.log`); A04-N01/N02/N03/B01·E01–E08. 실제 Google/OAuth redirect/session persistence/DB/RLS는 미검증이며 non-local hostname은 jsdom 클릭 시점 `window.location.hostname` 대역이다. |
 | C01 | 배정 picker/form | 자료 제거/재추가·category reset·폼 값·cancel/submit | 19 | component | app/assignment-book-picker.tsx; app/assignment-edit-form.tsx | tests/components/assignment-book-picker.test.tsx; tests/components/assignment-edit-form.test.tsx | 없음; 신규 대기 |
 | C02 | 퀴즈 UI | PASS/FAIL 저장 callback과 선택 표시 | 19·25 | component/browser | app/assignment-quiz-score.tsx | tests/components/assignment-quiz-score.test.tsx; tests/browser/child-completion.spec.ts | 없음; 신규 대기 |
 | C03 | 완료 안내 | loading/error/pending/checking/uncertain/conflict/목표 완료 | 20 | component | app/task-completion-feedback.tsx | tests/components/task-completion-feedback.test.tsx | E07 일부 간접; 신규 대기 |
@@ -136,7 +136,7 @@
 | A01 | URL/key를 SDK factory에 전달·cookies getAll/setAll | 설정 일부 누락·Server Component cookie write 제한 | env 누락은 명시 오류; flag는 dev이며 false가 아닐 때 |
 | A02 | code 성공이면 같은 origin의 next pathname | next 미지정=/; code 없음/교환 오류=/auth/error | 외부 next는 /; code/next 제거·private no-store; Q04 |
 | A03 | cookie/header 전달·user 유무 페이지 분기 | 미설정 setup·정적 경로 matcher 제외 | Auth 실패 세부 정책 Q04; 타인 세션을 fixture로 성공 처리 금지 |
-| A04 | Google provider/redirect·logout refresh | dev 버튼·localhost 실행 제한·제출 disabled | OAuth/logout 오류 표시·Anonymous disabled 안내 |
+| A04 | Google provider/redirect·logout refresh | dev 버튼·localhost 실행 제한·제출 disabled·pending 전달 | OAuth/logout 오류 표시·Anonymous disabled 안내 |
 | C01 | 자료 선택·제거/재추가·제출/cancel | rerender·활동 변경 reset·0 task fallback | 허용 밖 폼 강제 N/A; 실제 거부는 U03 |
 | C02 | PASS/FAIL callback 및 선택 상태 | quiz 전용 task 없음·결과 null | 타입 밖 quiz 결과 강제 N/A; row 변환 S01 |
 | C03 | 상태 안내·role·callback | 목표 완료와 conflict·uncertain 표시 | error 상태에서 성공 안내 금지 |
@@ -228,7 +228,7 @@ Step 01은 아래 파일과 테스트명을 정적으로 대조했다. E01~E06�
 | --- | --- | --- | --- |
 | C02-N01 | 결과 null에서 PASS 클릭 → PASS callback 1회, props 갱신 전 선택은 비선택 유지 | tests/components/assignment-quiz-score.test.tsx::C02-N01 | PASS |
 | T01-E07 | StrictMode·새 배정/FAIL/callback rerender·unmount → 새 callback 1회/선택 표시/DOM 제거 | tests/components/assignment-quiz-score.test.tsx::T01-E07 | PASS |
-| A04-N01 | Google 클릭 → publishable env 전달·google/select_account·현재 origin callback·제출 disabled | tests/components/auth-panel.test.tsx::A04-N01 | PASS |
+| A04-N01 | Google 클릭 → publishable env 전달·google/select_account·현재 origin callback | tests/components/auth-panel.test.tsx::A04-N01 | PASS |
 | T01-E08 | test-only StrictMode effect·tick/event·unmount → 각각 1회·잔여 timer 0·후속 event 무효 | tests/hooks/lifecycle-harness.test.tsx::T01-E08 | PASS |
 | T01-E09/E10 | DOM/storage/env/spy/timer 생성 후 다음 test → 비상속; 다음 test는 독립 실행도 가능 | tests/hooks/lifecycle-harness.test.tsx::T01-E09/E10 | PASS |
 | A02-N01·A01 일부 | Node code 교환·cookie adapter → 같은 origin /today, 307/private no-store·factory env/cookie 전달 | tests/server/auth-callback.test.ts::A02-N01 | PASS |
@@ -253,3 +253,11 @@ Step 01은 아래 파일과 테스트명을 정적으로 대조했다. E01~E06�
 | T01-E11 | client/Next 각 독립 명령 후 통합 명령 → 새 context/fixture로 동일 7+2 PASS | package.json::test:audio-browser; test:browser:next; test:browser | 두 번째 실행 9 PASS; TZ America/Los_Angeles |
 
 독립 1차 로그는 verification-artifacts/step04-audio.log·step04-next-feasibility-final.log다. T01-F06은 requests.json 저장 뒤 verification-artifacts/step04-artifact-final.log에서 단독 1 PASS, 최종 harness는 phase00-harness-final-2.log에서 13 PASS다. 최초 feasibility의 harness 기대/Next dev 버전 조회 문제와 수정은 review Step 04 Execution에 구분한다. profile 선택/재로드는 기존 fixture 흐름이며 다른 child 전환의 상세 기능은 후속에 남긴다. 실패 입력은 실제 HTTP/서버 시작 경계다. 실제 OAuth/서명·DB/RLS·실기기나 전체 A03 완료를 주장하지 않는다.
+
+## Step 18 컴포넌트 실행 사례
+
+| 사례 ID | 입력/행동 → 고정 기대 결과 | 실제 파일::테스트명 ID | 결과 |
+| --- | --- | --- | --- |
+| A04-B01 | OAuth 요청 중 Google·로컬 로그인 버튼 → 모두 disabled, 완료 뒤 Google 재활성화 | tests/components/auth-panel.test.tsx::A04-B01 | PASS |
+
+Step 18에서 추가·실행한 경계 테스트다. root component 4 files/17 tests PASS (`verification-artifacts/step18-component-root-final.log`); 제품 코드 변경 없음이며 실제 Google/OAuth redirect/session persistence/DB/RLS는 미검증이다. non-local hostname은 jsdom 클릭 시점 `window.location.hostname` 대역이다.

@@ -29,8 +29,8 @@
 | app/activity-log-cell.tsx | 수동 UI 지침 | 그룹·합계·퀴즈·수동 삭제, 20 | C04·D08·U08 |
 | app/material-thumb.tsx | 수동 UI 지침 | 이미지 대체 표시·alt·메타, 20 | C04 |
 | app/reading-manager-client.tsx | 오디오 브라우저 7개 흐름 | 초기 로딩·프로필·자료·배정·학습·보고서·미디어·SW, 23–30 | U01·U02·U03·U04·U05·U06·U07·U08·U09·M03·P02 |
-| app/auth-panel.tsx | 수동 로그인 | OAuth/로컬 요청·가시성·오류, 18 | A04 |
-| app/signed-in-shell.tsx | 수동 로그인 | logout·refresh·오류, 18 | A04 |
+| app/auth-panel.tsx | `tests/components/auth-panel.test.tsx` | OAuth/로컬 요청·가시성·오류, 18 Complete | A04 (A04-N01/N02/B01/E01–E06; root component 4 files/17 tests PASS, `verification-artifacts/step18-component-root-final.log`; 실제 Google/OAuth redirect/session persistence/DB/RLS 미검증) |
+| app/signed-in-shell.tsx | `tests/components/signed-in-shell.test.tsx` | logout·refresh·오류, 18 Complete | A04 (A04-N03/E07/E08; root component 4 files/17 tests PASS, `verification-artifacts/step18-component-root-final.log`; 실제 Google/OAuth redirect/session persistence/DB/RLS 미검증) |
 | app/page.tsx | `tests/browser/next/auth-feasibility.spec.mjs`; `tests/browser/next/auth-routes.spec.mjs` | 실제 Next 비로그인/로그인 SSR·미설정 설정 분기, 17 Complete | A03 (root Next browser 4 PASS, `verification-artifacts/step17-browser-next-root-final.log`; 로컬 Auth HTTP/합성 cookie 대역이며 실제 OAuth/JWT/session persistence/DB/RLS 미검증) |
 | app/auth/callback/route.ts | `tests/server/auth-callback.test.ts` | code 교환·redirect·headers, 17 Complete | A02 (root server 4 files/32 PASS + 1 expected-fail, `verification-artifacts/step17-server-root-final.log`; protocol-relative `next`는 `/`가 계약이나 현재 same-origin `https://reading.invalid//outside.invalid/path`로 redirect하는 validation 결함, 외부 open redirect 아님; Q04 query/hash 미확정) |
 | app/auth/error/page.tsx | `tests/browser/next/auth-routes.spec.mjs` | 실제 오류 페이지·홈 링크, 17 Complete | A03 (root Next browser 4 PASS, `verification-artifacts/step17-browser-next-root-final.log`; 로컬 Auth HTTP 대역이며 실제 OAuth/JWT/session persistence/DB/RLS 미검증) |
