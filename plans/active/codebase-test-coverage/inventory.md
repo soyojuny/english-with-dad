@@ -43,9 +43,9 @@ lib/supabase/reading-store.ts의 모든 공개 함수는 아래에서 개별 검
 
 | 파일/공개 함수 | 현재 확인한 검증 | 추가 책임 / step | 시나리오 / 테스트·결과 참조 |
 | --- | --- | --- | --- |
-| lib/supabase/config.ts | build 실행 경로 | env 존재·로컬 로그인 flag, 16 | A01 |
-| lib/supabase/client.ts | 브라우저 간접 | factory 전달 경계, 16 | A01 |
-| lib/supabase/server.ts | build 실행 경로 | cookie 읽기/쓰기·예외, 16 | A01 |
+| lib/supabase/config.ts | `tests/server/supabase-config.test.ts` | env 존재·누락/빈 문자열·로컬 로그인 flag, 16 Complete | A01 (config 14개·clients 7개·기존 callback 2개, root server 3 files/23 tests PASS; 실제 Auth/session refresh/cookie serialization/OAuth/RLS 미검증) |
+| lib/supabase/client.ts | `tests/server/supabase-clients.test.ts` | browser factory 전달·반환·throw 경계, 16 Complete | A01 (config 14개·clients 7개·기존 callback 2개, root server 3 files/23 tests PASS; 실제 Auth/session refresh/cookie serialization/OAuth/RLS 미검증) |
+| lib/supabase/server.ts | `tests/server/supabase-clients.test.ts` | cookie 읽기/쓰기·쓰기 불가·factory/cookies 실패 경계, 16 Complete | A01 (config 14개·clients 7개·기존 callback 2개, root server 3 files/23 tests PASS; 실제 Auth/session refresh/cookie serialization/OAuth/RLS 미검증) |
 | lib/supabase/middleware.ts | build | cookie·추가 헤더·getUser·미설정, 17 | A03 |
 | middleware.ts | build | delegate·matcher 적용/제외 경로, 17 | A03 |
 | reading-store: fetchReadingData | tests/reading-store-read.test.ts::`정상 입력: 전체 조회는 여섯 컬렉션을 snake_case row에서 owner 범위의 도메인 데이터로 매핑한다`; `경계값: 전체 조회는 모든 data null을 빈 컬렉션과 record로 반환한다`; `경계값: 전체 조회는 모든 빈 row 목록을 빈 컬렉션과 record로 반환한다`; nullable·invalid quiz/audio 경계 | 6개 컬렉션 매핑·projection·필터·오류, 09 Complete | S01 |

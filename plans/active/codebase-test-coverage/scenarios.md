@@ -24,7 +24,7 @@
 | S06 | 배정/수동 기록 mutation | batch conflict key·quiz Y→N 결과 초기화·삭제 오류 | 14 | unit query 대역 | lib/supabase/reading-store.ts | tests/reading-store-assignment-write.test.ts (14 tests); tests/reading-store-manual-log.test.ts (7 tests) | Step 14 Complete: plan별 `from → mutation → eq → select → single → execute` 순서와 예상 밖·중복·미실행 mutation, payload/options/filter/select/single 누락을 실패시킨다. 정상·빈 batch/빈 note/0분 경계, data null/error/rejection 실패를 독립 GWT로 확인했다. root final unit 16 discovered files PASS; Standards/Spec 0 findings. 실제 unique/cascade/transaction/migration/RLS는 미검증이며 Q03 삭제 0행 정책은 고정하지 않는다. |
 | S07 | 완료 경쟁 | expected-count·unique 충돌 대역·횟수 퇴행 방지 | 15 | unit query 대역 | lib/supabase/reading-store.ts; lib/task-completion.ts | tests/completion-store.test.ts; tests/task-completion.test.ts | Step 15 Complete: 기존 insert/update/count conflict/SQLSTATE 회귀에 query projection·`maybeSingle`, fetch/mutation/reconciliation Promise rejection과 transport rejection→`uncertain`을 추가. 최종 Standards/Spec 0 findings; 실제 DB atomicity/RLS 미검증 |
 | S08 | 복귀 경쟁 | 기존 openedAt와 미복귀 조건·첫 복귀 시각·이전 실행 보호 | 15 | unit query 대역 | lib/supabase/reading-store.ts; lib/audio-return.ts | tests/audio-return-store.test.ts; tests/audio-return.test.ts | Step 15 Complete: 기존 first return/0-row/old/duplicate/error 회귀에 launch/fetch/return의 exact projection·terminal query trace와 launch/fetch rejection을 추가. 최종 Standards/Spec 0 findings; 실제 conditional SQL/RLS 미검증 |
-| A01 | env·client | 설정 일부 누락·로컬 flag·cookie 읽기/쓰기 | 16 | server 대역 | lib/supabase/config.ts; lib/supabase/client.ts; lib/supabase/server.ts | tests/server/supabase-config.test.ts; tests/server/supabase-clients.test.ts | E08 정적만; 신규 대기 |
+| A01 | env·client | 설정 일부 누락·로컬 flag·cookie 읽기/쓰기 | 16 | server 대역 | lib/supabase/config.ts; lib/supabase/client.ts; lib/supabase/server.ts | tests/server/supabase-config.test.ts; tests/server/supabase-clients.test.ts | Step 16 Complete: config 14개·clients 7개와 기존 callback 2개, root server 3 files/23 tests PASS (`verification-artifacts/step16-server-root-final.log`); Standards/Spec 0 findings, typecheck/contracts/개발 pane build/diff check exit 0. 실제 Auth/session refresh/cookie serialization/OAuth/RLS 미검증 |
 | A02 | callback | code 성공/실패/없음·redirect 계약·private no-store | 17 | server/Next browser | app/auth/callback/route.ts | tests/server/auth-callback.test.ts; tests/browser/auth-routes.spec.ts | E08 정적만; 신규 대기 |
 | A03 | middleware·Page | 추가 cookie/header·matcher 제외·설정/로그인 분기 | 17 | server/Next browser | lib/supabase/middleware.ts; middleware.ts; app/page.tsx; app/auth/error/page.tsx | tests/server/auth-middleware.test.ts; tests/browser/auth-routes.spec.ts | E08 정적만; 신규 대기 |
 | A04 | 인증 UI | OAuth 요청·localhost 조건·Anonymous 거부·logout 오류 | 18 | component | app/auth-panel.tsx; app/signed-in-shell.tsx | tests/components/auth-panel.test.tsx; tests/components/signed-in-shell.test.tsx | 없음; 신규 대기 |
@@ -98,6 +98,18 @@
 | D08-E01 | book 없는 assignment와 task/quiz 완료 | 활동 로그 생성 | 해당 assignment의 모든 로그 생략 | tests/reading-calculations.test.ts::경계값: 자료가 없는 배정은 task와 퀴즈 완료가 있어도 활동 기록에서 생략한다 | edge | Step 08 최종 unit·contracts·diff check PASS; Standards/Spec 0 findings, 타입 밖 log은 S01 담당 |
 
 새 기능 규칙을 임의로 만들지 않는다. 최종 review는 이 표와 실제 발견/실행된 테스트를 대조한다.
+
+## Step 16 실행 기록 — 2026-10-15
+
+| 사례 ID | Given 입력/상태 | When 공개 행동 | Then 고정 기대값·근거 | 테스트 파일::테스트명 | 분류 | 명령·결과·artifact |
+| --- | --- | --- | --- | --- | --- | --- |
+| A01-N01~N04 | 유효 env, development의 undefined/`true` local flag | 설정·로컬 로그인 조회 | env를 그대로 반환하고 development의 `false` 이외 flag는 로그인 허용 | `supabase-config.test.ts`의 A01-N01~N04 | normal | root `npm run test:server` exit 0, 3 files/23 tests (`verification-artifacts/step16-server-root-final.log`) |
+| A01-E01~E10 | 일부/전체·빈 env, local flag `false`/`0`, production | 설정·로컬 로그인 조회 | 누락 설정은 명시 오류, 두 값이 truthy일 때만 설정됨, production은 거부 | `supabase-config.test.ts`의 A01-E01~E10 | edge | root `npm run test:server` exit 0, 3 files/23 tests (`verification-artifacts/step16-server-root-final.log`) |
+| A01-N05~N07 | SDK/Next cookie mock과 유효 env | browser/server `createClient`, adapter `getAll`/`setAll` | URL/key를 한 번 전달하고 반환값·원본 cookie 결과·각 set 인자를 보존 | `supabase-clients.test.ts`의 A01-N05~N07 | normal | root `npm run test:server` exit 0, 3 files/23 tests (`verification-artifacts/step16-server-root-final.log`) |
+| A01-E11 | 쓰기 불가 cookie store | server adapter `setAll` | Server Component 쓰기 예외를 삼킨다 | `supabase-clients.test.ts`의 A01-E11 | edge | root `npm run test:server` exit 0, 3 files/23 tests (`verification-artifacts/step16-server-root-final.log`) |
+| A01-F01~F03 | browser/server factory throw, `cookies()` rejection | 각 `createClient` | 오류를 숨기지 않고 전달한다 | `supabase-clients.test.ts`의 A01-F01~F03 | failure | root `npm run test:server` exit 0, 3 files/23 tests (`verification-artifacts/step16-server-root-final.log`) |
+
+각 파일은 `beforeEach`/`afterEach`의 env 및 module cache reset과 공통 setup의 mock/global 복원을 사용한다. SDK/`next/headers` 대역은 네트워크를 호출하지 않으며, 실제 Supabase Auth, session refresh, cookie 직렬화, OAuth 또는 RLS 성공 증거가 아니다.
 
 ## 정상·경계·invalid 적용 계약
 

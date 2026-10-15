@@ -4,7 +4,7 @@
 
 In Progress
 
-Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 09–15는 Complete, Step 16–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
+Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 09–16은 Complete, Step 17–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
 
 ## Planning Status
 
@@ -95,7 +95,7 @@ Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0
 | 2 | 13 아동·자료 저장과 활성 상태 | Complete | `tests/reading-store-material-write.test.ts`가 insert/update payload, exact table/select/single, owner/id filter, 일반/단어 읽기 빈 선택 문자열·null content_type row 매핑, 비활성 edit 보존, 활성 변경과 error/data null/rejection을 제한 mutation 대역으로 검증. `TMPDIR="/home/joon/workspace/english-with-dad/verification-artifacts/tmp" npm run test:unit` exit 0, 14 discovered files, fail/skip/todo 0; contracts/typecheck/이전 개발 pane build/diff check exit 0; Standards/Spec 0 findings. 실제 DB/migration/RLS 미검증. |
 | 2 | 14 배정·퀴즈·수동 기록 저장 | Complete | `tests/reading-store-assignment-write.test.ts` 14개와 `tests/reading-store-manual-log.test.ts` 7개, 합계 21개가 bulk upsert conflict key/payload/매핑, quiz PASS/FAIL·Y→N null, task count, owner/id delete, manual log 경계와 대표 실패를 strict mutation fake로 검증. root final unit 16 files PASS, contracts/typecheck/pane build/diff check exit 0, Standards/Spec 0 findings. 제품 결함·제품 코드 변경 없음; 실제 unique/cascade/transaction/migration/RLS 및 삭제 0행 Q03은 미검증. |
 | 2 | 15 완료·실행 저장 기존 회귀 보강 | Complete | root final verify exit 0, unit 271/271 PASS, audio browser 7/7 PASS; Standards/Spec 각 0 findings. 실제 DB/RLS 미검증. |
-| 3 | 16 인증 설정과 Supabase client 경계 | Pending | 미실행 |
+| 3 | 16 인증 설정과 Supabase client 경계 | Complete | root `npm run test:server` exit 0, 3 files/23 tests PASS(신규 config 14개·clients 7개, 기존 callback 2개; `verification-artifacts/step16-server-root-final.log`); root typecheck/contracts, 개발 pane build, diff check exit 0; Standards/Spec 0 findings. 제품 결함·제품 코드 변경 없음. 실제 Supabase Auth/session refresh/cookie serialization/OAuth/RLS 미검증. |
 | 3 | 17 인증 callback·middleware·서버 페이지 | Pending | 미실행 |
 | 3 | 18 로그인·로그아웃 UI | Pending | 미실행 |
 | 4 | 19 배정 picker와 편집·퀴즈 컴포넌트 | Pending | 미실행 |

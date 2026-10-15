@@ -2,7 +2,7 @@
 
 ## Status
 
-Pending — 계획만 작성했으며 구현하지 않았다.
+Complete
 
 ## Phase
 
@@ -32,11 +32,11 @@ env 조합, development 로컬 로그인 조건, browser/server factory 전달, 
 
 ## Acceptance Criteria
 
-- [ ] 쿠키 및 SDK 경계 테스트를 실제 세션 갱신·RLS 성공의 증거로 사용하지 않는다.
-- [ ] 대상 계약과 테스트 경로/시나리오 ID를 inventory.md 및 scenarios.md에 연결했다.
-- [ ] 기존 관련 회귀를 보존하고 정상·경계·invalid의 적용 여부를 기록했다.
-- [ ] 테스트가 독립 실행되며 실행 발견·실패 전달·환경/대역 정리가 확인된다.
-- [ ] 필요한 검사를 실행했고 명령·결과·제한을 기록했다.
+- [x] 쿠키 및 SDK 경계 테스트를 실제 세션 갱신·RLS 성공의 증거로 사용하지 않는다.
+- [x] 대상 계약과 테스트 경로/시나리오 ID를 inventory.md 및 scenarios.md에 연결했다.
+- [x] 기존 관련 회귀를 보존하고 정상·경계·invalid의 적용 여부를 기록했다.
+- [x] 테스트가 독립 실행되며 실행 발견·실패 전달·환경/대역 정리가 확인된다.
+- [x] 필요한 검사를 실행했고 명령·결과·제한을 기록했다.
 
 ## Required Verification
 
@@ -53,8 +53,9 @@ env 조합, development 로컬 로그인 조건, browser/server factory 전달, 
 
 | 항목 | 기록 |
 | --- | --- |
-| 테스트 경로·시나리오 | 미작성 |
-| 실행 명령/결과 | 미실행 |
-| 신규 동작/기존 동작 | 구현 시 기록 |
-| 결함 재현 RED → GREEN | 결함 수정이 승인된 경우에만 기록; 정상 기존 동작은 GREEN 확인 |
-| 미검증·제외·후속 | 구현 시 기록 |
+| 테스트 경로·시나리오 | A01: `tests/server/supabase-config.test.ts` 14개, `tests/server/supabase-clients.test.ts` 7개. 전체 server suite는 기존 callback 2개를 포함해 23개다. |
+| 실행 명령/결과 | root `npm run test:server` exit 0 (3 files/23 tests: 신규 config 14개·clients 7개, 기존 callback 2개; `verification-artifacts/step16-server-root-final.log`), root `npm run typecheck` exit 0, root `npm run check:contracts` exit 0, 개발 pane `npm run build` exit 0, `git diff --check` exit 0. |
+| 신규 동작/기존 동작 | 제품 코드·migration·설정·의존성은 변경하지 않았다. 신규 SDK/Next mock 테스트는 factory 인자·반환·throw/rejection, async cookie read, adapter getAll/setAll와 쓰기 불가 경계를 각 한 시나리오로 확인한다. |
+| 최종 검토 | Standards review 0 findings, Spec review 0 findings. |
+| 결함 재현 RED → GREEN | 제품 결함 없음, 제품 코드 변경 없음. 테스트 fixture의 필수 cookie `options` 누락으로 최초 typecheck가 실패했고 fixture만 보정한 뒤 server/typecheck GREEN을 확인했다. |
+| 미검증·제외·후속 | mock은 실제 Supabase/네트워크/운영 프로젝트를 호출하지 않는다. 따라서 실제 Supabase Auth, session refresh, cookie serialization·브라우저 저장, OAuth 및 DB RLS 성공은 미검증이며 Step 17 및 실제 DB/RLS 후속 범위다. `false` 이외 local flag 문자열은 현재 코드의 최소 경계로 `"0"`만 검토했다. |
