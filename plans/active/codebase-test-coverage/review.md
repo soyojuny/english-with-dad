@@ -4,7 +4,7 @@
 
 In Progress
 
-Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 09–12는 Complete, Step 13–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
+Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 09–13은 Complete, Step 14–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
 
 ## Planning Status
 
@@ -92,7 +92,7 @@ Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0
 | 2 | 10 오늘·예정 배정의 embedded 데이터 조회 | Complete | `tests/reading-store-child.test.ts`가 select와 `{operator, column, value}`의 today eq/upcoming gte owner·child·date 범위 및 정렬을 강제한다. object/array/null·빈 응답·복합 key와 예정 범위/정렬/scope/dedup, DB error·Promise rejection은 독립 GWT다. root final `test:unit` exit 0, 11개 발견 파일 PASS/fail·skip·todo 0 (`verification-artifacts/step10-unit-root-final.log`); contracts/typecheck/build/diff check exit 0; 최종 Standards/Spec 0 findings. 실제 DB/FK/RLS 미검증. |
 | 2 | 11 부모 활동 범위 조회 | Complete | `tests/reading-store-parent.test.ts`가 order-independent table-keyed exact table/select/operator/order/in 대역으로 기간·owner·공유 book ID dedup·빈 후속 조회 생략·수동 기록·초기/후속 data null·3개 기본값과 1차/후속 DB error·대표 Promise rejection을 검증. assignment ID dedup은 PK상 정상 DB 응답 N/A인 방어 로직. root final `test:unit` 12 files PASS (`verification-artifacts/step11-unit-root-final.log`), contracts/typecheck/pane build/diff check exit 0, Standards/Spec 0 findings; 실제 DB/migration/FK/RLS 미검증. |
 | 2 | 12 자료 관리·시리즈·배정 이력 조회 | Complete | root final `test:unit` exit 0, 13 files PASS/fail·skip·todo 0 (`verification-artifacts/step12-unit-root-final.log`); contracts/typecheck/pane build/diff check exit 0, Standards/Spec 0 findings. 실제 DB/RPC SQL/migration/RLS 미검증. |
-| 2 | 13 아동·자료 저장과 활성 상태 | Pending | 미실행 |
+| 2 | 13 아동·자료 저장과 활성 상태 | Complete | `tests/reading-store-material-write.test.ts`가 insert/update payload, exact table/select/single, owner/id filter, 일반/단어 읽기 빈 선택 문자열·null content_type row 매핑, 비활성 edit 보존, 활성 변경과 error/data null/rejection을 제한 mutation 대역으로 검증. `TMPDIR="/home/joon/workspace/english-with-dad/verification-artifacts/tmp" npm run test:unit` exit 0, 14 discovered files, fail/skip/todo 0; contracts/typecheck/이전 개발 pane build/diff check exit 0; Standards/Spec 0 findings. 실제 DB/migration/RLS 미검증. |
 | 2 | 14 배정·퀴즈·수동 기록 저장 | Pending | 미실행 |
 | 2 | 15 완료·실행 저장 기존 회귀 보강 | Pending | 미실행 |
 | 3 | 16 인증 설정과 Supabase client 경계 | Pending | 미실행 |

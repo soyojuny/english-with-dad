@@ -57,9 +57,9 @@ lib/supabase/reading-store.ts의 모든 공개 함수는 아래에서 개별 검
 | reading-store: fetchBookSeriesNames | tests/reading-store-library.test.ts의 RPC trim/blank/dedup/sort, data null/error null no-fallback, response error fallback, fallback error·fallback rejection·RPC rejection | RPC 결과 정리·오류 fallback, 12 Complete | S04 |
 | reading-store: fetchLibraryData | tests/reading-store-library.test.ts의 owner/active/created_at·매핑, empty rows 및 Promise rejection | 활성 자료·owner·오류, 12 Complete | S04 |
 | reading-store: fetchAssignedBookIds | tests/reading-store-library.test.ts의 owner 전체 이력, dedup, data null/empty ID, DB error | owner 전체 이력·ID dedup·오류, 12 Complete | S04 |
-| reading-store: saveChild | 직접 테스트 없음 | insert/update·payload·error, 13 | S05 |
-| reading-store: saveBook | 직접 테스트 없음 | insert/update·유형·선택 문자열·error, 13 | S05 |
-| reading-store: setBookActive | 직접 테스트 없음 | owner/id·상태·error, 13 | S05 |
+| reading-store: saveChild | tests/reading-store-material-write.test.ts의 신규 insert·기존 update·DB error | insert/update·payload·owner/id·error, 13 Complete | S05 |
+| reading-store: saveBook | tests/reading-store-material-write.test.ts의 일반/단어 읽기 insert·비활성 update·null content_type row·data null | insert/update·유형·선택 문자열·active 보존·error, 13 Complete | S05 |
+| reading-store: setBookActive | tests/reading-store-material-write.test.ts의 비활성화/재활성화·Promise rejection | owner/id·상태·error, 13 Complete | S05 |
 | reading-store: saveAssignments | 직접 테스트 없음 | batch·conflict key·매핑·error, 14 | S06 |
 | reading-store: saveAssignmentQuizScore | 직접 테스트 없음 | 결과·owner/id·error, 14 | S06 |
 | reading-store: saveAssignmentTaskCounts | 직접 테스트 없음 | counts·quiz off reset·error, 14 | S06 |
