@@ -54,3 +54,69 @@ test("A02-E01: code가 없으면 SDK 호출 없이 auth error로 redirect한다"
   expect(boundary.factory).not.toHaveBeenCalled();
   expect(boundary.exchange).not.toHaveBeenCalled();
 });
+
+test("A02-N02: next가 없으면 code를 제거한 기본 경로로 redirect한다", async () => {
+  // Given
+  const request = new NextRequest("https://reading.invalid/auth/callback?code=fixture-code");
+
+  // When
+  const response = await GET(request);
+
+  // Then
+  expect(response.status).toBe(307);
+  expect(response.headers.get("location")).toBe("https://reading.invalid/");
+  expect(response.headers.get("cache-control")).toBe("private, no-store");
+});
+
+test("A02-E02: code 교환 오류는 auth error로 redirect하고 callback 파라미터를 제거한다", async () => {
+  // Given
+  boundary.exchange.mockResolvedValueOnce({ error: new Error("exchange failed") });
+  const request = new NextRequest("https://reading.invalid/auth/callback?code=fixture-code&next=/today");
+
+  // When
+  const response = await GET(request);
+
+  // Then
+  expect(boundary.exchange).toHaveBeenCalledExactlyOnceWith("fixture-code");
+  expect(response.status).toBe(307);
+  expect(response.headers.get("location")).toBe("https://reading.invalid/auth/error");
+  expect(response.headers.get("cache-control")).toBe("private, no-store");
+});
+
+test("A02-N03: 외부 next는 기본 경로로 제한한다", async () => {
+  // Given
+  const request = new NextRequest("https://reading.invalid/auth/callback?code=fixture-code&next=https://outside.invalid/path");
+
+  // When
+  const response = await GET(request);
+
+  // Then
+  expect(response.status).toBe(307);
+  expect(response.headers.get("location")).toBe("https://reading.invalid/");
+});
+
+test.fails("A02-B01: protocol-relative next는 기본 경로로 제한한다", async () => {
+  // Given
+  // 계약: protocol-relative next는 기본 "/"로 제한해야 한다.
+  let actualLocation: string | null = null;
+
+  try {
+    const request = new NextRequest("https://reading.invalid/auth/callback?code=fixture-code&next=//outside.invalid/path");
+
+    // When
+    const response = await GET(request);
+
+    // Then
+    // 현재 결함 관찰: 외부 open redirect는 아니며 same-origin https://reading.invalid//outside.invalid/path를 반환한다.
+    expect(boundary.exchange).toHaveBeenCalledExactlyOnceWith("fixture-code");
+    expect(response.status).toBe(307);
+    expect(response.headers.get("cache-control")).toBe("private, no-store");
+    actualLocation = response.headers.get("location");
+    expect(actualLocation).toBe("https://reading.invalid//outside.invalid/path");
+  } catch {
+    // 이 관찰이 달라지면 callback은 성공으로 끝나 test.fails가 unexpected pass로 실패시킨다.
+    return;
+  }
+
+  expect(actualLocation).toBe("https://reading.invalid/");
+});

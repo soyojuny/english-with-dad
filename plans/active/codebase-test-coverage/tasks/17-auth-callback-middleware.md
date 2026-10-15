@@ -2,7 +2,7 @@
 
 ## Status
 
-Pending — 계획만 작성했으며 구현하지 않았다.
+Complete — 최종 검토는 Standards 0 findings, Spec 0 findings이며 제품 코드 결함 1건은 수정하지 않고 기록했다.
 
 ## Phase
 
@@ -20,7 +20,7 @@ Phase 3 — 인증과 Next 서버 경계.
 - app/page.tsx
 - app/auth/error/page.tsx
 
-예상 산출물: tests/server/auth-callback.test.ts; tests/server/auth-middleware.test.ts; tests/browser/auth-routes.spec.ts.
+산출물: tests/server/auth-callback.test.ts; tests/server/auth-middleware.test.ts; tests/browser/next/auth-routes.spec.mjs.
 
 ## Cases to Verify
 
@@ -34,11 +34,11 @@ Phase 3 — 인증과 Next 서버 경계.
 
 ## Acceptance Criteria
 
-- [ ] async Page를 DOM에 억지 렌더링하지 않고 실제 Next 서버 요청으로 분기를 확인한다.
-- [ ] 대상 계약과 테스트 경로/시나리오 ID를 inventory.md 및 scenarios.md에 연결했다.
-- [ ] 기존 관련 회귀를 보존하고 정상·경계·invalid의 적용 여부를 기록했다.
-- [ ] 테스트가 독립 실행되며 실행 발견·실패 전달·환경/대역 정리가 확인된다.
-- [ ] 필요한 검사를 실행했고 명령·결과·제한을 기록했다.
+- [x] async Page를 DOM에 억지 렌더링하지 않고 실제 Next 서버 요청으로 분기를 확인한다.
+- [x] 대상 계약과 테스트 경로/시나리오 ID를 inventory.md 및 scenarios.md에 연결했다.
+- [x] 기존 관련 회귀를 보존하고 정상·경계·invalid의 적용 여부를 기록했다.
+- [x] 테스트가 독립 실행되며 실행 발견·실패 전달·환경/대역 정리가 확인된다.
+- [x] 필요한 검사를 실행했고 명령·결과·제한을 기록했다.
 
 ## Required Verification
 
@@ -58,8 +58,8 @@ Phase 3 — 인증과 Next 서버 경계.
 
 | 항목 | 기록 |
 | --- | --- |
-| 테스트 경로·시나리오 | 미작성 |
-| 실행 명령/결과 | 미실행 |
-| 신규 동작/기존 동작 | 구현 시 기록 |
-| 결함 재현 RED → GREEN | 결함 수정이 승인된 경우에만 기록; 정상 기존 동작은 GREEN 확인 |
-| 미검증·제외·후속 | 구현 시 기록 |
+| 테스트 경로·시나리오 | A02: callback 5 PASS + 1 expected-fail(protocol-relative `next`의 기본 `/` 제한 계약), A03: middleware 6 PASS(실제 request cookie write 실패 전파 포함). browser는 기존 `auth-feasibility.spec.mjs`의 비로그인/로그인 2개를 보존하고, `auth-routes.spec.mjs`로 미설정/error 2개를 추가했다. |
+| 실행 명령/결과 | root `npm run test:server` exit 0 (4 files, 32 PASS + 1 expected-fail; `verification-artifacts/step17-server-root-final.log`), root `npm run test:browser:next` exit 0 (4 PASS; `verification-artifacts/step17-browser-next-root-final.log`), root `npm run typecheck`, `npm run check:contracts`, `npm run build`, `git diff --check` 모두 exit 0. 과거 build와 병렬 최초 typecheck의 TS6053은 `.next/types` 교체 경합이었고, build 후 단독 재실행은 통과했다. |
+| 신규 동작/기존 동작 | 제품 코드·migration·의존성은 변경하지 않았다. browser fixture는 env 없는 임시 Next 사본도 시작하도록 확장했으며 context, HTTP server, process group, 임시 디렉터리와 artifact를 finally에서 정리한다. |
+| 결함 재현 RED → GREEN | A02-B01은 `//outside.invalid/path`를 기본 `/`로 제한해야 한다는 계약을 `test.fails`로 기록한다. 현재는 `https://reading.invalid//outside.invalid/path`로 redirect하는 protocol-relative 입력의 redirect-path validation 결함이다. 외부 open redirect는 아니며, 제품 수정은 하지 않았다. |
+| 미검증·제외·후속 | 로컬 Auth HTTP와 합성 cookie는 실제 OAuth, JWT 서명, session serialization/browser 저장, Supabase DB/RLS를 검증하지 않는다. callback next의 query/hash 정책과 getUser 오류의 사용자 노출 정책은 Q04에 미확정으로 남긴다. |

@@ -59,7 +59,7 @@ export async function authServer() {
 }
 
 export async function startNextServer(authOrigin, artifactDirectory, requestedPort) {
-  if (!/^http:\/\/127\.0\.0\.1:\d+$/.test(authOrigin)) throw new Error('Auth fixture must use loopback');
+  if (authOrigin && !/^http:\/\/127\.0\.0\.1:\d+$/.test(authOrigin)) throw new Error('Auth fixture must use loopback');
   await mkdir(artifactDirectory, { recursive: true });
   const temporaryRoot = process.env.TMPDIR || join(root, 'verification-artifacts/tmp');
   await mkdir(temporaryRoot, { recursive: true });
@@ -105,8 +105,8 @@ export async function startNextServer(authOrigin, artifactDirectory, requestedPo
     child = spawn(process.execPath, [join(root, 'node_modules/next/dist/bin/next'), 'dev', directory, '--hostname', '127.0.0.1', '--port', String(port)], {
       detached: true, stdio: ['ignore', 'pipe', 'pipe'],
       env: { ...process.env, NODE_ENV: 'development', NEXT_TELEMETRY_DISABLED: '1',
-        NEXT_PUBLIC_SUPABASE_URL: authOrigin, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'fixture-publishable-key',
-        NEXT_PUBLIC_ENABLE_LOCAL_TEST_LOGIN: 'false', EWD_AUTH_FIXTURE_ORIGIN: authOrigin, EWD_NEXT_NETWORK_LOG: networkLog,
+        NEXT_PUBLIC_SUPABASE_URL: authOrigin ?? '', NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: authOrigin ? 'fixture-publishable-key' : '',
+        NEXT_PUBLIC_ENABLE_LOCAL_TEST_LOGIN: 'false', EWD_AUTH_FIXTURE_ORIGIN: authOrigin ?? '', EWD_NEXT_NETWORK_LOG: networkLog,
         NODE_OPTIONS: `--require=${join(root, 'tests/browser/support/next-network-guard.cjs')}` },
     });
     child.stdout.on('data', chunk => appendFileSync(log, chunk));

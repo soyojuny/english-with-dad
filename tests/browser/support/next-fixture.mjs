@@ -31,5 +31,25 @@ export const test = base.extend({
       }
     }
   },
+  unconfiguredNextApp: async ({ context, page }, use, testInfo) => {
+    let next;
+    let guard;
+    try {
+      next = await startNextServer(undefined, testInfo.outputPath('servers'));
+      guard = await guardBrowser(context, [next.origin]);
+      await use(next);
+      guard.verify();
+      expect(await readFile(next.networkLog, 'utf8'), 'Unexpected Next fetch').toBe('');
+    } catch (error) {
+      if (!page.isClosed()) await page.screenshot({ path: testInfo.outputPath('fixture-failed.png'), fullPage: true });
+      throw error;
+    } finally {
+      try {
+        await context.close();
+      } finally {
+        await next?.close();
+      }
+    }
+  },
 });
 export { expect };

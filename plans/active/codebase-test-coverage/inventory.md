@@ -31,9 +31,9 @@
 | app/reading-manager-client.tsx | 오디오 브라우저 7개 흐름 | 초기 로딩·프로필·자료·배정·학습·보고서·미디어·SW, 23–30 | U01·U02·U03·U04·U05·U06·U07·U08·U09·M03·P02 |
 | app/auth-panel.tsx | 수동 로그인 | OAuth/로컬 요청·가시성·오류, 18 | A04 |
 | app/signed-in-shell.tsx | 수동 로그인 | logout·refresh·오류, 18 | A04 |
-| app/page.tsx | build | 실제 Next 서버 페이지의 설정/인증 분기, 17 | A03 |
-| app/auth/callback/route.ts | build | code 교환·redirect·headers, 17 | A02 |
-| app/auth/error/page.tsx | build | 실제 오류 페이지·홈 링크, 17 | A03 |
+| app/page.tsx | `tests/browser/next/auth-feasibility.spec.mjs`; `tests/browser/next/auth-routes.spec.mjs` | 실제 Next 비로그인/로그인 SSR·미설정 설정 분기, 17 Complete | A03 (root Next browser 4 PASS, `verification-artifacts/step17-browser-next-root-final.log`; 로컬 Auth HTTP/합성 cookie 대역이며 실제 OAuth/JWT/session persistence/DB/RLS 미검증) |
+| app/auth/callback/route.ts | `tests/server/auth-callback.test.ts` | code 교환·redirect·headers, 17 Complete | A02 (root server 4 files/32 PASS + 1 expected-fail, `verification-artifacts/step17-server-root-final.log`; protocol-relative `next`는 `/`가 계약이나 현재 same-origin `https://reading.invalid//outside.invalid/path`로 redirect하는 validation 결함, 외부 open redirect 아님; Q04 query/hash 미확정) |
+| app/auth/error/page.tsx | `tests/browser/next/auth-routes.spec.mjs` | 실제 오류 페이지·홈 링크, 17 Complete | A03 (root Next browser 4 PASS, `verification-artifacts/step17-browser-next-root-final.log`; 로컬 Auth HTTP 대역이며 실제 OAuth/JWT/session persistence/DB/RLS 미검증) |
 | app/layout.tsx | build, PWA 정적 검사 간접 | lang·metadata·viewport·manifest, 30 | P02 |
 | styles.css | build 및 수동 UI | 좁은 화면·긴 텍스트·dialog·print, 26·30 | U09·P02 |
 
@@ -46,8 +46,8 @@ lib/supabase/reading-store.ts의 모든 공개 함수는 아래에서 개별 검
 | lib/supabase/config.ts | `tests/server/supabase-config.test.ts` | env 존재·누락/빈 문자열·로컬 로그인 flag, 16 Complete | A01 (config 14개·clients 7개·기존 callback 2개, root server 3 files/23 tests PASS; 실제 Auth/session refresh/cookie serialization/OAuth/RLS 미검증) |
 | lib/supabase/client.ts | `tests/server/supabase-clients.test.ts` | browser factory 전달·반환·throw 경계, 16 Complete | A01 (config 14개·clients 7개·기존 callback 2개, root server 3 files/23 tests PASS; 실제 Auth/session refresh/cookie serialization/OAuth/RLS 미검증) |
 | lib/supabase/server.ts | `tests/server/supabase-clients.test.ts` | cookie 읽기/쓰기·쓰기 불가·factory/cookies 실패 경계, 16 Complete | A01 (config 14개·clients 7개·기존 callback 2개, root server 3 files/23 tests PASS; 실제 Auth/session refresh/cookie serialization/OAuth/RLS 미검증) |
-| lib/supabase/middleware.ts | build | cookie·추가 헤더·getUser·미설정, 17 | A03 |
-| middleware.ts | build | delegate·matcher 적용/제외 경로, 17 | A03 |
+| lib/supabase/middleware.ts | `tests/server/auth-middleware.test.ts` | cookie·추가 헤더·getUser·미설정/오류, 17 Complete | A03 (root server 4 files/32 PASS + 1 expected-fail, `verification-artifacts/step17-server-root-final.log`; 실제 OAuth/JWT/session persistence/DB/RLS 미검증) |
+| middleware.ts | `tests/server/auth-middleware.test.ts` | delegate·matcher 적용/정적 제외 경로, 17 Complete | A03 (root server 4 files/32 PASS + 1 expected-fail, `verification-artifacts/step17-server-root-final.log`; 실제 OAuth/JWT/session persistence/DB/RLS 미검증) |
 | reading-store: fetchReadingData | tests/reading-store-read.test.ts::`정상 입력: 전체 조회는 여섯 컬렉션을 snake_case row에서 owner 범위의 도메인 데이터로 매핑한다`; `경계값: 전체 조회는 모든 data null을 빈 컬렉션과 record로 반환한다`; `경계값: 전체 조회는 모든 빈 row 목록을 빈 컬렉션과 record로 반환한다`; nullable·invalid quiz/audio 경계 | 6개 컬렉션 매핑·projection·필터·오류, 09 Complete | S01 |
 | reading-store: fetchReadingProfileData | tests/reading-store-read.test.ts::`정상 입력: 프로필 조회는 owner 아동을 생성일 순서의 도메인 자료로 매핑한다`; `경계값: 프로필 조회는 data null을 빈 children으로 반환한다`; `경계값: 프로필 조회는 빈 row 목록을 빈 children으로 반환한다` | 아동 매핑·projection·owner·순서·오류, 09 Complete | S01 |
 | reading-store: fetchChildTodayData | tests/reading-store-child.test.ts의 object/array/null 관계, 빈 row/data null, completion·audio 복합 key 및 오류 전파 독립 테스트 | embedded 관계·scope·오류, 10 Complete | S02 |
