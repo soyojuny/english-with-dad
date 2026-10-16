@@ -4,7 +4,24 @@
 
 In Progress
 
-Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 09–19는 Complete, Step 20–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
+Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 09–20은 Complete, Step 21–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
+
+## Step 20 Completion — 2026-10-16
+
+제품 코드는 변경하지 않고 component test 3개를 추가했다. `TaskCompletionFeedback`은 idle null, data/loading error role, pending/checking disabled, success/uncertain/error·completion conflict·audio-return conflict/복귀 error, 목표 완료, 네 callback과 단어 읽기 local-time link timestamp를 검사한다. CompletionRequestState conflict는 status 메시지·활성 완료 버튼 및 저장 결과 확인/같은 요청 재시도 버튼 부재를, AudioReturnState conflict는 alert와 수동 완료 유지로 분리했다. `ActivityLogCell`은 빈 cell, OR filter, 자동 그룹 합계·중복 제거, 동일 제목의 category/type 경계, 같은 시리즈의 서로 다른 제목 book summary, direct-input fallback, manual-only delete를 검사한다. `MaterialThumb`은 일반 image와 word-reading role fallback, volume-only/level-only/empty를 포함한 meta 조합을 검사한다.
+
+| 명령 | 결과 | 한계 |
+| --- | --- | --- |
+| `TZ=UTC TMPDIR=$PWD/verification-artifacts/tmp npm run test:component -- tests/components/task-completion-feedback.test.tsx` | PASS, 1 file; 13 passed | C03-N02는 offset 없는 local-time ISO fixture로 UTC에서 확인했다. |
+| `TZ=Asia/Seoul TMPDIR=$PWD/verification-artifacts/tmp npm run test:component -- tests/components/task-completion-feedback.test.tsx` | PASS, 1 file; 13 passed | 같은 fixture와 기대값을 Asia/Seoul에서 확인했다. |
+| Step 20 focused component | PASS, 3 files; 27 passed | 이번 단계의 세 신규 test 파일만 실행했다. |
+| `TMPDIR=$PWD/verification-artifacts/tmp npm run test:component` | PASS, 9 files; 55 passed, 2 existing expected-fail (`verification-artifacts/step20-component-root-final.log`) | jsdom component 범위다. 기존 Step 19 expected-fail 2개는 AssignmentEditForm quiz visibility 결함이며 이번 변경과 무관하다. |
+| `npm run typecheck`; `npm run check:contracts`; `npm run build`; `git diff --check` | 모두 exit 0 | 정적 계약과 production build를 순차 실행했다. |
+
+- 모든 새 test는 Given–When–Then 주석, 독립 fixture/callback, 고유 C03/C04/D08 ID를 사용한다. network/storage/timer를 생성하지 않으며 공통 component setup이 DOM/mock을 정리한다.
+- Q05 이미지 load fallback은 제품 계약 미확정이라 구현하거나 test하지 않았다. 실제 parent report browser 흐름은 Step 26, cover load/canvas는 Step 27에 남긴다.
+- 새 제품 결함은 발견하지 않았다. idle null은 launch 없는 오디오 과제, 목표 완료는 현재 계약대로 비활성 `완료됨` control로 확인했다.
+- 최종 독립 검토는 Standards 0 findings, Spec 0 findings다.
 
 ## Planning Status
 
@@ -99,7 +116,7 @@ Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0
 | 3 | 17 인증 callback·middleware·서버 페이지 | Complete | root server 4 files/32 PASS + 1 expected-fail (`verification-artifacts/step17-server-root-final.log`), root Next browser 4 PASS (`verification-artifacts/step17-browser-next-root-final.log`); root typecheck/contracts/build/diff check exit 0; 최종 Standards/Spec 0 findings. 제품 코드 변경 없음. protocol-relative `next` validation 결함 1건은 same-origin redirect이며 외부 open redirect 아님; Q04 query/hash와 실제 OAuth/JWT/session persistence/DB/RLS 미검증. |
 | 3 | 18 로그인·로그아웃 UI | Complete | root component 4 files/17 tests PASS (`verification-artifacts/step18-component-root-final.log`); root 개별 typecheck/contracts/build/diff check exit 0; Standards 0 findings, Spec 0 findings. Phase 3 경계 root `npm run verify` exit 0 (`verification-artifacts/step18-verify-root-final.log`; contracts/SW/PWA/unit/typecheck/build만 포함; component/server/browser는 포함하지 않음). 실제 Google/OAuth redirect/session persistence/DB/RLS 미검증. |
 | 4 | 19 배정 picker와 편집·퀴즈 컴포넌트 | Complete | root component 6 files/28 PASS + 2 expected-fail, exit 0 (`verification-artifacts/step19-component-root-final.log`); root contracts/build/diff check exit 0, build 후 단독 root typecheck exit 0. 최초 build와 병렬 typecheck의 TS6053은 `.next/types` 생성물 교체 경합으로 단독 재실행에서 해소됐다. Standards 0 findings, Spec 0 findings. 제품 코드는 변경하지 않았으며 C01-N01/N02/N03/N04/E01/E02/E03, D06-N02/N03/E02/E03/E04, C02-N01/N02와 Step 03 T01-E07을 보존했다. 빈 extraStudy fallback quiz visibility 결함은 regular/wordReading 두 expected-fail로 재현하며, invalid 강제 입력/최종 제출 검증은 Step 24, browser 학습 흐름은 Step 25에 남긴다. |
-| 4 | 20 완료 안내·활동 셀·자료 표시 | Pending | 미실행 |
+| 4 | 20 완료 안내·활동 셀·자료 표시 | Complete | focused Step 20 3 files/27 PASS, C03 UTC·Asia/Seoul 각각 1 file/13 PASS; root component 9 files/55 PASS + 기존 2 expected-fail (`verification-artifacts/step20-component-root-final.log`), typecheck/contracts/build/diff check 모두 exit 0. Standards/Spec 0 findings. 제품 코드는 변경하지 않았고 새 제품 결함은 없으며, Q05 이미지 load fallback과 실제 parent report browser 흐름은 Step 27·26에 남긴다. |
 | 4 | 21 배정 선택 복원 hook | Pending | 미실행 |
 | 4 | 22 완료·복귀 hook 수명주기 | Pending | 미실행 |
 | 5 | 23 프로필·자료 등록과 관리 흐름 | Pending | 미실행 |
