@@ -32,9 +32,9 @@
 | C02 | 퀴즈 UI | PASS/FAIL 저장 callback과 선택 표시 | 19 Complete·25 | component/browser | app/assignment-quiz-score.tsx | tests/components/assignment-quiz-score.test.tsx; tests/browser/child-completion.spec.ts | C02-N01/N02·T01-E07 PASS와 Step 03 StrictMode/rerender/unmount 회귀를 보존; browser는 Step 25 대기 |
 | C03 | 완료 안내 | loading/error/pending/checking/uncertain·completion conflict·audio-return conflict/목표 완료 | 20 Complete | component | app/task-completion-feedback.tsx | tests/components/task-completion-feedback.test.tsx | C03-E01~E05/C03-N01~N02/C03-F01~F06; focused UTC·Asia/Seoul 각각 1 file/13 PASS, root component 9 files/55 PASS + 기존 2 expected-fail; Standards/Spec 0 findings |
 | C04 | 활동 셀/표지 | 합계·동일 제목의 분류 경계·수동 삭제 허용·단어 대체 표시·alt·volume-only/level-only/empty meta | 20 Complete | component | app/activity-log-cell.tsx; app/material-thumb.tsx | tests/components/activity-log-cell.test.tsx; tests/components/material-thumb.test.tsx | C04-E01/C04-E03~E06/C04-N01~N05/C04-F01 및 D08-N02~N03/D08-E02; root component 9 files/55 PASS + 기존 2 expected-fail; Standards/Spec 0 findings; Q05 제외 |
-| H01 | 선택 복원 | loading 중 보존·ready 복원·scope 전환·storage 예외 | 21 | hook | app/use-child-assignment-selection.ts; lib/child-task-policy.ts | tests/hooks/use-child-assignment-selection.test.tsx | E02·E07 일부; 신규 대기 |
+| H01 | 선택 복원 | loading 중 보존·ready 복원·다른 child/date 저장 ID fallback·storage 예외 | 21 Complete | hook | app/use-child-assignment-selection.ts; lib/child-task-policy.ts | tests/hooks/use-child-assignment-selection.test.tsx | H01-E01/N01/N02/E02–E04/F01–F06, focused hook 1 file, 14 passed + 2 expected-fail; hook callback의 childId/date 미강제 결함, unmount cleanup N/A |
 | H02 | 요청 hook | 15초 경계·listeners/timers cleanup·StrictMode | 22 | hook | app/use-child-task-requests.ts | tests/hooks/use-child-task-requests.test.tsx | E07 지연 복구 일부; 신규 대기 |
-| H03 | scope 변경 | 다른 프로필/owner/assignment와 unmount 후 늦은 응답 배제 | 21·22·25 | unit/hook/browser | app/use-child-assignment-selection.ts; app/use-child-task-requests.ts; lib/task-completion.ts; lib/audio-return.ts; lib/child-task-policy.ts | tests/child-task-policy.test.ts; tests/task-completion.test.ts; tests/audio-return.test.ts; tests/hooks/use-child-assignment-selection.test.tsx; tests/hooks/use-child-task-requests.test.tsx; tests/browser/child-completion.spec.ts | E02·E03·E04 일부; 신규 대기 |
+| H03 | scope 변경 | owner-only·child·date 전환과 이전 key write 배제; 비동기 hook의 late response는 후속 | 21 Complete; 22·25 Pending | unit/hook/browser | app/use-child-assignment-selection.ts; app/use-child-task-requests.ts; lib/task-completion.ts; lib/audio-return.ts; lib/child-task-policy.ts | tests/child-task-policy.test.ts; tests/task-completion.test.ts; tests/audio-return.test.ts; tests/hooks/use-child-assignment-selection.test.tsx; tests/hooks/use-child-task-requests.test.tsx; tests/browser/child-completion.spec.ts | H03-N01–N03/E01 hook 4 passed; 이 동기 hook의 unmount cleanup N/A, request/child completion 후속 대기 |
 | U01 | 자료 관리 | 아동/자료 생성·편집·검색·비활성/복원·저장 실패 | 23 | client browser | app/reading-manager-client.tsx | tests/browser/profile-material.spec.ts | 없음; 신규 대기 |
 | U02 | 배정 생성 | 날짜×자료 payload·동일 키 갱신·생성 수·퀴즈 기본 N | 24 | client browser | app/reading-manager-client.tsx | tests/browser/assignment-flow.spec.ts | 없음; 신규 대기 |
 | U03 | 배정 invalid | 역전 날짜·아동 없음·활동 미선택·0회 퀴즈 N 거부 | 24 | client browser | app/reading-manager-client.tsx | tests/browser/assignment-flow.spec.ts | 없음; 신규 대기 |
@@ -149,9 +149,9 @@
 | C02 | PASS/FAIL callback 및 선택 상태 | quiz 전용 task 없음·결과 null | 타입 밖 quiz 결과 강제 N/A; row 변환 S01 |
 | C03 | 상태 안내·role·callback | 목표 완료와 conflict·uncertain 표시 | error 상태에서 성공 안내 금지 |
 | C04 | group 합계·동일 제목 분류 경계·수동 delete·cover/alt/meta | 빈 로그·단어 대체 표시·volume-only/level-only/empty meta | 자동 로그 삭제 불가; 이미지 load 실패 정책 Q05 |
-| H01 | ready에서 저장된 유효 선택 복원 | loading 동안 보존·owner/child/date 변경 | storage 예외 안전 처리·삭제/타 scope 선택 fallback |
+| H01 | ready에서 저장된 유효 선택 복원 | loading 동안 보존·owner/child/date 변경 | storage 예외 안전 처리·삭제/다른 child/date 저장 ID fallback; H01-F05/F06은 callback scope 검증 누락 결함 expected-fail |
 | H02 | pending/checking 15초에 uncertain | 14,999/15,000/15,001ms·StrictMode cleanup | 오래된 timer/listener가 완료를 재실행하지 않음 |
-| H03 | 현재 scope 응답만 반영 | 프로필/owner/assignment 전환·unmount | late save/fetch가 새 scope 상태를 덮어쓰지 않음 |
+| H03 | 현재 scope 응답만 반영 | owner/child/date 전환 | Step 21은 selection scope 전환 PASS; 동기 selection hook의 unmount cleanup은 N/A, late save/fetch는 Step 22·25 후속 |
 | U01 | 아동/자료 생성 편집·검색·비활성 복원 | 빈 초기 목록·단어 자료·비활성 편집 | 빈 필수 필드/invalid URL 거부·저장 오류 성공 반영 없음 |
 | U02 | 날짜×자료 payload와 새 배정 수 | 같은 날·기존 key 갱신·quiz 기본 N·퀴즈 전용 | 요청 오류 성공 수 표시 금지 |
 | U03 | 유효 입력은 배정 가능 | 0 task+quiz Y 허용; 0 task+N 거부 | 역전 날짜·아동 없음·활동 전부 미선택은 write 없음 |

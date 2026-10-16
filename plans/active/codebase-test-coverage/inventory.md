@@ -20,7 +20,7 @@
 | lib/audio-return.ts | audio-return.test.ts | 이벤트·첫 복귀·이전 응답 회귀 유지, 15 | S08·H03·U06 |
 | lib/cover-image.ts | 직접 자동 테스트 없음 | Image/canvas/URL 경계·실제 브라우저, 27 | M01 |
 | lib/qr-reader.ts | 직접 자동 테스트 없음 | 경계 대역 + 실제 jsQR/canvas fixture, 27 | M02 |
-| app/use-child-assignment-selection.ts | policy/브라우저 간접 검사 | effect·storage 예외·scope 수명주기, 21 | H01·H03 |
+| app/use-child-assignment-selection.ts | `tests/hooks/use-child-assignment-selection.test.tsx` | effect·storage 예외·owner/child/date scope 전환, 21 Complete | H01·H03 (focused hook 1 file, 14 passed + 2 expected-fail; full component 10 files, 69 passed + 4 expected-fail, `verification-artifacts/step21-component-root-final.log`; unmount cleanup N/A; typecheck/contracts/build/diff check exit 0; final Standards 0 findings and Spec 0 findings) |
 | app/use-child-task-requests.ts | coordinator/브라우저 간접 검사 | timer 경계·listener/cleanup·late response, 22 | H02·H03·U07 |
 | app/assignment-book-picker.tsx | `tests/components/assignment-book-picker.test.tsx` | 선택·활동·폼 전달·rerender, 19 Complete | Step 19 root component 6 files/28 PASS + 2 expected-fail, exit 0 (`verification-artifacts/step19-component-root-final.log`); C01-N01/E01/E02·D06-N02/N03/E02 (6 PASS) |
 | app/assignment-edit-form.tsx | `tests/components/assignment-edit-form.test.tsx` | 횟수·fallback·퀴즈·취소/제출, 19 Complete | C01-N02/N03/N04·C01-E03(빈 일반 책 영어 그림책의 listen fallback `0`·quiz Y, 4 PASS)·D06-E03/E04 (확인된 같은 quiz visibility 결함의 regular/wordReading 재현, 2 expected-fail) |
@@ -153,7 +153,7 @@ store의 23개 함수는 위 개별 행에 대응한다. 나머지 export는 아
 | app/reading-manager-client.tsx | `HomePage` | U01·U02·U03·U04·U05·U06·U07·U08·U09·M03·P02 |
 | app/signed-in-shell.tsx | `SignedInShell` | A04 |
 | app/task-completion-feedback.tsx | `TaskCompletionFeedback` | C03 |
-| app/use-child-assignment-selection.ts | `useChildAssignmentSelection` | H01·H03 |
+| app/use-child-assignment-selection.ts | `useChildAssignmentSelection` | H01·H03 (Step 21 Complete: storage/effect/rerender/action 16 scenarios; H01-F05/F06 expected-fail, unmount cleanup N/A) |
 | app/use-child-task-requests.ts | `useChildTaskRequests` | H02·H03·U07 |
 | lib/audio-return.ts | `createAudioReturnCoordinator` | S08·H03·U06 |
 | lib/child-task-policy.ts | `childSelectionStorageKey`, `resolveChildSelection`, `getTaskCompletionPolicy`, `mergeAudioLaunchSnapshot`, `mergeCompletionSnapshot` | D07·H01·H03·U06 |
