@@ -21,7 +21,7 @@
 | lib/cover-image.ts | 직접 자동 테스트 없음 | Image/canvas/URL 경계·실제 브라우저, 27 | M01 |
 | lib/qr-reader.ts | 직접 자동 테스트 없음 | 경계 대역 + 실제 jsQR/canvas fixture, 27 | M02 |
 | app/use-child-assignment-selection.ts | `tests/hooks/use-child-assignment-selection.test.tsx` | effect·storage 예외·owner/child/date scope 전환, 21 Complete | H01·H03 (focused hook 1 file, 14 passed + 2 expected-fail; full component 10 files, 69 passed + 4 expected-fail, `verification-artifacts/step21-component-root-final.log`; unmount cleanup N/A; typecheck/contracts/build/diff check exit 0; final Standards 0 findings and Spec 0 findings) |
-| app/use-child-task-requests.ts | coordinator/브라우저 간접 검사 | timer 경계·listener/cleanup·late response, 22 | H02·H03·U07 |
+| app/use-child-task-requests.ts | `tests/hooks/use-child-task-requests.test.tsx` | timer 경계·listener/cleanup·late response, 22 Complete | H02·H03·U07 (focused hook 1 file, 22 PASS; full component 11 files, 91 PASS + 기존 expected-fail 4; phase 경계 `npm run verify` PASS, exit 0; 최종 Standards/Spec review 각각 0 findings; H02-N01–N05/E01–E07, H03-N01/E01–E06/F01–F03; pending/checking 각각 14,999/15,000/15,001ms, persisted/non-persisted pageshow, owner-only/assignment-ID-only rerender, 네 listener 동일 callback cleanup; 실제 DB/RLS·browser/PWA/실기기는 Step 25와 후속 범위) |
 | app/assignment-book-picker.tsx | `tests/components/assignment-book-picker.test.tsx` | 선택·활동·폼 전달·rerender, 19 Complete | Step 19 root component 6 files/28 PASS + 2 expected-fail, exit 0 (`verification-artifacts/step19-component-root-final.log`); C01-N01/E01/E02·D06-N02/N03/E02 (6 PASS) |
 | app/assignment-edit-form.tsx | `tests/components/assignment-edit-form.test.tsx` | 횟수·fallback·퀴즈·취소/제출, 19 Complete | C01-N02/N03/N04·C01-E03(빈 일반 책 영어 그림책의 listen fallback `0`·quiz Y, 4 PASS)·D06-E03/E04 (확인된 같은 quiz visibility 결함의 regular/wordReading 재현, 2 expected-fail) |
 | app/assignment-quiz-score.tsx | `tests/components/assignment-quiz-score.test.tsx` | PASS/FAIL 선택·표시, 19 Complete | C02-N01/N02·T01-E07 (3 PASS; Step 03 회귀 보존) |
@@ -154,7 +154,7 @@ store의 23개 함수는 위 개별 행에 대응한다. 나머지 export는 아
 | app/signed-in-shell.tsx | `SignedInShell` | A04 |
 | app/task-completion-feedback.tsx | `TaskCompletionFeedback` | C03 |
 | app/use-child-assignment-selection.ts | `useChildAssignmentSelection` | H01·H03 (Step 21 Complete: storage/effect/rerender/action 16 scenarios; H01-F05/F06 expected-fail, unmount cleanup N/A) |
-| app/use-child-task-requests.ts | `useChildTaskRequests` | H02·H03·U07 |
+| app/use-child-task-requests.ts | `useChildTaskRequests` | H02·H03·U07 (Step 22 Complete: `tests/hooks/use-child-task-requests.test.tsx`, focused hook 1 file, 22 PASS; full component 11 files, 91 PASS + 기존 expected-fail 4) |
 | lib/audio-return.ts | `createAudioReturnCoordinator` | S08·H03·U06 |
 | lib/child-task-policy.ts | `childSelectionStorageKey`, `resolveChildSelection`, `getTaskCompletionPolicy`, `mergeAudioLaunchSnapshot`, `mergeCompletionSnapshot` | D07·H01·H03·U06 |
 | lib/cover-image.ts | `compressCoverImage` | M01 |

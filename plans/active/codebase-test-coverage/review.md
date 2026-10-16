@@ -4,7 +4,24 @@
 
 In Progress
 
-Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 09–21은 Complete, Step 22–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
+Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 09–22는 Complete, Step 23–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
+
+## Step 22 Completion — 2026-10-16
+
+제품 코드는 변경하지 않고 `tests/hooks/use-child-task-requests.test.tsx`를 추가·보완했다. 실제 `useChildTaskRequests`와 completion/audio coordinators를 렌더했고, reading-store의 네 API query shape를 구현한 독립 Supabase double과 controlled Promise/fake timer로 H02-N01–N05/E01–E07, H03-N01/E01–E06/F01–F03을 검사했다. 따라서 coordinator 순수 상태 전이를 반복하지 않고 hook action/event/rerender가 complete/check/retry 및 audio return/retry feedback과 data publication을 연결하는지를 관찰한다. 모든 테스트는 Korean name과 Given–When–Then을 사용하며 `as any`와 snapshot을 쓰지 않는다.
+
+정상은 complete/check/retry와 audio return/retry, edge는 pending·checking 각각의 14,999/15,000/15,001ms 경계, blur/focus/visibilitychange, persisted 및 non-persisted pageshow, StrictMode, listener/timer cleanup을 다룬다. owner-only와 assignment-ID-only rerender는 같은 나머지 context에서 분리하고 저장 row의 owner·assignment ID를 확인한다. unmount 및 StrictMode cleanup은 visibilitychange/blur/focus/pageshow 네 event의 설치 callback이 정확히 같은 callback으로 제거되는지도 확인한다. 실패/격리는 dataStatus·scope, 늦은 completion save/fetch, unmount 뒤 audio save, unknown/stale/unmount prepared launch를 확인한다. 실제 DB/RLS, 실기기/PWA 및 browser completion 흐름은 fixture 계층에 포함하지 않고 Step 25에 남긴다.
+
+| 명령 | 결과 | 한계 |
+| --- | --- | --- |
+| `npm run test:component -- tests/hooks/use-child-task-requests.test.tsx` | PASS, 1 file, 22 passed | jsdom·query double이며 실제 DB/RLS 아님 |
+| `npm run test:component` | PASS, 11 files, 91 passed + 기존 expected-fail 4 | 기존 expected-fail 보존 |
+| `npm run test:unit` | PASS (`verification-artifacts/step22-unit-root-final.log`) | hook suite와 별도 Node 계층 |
+| `npm run typecheck` / `npm run check:contracts` | PASS / PASS | 정적 검증 |
+| `npm run build` / `git diff --check` | PASS / PASS (exit 0) | production build·diff whitespace 검사 |
+| phase 경계 `npm run verify` | PASS, exit 0 (`verification-artifacts/step22-verify-root-final.log`) | check:contracts·check:sw·check:pwa·test:unit·typecheck·build |
+
+focused component 결과는 `verification-artifacts/step22-focused-root-final.log`, full component 결과는 `verification-artifacts/step22-component-root-final.log`에 기록했다. 최종 Standards review와 Spec review는 각각 0 findings였다. 새 결함이나 새 expected-fail은 없고 제품 수정도 없다. 실제 DB/RLS·실기기/PWA·browser completion은 Step 25 범위로 남긴다.
 
 ## Step 21 Completion — 2026-10-16
 
@@ -133,7 +150,7 @@ Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0
 | 4 | 19 배정 picker와 편집·퀴즈 컴포넌트 | Complete | root component 6 files/28 PASS + 2 expected-fail, exit 0 (`verification-artifacts/step19-component-root-final.log`); root contracts/build/diff check exit 0, build 후 단독 root typecheck exit 0. 최초 build와 병렬 typecheck의 TS6053은 `.next/types` 생성물 교체 경합으로 단독 재실행에서 해소됐다. Standards 0 findings, Spec 0 findings. 제품 코드는 변경하지 않았으며 C01-N01/N02/N03/N04/E01/E02/E03, D06-N02/N03/E02/E03/E04, C02-N01/N02와 Step 03 T01-E07을 보존했다. 빈 extraStudy fallback quiz visibility 결함은 regular/wordReading 두 expected-fail로 재현하며, invalid 강제 입력/최종 제출 검증은 Step 24, browser 학습 흐름은 Step 25에 남긴다. |
 | 4 | 20 완료 안내·활동 셀·자료 표시 | Complete | focused Step 20 3 files/27 PASS, C03 UTC·Asia/Seoul 각각 1 file/13 PASS; root component 9 files/55 PASS + 기존 2 expected-fail (`verification-artifacts/step20-component-root-final.log`), typecheck/contracts/build/diff check 모두 exit 0. Standards/Spec 0 findings. 제품 코드는 변경하지 않았고 새 제품 결함은 없으며, Q05 이미지 load fallback과 실제 parent report browser 흐름은 Step 27·26에 남긴다. |
 | 4 | 21 배정 선택 복원 hook | Complete | focused hook 1 file, 14 passed + 2 expected-fail; full component 10 files, 69 passed + 4 expected-fail (`verification-artifacts/step21-component-root-final.log`); typecheck/contracts/build/diff check exit 0; final Standards 0 findings and Spec 0 findings. 제품 코드는 변경하지 않았다. H01-F05/F06은 배열에 있는 assignment를 childId/date와 달라도 callback이 수용하는 확인된 expected-fail 결함이며, 실제 `reading-manager-client.tsx` caller는 filtered `todayAssignments`를 전달해 노출이 제한된다. unmount cleanup N/A; browser reload/다른 탭 storage event/전체 profile switching은 Step 25 후속. |
-| 4 | 22 완료·복귀 hook 수명주기 | Pending | 미실행 |
+| 4 | 22 완료·복귀 hook 수명주기 | Complete | focused hook 1 file/22 PASS (`verification-artifacts/step22-focused-root-final.log`); full component 11 files/91 PASS + 4 expected-fail (`verification-artifacts/step22-component-root-final.log`); unit PASS (`verification-artifacts/step22-unit-root-final.log`); phase 경계 `npm run verify` PASS, exit 0 (`verification-artifacts/step22-verify-root-final.log`). 최종 Standards/Spec review는 각각 0 findings이며 실제 DB/RLS·실기기/PWA·browser completion은 Step 25 후속이다. |
 | 5 | 23 프로필·자료 등록과 관리 흐름 | Pending | 미실행 |
 | 5 | 24 배정 생성·갱신·편집·삭제 흐름 | Pending | 미실행 |
 | 5 | 25 아동 학습과 완료·퀴즈 흐름 | Pending | 미실행 |
