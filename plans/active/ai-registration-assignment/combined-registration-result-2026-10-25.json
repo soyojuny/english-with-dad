@@ -1,0 +1,203 @@
+{
+  "recordedAt": "2026-10-18",
+  "projectId": "yocdammswepuwyvzydra",
+  "ownerUserId": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+  "startSunday": "2026-10-25",
+  "endDate": "2026-10-30",
+  "weeks": 1,
+  "createdBooks": 12,
+  "reusedBooks": 0,
+  "plannedAssignments": 42,
+  "createdAssignments": 42,
+  "persistedBookDataVerified": true,
+  "persistedAssignmentsVerified": true,
+  "authenticatedAppVerified": false,
+  "assignmentStatus": "complete",
+  "candidateBytes": 2301405,
+  "candidateSha256": "7d3fd5062600f4e5427adfe11bc45cfdbbb91371803e8204802a1ffd3979c299",
+  "missingAudio": [],
+  "assignmentVerification": {
+    "candidateCount": 42,
+    "storedCount": 42,
+    "missingCount": 0,
+    "unexpectedCount": 0,
+    "mismatchCount": 0,
+    "jionCount": 24,
+    "jiyulCount": 18,
+    "saturdayCount": 0,
+    "completionCount": 0,
+    "audioLaunchCount": 0
+  },
+  "finalJionReadingOrder": [
+    {
+      "title": "Stories of Wizards",
+      "bookId": "d1ce43ba-b40a-4357-a275-3e5895fa85f9",
+      "dates": ["2026-10-25", "2026-10-26"]
+    },
+    {
+      "title": "Nate the Great",
+      "bookId": "41b3f37e-be41-410d-9fa5-c59190c00131",
+      "dates": ["2026-10-27", "2026-10-28"]
+    },
+    {
+      "title": "Nate the Great and Me: The Case of the Fleeing Fang",
+      "bookId": "14ec7b0e-c46e-4574-ad08-85f122782ec9",
+      "dates": ["2026-10-29", "2026-10-30"]
+    }
+  ],
+  "orderCorrectionVerified": true,
+  "assignmentIds": [
+    "4843184c-6526-40d9-96bf-3822dd3c7abf",
+    "ce52bfa9-fa6d-4f41-ba2a-ae6f078d2840",
+    "414792cd-270a-41f9-8f64-195dcbd83e66",
+    "beb652e7-411b-42bd-b416-a88190882d75",
+    "c5d55766-2f75-4150-a0b6-dfe9a6ecb4ee",
+    "091e850e-90f1-454f-b539-c47a73f13692",
+    "2acbceaa-aec4-42cb-aef0-229ee73ba641",
+    "41d125e8-e4d1-4feb-baee-94078b9ab2d9",
+    "d449f5e4-3fd8-4d38-9bbf-bb17595e30db",
+    "12dd644f-2059-4482-9965-1ae539d0cd71",
+    "10880928-c9fa-4de5-9061-2b8acb7f9719",
+    "2f846ac4-33f1-4fae-ba98-8e54d73ed5f7",
+    "6858f425-33ae-4256-adb5-772668a37e31",
+    "2a086209-eec5-489c-8c35-68bc8d119064",
+    "bd7f589a-4835-4033-930d-b75f3fea5461",
+    "d63472b1-bc4f-4eab-91ef-86bf3a1e5088",
+    "03831d11-ff57-46b1-afc5-669159979e32",
+    "e785e74c-8d13-494f-9e31-adf3abd1cbab",
+    "21835594-99db-4800-965e-502195186ace",
+    "1440e262-9c71-44ec-a5d9-ee1028eea908",
+    "953f12f0-fb56-450c-b0a7-b6918a73c4d1",
+    "c7a7693e-d352-41eb-a993-fa13db9e5a5c",
+    "0d0213f1-0736-4e47-86d0-3078aebe9dcb",
+    "9d2a1f5d-e35b-4448-be75-4680890575e7",
+    "8a4930a3-7e63-4b12-920e-f3866c106765",
+    "075c0f19-67df-4b5a-a6b0-5c192a196d12",
+    "d8709b7d-5ba9-43c3-9b19-df3755ed7e26",
+    "891bb316-7465-481b-a451-4c674eb36e31",
+    "5c67b047-3afc-4154-9d1e-ec0f2fcf452e",
+    "e82d091c-a557-4cfa-9ccf-b1e55b9030dc",
+    "6290ba3c-abde-4ae9-b128-544113afe561",
+    "d7461f87-0762-4a6e-92c7-8298854f53d8",
+    "17040b20-db58-47ee-9bc3-c6c094a76a9b",
+    "a1c19319-503b-4533-9427-b5ecee2eac16",
+    "ddfb9e99-fdbd-4139-b3c7-bf3881f87487",
+    "06ce39c7-c3fe-48cb-a8a4-093512ec11dd",
+    "4b8f2f0a-05c4-41c1-9f21-9366c16f56d0",
+    "ead4b759-0adf-42bb-b1d3-9857ea9f708c",
+    "9b3a68fc-e50a-4409-b62f-994ca4aca8c3",
+    "bc11af6a-2093-4b95-93d2-8b95b08bb32e",
+    "98b1156b-e026-4cab-b65c-345c75386ac1",
+    "966d2b23-9d85-4935-9512-2b547e720436"
+  ],
+  "books": [
+    {
+      "id": "41b3f37e-be41-410d-9fa5-c59190c00131",
+      "title": "Nate the Great",
+      "series": "Nate the Great",
+      "audio_listen": "https://naver.me/5c8Fb50f",
+      "audio_shadow": "",
+      "cover_length": 208255,
+      "cover_md5": "469734fb77a7eeae147d97b2e2e65f2e"
+    },
+    {
+      "id": "14ec7b0e-c46e-4574-ad08-85f122782ec9",
+      "title": "Nate the Great and Me: The Case of the Fleeing Fang",
+      "series": "Nate the Great",
+      "audio_listen": "https://naver.me/x0Op7wDi",
+      "audio_shadow": "",
+      "cover_length": 191075,
+      "cover_md5": "9582fd4124d7087ed09be71a24686113"
+    },
+    {
+      "id": "d1ce43ba-b40a-4357-a275-3e5895fa85f9",
+      "title": "Stories of Wizards",
+      "series": "USBORNE",
+      "audio_listen": "https://naver.me/5LQnjagH",
+      "audio_shadow": "",
+      "cover_length": 184035,
+      "cover_md5": "27a756ba2e8965299039f57615b3f64c"
+    },
+    {
+      "id": "3ed438cf-b303-47d0-92f1-2181d0324e54",
+      "title": "Henry and Mudge and the Starry Night",
+      "series": "Henry and Mudge",
+      "audio_listen": "",
+      "audio_shadow": "https://naver.me/Ghw5RGG0",
+      "cover_length": 178019,
+      "cover_md5": "ae875c17dd4882d936d6f96d90403060"
+    },
+    {
+      "id": "49446de8-269e-452b-90e2-0374951fab95",
+      "title": "Henry and Mudge and the Careful Cousin",
+      "series": "Henry and Mudge",
+      "audio_listen": "",
+      "audio_shadow": "https://naver.me/Ix0UGFtp",
+      "cover_length": 175675,
+      "cover_md5": "c76a4ec2b9b600edf9acced7fd40d2b2"
+    },
+    {
+      "id": "4a303ebf-f5a4-46fd-9b72-00125827b4e0",
+      "title": "Secret Pizza Party",
+      "series": "그림책",
+      "audio_listen": "https://naver.me/5mvvVPgM",
+      "audio_shadow": "",
+      "cover_length": 179583,
+      "cover_md5": "bec6f6baee2c8fbd1e664d8e8f6fd6e6"
+    },
+    {
+      "id": "6f2d310f-42b2-4af4-b796-f47e10ba9914",
+      "title": "A Very Mercy Christmas",
+      "series": "그림책",
+      "audio_listen": "https://youtu.be/OHCV-FkUS5Y?si=rSLZ73wEW2Ou3I-x",
+      "audio_shadow": "",
+      "cover_length": 188547,
+      "cover_md5": "df4a63d8a1301fe84c40c6e4a1a08ba7"
+    },
+    {
+      "id": "c55e47db-7059-44df-ab30-df44199c8d6e",
+      "title": "Floppy's Bath",
+      "series": "ORT",
+      "audio_listen": "https://naver.me/G9UC6VGy",
+      "audio_shadow": "https://naver.me/xnOMpTFN",
+      "cover_length": 201463,
+      "cover_md5": "940ea714f8e01b206aa0aebbda06e2d2"
+    },
+    {
+      "id": "da0b7607-045c-4814-840e-87bf78e49ab8",
+      "title": "What the Dinosaurs Saw",
+      "series": "Scholastic",
+      "audio_listen": "https://naver.me/54K06TLK",
+      "audio_shadow": "",
+      "cover_length": 234007,
+      "cover_md5": "1c5a39baed69b68b4bb8f9692bb02fa9"
+    },
+    {
+      "id": "93b2598a-f226-4e06-9f3d-50bb82b9b445",
+      "title": "Magic Matt and the Jack-o'-Lantern",
+      "series": "Scholastic",
+      "audio_listen": "https://naver.me/x8kfD1jr",
+      "audio_shadow": "",
+      "cover_length": 169711,
+      "cover_md5": "d2945bddaf78861c06ab302c75b669b7"
+    },
+    {
+      "id": "561c29c2-f17c-448a-9c89-89c4d49e29b5",
+      "title": "A Tiny Family",
+      "series": "Scholastic",
+      "audio_listen": "https://naver.me/xiL6mJfQ",
+      "audio_shadow": "",
+      "cover_length": 184251,
+      "cover_md5": "5dc9b0ebaa5eaae55c9d57ca4e80ec34"
+    },
+    {
+      "id": "2e3ff931-051a-4a89-a65e-3ca444bdaf35",
+      "title": "A Girl, a Goat, and a Goose",
+      "series": "Scholastic",
+      "audio_listen": "https://naver.me/GHLgY44q",
+      "audio_shadow": "",
+      "cover_length": 200495,
+      "cover_md5": "4ec8da66bffd24118dfcff849bfeded4"
+    }
+  ]
+}

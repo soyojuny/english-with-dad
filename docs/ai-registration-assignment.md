@@ -131,6 +131,17 @@ Codex가 사진을 해석해 연결된 Supabase의 기존 자료·배정 테이�
 
 ## 진행 상태
 
+- 완료: 김지온(현재 앱 이름 `앤더 드래곤`)과 김지율(`골든스피노`)의 2026-10-25
+  시작 신규 배치 12권과 배정 42행을 저장했다. 표지 외곽을 원근 보정한 뒤 앱 압축
+  규격을 적용했고, 신규 책 중복·10월 25~30일 배정 충돌이 없음을 확인했다. 부모가
+  `Henry and Mudge and the Starry Night`의 정따 링크와 `A Very Mercy Christmas`의
+  읽기 링크를 정정한 뒤 책 메타데이터·표지 길이·해시와 배정 전체 필드를 재조회해
+  후보와 일치함을 확인했다. 부모의 최종 순서 정정에 따라 지온 읽기는 일~월
+  `Stories of Wizards`, 화~수 `Nate the Great`, 목~금
+  `Nate the Great and Me: The Case of the Fleeing Fang`으로 변경했다. 수정 전 진행
+  기록 0건을 확인했고 수정 후 6행 전체 필드를 재검증했다. 지온 24행·지율 18행이며
+  토요일 배정은 없다.
+  [등록·배정 결과와 ID](../plans/active/ai-registration-assignment/combined-registration-result-2026-10-25.json).
 - 완료: 김지온(현재 앱 이름 `앤더 드래곤`)의 신규 책 6권 등록, 기존
   `Diary of a Spider` 1권 재사용 및 2026-10-18~23 신규 배정 24행 저장. 정따는
   일~화 `Henry and Mudge and the Tall Tree House`, 수~금
@@ -151,8 +162,13 @@ Codex가 사진을 해석해 연결된 Supabase의 기존 자료·배정 테이�
   `Busy Bunnies' Five Senses`를 각 1회씩 배정했다. 퀴즈는 모두 비활성이고
   토요일 배정은 없다. QR 6개를 모두 인식했으며 신규 책 중복·주간 배정 충돌은 0건이었다.
   표지·책 메타데이터와 배정 전체 필드를 후보와 재조회 결과로 대조해 일치함을 확인했다.
+  후속 요청으로 그림책 `You and Me`와 `Five Little Pumpkins` 2권을 추가 등록하고
+  같은 기간 매일 읽기 각 1회, 문제풀이 없이 12행을 추가 배정했다. 원본 표지의 주변
+  배경을 제거하도록 원근 보정한 뒤 앱 규격으로 압축했으며, 두 책과 12행 전체 필드 및
+  표지 길이·해시가 후보와 일치했다. 해당 주차 합계는 신규 책 7권·배정 30행이다.
   실제 로그인 앱 표시·오디오 재생의 부모 확인은 남아 있다.
-  [저장 결과와 ID](../plans/active/ai-registration-assignment/jiyul-assignment-result-2026-10-18.json).
+  [읽기·정따 저장 결과](../plans/active/ai-registration-assignment/jiyul-assignment-result-2026-10-18.json),
+  [그림책 저장 결과](../plans/active/ai-registration-assignment/jiyul-picture-assignment-result-2026-10-18.json).
 - 완료: 김지온(김지온 킹)의 신규 책 6권 등록, 기존 `Leo a ghost story` 1권 재사용 및
   2026-10-11~16 신규 배정 24행 저장. 읽기는 일~월 `The Minotaur`, 화~수
   `The Monster Gang`, 목~금 `The Sorcerer's Apprentice`를 매일 1회와 문제풀이로 배정했다.
