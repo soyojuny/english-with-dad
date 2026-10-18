@@ -53,8 +53,18 @@ Do not choose books or a start date on the parent's behalf.
   `getTaskAudioUrl()` has no missing-field fallback.
 - Read `lib/reading-types.ts`, `lib/reading-data.ts`,
   `lib/supabase/reading-store.ts`, `lib/cover-image.ts` and applicable migrations.
+  Before compression, check whether the photographed book's four outer edges match
+  the image frame. If surrounding background is visible or the cover is rotated or
+  mildly skewed, preserve the source and create a separate corrected file that crops
+  to the book edges and applies only rotation or perspective correction. Do not
+  redraw or alter cover text, artwork, publisher marks, physical labels, barcodes,
+  wear, color or texture. Visually compare the correction with the source and reject
+  it if any cover content changed. If an edge is missing from the source, request a
+  new photo instead of inventing it. Skip correction when the cover already fits.
   Use `compressCoverImage()` for a JPEG data URL (960px max, quality 0.72);
-  preserve the source file. Do not invent a Storage bucket.
+  compress the verified corrected file when one exists, otherwise the source. Do not
+  invent a Storage bucket. After saving, requery the stored cover length and hash and
+  compare them with the selected compressed candidate.
 - Confirm the connected `english-with-dad` project and parent owner, querying only
   needed metadata. Look up documented parent names, app aliases and child IDs in
   the operating contract, then revalidate the child within that owner. Reuse an

@@ -1,0 +1,413 @@
+{
+  "recordedAt": "2026-10-18",
+  "projectId": "yocdammswepuwyvzydra",
+  "childName": "김지율",
+  "appChildName": "골든스피노",
+  "routineRoleApplied": "second",
+  "startSunday": "2026-10-18",
+  "endDate": "2026-10-23",
+  "weeks": 1,
+  "createdBooks": 5,
+  "reusedBooks": 0,
+  "createdAssignments": 18,
+  "reusedAssignments": 0,
+  "persistedDataVerified": true,
+  "authenticatedAppVerified": false,
+  "books": [
+    {
+      "id": "7546a69b-f77e-48e2-ba13-3961bef7a5d3",
+      "note": "",
+      "level": "",
+      "title": "The Toys' Party",
+      "active": true,
+      "series": "ORT",
+      "volume": "",
+      "cover_md5": "ed9a70d9b3fe27eb44a3fbca98a4e064",
+      "audio_listen": "https://naver.me/5IfUwQRH",
+      "audio_shadow": "https://naver.me/GuC9uzjs",
+      "content_type": "book",
+      "cover_length": 241339,
+      "cover_is_jpeg": true,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18"
+    },
+    {
+      "id": "9c0c386c-8446-4bf4-94a3-2276307ea42e",
+      "note": "",
+      "level": "",
+      "title": "Monkey See, Monkey Do",
+      "active": true,
+      "series": "Scholastic",
+      "volume": "",
+      "cover_md5": "26e30628eee47d5c0a8bc78e615f3ae2",
+      "audio_listen": "https://naver.me/5sucG7QR",
+      "audio_shadow": "",
+      "content_type": "book",
+      "cover_length": 183363,
+      "cover_is_jpeg": true,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18"
+    },
+    {
+      "id": "f7a09177-994a-4296-aee3-457f36efd58d",
+      "note": "",
+      "level": "",
+      "title": "Teddy Bear for Sale",
+      "active": true,
+      "series": "Scholastic",
+      "volume": "",
+      "cover_md5": "14fe4015c88698eb6a4763e59f856bec",
+      "audio_listen": "https://naver.me/FTdVM6fE",
+      "audio_shadow": "",
+      "content_type": "book",
+      "cover_length": 149727,
+      "cover_is_jpeg": true,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18"
+    },
+    {
+      "id": "e44a8117-40d0-4907-80ee-707a577646f9",
+      "note": "",
+      "level": "",
+      "title": "We Love the Dirt",
+      "active": true,
+      "series": "Scholastic",
+      "volume": "",
+      "cover_md5": "a0faba9a046ab4347f63b72b2cacf8fe",
+      "audio_listen": "https://naver.me/5fd05vqE",
+      "audio_shadow": "",
+      "content_type": "book",
+      "cover_length": 189279,
+      "cover_is_jpeg": true,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18"
+    },
+    {
+      "id": "a854e949-9b17-4708-88da-0d0d751c974c",
+      "note": "",
+      "level": "",
+      "title": "Busy Bunnies' Five Senses",
+      "active": true,
+      "series": "Scholastic",
+      "volume": "",
+      "cover_md5": "5a444f3a636a0edb8e17d148e6affcb7",
+      "audio_listen": "https://naver.me/FpwNPyXu",
+      "audio_shadow": "",
+      "content_type": "book",
+      "cover_length": 186915,
+      "cover_is_jpeg": true,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18"
+    }
+  ],
+  "assignments": [
+    {
+      "id": "e832aefb-cd23-4a10-a268-df61c19157d7",
+      "date": "2026-10-18",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "9c0c386c-8446-4bf4-94a3-2276307ea42e",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "f3cf3483-1987-4d0a-aa8f-713661af256b",
+      "date": "2026-10-18",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "f7a09177-994a-4296-aee3-457f36efd58d",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "4b2a2d78-7a9f-4c36-8c61-d79fa0176d77",
+      "date": "2026-10-18",
+      "tasks": [
+        "listen",
+        "shadow",
+        "self"
+      ],
+      "book_id": "7546a69b-f77e-48e2-ba13-3961bef7a5d3",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "task_counts": {
+        "self": 1,
+        "listen": 1,
+        "shadow": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "readAloud"
+    },
+    {
+      "id": "9775a8a7-c45a-4c2f-8ee8-951129c43364",
+      "date": "2026-10-19",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "9c0c386c-8446-4bf4-94a3-2276307ea42e",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "27e8071e-8530-4c16-a2b7-00885e8a8c25",
+      "date": "2026-10-19",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "f7a09177-994a-4296-aee3-457f36efd58d",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "3bf5f175-d726-4464-8b96-fa75abf75413",
+      "date": "2026-10-19",
+      "tasks": [
+        "listen",
+        "shadow",
+        "self"
+      ],
+      "book_id": "7546a69b-f77e-48e2-ba13-3961bef7a5d3",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "task_counts": {
+        "self": 1,
+        "listen": 1,
+        "shadow": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "readAloud"
+    },
+    {
+      "id": "07e54714-a7b6-4f9b-839d-a53b27451392",
+      "date": "2026-10-20",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "9c0c386c-8446-4bf4-94a3-2276307ea42e",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "d271f134-6a50-44b8-8b49-554f080905cc",
+      "date": "2026-10-20",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "f7a09177-994a-4296-aee3-457f36efd58d",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "0cae7221-3bed-4875-bc5f-7599acd6fb4a",
+      "date": "2026-10-20",
+      "tasks": [
+        "listen",
+        "shadow",
+        "self"
+      ],
+      "book_id": "7546a69b-f77e-48e2-ba13-3961bef7a5d3",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "task_counts": {
+        "self": 1,
+        "listen": 1,
+        "shadow": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "readAloud"
+    },
+    {
+      "id": "b9486c44-bdb7-4f9c-b2c5-f6b9555fba2b",
+      "date": "2026-10-21",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "a854e949-9b17-4708-88da-0d0d751c974c",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "3b676f32-496e-4caa-9860-46a8b3142514",
+      "date": "2026-10-21",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "e44a8117-40d0-4907-80ee-707a577646f9",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "47a9113e-7eb1-4d12-87ef-a95f5aab18a1",
+      "date": "2026-10-21",
+      "tasks": [
+        "listen",
+        "shadow",
+        "self"
+      ],
+      "book_id": "7546a69b-f77e-48e2-ba13-3961bef7a5d3",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "task_counts": {
+        "self": 1,
+        "listen": 1,
+        "shadow": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "readAloud"
+    },
+    {
+      "id": "6eeb89f2-e296-42ac-9f8f-ebfdac2c28f1",
+      "date": "2026-10-22",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "a854e949-9b17-4708-88da-0d0d751c974c",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "12218916-52a9-44bd-8651-f8ac21f61259",
+      "date": "2026-10-22",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "e44a8117-40d0-4907-80ee-707a577646f9",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "823ec1ca-1da2-42b3-b2c5-30c6d66e5d26",
+      "date": "2026-10-22",
+      "tasks": [
+        "listen",
+        "shadow",
+        "self"
+      ],
+      "book_id": "7546a69b-f77e-48e2-ba13-3961bef7a5d3",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "task_counts": {
+        "self": 1,
+        "listen": 1,
+        "shadow": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "readAloud"
+    },
+    {
+      "id": "19e07cac-d8d3-4943-b6c9-3f192f943122",
+      "date": "2026-10-23",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "a854e949-9b17-4708-88da-0d0d751c974c",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "7fe3121b-05b1-4af4-87b0-27bea04b9ec9",
+      "date": "2026-10-23",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "e44a8117-40d0-4907-80ee-707a577646f9",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "3da96f05-36ab-41d4-9674-5d49e713773c",
+      "date": "2026-10-23",
+      "tasks": [
+        "listen",
+        "shadow",
+        "self"
+      ],
+      "book_id": "7546a69b-f77e-48e2-ba13-3961bef7a5d3",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "task_counts": {
+        "self": 1,
+        "listen": 1,
+        "shadow": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "readAloud"
+    }
+  ]
+}
+

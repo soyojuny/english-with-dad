@@ -14,3 +14,4 @@ coverage/
 /sw.js
 /server*.log
 /verification-artifacts/
+/books/
