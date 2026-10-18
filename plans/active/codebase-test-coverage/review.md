@@ -2,9 +2,9 @@
 
 ## Status
 
-In Progress
+Step 23 Complete
 
-Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 09–22는 Complete, Step 23–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
+Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 09–23은 Complete, Step 24–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
 
 ## Step 22 Completion — 2026-10-16
 
@@ -151,7 +151,7 @@ focused component 결과는 `verification-artifacts/step22-focused-root-final.lo
 | 4 | 20 완료 안내·활동 셀·자료 표시 | Complete | focused Step 20 3 files/27 PASS, C03 UTC·Asia/Seoul 각각 1 file/13 PASS; root component 9 files/55 PASS + 기존 2 expected-fail (`verification-artifacts/step20-component-root-final.log`), typecheck/contracts/build/diff check 모두 exit 0. Standards/Spec 0 findings. 제품 코드는 변경하지 않았고 새 제품 결함은 없으며, Q05 이미지 load fallback과 실제 parent report browser 흐름은 Step 27·26에 남긴다. |
 | 4 | 21 배정 선택 복원 hook | Complete | focused hook 1 file, 14 passed + 2 expected-fail; full component 10 files, 69 passed + 4 expected-fail (`verification-artifacts/step21-component-root-final.log`); typecheck/contracts/build/diff check exit 0; final Standards 0 findings and Spec 0 findings. 제품 코드는 변경하지 않았다. H01-F05/F06은 배열에 있는 assignment를 childId/date와 달라도 callback이 수용하는 확인된 expected-fail 결함이며, 실제 `reading-manager-client.tsx` caller는 filtered `todayAssignments`를 전달해 노출이 제한된다. unmount cleanup N/A; browser reload/다른 탭 storage event/전체 profile switching은 Step 25 후속. |
 | 4 | 22 완료·복귀 hook 수명주기 | Complete | focused hook 1 file/22 PASS (`verification-artifacts/step22-focused-root-final.log`); full component 11 files/91 PASS + 4 expected-fail (`verification-artifacts/step22-component-root-final.log`); unit PASS (`verification-artifacts/step22-unit-root-final.log`); phase 경계 `npm run verify` PASS, exit 0 (`verification-artifacts/step22-verify-root-final.log`). 최종 Standards/Spec review는 각각 0 findings이며 실제 DB/RLS·실기기/PWA·browser completion은 Step 25 후속이다. |
-| 5 | 23 프로필·자료 등록과 관리 흐름 | Pending | 미실행 |
+| 5 | 23 프로필·자료 등록과 관리 흐름 | Complete | focused profile/material 15 PASS (`verification-artifacts/step23-focused-root-final.log`); full client HTTP 22 PASS (`verification-artifacts/step23-client-root-final.log`); audio-only wrapper 7 PASS (`verification-artifacts/step23-audio-root-final.log`); typecheck/contracts/build PASS (`verification-artifacts/step23-typecheck-root-final.log`, `verification-artifacts/step23-contracts-root-final.log`, `verification-artifacts/step23-build-root-final.log`); `git diff --check` PASS. 최종 Standards/Spec review 각각 0 findings, 신규 제품 결함·expected-fail 없음. `npm run verify`는 Phase 5 종료가 아니므로 미실행. |
 | 5 | 24 배정 생성·갱신·편집·삭제 흐름 | Pending | 미실행 |
 | 5 | 25 아동 학습과 완료·퀴즈 흐름 | Pending | 미실행 |
 | 5 | 26 부모 활동표·수동 기록·출력 | Pending | 미실행 |
@@ -395,6 +395,24 @@ afterEach는 DOM/storage/timer/spy/global/env를 복원하고 StrictMode effect�
 | root `npm run verify` (Phase 3 경계) | exit 0; `check:contracts`·`check:sw`·`check:pwa`·`test:unit`·`typecheck`·`build` PASS; `verification-artifacts/step18-verify-root-final.log`. component/server/browser는 이 명령에 포함되지 않는다. |
 
 - 최종 Standards 0 findings, Spec 0 findings. root 개별 `typecheck`·`check:contracts`·`build`·`git diff --check`도 exit 0이다.
+
+## Step 23 Execution — 2026-10-16
+
+기준 커밋은 사용자 제공 `6bdf0cd`다. 제품 코드는 변경하지 않고, `tests/browser/client/profile-material.spec.mjs`와 실제 `ReadingManagerClient` bundle/HTTP fixture를 추가했다. 각 test는 새 browser context와 독립 in-memory children/books 상태를 사용하며, fixture는 등록한 REST path/method만 응답하고 request histories·body·query를 artifact로 남긴다.
+
+| 명령 | 결과 |
+| --- | --- |
+| focused `profile-material.spec.mjs` (고정 TMPDIR/Playwright browser path) | 15 PASS: 정상 5, 경계 5, invalid/failure 5 (`verification-artifacts/step23-focused-root-final.log`) |
+| `npm run test:browser:client` (같은 환경) | 22 PASS: 신규 U01 15 + 기존 audio 7 (`verification-artifacts/step23-client-root-final.log`) |
+| `npm run test:audio-browser` (같은 환경) | 7 PASS: `audio-completion.spec.mjs`만 명시 실행 (`verification-artifacts/step23-audio-root-final.log`) |
+| `npm run typecheck` / `npm run check:contracts` / `npm run build` | 모두 PASS (`verification-artifacts/step23-typecheck-root-final.log`, `verification-artifacts/step23-contracts-root-final.log`, `verification-artifacts/step23-build-root-final.log`) |
+| `git diff --check` | PASS |
+
+- 정상: U01-N01–N05가 아동 save/edit/profile 전환, 일반 책 save/edit, data URL 표지 표시와 ready 검색, active 전환, 단어 읽기 유형 필드를 검증한다.
+- 경계: U01-E01–E05가 빈 profile, 초기 로딩 뒤 손상 profile의 안전 fallback·정리, 표지/읽기 링크/정따 링크가 각각 미완성인 일반 책의 독립 attention 상태를 검증한다.
+- 잘못된 입력/실패: U01-F01–F05가 빈 아동 이름, 일반 책 필수값 누락, 유효 필수값의 URL 오류 no-write, children/books HTTP 실패의 성공 목록 미반영과 오류 안내를 검증한다.
+- 신규 제품 결함이나 expected-fail은 없다. 최초 locator 및 기본 아이콘 허용 path 누락은 test/fixture 결함으로만 교정했다.
+- 최종 Standards review 0 findings, Spec review 0 findings. 표지는 data URL REST row의 img 표시만 검사한다. Storage/DB/RLS, Auth, QR/카메라, 실기기 및 `npm run verify`는 이 Step/Phase 범위 밖이며 `npm run verify`는 Phase 5 종료가 아니므로 미실행이다.
 
 ## Final Verification
 

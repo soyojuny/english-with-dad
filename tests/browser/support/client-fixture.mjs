@@ -34,6 +34,8 @@ export const test = base.extend({
             res.setHeader('Content-Type', 'application/javascript'); res.end(await readFile(join(directory, 'app.js')));
           } else if (req.url === '/styles.css') {
             res.setHeader('Content-Type', 'text/css'); res.end(await readFile(join(root, 'styles.css')));
+          } else if (req.url === '/assets/app-icon.svg') {
+            res.setHeader('Content-Type', 'image/svg+xml'); res.end(await readFile(join(root, 'public/assets/app-icon.svg')));
           } else if (req.url === '/') {
             res.setHeader('Content-Type', 'text/html');
             res.end('<html lang="ko"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><link rel="stylesheet" href="/styles.css"><div id="root"></div><script src="/app.js"></script></html>');
@@ -66,6 +68,24 @@ export const test = base.extend({
       await mkdir(testInfo.outputDir, { recursive: true });
       const requestsPath = testInfo.outputPath('requests.json');
       await writeFile(requestsPath, JSON.stringify(guard.requests, null, 2));
+      await testInfo.attach('requests', { path: requestsPath, contentType: 'application/json' });
+    }
+  },
+  profileMaterial: async ({ context, page, clientServer }, use, testInfo) => {
+    const guard = await guardBrowser(context, [clientServer.origin, 'http://127.0.0.1:54321']);
+    let fixture;
+    try {
+      fixture = await profileMaterialFixture(context, page, clientServer.origin, guard);
+      await use(fixture);
+      guard.verify();
+      expect(clientServer.unexpected, 'Unexpected client server request').toEqual([]);
+    } catch (error) {
+      if (!page.isClosed()) await page.screenshot({ path: testInfo.outputPath('fixture-failed.png'), fullPage: true });
+      throw error;
+    } finally {
+      await mkdir(testInfo.outputDir, { recursive: true });
+      const requestsPath = testInfo.outputPath('requests.json');
+      await writeFile(requestsPath, JSON.stringify({ requests: guard.requests, fixture: fixture?.requests ?? [] }, null, 2));
       await testInfo.attach('requests', { path: requestsPath, contentType: 'application/json' });
     }
   },
@@ -150,4 +170,102 @@ async function audioFixture(context, page, origin, guard) {
   await page.getByRole('button',{name:'1회 완료',exact:true}).waitFor();
   await page.clock.pauseAt(new Date('2026-10-14T03:01:00Z'));
   return {context,page,completions,get writes(){return writes;},get audioReturnPending(){return Boolean(releaseAudio);},hold(){held=true;},holdAudio(){heldAudio=true;},holdCheck(){heldCheck=true;},release(){held=false;heldAudio=false;heldCheck=false;release?.();releaseAudio?.();releaseCheck?.();},fail(){fail=true;},recover(){fail=false;},loseResponse(){loseResponse=true;}};
+}
+
+async function profileMaterialFixture(context, page, origin, guard) {
+  const state = { children: [], books: [], assignments: [], manualLogs: [] };
+  const requests = [];
+  const failures = new Set();
+  let nextChildId = 1;
+  let nextBookId = 1;
+  const methods = {
+    children: ['GET', 'POST', 'PATCH'],
+    books: ['GET', 'POST', 'PATCH'],
+    assignments: ['GET'],
+    manual_logs: ['GET'],
+    'rpc/book_series_names': ['POST'],
+  };
+  const queryRules = {
+    'children:GET': { select: ['exact'], owner_user_id: ['eq'], order: ['exact'] },
+    'children:POST': { select: ['exact'] },
+    'children:PATCH': { select: ['exact'], owner_user_id: ['eq'], id: ['eq'] },
+    'books:GET': { select: ['exact'], owner_user_id: ['eq'], series: ['eq'], title: ['ilike'], active: ['eq'], order: ['exact'] },
+    'books:POST': { select: ['exact'] },
+    'books:PATCH': { select: ['exact'], owner_user_id: ['eq'], id: ['eq'] },
+    'assignments:GET': { select: ['exact'], owner_user_id: ['eq'], child_id: ['eq'], date: ['eq', 'gte', 'lte'], book_id: ['in'], order: ['exact'] },
+    'manual_logs:GET': { select: ['exact'], owner_user_id: ['eq'], date: ['gte', 'lte'], order: ['exact'] },
+    'rpc/book_series_names:POST': {},
+  };
+  const rows = table => state[table] ?? [];
+  const matches = (row, query) => [...query].every(([key, value]) => {
+    if (['select', 'order'].includes(key)) return true;
+    if (value.startsWith('eq.')) return String(row[key]) === value.slice(3);
+    if (value.startsWith('ilike.')) return String(row[key]).toLowerCase().includes(value.slice(7).replaceAll('%', '').toLowerCase());
+    if (value.startsWith('gte.')) return String(row[key]) >= value.slice(4);
+    if (value.startsWith('lte.')) return String(row[key]) <= value.slice(4);
+    if (value.startsWith('in.')) return value.slice(3).replace(/^\(|\)$/g, '').split(',').includes(String(row[key]));
+    return true;
+  });
+  const hasAllowedQuery = (path, method, entries) => {
+    const rules = queryRules[`${path}:${method}`];
+    return Boolean(rules) && entries.every(([key, value]) => {
+      const operators = rules[key];
+      if (!operators) return false;
+      if (operators.includes('exact')) return key === 'select' || key === 'order';
+      return operators.some(operator => value.startsWith(`${operator}.`));
+    });
+  };
+  const bookRow = body => ({
+    id: `book-${nextBookId++}`, owner_user_id: 'owner-1', active: true, content_type: 'book', series: '', title: '', volume: '', level: '', cover: '', audio_listen: '', audio_shadow: '', note: '', ...body,
+  });
+  await page.route('http://127.0.0.1:54321/**', async route => {
+    const request = route.request();
+    const url = new URL(request.url());
+    const path = url.pathname.replace('/rest/v1/', '');
+    const allowed = methods[path];
+    const headers = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' };
+    const body = request.postDataJSON() ?? null;
+    const query = [...url.searchParams.entries()];
+    if (!allowed?.includes(request.method()) || !hasAllowedQuery(path, request.method(), query)) {
+      guard.unexpected.push(`${request.method()} ${request.url()}`);
+      return route.fulfill({ status: 500, headers, body: JSON.stringify({ message: 'Unexpected profile/material fixture request' }) });
+    }
+    requests.push({ method: request.method(), path: url.pathname, query, body });
+    if (failures.has(path)) {
+      return route.fulfill({ status: 503, headers, body: JSON.stringify({ message: `${path} 저장 실패` }) });
+    }
+    let data;
+    if (path === 'rpc/book_series_names') {
+      data = [...new Set(state.books.map(book => book.series).filter(Boolean))].map(series => ({ series }));
+    } else if (request.method() === 'GET') {
+      data = rows(path).filter(row => matches(row, url.searchParams));
+    } else if (path === 'children' && request.method() === 'POST') {
+      const row = { id: `child-${nextChildId++}`, ...body };
+      state.children.push(row);
+      data = [row];
+    } else if (path === 'books' && request.method() === 'POST') {
+      const row = bookRow(body);
+      state.books.push(row);
+      data = [row];
+    } else {
+      const target = rows(path).filter(row => matches(row, url.searchParams));
+      target.forEach(row => Object.assign(row, body));
+      data = target;
+    }
+    const object = (request.headers().accept ?? '').includes('vnd.pgrst.object');
+    await route.fulfill({ status: 200, headers, body: JSON.stringify(object ? (data[0] ?? null) : data) });
+  });
+  await page.goto(origin);
+  return {
+    page,
+    requests,
+    state,
+    fail(table) { failures.add(table); },
+    recover(table) { failures.delete(table); },
+    seed({ children = [], books = [] }) {
+      state.children.push(...children.map(child => ({ owner_user_id: 'owner-1', ...child })));
+      state.books.push(...books.map(book => bookRow(book)));
+    },
+    writes(table) { return requests.filter(request => request.path === `/rest/v1/${table}` && request.method !== 'GET'); },
+  };
 }

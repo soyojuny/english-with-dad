@@ -264,9 +264,11 @@ npm run test:browser:next
 npm run test:browser
 ```
 
-`test:audio-browser`와 `test:browser:client`는 `client-http` 프로젝트의 같은 7개 회귀를
-발견한다. esbuild로 실제 ReadingManagerClient를 번들링하고 브라우저의 Supabase HTTP만
-대체한다. 이 결과는 실제 Next SSR/Auth 검증이 아니다.
+`test:audio-browser`는 `client-http` 프로젝트에서
+`tests/browser/client/audio-completion.spec.mjs`의 오디오 회귀 7개만 실행한다.
+`test:browser:client`는 같은 프로젝트의 전체 client suite를 실행한다. esbuild로 실제
+ReadingManagerClient를 번들링하고 브라우저의 Supabase HTTP만 대체한다. 이 결과는 실제
+Next SSR/Auth 검증이 아니다.
 
 `test:browser:next`는 `next-auth-http` 프로젝트다. app/lib/public과 설정의 임시 복사본에서
 실제 Next dev 서버와 middleware/async Page를 실행하고, 서버 SDK도 로컬 Auth HTTP 서버를
