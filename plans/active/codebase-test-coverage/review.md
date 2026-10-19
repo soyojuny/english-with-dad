@@ -2,7 +2,45 @@
 
 ## Status
 
-Step 01–29 Complete (Step 28a 승인된 결함 수정 포함). Step 29의 독립 harness·정적 검증과 루트 최종 검토를 마쳤다. Step 30–33 및 승인된 별도 수정 Step 31a는 Pending이다. 지정 모델의 Codex 계정 사용량 한도로 Herdr pane의 후속 작업은 실행하지 못했다.
+Step01–30 및 사용자 승인 Step30a Complete. GPT-6.1-Sol medium 유지. 모바일 4 RED → 동일 21개 PASS, 독립 verify와 각 browser 프로젝트 검증·루트 최종 검토를 마쳤다. Step31–33/31a는 Pending이다.
+
+## Step30/30a Complete — 2026-10-19
+
+### 루트 최종 검증
+
+- `env -u NODE_TEST_CONTEXT npm run verify`: exit 0, unit 276 PASS 및 contracts/SW/PWA/typecheck/build PASS (`verification-artifacts/step30a-independent-verify.log`).
+- 최초 전체 browser는 exit 1: ordinary 119 PASS + 기존 U09-F07 expected-fail 1 + U06-N01 FAIL 1 (`verification-artifacts/step30a-independent-browser.log`). Next/Auth 4개와 PWA 4개는 이 실행에서 모두 PASS다. 이 명령을 전체 통과로 보고하지 않는다.
+- U06-N01의 단독 1회·수정 전 3회 반복은 PASS였다. trace와 `openAudio`의 `saveAudioLaunch → apply → window.open` 순서에 따라, U06-N01/E01의 가짜 이탈 전에 popup 호출 완료를 기다리는 조건만 추가했다. 앱 동작과 기존 assertion은 유지했다. 수정 후 두 시나리오 각각 3회, 총 6 PASS (`step30a-u06-repeat-after.log`).
+- 최신 `npm run test:browser:client`: exit 0, ordinary 112 PASS + 기존 U09-F07 expected-fail 1 (`verification-artifacts/step30a-independent-client-final.log`, summary 113 passed). 변경 없는 Next/Auth·PWA의 위 8개 통과와 함께 Phase 6 계약을 확인했다. 단일 전체 browser exit 0 재실행은 하지 않았다.
+- component 106 PASS + 기존 expected-fail 4, server 32 PASS + 기존 expected-fail 1, harness 28 PASS는 앞선 독립 실행 증거를 재사용한다. 실제 DB/RLS/OAuth·실기기는 제외한다.
+- 독립 CSS 검토 및 루트 최종 Standards/Spec 검토는 0/0 findings다. 새 skip/expected-fail 없이 Step30/30a를 완료하며, 기존 결함 4종은 승인된 Step31a에서 해결한다.
+
+사용자가 “그렇게 하자”로 모바일 자료·배정 폼의 최소 CSS 수정을 승인했다.
+`styles.css`의 기존 max1100px media에만 management-grid minmax(0,1fr),
+book-picker min-inline-size0, picker library-tools/select max-inline-size100%를 적용했다.
+남은360px의 실제 원인은 긴 시리즈 필터가 고유338px 너비를 유지해 right380px가 되는 것이었다.
+`step30a-two-rules-diagnostic.log`에 실측을 기록했다. 내용 삭제나 overflow 숨김은 없다.
+
+| 검증 | 결과 |
+| --- | --- |
+| 기준 원본 RED | `verification-artifacts/step30-final-source-red.log`:21개,17 PASS/4 제품overflow FAIL (24.4s),exit1 |
+| 최종 동일 source/assertion | `npm run test:browser:client -- mobile-layout.spec.mjs`:21 PASS (21.7s),exit0; `verification-artifacts/step30a-mobile-layout-green.log` |
+| 360px 배정 선행 검사 | 1 PASS; `step30a-360-assignment-green.log` |
+| 실제 등록 document 폭 | 360/390/1280px 모두 viewport와 동일; 모바일 grid336/366px, heading302/332px. desktop 두 열530.094/647.906px 유지 |
+| geometry artifact | `verification-artifacts/browser-1792402860304-389077/report.json` |
+| 정적 검사 | check:contracts/check:pwa/diff-check PASS; `step30a-contracts.log`, `step30a-pwa.log` |
+
+기존 client fixture와21개 GWT source/assertion을 수정하지 않고4 RED→GREEN 및 desktop7 회귀를 확인했다.
+초기 exact-label/search20·역순/status/seed-reload/생성후disabled 검사 오류는 제품결함에서 제외한다.
+임시probe 결과는 제품GREEN과 구분했고 임시spec은 제거했다. 테스트는 label/action 실제hit target,
+긴 text clipping·컨트롤 교차, 실제 등록/배정/완료/재시도/키보드 QR닫기와 표 내부scroll을 보호한다.
+
+독립 테스트 pane의 component는 13파일/106 PASS + 기존 expected-fail 4개, server는 4파일/32 PASS +
+기존 expected-fail 1개, harness는 28 PASS(fail/skip/todo 0)로 모두 최종 exit 0이다.
+로그는 `verification-artifacts/step30-independent-{component,server,harness}.log`이며,
+harness 초기 sandbox 실패는 `step30-independent-harness-sandbox.log`에 별도 보존했다.
+전체 verify/browser·build/typecheck는 남아 있다. 기존 결함 4종/6 expected-fail이나 Step31a는 수정하지 않았고 새 skip/expected-fail도 없다.
+commit/push/배포/다른 pane 제어 및 Step31 착수 없음. 실제 Android/카메라/DB·RLS·OAuth는 follow-up에 유지한다.
 
 ## Step 29 Complete — 2026-10-19
 

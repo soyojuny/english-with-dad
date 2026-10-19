@@ -48,7 +48,7 @@
 | M02 | QR 판독 | 합성 QR의 실제 decode·반전·공백·없는 QR·0크기 | 27 Complete | DOM 경계/browser | lib/qr-reader.ts | tests/components/qr-reader.test.ts; tests/browser/client/qr-image.spec.mjs | Step 27: focused component 15 PASS; real browser 6 PASS. full 결과는 review.md; DB/실기기 제외. |
 | M03 | 카메라/업로드 | 필드 적용·권한/미지원·late stream·track/interval 정리 | 28 Complete | browser API 대역 | app/reading-manager-client.tsx | tests/browser/client/camera-upload.spec.mjs | Step 28 Complete: 승인된 play 취소 guard로 close/unmount 2 FAIL → 2 PASS; 파일 독립 17 PASS, 전체 browser 95 ordinary PASS + 기존 expected-fail 1, verify exit 0. 실제 카메라/DB/RLS 제외. |
 | P01 | SW 실행 | install/activate·cache cleanup·GET/nonGET·offline fallback·등록 실패 | 29 Complete | worker 대역/실제 Next SW allow | public/sw.js; public/manifest.webmanifest; app/reading-manager-client.tsx | tests/harness/service-worker.test.mjs; tests/browser/pwa/service-worker.spec.mjs | worker 15 PASS + browser 4 PASS; SW/PWA 정적 PASS. cached HTML/icon 응답이며 전체 offline 앱 보장 아님 |
-| P02 | 모바일 표시 | 360/390px·긴 한국어·버튼·dialog·의도된 표 스크롤 | 30 | browser | app/layout.tsx; styles.css; public/manifest.webmanifest; public/assets/** | tests/browser/mobile-layout.spec.ts | E07 모바일 실행 일부·E08 정적; 신규 대기 |
+| P02 | 모바일 표시 | 360/390/1280px·긴 한국어·버튼·dialog·의도된 표 스크롤 | 30/30a Complete | client HTTP browser | styles.css; app/reading-manager-client.tsx (layout/manifest는 Step29와 정적 증거 구분) | tests/browser/client/mobile-layout.spec.mjs | 기준17 PASS/4 RED → 승인된 Step30a 후21 PASS; document360/390/1280px, 새 expected-fail 없음 |
 | T01 | 러너/하네스 | 새 파일 발견·삭제 산출물·0개/실패 exit·임시 fixture | 02·03·31 | harness/component/hook | scripts/run-unit-tests.mjs; scripts/check-contracts.mjs; scripts/check-pwa.mjs; scripts/plan-workflow.mjs; scripts/plan-archive.mjs; scripts/git-publish.mjs; scripts/smoke-audio-completion.mjs; tests/helpers/completion-supabase-fake.ts; tests/helpers/async-fixtures.ts; tests/helpers/reading-fixture.ts; vitest.component.config.ts; vitest.server.config.ts; tests/support/ | tests/harness/unit-runner.test.mjs; tests/unit/test-fixtures.test.ts; tests/harness/component-server-runner.test.mjs; tests/hooks/lifecycle-harness.test.tsx; tests/components/assignment-quiz-score.test.tsx | Step 02: harness 8·fixture 4 PASS; Step 03 실행 기록 아래; Step 31 다른 도구 대기 |
 | T02 | 전체 검증 | 필수 suite 탐색·독립/전체 실행·coverage 공백·로그 인계 | 32·33 | 전체 자동 | package.json; package-lock.json; tsconfig.json; tsconfig.test.json; next.config.mjs; .gitignore; next-env.d.ts; AGENTS.md; README.md; docs/**; plans/**; .env.example | review.md; inventory.md; scenarios.md; 후속 coverage report 경로 확정 | Step 02 source baseline 기록; 전체 gate/coverage는 Step 32–33 대기 |
 
@@ -291,3 +291,27 @@ Step 18에서 추가·실행한 경계 테스트다. root component 4 files/17 t
 
 각 worker는 독립 VM/cache 대역, 각 browser는 독립 context/local Next·Auth HTTP fixture다.
 기존 mock 브라우저는 SW block을 유지한다. 상세 명령/로그/정리 증거는 Step 29 task와 review에 기록했다.
+
+## Step 30 — P02 모바일 DOM 계약 (Complete, 승인된30a 포함)
+
+| ID | 시나리오 | 결과/범위 |
+| --- | --- | --- |
+| P02-N01 | 긴 한국어 실제 자료 추가 → 저장 payload·제목·label/action hit target·문서폭 | 초기360/390 RED(문서448px) → Step30a 후 세 폭 PASS/document360·390·1280px |
+| P02-E01 | seed24 → 검색20/역순24권 선택/3회 지정 → 생성 전 target → 실제 생성 payload·결과카드·문서폭 | Step30a 후 세 폭 PASS; 초기 모바일2 RED 보존. 생성 뒤 선택초기화/버튼 disabled는 정상 |
+| P02-N02 | 오디오 버튼 → 실제 Tab으로 완료 focus → Enter → count1/다음버튼 | 세 폭 PASS |
+| P02-F01 | 저장실패 → status 문구/text clipping·재시도 target → recover/retry → count1 | 세 폭 PASS |
+| P02-F02 | 링크 입력 → Tab/Enter QR → 권한거부 문구·업로드/닫기 target → 키보드 닫기 | 세 폭 PASS; 실제 카메라 대역 |
+| P02-E03 | 긴 제목·최대3회 아동 카드 선택 → 제목/안내 clipping·문서폭 | 세 폭 PASS; seed 후 reload로 초기조회 명확히 분리 |
+| P02-E02 | 긴 제목 활동표 → .table-wrap scrollLeft 이동 → 문서폭 불변/기간버튼 hit target | 세 폭 PASS; 모바일 내부 scroll 검증 |
+
+승인 전 P02-N01/E01 필수 RED를 유지했고 제품수정/skip/expected-fail로 숨기지 않았다. 아래 승인 후 GREEN 기록을 현재 결과로 사용한다.
+한 줄 CSS 주입 임시 probe는 제안 효과만 확인하며 제품 GREEN에 합산하지 않는다. 상세 로그는 task30/review에 기록했다.
+
+최종 원본 source21 실행은 `verification-artifacts/step30-final-source-red.log`에 17 PASS/4 제품 overflow RED,
+exit1 (24.4s)로 보존했다. 중간 생성후 disabled 검사 오류는 최종 RED에서 제외했고,
+최종4개는 제목right402(두 모바일), 생성전 버튼right364(360), 생성후 document410(390)이다.
+
+사용자 명시 승인 Step30a(2026-10-19) 후 동일 source/assertion 전체21 PASS(exit0,21.7s)를
+`verification-artifacts/step30a-mobile-layout-green.log`에 보존했다. max1100px의 management-grid
+0-minimum 열, book-picker minimum 해제, picker 필터 컨테이너/select 최대폭 제한만 적용했다.
+N01/E01 필수4 RED 해소 및 desktop7 회귀 PASS. 과거 승인전/임시probe 기록은 실제GREEN과 구분해 보존한다.

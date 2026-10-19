@@ -1387,10 +1387,22 @@ label > textarea {
   }
 
   .child-grid,
-  .management-grid,
   .selected-book-header,
   .stats-grid {
     grid-template-columns: 1fr;
+  }
+
+  .management-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .book-picker {
+    min-inline-size: 0;
+  }
+
+  .book-picker .library-tools,
+  .book-picker .library-tools select {
+    max-inline-size: 100%;
   }
 
   .selected-book-header .book-cover {

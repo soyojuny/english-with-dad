@@ -89,6 +89,8 @@ test('U06-N01 정상: 첫 복귀 시간은 한 번 저장되고 launch/복귀만
   await selectChild(f.page, '민준'); await selectAssignment(f.page, '다섯 활동 책');
   // When
   await f.page.getByRole('button', { name: '오디오 열기', exact: true }).first().click();
+  // window.open follows launch persistence and coordinator registration; depart only after it runs.
+  await expect.poll(async () => (await f.popupCalls()).length).toBe(1);
   await f.page.evaluate(() => window.dispatchEvent(new Event('blur')));
   await f.page.clock.fastForward(60_001);
   const firstReturnResponse = f.page.waitForResponse(response => response.url().includes('/rest/v1/audio_launches') && response.request().method() === 'PATCH');
@@ -117,6 +119,8 @@ test('U06-E01 경계: 첫 복귀 저장이 끝난 뒤의 두 번째 blur/focus�
   // Given
   await selectChild(f.page, '민준'); await selectAssignment(f.page, '다섯 활동 책');
   await f.page.getByRole('button', { name: '오디오 열기', exact: true }).first().click();
+  // Match a real departure after the persisted launch has been applied, rather than after click dispatch.
+  await expect.poll(async () => (await f.popupCalls()).length).toBe(1);
   await f.page.evaluate(() => window.dispatchEvent(new Event('blur')));
   await f.page.clock.fastForward(60_001);
   const firstReturnResponse = f.page.waitForResponse(response => response.url().includes('/rest/v1/audio_launches') && response.request().method() === 'PATCH');

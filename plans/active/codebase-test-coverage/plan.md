@@ -147,6 +147,7 @@ DB/RLS 후속 검증은 로컬 환경과 별도 실행 계층이 필요하다. S
 - [Step 28 — 카메라·QR 입력 수명주기](tasks/28-camera-upload.md)
 - [Step 29 — 서비스워커 캐시의 실행 동작](tasks/29-service-worker.md)
 - [Step 30 — 모바일 레이아웃과 접근 가능한 조작](tasks/30-mobile-layout.md)
+- [Step 30a — 모바일 자료·배정 폼의 가로 넘침 수정](tasks/30a-mobile-form-width.md) — 새로 발견한 결함의 최소 수정안, 승인 대기
 
 ### Phase 7 — 하네스와 최종 검증
 
@@ -165,14 +166,16 @@ Phase 0 완료 뒤 순수 로직부터 검증하고 store 대역에 필요한 fi
 
 ### 실행 체크포인트 — 2026-10-19
 
-Step 01–29는 Complete다. Step 28에서 재현한 play 이후 스캔 타이머 재생성은
+Step 01–30과 승인된 Step30a는 Complete다. Step 28에서 재현한 play 이후 스캔 타이머 재생성은
 별도 [Step 28a](tasks/28a-qr-scan-cancellation.md)로 최소 guard 수정을 승인받아
 RED → GREEN을 확인했다. 새 사용자 요청으로 Step 29부터 재개해 Step 29의 구현·독립 검증을 마쳤다.
-Herdr 구현 `wY:p5`/테스트 `wY:p6`은 모두 GPT-6.1-Sol·medium이다. 테스트 pane이 Codex 계정
-사용량 한도에 도달해 다음 작업을 실행할 수 없으며, CLI는 2026-10-19 오후 9:40 이후 재시도를 안내했다.
-Step 30–33과 별도 수정 Step 31a는 Pending이며 전체 자동 계획 완료를 의미하지 않는다.
+Herdr 구현 `wY:p5`/테스트 `wY:p6`은 모두 GPT-6.1-Sol·medium이다. 한도로 중단했다가 사용자가 한도 복구를 알려 같은 설정으로 Step 30만 재개했다.
+Step30에서 재현한 모바일 등록/배정4 RED는 사용자 “그렇게 하자” 승인(2026-10-19)의 Step30a에서
+동일 테스트 source/assertion을 유지한 최소 CSS 수정으로21 PASS가 됐다. Phase6 verify와 프로젝트별
+browser 검증·최종 검토를 완료했으며 초기 전체 실행의 U06 테스트 동기화 실패/보완은 review.md에 구분 기록한다.
+Step 31–33과 별도 수정 Step 31a는 Pending이며 전체 자동 계획 완료를 의미하지 않는다.
 사용자가 기존 결함 4종의 최소 수정 요청에 “계속해”라고 응답했으므로 Step 31a의 수정 권한은 유지한다.
-모델 변경은 승인받지 않았으며, 재개 시 Step 30부터 순서대로 진행하고 step별 커밋한다.
+모델 설정은 유지한다. 구현 pane은 Step 30의 좁은 검사 후 인계하며, 전체 검사와 step별 커밋은 루트가 맡는다.
 
 ### Step 공통 완료 규칙
 

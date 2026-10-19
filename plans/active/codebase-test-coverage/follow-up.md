@@ -33,6 +33,8 @@ RLS assertion은 authenticated/anon 실제 역할로 실행해야 한다. 관리
 - [ ] 긴 청취 후 세션 갱신·저장 상태·완료 재조회/재시작을 확인한다.
 - [ ] 프로세스 재시작 또는 PWA 재로드 후 선택 복원을 확인한다.
 - [ ] 실제 카메라 권한 허용/거부, 후면 카메라 QR, 사진 업로드를 확인한다.
+- [ ] 설치형 PWA에서 360/390px 및 실제 글자 크기·소프트 키보드 상태의 긴 한국어 label/카드/등록·배정 폼/QR dialog를 확인한다. Step30 자동 DOM 검사는 고정 viewport와 합성 권한 거부이며 실기기 증거가 아니다.
+- [ ] 활동표 내부 가로 scroll과 문서 전체 넘침을 구분하고 TalkBack·하드웨어 키보드의 focus/조작을 실제 기기에서 확인한다.
 - [ ] 화면 회전·가상 키보드·긴 한국어 텍스트·좁은 dialog의 조작을 확인한다.
 - [ ] 온라인/오프라인 재진입과 SW 갱신 후 현재 fallback을 확인한다. 오프라인 완료 기능을 요구하지 않는다.
 - [ ] 실물 인쇄/PDF에서 주간표 출력 품질을 확인한다.
@@ -44,3 +46,18 @@ synthetic focus/visibility/pageshow, viewport 크기, mock camera 성공은 이 
 실제 Google OAuth 로그인·callback·logout·장시간 세션 갱신은 계정과 승인된 테스트 환경이 있을 때 수동 smoke 또는 별도 연동 검사로 수행한다. 자동 테스트에서는 OAuth 요청·callback 응답·쿠키 계약까지 확인한다.
 
 WebKit/Firefox 전체 검사나 기기별 시각 snapshot 매트릭스가 필요하면 제품 지원 범위를 먼저 정한다. 현재 자동 계획은 Chromium을 필수 엔진으로 사용한다.
+
+## Step30 모바일 양식 폭 — 승인된 Step30a로 해결
+
+이 항목은 실기기로 미룬 문제가 아니라 필수 자동 계약의4 RED였으며, 사용자 “그렇게 하자” 승인
+(2026-10-19) 후 동일source/assertion의21 PASS로 해결했다. 기준 `step30-final-source-red.log`의
+17 PASS/4 FAIL과 최종 `step30a-mobile-layout-green.log`21 PASS를 보존한다.
+
+모바일 grid의 자동 최소 크기, fieldset의 UA min-inline-size:min-content,
+picker 시리즈 filter/select의 고유338px 폭이 원인이었다. max1100px 구간에서만
+management-grid minmax(0,1fr), book-picker min-inline-size0, picker filter와 select의
+max-inline-size100%를 적용했다. 실제 등록 document는360/390/1280px 모두 viewport와 같고
+1280px의7개 회귀도 PASS다. 임시CSS 주입 probe와 중간 fixture/disabled 검사 오류는 제품GREEN에 합산하지 않는다.
+
+실제 Android 설치/소프트 키보드·글자크기·TalkBack/실카메라/외부앱복귀는 위 실기기 checklist에 남긴다.
+전체 Phase6 verify/browser gate는 독립 테스트 pane/루트가 수행한다.
