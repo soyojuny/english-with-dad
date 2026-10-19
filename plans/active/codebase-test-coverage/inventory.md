@@ -28,7 +28,7 @@
 | app/task-completion-feedback.tsx | `tests/components/task-completion-feedback.test.tsx` | idle/loading/error·CompletionRequestState pending/checking/uncertain/error/success/conflict·AudioReturnState error/conflict·목표 완료·실행 label·returnedAt 표시·callback, 20 Complete | C03 (UTC·Asia/Seoul focused 1 file/13 PASS 각각; root component 9 files/55 PASS + 기존 2 expected-fail, `verification-artifacts/step20-component-root-final.log`) |
 | app/activity-log-cell.tsx | `tests/components/activity-log-cell.test.tsx` | 빈 출력·type/category filter·자동 그룹 합계/메모·동일 제목의 분류 경계·책 요약의 제목 경계·직접 입력·수동 삭제, 20 Complete | C04·D08·U08 (root component 9 files/55 PASS + 기존 2 expected-fail) |
 | app/material-thumb.tsx | `tests/components/material-thumb.test.tsx` | 일반 image src/alt/class·단어 읽기 접근 가능한 ABC 대체·volume-only/level-only/empty meta, 20 Complete | C04 (root component 9 files/55 PASS + 기존 2 expected-fail; Q05 load fallback은 미확정) |
-| app/reading-manager-client.tsx | 오디오 브라우저 7개 흐름, profile/material client HTTP 15개 Complete; 배정 client HTTP 16개 Complete; Step 25 child completion 15 cases Complete; Step 26 report/manual browser Complete | 초기 로딩·프로필·자료·배정·학습·보고서·미디어·SW, 23–30 | U01/U02/U03/U04 기존 증거 보존·U05/U06/U07 (Step 25: `tests/browser/client/child-completion.spec.mjs` focused 15 PASS, root full client 53 PASS, audio wrapper 7 PASS; DB/RLS·Android·external app 제외)·U08/U09 (`tests/browser/client/parent-report.spec.mjs`: ordinary 15 PASS + U09-F07 expected-fail; final Standards/Spec 0/0)·M03 (`tests/browser/client/camera-upload.spec.mjs`: Step 28 Complete; 승인된 play 취소 guard로 M03-E07 2 FAIL → 2 PASS; 파일 독립 17 PASS, 전체 browser 95 ordinary PASS + 기존 expected-fail 1, verify exit 0)·P01 (`tests/browser/pwa/service-worker.spec.mjs`: 실제 등록/등록 거절 안내, 4 PASS; Step 29 Complete)·P02 (`tests/browser/client/mobile-layout.spec.mjs`: 실제 등록·배정·완료·QR 조작/양식 폭21 PASS, 30/30a Complete) |
+| app/reading-manager-client.tsx | 오디오 브라우저 7개 흐름, profile/material client HTTP 15개 Complete; 배정 client HTTP 16개 Complete; Step 25 child completion 15 cases Complete; Step 26 report/manual browser Complete | 초기 로딩·프로필·자료·배정·학습·보고서·미디어·SW, 23–30 | U01/U02/U03/U04 기존 증거 보존·U05/U06/U07 (Step 25: `tests/browser/client/child-completion.spec.mjs` focused 15 PASS, root full client 53 PASS, audio wrapper 7 PASS; DB/RLS·Android·external app 제외)·U08/U09 (`tests/browser/client/parent-report.spec.mjs`: ordinary 15 PASS + U09-F07은 당시 expected-fail, Step31a 일반 assertion GREEN; final Standards/Spec 0/0)·M03 (`tests/browser/client/camera-upload.spec.mjs`: Step 28 Complete; 승인된 play 취소 guard로 M03-E07 2 FAIL → 2 PASS; 파일 독립 17 PASS, 전체 browser 95 ordinary PASS + 기존 expected-fail 1, verify exit 0)·P01 (`tests/browser/pwa/service-worker.spec.mjs`: 실제 등록/등록 거절 안내, 4 PASS; Step 29 Complete)·P02 (`tests/browser/client/mobile-layout.spec.mjs`: 실제 등록·배정·완료·QR 조작/양식 폭21 PASS, 30/30a Complete) |
 | app/auth-panel.tsx | `tests/components/auth-panel.test.tsx` | OAuth/로컬 요청·가시성·오류, 18 Complete | A04 (A04-N01/N02/B01/E01–E06; root component 4 files/17 tests PASS, `verification-artifacts/step18-component-root-final.log`; 실제 Google/OAuth redirect/session persistence/DB/RLS 미검증) |
 | app/signed-in-shell.tsx | `tests/components/signed-in-shell.test.tsx` | logout·refresh·오류, 18 Complete | A04 (A04-N03/E07/E08; root component 4 files/17 tests PASS, `verification-artifacts/step18-component-root-final.log`; 실제 Google/OAuth redirect/session persistence/DB/RLS 미검증) |
 | app/page.tsx | `tests/browser/next/auth-feasibility.spec.mjs`; `tests/browser/next/auth-routes.spec.mjs` | 실제 Next 비로그인/로그인 SSR·미설정 설정 분기, 17 Complete | A03 (root Next browser 4 PASS, `verification-artifacts/step17-browser-next-root-final.log`; 로컬 Auth HTTP/합성 cookie 대역이며 실제 OAuth/JWT/session persistence/DB/RLS 미검증) |
@@ -142,7 +142,7 @@ store의 23개 함수는 위 개별 행에 대응한다. 나머지 export는 아
 | --- | --- | --- |
 | app/activity-log-cell.tsx | `ActivityLogCell` | C04·D08·U08 |
 | app/assignment-book-picker.tsx | `AssignmentBookPicker` | C01-N01/E01/E02·D06-N02/N03/E02 (Step 19 Complete) |
-| app/assignment-edit-form.tsx | `AssignmentEditForm` | C01-N02/N03/N04·C01-E03(빈 일반 책 영어 그림책 listen fallback `0`·quiz Y)·D06-E03/E04 (Step 19 Complete; 같은 quiz visibility 결함의 2 expected-fail 재현) |
+| app/assignment-edit-form.tsx | `AssignmentEditForm` | C01-N02/N03/N04·C01-E03(빈 일반 책 영어 그림책 listen fallback `0`·quiz Y)·D06-E03/E04 (Step 19 Complete; 당시 2 expected-fail → Step31a 일반 assertion GREEN) |
 | app/assignment-quiz-score.tsx | `AssignmentQuizScore` | C02-N01/N02·T01-E07 (Step 19 Complete; Step 03 회귀 보존) |
 | app/auth/callback/route.ts | `GET` | A02 |
 | app/auth/error/page.tsx | `AuthErrorPage` | A03 |
@@ -153,7 +153,7 @@ store의 23개 함수는 위 개별 행에 대응한다. 나머지 export는 아
 | app/reading-manager-client.tsx | `HomePage` | U01·U02·U03·U04·U05·U06·U07·U08·U09·M03·P02 |
 | app/signed-in-shell.tsx | `SignedInShell` | A04 |
 | app/task-completion-feedback.tsx | `TaskCompletionFeedback` | C03 |
-| app/use-child-assignment-selection.ts | `useChildAssignmentSelection` | H01·H03 (Step 21 Complete: storage/effect/rerender/action 16 scenarios; H01-F05/F06 expected-fail, unmount cleanup N/A) |
+| app/use-child-assignment-selection.ts | `useChildAssignmentSelection` | H01·H03 (Step 21 Complete: storage/effect/rerender/action 16 scenarios; H01-F05/F06은 Step31a에서 일반 assertion GREEN, unmount cleanup N/A) |
 | app/use-child-task-requests.ts | `useChildTaskRequests` | H02·H03·U07 (Step 22 Complete: `tests/hooks/use-child-task-requests.test.tsx`, focused hook 1 file, 22 PASS; full component 11 files, 91 PASS + 기존 expected-fail 4) |
 | lib/audio-return.ts | `createAudioReturnCoordinator` | S08·H03·U06 |
 | lib/child-task-policy.ts | `childSelectionStorageKey`, `resolveChildSelection`, `getTaskCompletionPolicy`, `mergeAudioLaunchSnapshot`, `mergeCompletionSnapshot` | D07·H01·H03·U06 |
@@ -198,3 +198,12 @@ store의 23개 함수는 위 개별 행에 대응한다. 나머지 export는 아
 Step31의 `tests/harness/helpers/script-fixture.mjs`는 test-only temp root/cwd·child 환경·timeout·cleanup과
 exact argv fakegit fixture를 제공한다. 제품source 커버리지 분모에 포함하지 않는다.
 신규 static-checks/plan-scripts/git-publish 세 파일의59개 focused PASS 증거는 `step31-focused-initial.log`다.
+
+## Step31a 현재 검증 — 2026-10-20
+
+과거 expected-fail 수치는 당시 실행 이력이다. 승인된 네 최소 제품 수정 뒤 다음이 현재 결과다.
+AssignmentEditForm D06-E03/E04와 useChildAssignmentSelection H01-F05/F06은 focused 두 파일22 PASS,
+auth/callback A02-B01 포함 파일6 PASS, ReadingManagerClient U09-F07은 부모 복귀 포함1 PASS다.
+총6 RED → 같은 assertion GREEN, 신규 skip/expected-fail 없음. callback `//next`는 `/`로 제한하며
+외부 open redirect 수정으로 해석하지 않는다. 명령/RED·GREEN 로그는 tasks/31a-existing-regressions.md에 연결한다.
+전체 suite/typecheck/build는 독립 검증 대기다.

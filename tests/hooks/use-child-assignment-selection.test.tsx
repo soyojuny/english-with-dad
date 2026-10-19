@@ -291,7 +291,7 @@ test("H01-F04: 유효하지 않은 사용자 요청 ID는 선택이나 storage�
   expect(setItem).not.toHaveBeenCalled();
 });
 
-test.fails("H01-F05: 다른 아동 ID 직접 선택은 callback과 storage를 바꾸지 않아야 한다", () => {
+test("H01-F05: 다른 아동 ID 직접 선택은 callback과 storage를 바꾸지 않아야 한다", () => {
   // Given
   const onSelect = vi.fn();
   sessionStorage.setItem(storageKey, "assignment-1");
@@ -313,7 +313,7 @@ test.fails("H01-F05: 다른 아동 ID 직접 선택은 callback과 storage를 �
   expect(sessionStorage.getItem(storageKey)).toBe("assignment-1");
 });
 
-test.fails("H01-F06: 다른 날짜 ID 직접 선택은 callback과 storage를 바꾸지 않아야 한다", () => {
+test("H01-F06: 다른 날짜 ID 직접 선택은 callback과 storage를 바꾸지 않아야 한다", () => {
   // Given
   const onSelect = vi.fn();
   sessionStorage.setItem(storageKey, "assignment-1");

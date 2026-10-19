@@ -61,3 +61,9 @@ max-inline-size100%를 적용했다. 실제 등록 document는360/390/1280px 모
 
 실제 Android 설치/소프트 키보드·글자크기·TalkBack/실카메라/외부앱복귀는 위 실기기 checklist에 남긴다.
 전체 Phase6 verify/browser gate는 독립 테스트 pane/루트가 수행한다.
+
+## Step31a 구현 인계 — 2026-10-20
+
+기존 네 결함/여섯 expected-fail은 승인된 최소 수정으로 일반 assertion GREEN이다.
+focused 22+6+1 PASS와 RED artifact는 tasks/31a-existing-regressions.md에 기록했다.
+독립 전체 suite/typecheck/build·최종 검토는 루트가 수행한다. 실제 DB/RLS/OAuth/실기기 범위는 확대하지 않았다.

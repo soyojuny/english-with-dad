@@ -333,7 +333,7 @@ test('U09-F04 실패: 주간 print 준비 조회가 실패하면 print 호출을
   assert.equal(await f.printCalls(), 0);
 });
 
-test('U09-F07 expected-fail: 출력 대기 중 아동 프로필로 전환하면 print timer를 취소한다', async ({ parentReport: f }) => {
+test('U09-F07 실패: 출력 대기 중 아동 프로필로 전환하면 print timer를 취소한다', async ({ parentReport: f }) => {
   // Given
   seedReport(f);
   await openParent(f.page);
@@ -346,18 +346,14 @@ test('U09-F07 expected-fail: 출력 대기 중 아동 프로필로 전환하면 
   await f.page.locator('#childTitle').waitFor();
   await f.page.clock.fastForward(120);
   const printCalls = await f.printCalls();
-  if (printCalls === 1) {
-    const [printed] = await f.printSnapshots();
-    assert.deepEqual(printed.stats, []);
-  }
+  // Then
+  assert.equal(printCalls, 0);
+
+  // When: 부모로 돌아와도 취소된 인쇄 요청은 되살리지 않는다.
+  await f.page.getByRole('button', { name: '프로필 관리', exact: true }).click();
+  await openParent(f.page);
+  await f.page.clock.fastForward(240);
 
   // Then
-  try {
-    assert.equal(printCalls, 0);
-  } catch (error) {
-    if (error?.code === 'ERR_ASSERTION' && error.actual === 1 && error.expected === 0) {
-      test.fail(true, '현재 print effect는 active profile 변경을 관찰하지 않아 아동 화면 전환 뒤에도 window.print를 호출한다.');
-    }
-    throw error;
-  }
+  assert.equal(await f.printCalls(), 0);
 });

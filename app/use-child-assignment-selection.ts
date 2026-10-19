@@ -37,7 +37,7 @@ export function useChildAssignmentSelection(options: {
   }, [storageKey, dataStatus, childId, date, assignments, selectedId, onSelect]);
 
   return (id: string) => {
-    if (!storageKey || dataStatus !== "ready" || !assignments.some((assignment) => assignment.id === id)) return;
+    if (!storageKey || dataStatus !== "ready" || !assignments.some((assignment) => assignment.id === id && assignment.childId === childId && assignment.date === date)) return;
     restoration.current = { key: storageKey, restored: true };
     onSelect(id);
     try { window.sessionStorage.setItem(storageKey, id); } catch { /* Keep the user's selection in memory. */ }

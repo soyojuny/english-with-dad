@@ -95,28 +95,16 @@ test("A02-N03: 외부 next는 기본 경로로 제한한다", async () => {
   expect(response.headers.get("location")).toBe("https://reading.invalid/");
 });
 
-test.fails("A02-B01: protocol-relative next는 기본 경로로 제한한다", async () => {
+test("A02-B01: protocol-relative next는 기본 경로로 제한한다", async () => {
   // Given
-  // 계약: protocol-relative next는 기본 "/"로 제한해야 한다.
-  let actualLocation: string | null = null;
+  const request = new NextRequest("https://reading.invalid/auth/callback?code=fixture-code&next=//outside.invalid/path");
 
-  try {
-    const request = new NextRequest("https://reading.invalid/auth/callback?code=fixture-code&next=//outside.invalid/path");
+  // When
+  const response = await GET(request);
 
-    // When
-    const response = await GET(request);
-
-    // Then
-    // 현재 결함 관찰: 외부 open redirect는 아니며 same-origin https://reading.invalid//outside.invalid/path를 반환한다.
-    expect(boundary.exchange).toHaveBeenCalledExactlyOnceWith("fixture-code");
-    expect(response.status).toBe(307);
-    expect(response.headers.get("cache-control")).toBe("private, no-store");
-    actualLocation = response.headers.get("location");
-    expect(actualLocation).toBe("https://reading.invalid//outside.invalid/path");
-  } catch {
-    // 이 관찰이 달라지면 callback은 성공으로 끝나 test.fails가 unexpected pass로 실패시킨다.
-    return;
-  }
-
-  expect(actualLocation).toBe("https://reading.invalid/");
+  // Then
+  expect(boundary.exchange).toHaveBeenCalledExactlyOnceWith("fixture-code");
+  expect(response.status).toBe(307);
+  expect(response.headers.get("cache-control")).toBe("private, no-store");
+  expect(response.headers.get("location")).toBe("https://reading.invalid/");
 });

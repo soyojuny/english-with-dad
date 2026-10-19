@@ -83,46 +83,26 @@ test("C01-E03: 빈 영어 그림책 일반 책 배정은 읽기 fallback 횟수�
   expect(quizControl.value).toBe("Y");
 });
 
-test.fails("D06-E03: 빈 기타학습 배정은 필사 fallback을 표시하고 퀴즈를 숨긴다", () => {
+test("D06-E03: 빈 기타학습 배정은 필사 fallback을 표시하고 퀴즈를 숨긴다", () => {
   // Given
-  // 계약: 빈 regular extraStudy의 copywork fallback에는 quiz control이 없어야 한다.
   const emptyCopyworkAssignment: Assignment = { ...assignment, activityCategory: "extraStudy", tasks: [], taskCounts: {}, quizEnabled: false };
-  let quizControl: HTMLSelectElement | null = null;
 
-  try {
-    // When
-    render(<AssignmentEditForm assignment={emptyCopyworkAssignment} book={regularBook} onCancel={vi.fn()} onSubmit={vi.fn()} />);
+  // When
+  render(<AssignmentEditForm assignment={emptyCopyworkAssignment} book={regularBook} onCancel={vi.fn()} onSubmit={vi.fn()} />);
 
-    // Then: fallback과 현재 결함 관찰은 계약 단언보다 먼저 고정한다.
-    expect(screen.getByRole<HTMLSelectElement>("combobox", { name: "필사" }).value).toBe("0");
-    quizControl = screen.getByRole<HTMLSelectElement>("combobox", { name: "퀴즈" });
-    expect(quizControl.value).toBe("N");
-  } catch {
-    // 관찰이 달라지거나 렌더가 실패하면 test.fails가 unexpected pass로 실패시킨다.
-    return;
-  }
-
-  expect(quizControl).toBeNull();
+  // Then
+  expect(screen.getByRole<HTMLSelectElement>("combobox", { name: "필사" }).value).toBe("0");
+  expect(screen.queryByRole("combobox", { name: "퀴즈" })).toBeNull();
 });
 
-test.fails("D06-E04: 빈 단어 읽기 배정은 단어 읽기 fallback을 표시하고 퀴즈를 숨긴다", () => {
+test("D06-E04: 빈 단어 읽기 배정은 단어 읽기 fallback을 표시하고 퀴즈를 숨긴다", () => {
   // Given
-  // 계약: 빈 wordReading extraStudy의 wordRead fallback에는 quiz control이 없어야 한다.
   const emptyWordAssignment: Assignment = { ...assignment, activityCategory: "extraStudy", tasks: [], taskCounts: {}, quizEnabled: false };
-  let quizControl: HTMLSelectElement | null = null;
 
-  try {
-    // When
-    render(<AssignmentEditForm assignment={emptyWordAssignment} book={wordBook} onCancel={vi.fn()} onSubmit={vi.fn()} />);
+  // When
+  render(<AssignmentEditForm assignment={emptyWordAssignment} book={wordBook} onCancel={vi.fn()} onSubmit={vi.fn()} />);
 
-    // Then: fallback과 현재 결함 관찰은 계약 단언보다 먼저 고정한다.
-    expect(screen.getByRole<HTMLSelectElement>("combobox", { name: "단어 읽기" }).value).toBe("0");
-    quizControl = screen.getByRole<HTMLSelectElement>("combobox", { name: "퀴즈" });
-    expect(quizControl.value).toBe("N");
-  } catch {
-    // 관찰이 달라지거나 렌더가 실패하면 test.fails가 unexpected pass로 실패시킨다.
-    return;
-  }
-
-  expect(quizControl).toBeNull();
+  // Then
+  expect(screen.getByRole<HTMLSelectElement>("combobox", { name: "단어 읽기" }).value).toBe("0");
+  expect(screen.queryByRole("combobox", { name: "퀴즈" })).toBeNull();
 });

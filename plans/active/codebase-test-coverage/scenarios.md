@@ -43,7 +43,7 @@
 | U06 | 외부 링크·복귀 | 열기/복귀는 자동 완료 아님·복귀 지연 시간·popup 실패 | 25 Complete | client browser | app/reading-manager-client.tsx; lib/audio-return.ts; lib/child-task-policy.ts | tests/browser/client/child-completion.spec.mjs; tests/browser/client/audio-completion.spec.mjs | persisted matching return, reload, exact 2 minutes and settled later duplicate blur/focus are covered; audio wrapper 7 PASS. DB/RLS·Android·external app excluded. |
 | U07 | 완료 복구 | 연타·저장 실패·응답 유실·결과 조회 실패·동일 요청 재시도 | 15·22·25 Complete | unit/hook/browser | app/reading-manager-client.tsx; lib/task-completion.ts; app/use-child-task-requests.ts | tests/hooks/use-child-task-requests.test.tsx; tests/browser/client/child-completion.spec.mjs | U07-F01 persists once, loses POST response, receives non-retryable result GET failure, exposes recovery controls, then rechecks successfully without another write. |
 | U08 | 부모 기록 | 주간 기본·월간/아동 전환·분류·합계·퀴즈 | 26 Complete | client browser | app/reading-manager-client.tsx; app/activity-log-cell.tsx | tests/browser/client/parent-report.spec.mjs | U08-N01/E01/E02/N02/N03: 주·월/연말 range query, 빈 7일 표/zero stats, child-2 positive 8분과 child-1 제외, copywork·quiz-only cell placement. 진행률 상한은 report DOM이 없으므로 D07/Step 08 `countAssignmentProgress` unit evidence에만 있다. |
-| U09 | 수동 기록·출력 | 추가/삭제 오류·print 준비/호출·기간 데이터 일치 | 26 Complete | client browser | app/reading-manager-client.tsx; styles.css | tests/browser/client/parent-report.spec.mjs | U09 parent/child add·delete, blank/save/delete/query failures, exact weekly print snapshot and media restoration. U09-F07 is one narrow product follow-up expected-fail: child profile is settled but pending print calls once (expected 0); product unchanged. |
+| U09 | 수동 기록·출력 | 추가/삭제 오류·print 준비/호출·기간 데이터 일치 | 26 Complete | client browser | app/reading-manager-client.tsx; styles.css | tests/browser/client/parent-report.spec.mjs | U09 parent/child add·delete, blank/save/delete/query failures, exact weekly print snapshot and media restoration. Step31a U09-F07 일반 assertion PASS: 아동 전환·부모 복귀 후 print 0회. |
 | M01 | 표지 | 960px 상한·확대 없음·JPEG 흰 배경·load/context 오류·URL 해제 | 27 Complete | DOM 경계/browser | lib/cover-image.ts | tests/components/cover-image.test.ts; tests/browser/client/qr-image.spec.mjs | Step 27: focused component 15 PASS; real browser 6 PASS. full 결과는 review.md; DB/실기기 제외. |
 | M02 | QR 판독 | 합성 QR의 실제 decode·반전·공백·없는 QR·0크기 | 27 Complete | DOM 경계/browser | lib/qr-reader.ts | tests/components/qr-reader.test.ts; tests/browser/client/qr-image.spec.mjs | Step 27: focused component 15 PASS; real browser 6 PASS. full 결과는 review.md; DB/실기기 제외. |
 | M03 | 카메라/업로드 | 필드 적용·권한/미지원·late stream·track/interval 정리 | 28 Complete | browser API 대역 | app/reading-manager-client.tsx | tests/browser/client/camera-upload.spec.mjs | Step 28 Complete: 승인된 play 취소 guard로 close/unmount 2 FAIL → 2 PASS; 파일 독립 17 PASS, 전체 browser 95 ordinary PASS + 기존 expected-fail 1, verify exit 0. 실제 카메라/DB/RLS 제외. |
@@ -97,7 +97,7 @@
 | D06-N02/N03/E02 | 일반 책 그림책→기타학습, 단어 읽기 | 자료별 활동 control 조회·변경 | 허용 category, listen/copywork/wordRead 기본 1회, stale task·quiz 제거, 단어 quiz 비표시 | assignment-book-picker.test.tsx::D06-N02/N03/E02 | normal/edge | Step 19 component PASS |
 | C01-N02/N03/N04 | 기존 assignment와 값 변경·취소 | edit form 표시·submit/cancel | name/value, 원래 assignment+변경 FormData, cancel | assignment-edit-form.test.tsx::C01-N02/N03/N04 | normal | Step 19 component PASS |
 | C01-E03 | 빈 일반 책 영어 그림책 assignment, `tasks: []`, `taskCounts: {}`, `quizEnabled: true` | edit form fallback 표시 | 읽기 fallback control name `assignmentCount:assignment-1:listen`/value `0`, quiz control name `assignmentQuiz:assignment-1`/value `Y` | assignment-edit-form.test.tsx::C01-E03 | edge | Step 19 component PASS |
-| D06-E03/E04 | 빈 regular extraStudy 및 빈 wordReading extraStudy assignment | edit form fallback 표시 | copywork/wordRead fallback, quiz 비표시 | assignment-edit-form.test.tsx::D06-E03/E04 | edge | Step 19 expected-fail: 같은 AssignmentEditForm quiz visibility 결함의 regular/wordReading 재현; 제품은 quiz control을 노출함 |
+| D06-E03/E04 | 빈 regular extraStudy 및 빈 wordReading extraStudy assignment | edit form fallback 표시 | copywork/wordRead fallback, quiz 비표시 | assignment-edit-form.test.tsx::D06-E03/E04 | edge | Step19 당시 expected-fail → Step31a 두 fallback quiz 비표시 일반 assertion PASS |
 | C02-N01/N02 | null/PASS/FAIL score의 quiz-only UI | 결과 click·rerender | PASS/FAIL callback 정확히 2회와 score별 primary 표시, null은 비선택 유지 | assignment-quiz-score.test.tsx::C02-N01/N02 | normal/edge | Step 19 component PASS |
 | T01-E07 | StrictMode의 assignmentId/callback 변경 rerender | FAIL click·unmount | 새 callback만 1회, 이전 callback 미호출, FAIL primary/PASS secondary, DOM 제거 | assignment-quiz-score.test.tsx::T01-E07 | edge | Step 03 증거 보존; Step 19 component PASS |
 | D07-N01 | 명시/legacy·completion count, cap/0 task, quiz pending/PASS/FAIL/disabled | 횟수·진행률 조회 | legacy 1/0, key별 count, 목표 cap·0%, 각 quiz 상태의 완료 범위 | tests/reading-calculations.test.ts::정상 입력: getAssignmentTaskCount는 명시 횟수를 우선한다; 경계값: getAssignmentTaskCount는 legacy task 존재를 1회로 fallback한다; 경계값: getAssignmentTaskCount는 배정되지 않은 task에 0을 반환한다; 정상 입력: getCompletionCount는 assignment:task 복합 key의 기록 횟수를 읽는다; 경계값: getCompletionCount는 기록 없는 task에 0을 반환한다; 경계값: countAssignmentProgress는 목표 초과 완료를 cap한다; 경계값: countAssignmentProgress는 0 task에 0%를 반환한다; quiz 상태별 4개 test | normal/edge | Step 08 최종 unit·contracts·diff check PASS; Standards/Spec 0 findings |
@@ -149,7 +149,7 @@
 | C02 | PASS/FAIL callback 및 선택 상태 | quiz 전용 task 없음·결과 null | 타입 밖 quiz 결과 강제 N/A; row 변환 S01 |
 | C03 | 상태 안내·role·callback | 목표 완료와 conflict·uncertain 표시 | error 상태에서 성공 안내 금지 |
 | C04 | group 합계·동일 제목 분류 경계·수동 delete·cover/alt/meta | 빈 로그·단어 대체 표시·volume-only/level-only/empty meta | 자동 로그 삭제 불가; 이미지 load 실패 정책 Q05 |
-| H01 | ready에서 저장된 유효 선택 복원 | loading 동안 보존·owner/child/date 변경 | storage 예외 안전 처리·삭제/다른 child/date 저장 ID fallback; H01-F05/F06은 callback scope 검증 누락 결함 expected-fail |
+| H01 | ready에서 저장된 유효 선택 복원 | loading 동안 보존·owner/child/date 변경 | storage 예외 안전 처리·삭제/다른 child/date 저장 ID fallback; H01-F05/F06은 Step31a child/date 직접 선택 guard 일반 assertion PASS |
 | H02 | pending/checking 15초에 uncertain | pending/checking 각각 14,999/15,000/15,001ms·StrictMode cleanup | Step 22 Complete: focused hook 1 file, 22 PASS; persisted/non-persisted pageshow와 네 listener 동일 callback cleanup PASS; full component 11 files, 91 PASS + 기존 expected-fail 4; phase 경계 `npm run verify` PASS, exit 0; 최종 Standards/Spec review 각각 0 findings |
 | H03 | 현재 scope 응답만 반영 | owner/child/date 전환 | Step 21 selection scope 전환 PASS; Step 22 Complete: H03-N01/E01–E06/F01–F03에서 owner-only와 assignment-ID-only rerender를 분리하고 request hook status/scope disposal, late save/fetch/prepared launch isolation 확인; 실제 DB/RLS·browser/PWA/실기기는 Step 25와 후속 범위 |
 | U01 | 아동/자료 생성 편집·검색·비활성 복원 | 빈/손상 profile·빈 목록·미완성 표지/링크·단어 자료·비활성 편집 | 빈 필수 필드/invalid URL 거부·아동/자료 저장 오류 성공 반영 없음; data URL 표지는 HTTP row/표시만 |
@@ -332,3 +332,15 @@ remote없는 temp init/status만 실행한다. t.after의 삭제/부재 assertio
 전체명령 `env -u NODE_TEST_CONTEXT node --test tests/harness/static-checks.test.mjs tests/harness/plan-scripts.test.mjs tests/harness/git-publish.test.mjs`
 59 PASS/exit0, `verification-artifacts/step31-focused-initial.log`. 기존 T01 unit-runner8과 Next config의
 build/Next 증거는 재사용하고 이번에 재실행하지 않았다. 전체harness/typecheck는 독립pane 담당이다.
+
+## Step31a RED → GREEN — 2026-10-20
+
+| 시나리오 | 동일 assertion 결과 | 근거 (`verification-artifacts/`) |
+| --- | --- | --- |
+| D06-E03/E04 | 필사/단어 읽기 fallback 표시·quiz 부재, 2 RED → PASS | `step31a-component-{red,green}.log` (파일 합계22 PASS) |
+| H01-F05/F06 | 다른 child/date 직접 선택 callback/storage 불변, 2 RED → PASS | 같은 component 로그 |
+| A02-B01 | protocol-relative next를 same-origin `/`로 제한, 1 RED → PASS | `step31a-callback-{red,green}.log` (파일6 PASS) |
+| U09-F07 | 대기 print 취소·부모 복귀 뒤 재출력 없음, 1 RED → PASS | `step31a-print-{red,green}.log` (1 PASS) |
+
+기존6 expected-fail은 모두 일반 assertion으로 전환했다. 정상/edge/invalid 기존 테스트도 좁은 파일 실행에서 유지했다.
+미확정 Q 정책과 데이터/schema는 변경하지 않았으며 독립 전체 검사는 대기다.

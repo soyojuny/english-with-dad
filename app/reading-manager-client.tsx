@@ -555,6 +555,10 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   }, [toast]);
 
   useEffect(() => {
+    if (activeProfile?.kind !== "parent") {
+      setWeeklyPrintRequested(false);
+      return undefined;
+    }
     if (
       !weeklyPrintRequested ||
       period !== "week" ||
@@ -570,7 +574,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     }, 120);
 
     return () => window.clearTimeout(timer);
-  }, [loadedParentActivityRangeKey, parentActivityRangeKey, parentPanel, period, weeklyPrintRequested]);
+  }, [activeProfile, loadedParentActivityRangeKey, parentActivityRangeKey, parentPanel, period, weeklyPrintRequested]);
 
   useEffect(() => {
     if (!activeProfile) return;

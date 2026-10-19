@@ -2,7 +2,27 @@
 
 ## Status
 
-Step01–31 및 승인된 Step30a Complete. GPT-6.1-Sol medium 유지. Step31 신규 59개와 기존 28개를 합친 독립 harness 87 PASS 및 정적 검사·최종 검토를 마쳤다. Step31a·32–33은 Pending이다.
+Step01–31 및 승인된 Step30a/31a Complete. GPT-6.1-Sol medium 유지.
+Step31a의 독립 전체 관련 suite·verify와 최종 검토를 마쳤다. Step32–33은 Pending이다.
+
+## Step31a Complete — 2026-10-20 (구현 focused 검증)
+
+루트 최종 확인: 독립 component 110 일반 PASS, server 33 일반 PASS, parent-report 16 일반 PASS,
+`verify`의 unit 276 PASS 및 contracts/SW/PWA/typecheck/build 모두 exit 0이다.
+로그는 `verification-artifacts/step31a-independent-{component,server,parent,verify}.log`다.
+이 실행의 expected-fail/skip은 0이며 기존 여섯 RED 로그를 보존했다. 독립 및 루트 최종
+Standards/Spec 검토는 각각 0 findings다. DB/RLS/OAuth·실기기는 검증하지 않았다.
+
+2026-10-19 일반 assertion 6 RED를 보존한 뒤 한도로 중단했으며, 사용자 재개 지시로 승인된 네 제품 파일만 최소 수정했다.
+extraStudy 편집 퀴즈 비표시, 직접 선택 child/date guard, callback `//next` → `/`, 부모 이탈 print timer/request 취소다.
+RED 테스트를 유지한 focused component 22 PASS/server callback 6 PASS/browser U09-F07 1 PASS, 각각 exit0이다.
+print는 아동 화면과 부모 복귀 후 print 0회를 모두 검증했다. 신규 skip/expected-fail 없음.
+명령과 RED/GREEN artifact는 [Step31a](tasks/31a-existing-regressions.md#execution-record)에 연결했다.
+`git diff --check` PASS. 기존 jsdom requestSubmit 진단은 남는다. 데이터/schema/미확정 정책은 바꾸지 않았다.
+전체 suite/typecheck/build 및 Standards/Spec 독립 검토는 이번 구현 결과로 주장하지 않으며 루트에 인계한다.
+Step31 이전 전체 PASS와 expected-fail 기록은 당시 이력이다. 현재 여섯 건은 정상 assertion GREEN이다.
+commit/push/Step32 구현 없음.
+
 
 ## Step31 Complete — 2026-10-19
 

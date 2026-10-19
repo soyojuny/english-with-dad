@@ -34,7 +34,7 @@ export function AssignmentEditForm({ assignment, book, onCancel, onSubmit }: Ass
             </select>
           </label>
         ))}
-        {!isCopyworkAssignment && (
+        {!isCopyworkAssignment && assignment.activityCategory !== "extraStudy" && (
           <label className="task-count-item">
             <span>퀴즈</span>
             <select name={`assignmentQuiz:${assignment.id}`} defaultValue={assignment.quizEnabled ? "Y" : "N"}>
