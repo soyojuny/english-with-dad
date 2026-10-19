@@ -2,9 +2,13 @@
 
 ## Status
 
-Step 25 Complete
+Step 26 Complete (Phase 5 verification complete; see `verification-artifacts/step26-handoff.md`)
 
-Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 01–25는 Complete, Step 26–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
+## Step 26 Complete — 2026-10-19
+
+제품 코드는 변경하지 않았다. `tests/browser/client/parent-report.spec.mjs`와 strict parent HTTP fixture를 추가했다. final focused는 `verification-artifacts/step26-focused-root-final.log`에서 ordinary 15 PASS + U09-F07 1 expected-fail(exit 0; Playwright summary 16 passed)다. U09-F07은 아동 화면 전환이 완료된 뒤에도 대기 print가 1회 호출되는 정확한 `1 !== 0`만 허용하며, 다른 setup/selector/network 실패는 통과로 바꾸지 않는다. 이는 제품 미수정 follow-up이다. print 정상 경로는 월간 전용 기록이 week fetch 뒤 사라지고 5건/20분/2권/7일이 된 뒤 at-call snapshot을 검사한다. print 준비 실패 재검사는 `step26-print-failure-root-final.log`에서 1 PASS다. full client HTTP는 ordinary 68 PASS + U09-F07 1 expected-fail, audio wrapper는 7 PASS다. root Phase 5 gate는 verify exit 0 (`verification-artifacts/step26-verify-root-final.log`: contracts/SW/PWA/unit 17/typecheck/build) 및 component 11 files/91 PASS + 기존 component expected-fail 4 (`verification-artifacts/step26-component-root-final.log`)다. Standards/Spec final review는 0/0이다. 실제 DB/RLS/OAuth, 물리 출력, Android는 범위 밖이다.
+
+Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 01–26은 Complete, Step 27–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
 
 ## Step 25 Complete — 2026-10-19
 
@@ -160,7 +164,7 @@ focused component 결과는 `verification-artifacts/step22-focused-root-final.lo
 | 5 | 23 프로필·자료 등록과 관리 흐름 | Complete | focused profile/material 15 PASS (`verification-artifacts/step23-focused-root-final.log`); full client HTTP 22 PASS (`verification-artifacts/step23-client-root-final.log`); audio-only wrapper 7 PASS (`verification-artifacts/step23-audio-root-final.log`); typecheck/contracts/build PASS (`verification-artifacts/step23-typecheck-root-final.log`, `verification-artifacts/step23-contracts-root-final.log`, `verification-artifacts/step23-build-root-final.log`); `git diff --check` PASS. 최종 Standards/Spec review 각각 0 findings, 신규 제품 결함·expected-fail 없음. `npm run verify`는 Phase 5 종료가 아니므로 미실행. |
 | 5 | 24 배정 생성·갱신·편집·삭제 흐름 | Complete | focused browser 16 PASS (`verification-artifacts/step24-focused-root-final.log`); full client 38 PASS (`verification-artifacts/step24-client-root-final.log`); audio wrapper 7 PASS (`verification-artifacts/step24-audio-root-final.log`). focused `./node_modules/.bin/tsc -p tsconfig.test.json && node .test-build/tests/reading-data.test.js` 5 cases PASS (`verification-artifacts/step24-cache-unit-root-final.log`); full `npm run test:unit` 17 files PASS (`verification-artifacts/step24-unit-root-final.log`). contracts/typecheck/build PASS (`verification-artifacts/step24-contracts-root-final.log`, `verification-artifacts/step24-typecheck-root-final.log`, `verification-artifacts/step24-build-root-final.log`); `git diff --check` PASS. Standards/Spec review 각각 0 findings. 제품 동작은 변경하지 않았고 삭제 상태 전이는 순수 lib helper로 추출해 기존 UI 흐름에 연결했다. 실제 DB upsert conflict/cascade/RLS는 미검증이며 U03-F02는 documented contract-level unreachable guard다. 새 제품 결함·expected-fail 없음; Phase 5는 Step 26에 끝나므로 `npm run verify`는 실행하지 않았다. |
 | 5 | 25 아동 학습과 완료·퀴즈 흐름 | Complete | root focused 15/full client 53 PASS, audio 7 보존, unit 17 PASS; contracts/typecheck/build/PWA/diff PASS (root final logs). Standards/Spec code review 각각 0 findings, 제품 변경 없음. DB/RLS/OAuth/Android/external popup 제외; Phase 5 Step 26 전까지 `npm run verify` 보류. |
-| 5 | 26 부모 활동표·수동 기록·출력 | Pending | 미실행 |
+| 5 | 26 부모 활동표·수동 기록·출력 | Complete | final focused ordinary 15 PASS + U09-F07 1 expected-fail (`verification-artifacts/step26-focused-root-final.log`), print failure 1 PASS (`step26-print-failure-root-final.log`); full client ordinary 68 PASS + same expected-fail; audio 7 PASS. Phase 5 verify exit 0 and component 11 files/91 PASS + existing expected-fail 4. Standards/Spec 0/0. Product cancellation defect remains follow-up; DB/RLS/OAuth/physical print/Android excluded. |
 | 6 | 27 표지 압축과 QR 이미지 판독 | Pending | 미실행 |
 | 6 | 28 카메라·QR 입력 수명주기 | Pending | 미실행 |
 | 6 | 29 서비스워커 캐시의 실행 동작 | Pending | 미실행 |

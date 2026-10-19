@@ -125,6 +125,24 @@ export const test = base.extend({
       await testInfo.attach('requests', { path: requestsPath, contentType: 'application/json' });
     }
   },
+  parentReport: async ({ context, page, clientServer }, use, testInfo) => {
+    const guard = await guardBrowser(context, [clientServer.origin, 'http://127.0.0.1:54321']);
+    let fixture;
+    try {
+      fixture = await parentReportFixture(context, page, clientServer.origin, guard);
+      await use(fixture);
+      guard.verify();
+      expect(clientServer.unexpected, 'Unexpected client server request').toEqual([]);
+    } catch (error) {
+      if (!page.isClosed()) await page.screenshot({ path: testInfo.outputPath('fixture-failed.png'), fullPage: true });
+      throw error;
+    } finally {
+      await mkdir(testInfo.outputDir, { recursive: true });
+      const requestsPath = testInfo.outputPath('requests.json');
+      await writeFile(requestsPath, JSON.stringify({ requests: guard.requests, fixture: fixture?.requests ?? [] }, null, 2));
+      await testInfo.attach('requests', { path: requestsPath, contentType: 'application/json' });
+    }
+  },
 });
 export { expect };
 
@@ -366,6 +384,120 @@ async function childCompletionFixture(context, page, origin, guard) {
     releaseCompletion() { holdCompletion = false; releaseCompletion?.(); },
     loseCompletionResponse() { loseCompletionResponse = true; },
     failNextCompletionCheck() { remainingCompletionCheckFailures++; },
+  };
+}
+
+async function parentReportFixture(context, page, origin, guard) {
+  await page.clock.install({ time: new Date('2026-10-17T15:00:00.000Z') }); // Load at 2026-10-18 in Asia/Seoul, then freeze it.
+  const state = { children: [], books: [], assignments: [], completions: [], audio_launches: [], manual_logs: [] };
+  const requests = [];
+  const failures = new Set();
+  let nextManualId = 1;
+  await page.addInitScript(() => {
+    window.__ewdPrintCalls = 0;
+    window.__ewdPrintSnapshots = [];
+    window.print = () => {
+      window.__ewdPrintCalls++;
+      window.__ewdPrintSnapshots.push({
+        subtitle: document.querySelector('.print-only.report-subtitle')?.textContent ?? '',
+        stats: [...document.querySelectorAll('.stats-grid strong')].map((item) => item.textContent ?? ''),
+        dates: [...document.querySelectorAll('.activity-table tbody tr td:first-child')].map((cell) => cell.textContent ?? ''),
+        cells: [...document.querySelectorAll('.activity-table tbody tr td')].map((cell) => cell.textContent ?? ''),
+      });
+    };
+    window.confirm = () => true;
+  });
+  const rules = {
+    'children:GET': { select: ['exact'], owner_user_id: ['eq'], order: ['exact'] },
+    'assignments:GET': { select: ['exact'], owner_user_id: ['eq'], child_id: ['eq'], date: ['gte', 'lte', 'eq'], order: ['exact'] },
+    'books:GET': { select: ['exact'], owner_user_id: ['eq'], id: ['in'] },
+    'completions:GET': { select: ['exact'], owner_user_id: ['eq'], assignment_id: ['in'] },
+    'audio_launches:GET': { select: ['exact'], owner_user_id: ['eq'], assignment_id: ['in'] },
+    'manual_logs:GET': { select: ['exact'], owner_user_id: ['eq'], date: ['gte', 'lte'], order: ['exact'] },
+    'manual_logs:POST': { select: ['exact'] },
+    'manual_logs:DELETE': { select: ['exact'], owner_user_id: ['eq'], id: ['eq'] },
+  };
+  const required = {
+    'children:GET': ['select', 'owner_user_id', 'order'],
+    'assignments:GET': ['select', 'owner_user_id', 'date', 'order'],
+    'books:GET': ['select', 'owner_user_id', 'id'],
+    'completions:GET': ['select', 'owner_user_id', 'assignment_id'],
+    'audio_launches:GET': ['select', 'owner_user_id', 'assignment_id'],
+    'manual_logs:GET': ['select', 'owner_user_id', 'date', 'order'],
+    'manual_logs:POST': ['select'],
+    'manual_logs:DELETE': ['select', 'owner_user_id', 'id'],
+  };
+  const matches = (row, query) => [...query].every(([key, value]) => {
+    if (['select', 'order'].includes(key)) return true;
+    if (value.startsWith('eq.')) return String(row[key]) === value.slice(3);
+    if (value.startsWith('gte.')) return String(row[key]) >= value.slice(4);
+    if (value.startsWith('lte.')) return String(row[key]) <= value.slice(4);
+    if (value.startsWith('in.')) return value.slice(3).replace(/^\(|\)$/g, '').split(',').includes(String(row[key]));
+    return false;
+  });
+  const allowedQuery = (table, method, entries) => {
+    const rule = rules[`${table}:${method}`];
+    const keys = new Set(entries.map(([key]) => key));
+    return rule && required[`${table}:${method}`].every(key => keys.has(key)) && entries.every(([key, value]) => {
+      const operations = rule[key];
+      return operations && (operations.includes('exact')
+        ? ['select', 'order'].includes(key)
+        : operations.some(operation => value.startsWith(`${operation}.`)));
+    });
+  };
+  await page.route('http://127.0.0.1:54321/**', async route => {
+    const request = route.request();
+    const url = new URL(request.url());
+    const table = url.pathname.replace('/rest/v1/', '');
+    const method = request.method();
+    const query = [...url.searchParams.entries()];
+    const headers = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' };
+    const body = request.postDataJSON() ?? null;
+    if (!allowedQuery(table, method, query)) {
+      guard.unexpected.push(`${method} ${request.url()}`);
+      return route.fulfill({ status: 500, headers, body: JSON.stringify({ message: 'Unexpected parent report fixture request' }) });
+    }
+    requests.push({ method, path: url.pathname, query, body });
+    if (failures.has(`${table}:${method}`) || failures.has(table)) {
+      return route.fulfill({ status: 400, headers, body: JSON.stringify({ message: `${table} 테스트 실패`, code: 'TEST_FAILURE' }) });
+    }
+    let data = [];
+    if (method === 'GET') {
+      data = state[table].filter(row => matches(row, url.searchParams));
+      if (table === 'assignments' && url.searchParams.has('child_id')) data = data.map(row => ({
+        ...row,
+        book: state.books.find(book => book.id === row.book_id) ?? null,
+        completions: state.completions.filter(completion => completion.assignment_id === row.id),
+        audioLaunches: state.audio_launches.filter(launch => launch.assignment_id === row.id),
+      }));
+    }
+    if (table === 'manual_logs' && method === 'POST') {
+      const row = { id: `manual-${nextManualId++}`, ...body };
+      state.manual_logs.push(row); data = [row];
+    }
+    if (table === 'manual_logs' && method === 'DELETE') {
+      const target = state.manual_logs.filter(row => matches(row, url.searchParams));
+      state.manual_logs = state.manual_logs.filter(row => !target.includes(row)); data = target.map(row => ({ id: row.id }));
+    }
+    const object = (request.headers().accept ?? '').includes('vnd.pgrst.object');
+    await route.fulfill({ status: 200, headers, body: JSON.stringify(object ? (data[0] ?? null) : data) });
+  });
+  await page.goto(origin);
+  await page.clock.pauseAt(new Date('2026-10-17T15:01:00.000Z'));
+  return {
+    page, state, requests,
+    seed({ children = [], books = [], assignments = [], completions = [], audio_launches = [], manual_logs = [] }) {
+      state.children.push(...children.map(row => ({ owner_user_id: 'owner-1', ...row })));
+      state.books.push(...books.map(row => ({ owner_user_id: 'owner-1', active: true, content_type: 'book', series: '', title: '', volume: '', level: '', cover: '', audio_listen: '', audio_shadow: '', note: '', ...row })));
+      state.assignments.push(...assignments.map(row => ({ owner_user_id: 'owner-1', tasks: [], task_counts: {}, quiz_enabled: false, quiz_score: null, ...row })));
+      state.completions.push(...completions.map(row => ({ owner_user_id: 'owner-1', ...row })));
+      state.audio_launches.push(...audio_launches.map(row => ({ owner_user_id: 'owner-1', ...row })));
+      state.manual_logs.push(...manual_logs.map(row => ({ owner_user_id: 'owner-1', ...row })));
+    },
+    fail(key) { failures.add(key); }, recover(key) { failures.delete(key); },
+    writes(table) { return requests.filter(request => request.path === `/rest/v1/${table}` && request.method !== 'GET'); },
+    printCalls() { return page.evaluate(() => window.__ewdPrintCalls); },
+    printSnapshots() { return page.evaluate(() => window.__ewdPrintSnapshots); },
   };
 }
 
