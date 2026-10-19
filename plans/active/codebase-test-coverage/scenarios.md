@@ -343,4 +343,26 @@ build/Next 증거는 재사용하고 이번에 재실행하지 않았다. 전체
 | U09-F07 | 대기 print 취소·부모 복귀 뒤 재출력 없음, 1 RED → PASS | `step31a-print-{red,green}.log` (1 PASS) |
 
 기존6 expected-fail은 모두 일반 assertion으로 전환했다. 정상/edge/invalid 기존 테스트도 좁은 파일 실행에서 유지했다.
-미확정 Q 정책과 데이터/schema는 변경하지 않았으며 독립 전체 검사는 대기다.
+미확정 Q 정책과 데이터/schema는 변경하지 않았다. Step31a 독립 component110/server33/parent16 및
+verify가 통과했고, Step32 verify:all에서도 모든 회귀가 일반 PASS다.
+
+## Step32 T08 통합 gate / 분리 coverage — 2026-10-20
+
+| 시나리오 | Given → When → Then | 테스트/결과 |
+| --- | --- | --- |
+| T08-N01 (3 modes) | temp npm CLI → 고정 fast/all/coverage → 순서·Asia/Seoul·NODE_TEST_CONTEXT 제거 | verification-gates.test.mjs, PASS |
+| T08-F01/F02 | 중간 suite23/잘못된 mode → 실행 → exit전달·뒤 suite/전체 suite 미실행 | 같은 파일 PASS |
+| T08-E01 | 미import source0/타입 전용 제외 → inventory 검사 → 0 보고와 현재 source 일치 허용 | 같은 파일 PASS; 실제 보고서 audit도 별도 확보 |
+| T08-F03 | 새 runtime source가 report누락 → 검사 → nonzero | 같은 파일 PASS |
+| T08-E02 | source가 report0이지만 baseline 밖 → 검사 → baseline review required nonzero | 같은 파일 PASS |
+| T08-F04 | baseline보다 branch 미실행 증가 → 검사 → nonzero | 같은 파일 PASS |
+| T08-F05/F06 | 기존 baseline/키 누락 → record/check → 덮어쓰기·잘못된 layer/metric 거부 | 같은 파일 PASS |
+| T01 기존8개 | 새 root/nested test·삭제·assert/compile실패 → unit runner → 실제 발견/정리/nonzero | unit-runner.test.mjs 재사용8 PASS, sourcemap 존재 확인 추가 |
+
+합계 focused20 PASS(fail/skip/todo/cancelled0), `step32-focused-harness.log`.
+실제 coverage 재실행 unit276/component110/server33 및 baseline PASS, `step32-coverage-final.log`.
+unit14/component31/server31 원본 source이며 SW도 0 노출; 실행 계층별 수치를 합산하지 않는다.
+source disabled-marker0·실제 미import0·unit V8 실행 부재·보고서 제외를 `step32-coverage-audit.log`에 기록했다.
+독립 fast24.83초/all258.86초/coverage15.28초 모두 exit 0이다. unit276/component110/server33/
+harness99/browser121 전부 일반 PASS, runtime/source skip/todo/expected-fail 0과 baseline 불변을 확인했다.
+로그는 `verification-artifacts/step32-independent-{fast,all,coverage,audit}.log`다.

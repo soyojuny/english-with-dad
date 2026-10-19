@@ -207,3 +207,26 @@ auth/callback A02-B01 포함 파일6 PASS, ReadingManagerClient U09-F07은 부�
 총6 RED → 같은 assertion GREEN, 신규 skip/expected-fail 없음. callback `//next`는 `/`로 제한하며
 외부 open redirect 수정으로 해석하지 않는다. 명령/RED·GREEN 로그는 tasks/31a-existing-regressions.md에 연결한다.
 전체 suite/typecheck/build는 독립 검증 대기다.
+
+## Step32 검증 gate / source coverage (2026-10-20, 독립 검증 완료)
+
+| 운영/검증 파일 | 책임·증거 |
+| --- | --- |
+| scripts/run-verification.mjs | 고정 fast/all/coverage 순차 실행·TZ·실패 중단·시간; T08-N01/F01/F02 temp npm CLI |
+| scripts/run-unit-tests.mjs, tsconfig.test.json | 기존 unit discovery/failure 8회귀 재사용·source map emit·c8 원본 TS 보고 |
+| vitest.component.config.ts / vitest.server.config.ts | 동일 provider5.0.4·include로 미import source 포함·각각31 source와 별도 보고 |
+| scripts/check-coverage.mjs | 원본 source inventory·파일별 실측 미실행 baseline; T08-E01/E02/F03–F06 |
+| tests/coverage-baseline.json | Node22.23.2/c8 12.0.0/Vitest5.0.4 실측; 키/정수·새 source·후퇴 검사, 검토 없이 갱신하지 않음 |
+| public/sw.js | 두 Vitest 보고서에 0% 포함. 실제 실행은 Step29 harness/PWA 근거이며 수치에 합산하지 않음 |
+| package.json / package-lock.json | 기존 verify 보존, verify:fast/all/test:coverage 연결·provider 버전 일치 |
+
+unit lib runtime14파일, component/server app/lib/middleware/SW31파일이다.
+순수 타입 `lib/reading-types.ts`/declarations, tests/helpers, generated JS/maps, dependencies는 수치 제외한다.
+config/scripts는 기존 harness와 build/Next 증거, static manifest/assets는 check:pwa/browser 증거로 구분한다.
+미import Supabase client(unit)·SW(Vitest)의 실제 report0 및 V8 실행 부재/예상 제외는 `step32-coverage-audit.log`다.
+source map 원본 경로 및 source 전수 목록을 check:coverage가 확인한다. 기존 coverage/ ignore 유지.
+초기 focused20 PASS, coverage276/110/33 PASS·baseline PASS(11.50초).
+보고서 JSON/HTML/summary는 coverage/{unit,component,server}/, 로그는 step32-coverage-final.log다.
+독립 fast24.83초/all258.86초/coverage15.28초 모두 exit 0이다. unit276/component110/server33/
+harness99/browser121 모두 일반 PASS, skip/todo/expected-fail 0 및 baseline 불변을 확인했다.
+최신 증거는 `verification-artifacts/step32-independent-{fast,all,coverage,audit}.log`다.

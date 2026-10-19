@@ -177,8 +177,14 @@ Step31은 신규59개를 포함한 독립 harness87 PASS와 typecheck/contracts/
 `26c4295`로 커밋했다. Step31a는 2026-10-19 여섯 일반 assertion RED 보존 후 한도로 중단했고,
 2026-10-20 사용자 재개 지시에 따라 승인된 네 제품 최소 수정과 동일 assertion GREEN을 완료했다.
 focused component22/server callback6/print1 PASS, diff-check PASS다. Step31a 구현 Complete이며
-전체 suite/typecheck/build·독립 최종 검토는 루트 인계 대기다. Step32–33은 Pending이다.
-모델 설정은 유지한다. 구현 pane은 커밋·push·Step32 착수 없이 대기한다.
+Step31a는 독립 component110/server33/parent16 및 verify unit276/typecheck/build PASS와 최종 검토 뒤
+`dae764b`로 커밋했다. 모델 설정을 유지하며 Step32의 독립 검증도 마쳤다. Step33은 Pending이다.
+
+Step32는 기존 verify 보존·고정 순차 fast/all·분리 coverage 구현과 focused20/coverage276·110·33 PASS를 확보했다.
+실측 파일별 baseline과 source 누락/새파일/후퇴 거부를 확인했다. 2026-10-20 root 지시로 source/config/baseline을
+동결한 뒤 독립 verify:fast(24.83초) → verify:all(258.86초) → test:coverage(15.28초)를 모두 exit 0으로
+완료했다. 일반 PASS는 unit276/component110/server33/harness99/browser121이며 skip/todo/expected-fail은 0이다.
+Step32는 Complete, Step33은 Pending이다. 원본14/31/31 source와 baseline 불변도 독립 감사했다.
 
 ### Step 공통 완료 규칙
 

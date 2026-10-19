@@ -257,6 +257,56 @@ npm run typecheck
 npm run build
 ```
 
+## 통합 검증과 분리 coverage (Step32)
+
+기존 `npm run verify`는 contracts → SW syntax → PWA → unit → typecheck → build를 그대로 유지한다.
+새 명령은 고정된 순서로 자식 npm CLI를 실행하며 첫 실패 exit를 전달하고 이후 suite는 실행하지 않는다.
+각 단계/전체 경과 시간을 출력한다. `TZ=Asia/Seoul`과 `NODE_TEST_CONTEXT` 제거를 자식에 적용한다.
+unit 단독 runner와 Vitest config에도 같은 TZ를 적용한다. browser context는 기존 Asia/Seoul 설정을 쓴다.
+
+| 명령 | 실제 포함 범위 |
+| --- | --- |
+| `npm run verify:fast` | contracts/SW/PWA → unit → component → server → harness → typecheck; build/browser 제외 |
+| `npm run verify:all` | 기존 verify(unit/typecheck/build 포함) → component → server → harness → 전체 browser(client-http/next-auth-http/next-pwa) |
+| `npm run test:coverage` | unit c8 → component V8 → server V8 → source inventory/baseline 검사; 세 보고서는 합치지 않음 |
+| `npm run check:coverage` | 이미 생성된 세 보고서의 원본 source 발견·파일별 baseline 검사 |
+
+`verify:all`은 coverage 측정 대신 모든 실행 계층을 검증한다. coverage는 별도 명령이다.
+unit은 `tsconfig.test.json`의 sourceMap/inlineSources emit을 c8 12.0.0으로 원본 TS에 remap한다.
+c8 `--all --src .test-build/lib --include **/lib/**`로 미import lib도 포함한다.
+Vitest와 provider는 모두 정확히 5.0.4이며 `coverage.include`를 사용한다(`coverage.all` 없음).
+[Vitest 공식 coverage 안내](https://vitest.dev/guide/coverage.html#including-and-excluding-files-from-coverage-report),
+[c8 공식 all/source-map 안내](https://github.com/bcoe/c8#checking-for-full-source-coverage-using---all)를
+로컬 CLI help/types와 함께 확인했다.
+
+| 보고서 | 대상 | 제외와 이유 |
+| --- | --- | --- |
+| `coverage/unit/` | `lib/**/*.ts` runtime 14파일 | app/SW는 이 runner에서 컴파일·실행하지 않으며 두 Vitest 보고서로 공백을 노출 |
+| `coverage/component/`, `coverage/server/` | 각 app TS/TSX·lib TS·middleware.ts·public/sw.js, 현재31파일 | 서로 다른 환경의 계층별 실행 수치; 미import source도 0으로 포함 |
+| 공통 제외 | `.d.ts`, 순수 타입만 있는 `lib/reading-types.ts`, tests/helpers, generated JS/maps, dependency/config/script/assets | runtime source가 아님 또는 별도 harness/build/manifest 검증 책임. SW runtime은 제외하지 않음 |
+
+각 디렉터리에 `coverage-final.json`, `coverage-summary.json`, HTML `index.html`, 실행 로그의 text 표가 나온다.
+기존 `.gitignore`의 `coverage/`가 산출물을 제외한다. test:unit과 test:coverage:unit은 `.test-build`를,
+Next browser와 build는 `.next`를 공유하므로 같은 작업 트리에서 검증 명령을 병렬 실행하지 않는다.
+SW는 두 Vitest 보고서에서 0%이며 실제 동작 검증은 Step29 worker harness/PWA browser 증거다.
+HTTP/browser/harness 통과를 TS/TSX 수치에 합산하지 않는다.
+
+`tests/coverage-baseline.json`은 Node22.23.2에서 실제 측정한 계층/파일별 미실행 statement/function/branch 수다.
+임의 퍼센트 gate를 두지 않는다. 기존 파일의 미실행 수가 baseline보다 늘면 nonzero다.
+현재 source가 보고서에 없거나 baseline 밖 새 파일이면 nonzero로 검토를 요구한다.
+source 삭제는 허용하며 layer/metric 키 및 비음수 정수 count를 검사한다.
+`--record`는 baseline이 없을 때만 최초 기록하고 기존 파일을 덮어쓰지 않는다.
+새 파일/도구/Node 버전/카운터 형태 변경에 따른 갱신은 source·시나리오·보고서와 baseline diff를 함께 검토한다.
+개선된 수치로 baseline을 조일 수 있지만 실패를 통과시키기 위한 자동 갱신은 하지 않는다.
+동일 미실행 개수로 실행 위치가 바뀌는 회귀는 이 count gate만으로 검출할 수 없어 시나리오 assertion을 유지한다.
+
+2026-10-20 WSL/Node22.23.2 독립 실측은 `verify:fast` 24.83초, `verify:all` 258.86초,
+`test:coverage` 15.28초이며 모두 exit 0이다. all 안의 기존 verify는 30.06초, browser는 202.35초였다.
+unit276/component110/server33/harness99/browser121은 모두 일반 PASS, skip/todo/expected-fail 0이다.
+시간은 이 환경의 참고치이며 단계별 실측은 `verification-artifacts/step32-independent-*.log`에 보존한다.
+독립 coverage도 원본14/31/31 source와 미import0 항목, baseline PASS를 확인했다.
+실제 DB/RLS/OAuth·실기기는 이 자동 gate 범위에 포함하지 않는다.
+
 ## 오디오 완료 화면 회귀 테스트
 
 `npm run test:audio-browser`는 실제 `ReadingManagerClient`를 모바일 폭 Chromium에서

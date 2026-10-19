@@ -9,6 +9,8 @@
     "outDir": ".test-build",
     "rootDir": ".",
     "incremental": false,
+    "sourceMap": true,
+    "inlineSources": true,
     "types": ["node"],
     "plugins": []
   },

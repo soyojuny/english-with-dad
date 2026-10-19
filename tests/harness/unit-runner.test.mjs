@@ -65,6 +65,7 @@ test("T01-N01: 새 루트 단위 테스트를 명령 한 번으로 컴파일하�
   assert.equal(result.status, 0, result.output);
   assert.match(result.output, /new-unit-discovered/);
   assert.ok(existsSync(join(f.root, ".test-build/tests/new.test.js")));
+  assert.ok(existsSync(join(f.root, ".test-build/lib/reading-calculations.js.map")));
 });
 
 test("T01-E01: tests/unit의 중첩 디렉터리 테스트를 발견한다", (t) => {

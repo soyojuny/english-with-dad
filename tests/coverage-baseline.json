@@ -1,0 +1,388 @@
+{
+  "unit": {
+    "lib/audio-return.ts": {
+      "statements": 3,
+      "functions": 0,
+      "branches": 10
+    },
+    "lib/child-task-policy.ts": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "lib/cover-image.ts": {
+      "statements": 43,
+      "functions": 1,
+      "branches": 1
+    },
+    "lib/qr-reader.ts": {
+      "statements": 21,
+      "functions": 1,
+      "branches": 1
+    },
+    "lib/reading-calculations.ts": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 3
+    },
+    "lib/reading-data.ts": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "lib/reading-drafts.ts": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "lib/reading-period.ts": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "lib/supabase/client.ts": {
+      "statements": 8,
+      "functions": 1,
+      "branches": 1
+    },
+    "lib/supabase/config.ts": {
+      "statements": 25,
+      "functions": 1,
+      "branches": 1
+    },
+    "lib/supabase/middleware.ts": {
+      "statements": 39,
+      "functions": 1,
+      "branches": 1
+    },
+    "lib/supabase/reading-store.ts": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 9
+    },
+    "lib/supabase/server.ts": {
+      "statements": 25,
+      "functions": 1,
+      "branches": 1
+    },
+    "lib/task-completion.ts": {
+      "statements": 3,
+      "functions": 0,
+      "branches": 7
+    }
+  },
+  "component": {
+    "app/activity-log-cell.tsx": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 6
+    },
+    "app/assignment-book-picker.tsx": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 9
+    },
+    "app/assignment-edit-form.tsx": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 1
+    },
+    "app/assignment-quiz-score.tsx": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "app/auth-panel.tsx": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "app/auth/callback/route.ts": {
+      "statements": 19,
+      "functions": 1,
+      "branches": 10
+    },
+    "app/auth/error/page.tsx": {
+      "statements": 1,
+      "functions": 1,
+      "branches": 0
+    },
+    "app/layout.tsx": {
+      "statements": 3,
+      "functions": 1,
+      "branches": 0
+    },
+    "app/material-thumb.tsx": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 1
+    },
+    "app/page.tsx": {
+      "statements": 9,
+      "functions": 2,
+      "branches": 4
+    },
+    "app/reading-manager-client.tsx": {
+      "statements": 1006,
+      "functions": 293,
+      "branches": 803
+    },
+    "app/signed-in-shell.tsx": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "app/task-completion-feedback.tsx": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 1
+    },
+    "app/use-child-assignment-selection.ts": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "app/use-child-task-requests.ts": {
+      "statements": 7,
+      "functions": 2,
+      "branches": 17
+    },
+    "lib/audio-return.ts": {
+      "statements": 26,
+      "functions": 1,
+      "branches": 26
+    },
+    "lib/child-task-policy.ts": {
+      "statements": 2,
+      "functions": 0,
+      "branches": 5
+    },
+    "lib/cover-image.ts": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "lib/qr-reader.ts": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "lib/reading-calculations.ts": {
+      "statements": 94,
+      "functions": 29,
+      "branches": 85
+    },
+    "lib/reading-data.ts": {
+      "statements": 8,
+      "functions": 6,
+      "branches": 1
+    },
+    "lib/reading-drafts.ts": {
+      "statements": 8,
+      "functions": 2,
+      "branches": 4
+    },
+    "lib/reading-period.ts": {
+      "statements": 27,
+      "functions": 5,
+      "branches": 14
+    },
+    "lib/supabase/client.ts": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "lib/supabase/config.ts": {
+      "statements": 2,
+      "functions": 1,
+      "branches": 3
+    },
+    "lib/supabase/middleware.ts": {
+      "statements": 15,
+      "functions": 6,
+      "branches": 2
+    },
+    "lib/supabase/reading-store.ts": {
+      "statements": 172,
+      "functions": 56,
+      "branches": 151
+    },
+    "lib/supabase/server.ts": {
+      "statements": 7,
+      "functions": 4,
+      "branches": 0
+    },
+    "lib/task-completion.ts": {
+      "statements": 16,
+      "functions": 1,
+      "branches": 33
+    },
+    "middleware.ts": {
+      "statements": 2,
+      "functions": 1,
+      "branches": 0
+    },
+    "public/sw.js": {
+      "statements": 21,
+      "functions": 9,
+      "branches": 6
+    }
+  },
+  "server": {
+    "app/activity-log-cell.tsx": {
+      "statements": 43,
+      "functions": 11,
+      "branches": 52
+    },
+    "app/assignment-book-picker.tsx": {
+      "statements": 31,
+      "functions": 17,
+      "branches": 46
+    },
+    "app/assignment-edit-form.tsx": {
+      "statements": 6,
+      "functions": 4,
+      "branches": 7
+    },
+    "app/assignment-quiz-score.tsx": {
+      "statements": 3,
+      "functions": 3,
+      "branches": 4
+    },
+    "app/auth-panel.tsx": {
+      "statements": 28,
+      "functions": 4,
+      "branches": 18
+    },
+    "app/auth/callback/route.ts": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "app/auth/error/page.tsx": {
+      "statements": 1,
+      "functions": 1,
+      "branches": 0
+    },
+    "app/layout.tsx": {
+      "statements": 3,
+      "functions": 1,
+      "branches": 0
+    },
+    "app/material-thumb.tsx": {
+      "statements": 5,
+      "functions": 2,
+      "branches": 5
+    },
+    "app/page.tsx": {
+      "statements": 9,
+      "functions": 2,
+      "branches": 4
+    },
+    "app/reading-manager-client.tsx": {
+      "statements": 1006,
+      "functions": 293,
+      "branches": 803
+    },
+    "app/signed-in-shell.tsx": {
+      "statements": 14,
+      "functions": 4,
+      "branches": 4
+    },
+    "app/task-completion-feedback.tsx": {
+      "statements": 7,
+      "functions": 1,
+      "branches": 39
+    },
+    "app/use-child-assignment-selection.ts": {
+      "statements": 29,
+      "functions": 4,
+      "branches": 20
+    },
+    "app/use-child-task-requests.ts": {
+      "statements": 118,
+      "functions": 33,
+      "branches": 69
+    },
+    "lib/audio-return.ts": {
+      "statements": 103,
+      "functions": 14,
+      "branches": 97
+    },
+    "lib/child-task-policy.ts": {
+      "statements": 20,
+      "functions": 7,
+      "branches": 38
+    },
+    "lib/cover-image.ts": {
+      "statements": 28,
+      "functions": 5,
+      "branches": 4
+    },
+    "lib/qr-reader.ts": {
+      "statements": 15,
+      "functions": 2,
+      "branches": 10
+    },
+    "lib/reading-calculations.ts": {
+      "statements": 116,
+      "functions": 38,
+      "branches": 105
+    },
+    "lib/reading-data.ts": {
+      "statements": 15,
+      "functions": 6,
+      "branches": 1
+    },
+    "lib/reading-drafts.ts": {
+      "statements": 8,
+      "functions": 2,
+      "branches": 4
+    },
+    "lib/reading-period.ts": {
+      "statements": 27,
+      "functions": 5,
+      "branches": 14
+    },
+    "lib/supabase/client.ts": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "lib/supabase/config.ts": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "lib/supabase/middleware.ts": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "lib/supabase/reading-store.ts": {
+      "statements": 193,
+      "functions": 60,
+      "branches": 172
+    },
+    "lib/supabase/server.ts": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "lib/task-completion.ts": {
+      "statements": 87,
+      "functions": 16,
+      "branches": 97
+    },
+    "middleware.ts": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "public/sw.js": {
+      "statements": 21,
+      "functions": 9,
+      "branches": 6
+    }
+  }
+}

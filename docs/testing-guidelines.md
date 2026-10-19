@@ -157,3 +157,19 @@ PWA는 실제 Next의 등록·manifest/icon 응답과 준비된 cache의 root HT
 - 테스트 이름과 Given–When–Then 구조만 읽어도 의도를 이해할 수 있는가?
 - 요구사항에 따른 결과를 검증하며 테스트 간 상태나 실행 순서에 의존하지 않는가?
 - 관련 테스트가 통과하고, 버그 수정이라면 수정 전 실패도 확인했는가?
+
+## 통합 gate와 coverage 확인
+
+기존 `verify`는 보존한다. `verify:fast`는 build/browser를 제외한 필수 빠른 계층,
+`verify:all`은 verify와 component/server/harness/전체 browser를 순차 실행한다.
+`test:coverage`는 unit(c8), component/server(Vitest V8)의 원본 source 보고를 별도로 생성한다.
+미import source 0과 실제 실행 계층을 구분하고 browser/harness 결과를 source coverage에 합산하지 않는다.
+`public/sw.js`도 두 Vitest 보고서의 0% 항목이며 실제 실행 근거는 worker/PWA tests다.
+파일별 실측 baseline 후퇴·새 source·source 누락은 `check:coverage`가 nonzero로 알린다.
+baseline은 검토 없이 재생성하지 않는다. 도구/범위/제외 이유와 명령은
+[개발 하네스](development-harness.md#통합-검증과-분리-coverage-step32)에 기록한다.
+
+새 테스트 발견과 assertion 실패 exit는 기존 runner temp fixture를 재사용한다.
+T08 gate fixture는 실제 repo suite 대신 격리된 npm CLI 경계를 사용해 순서/TZ/실패 중단을 검증한다.
+skip/todo/only/expected-fail은 source 감사와 실제 실행 개수·reporter 결과를 함께 확인한다.
+고정 TZ 실행도 공유 `.test-build`/`.next`의 병렬 실행을 허용하는 근거가 되지 않는다.

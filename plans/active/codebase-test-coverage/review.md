@@ -3,7 +3,40 @@
 ## Status
 
 Step01–31 및 승인된 Step30a/31a Complete. GPT-6.1-Sol medium 유지.
-Step31a의 독립 전체 관련 suite·verify와 최종 검토를 마쳤다. Step32–33은 Pending이다.
+Step31a의 독립 전체 관련 suite·verify와 최종 검토를 마쳤다. Step32도 독립 fast/all/coverage 검증과 source 감사를 통과해 Complete이며 Step33은 Pending이다.
+
+## Step32 Complete — 2026-10-20 (source 동결·독립 검증 완료)
+
+최종 검증: `verify:fast` 24.83초, `verify:all` 258.86초, `test:coverage` 15.28초 모두 exit 0이다.
+unit276/component110/server33/harness99/browser121 모두 일반 PASS이며 skip/todo/expected-fail 0.
+기존 verify도 all 안에서 통과했고 source14/31/31·원본 좌표·미import0·baseline 불변을 독립 확인했다.
+로그는 `verification-artifacts/step32-independent-{fast,all,coverage,audit}.log`, 상세 결과는
+[Step32](tasks/32-verification-gates.md#루트-최종-독립-검증)에 연결한다. 실질 Standards/Spec finding 0/0.
+아래 ready 상태 기록은 최종 실행 전의 구현 이력이다.
+
+기존 verify를 보존하고 고정 순차 fast/all/coverage runner를 추가했다. all은 verify의 unit/type/build 뒤
+component/server/harness/전체 browser를 실제 연결한다. child TZ=Asia/Seoul·NODE_TEST_CONTEXT 제거,
+단계별 exit/시간을 기록하고 실패 뒤에는 진행하지 않는다. 앱 제품 동작 변경 없음.
+
+coverage는 c8 12.0.0+TS sourcemap과 정확히 일치하는 Vitest/provider5.0.4로 unit/component/server를 분리한다.
+unit runtime lib14, Vitest app/lib/middleware/public/sw.js31 source가 원본 경로로 나타난다.
+SW는 0%로 포함하고 실제 worker/PWA 실행 증거와 구분했다. coverage/는 기존 gitignore를 확인했다.
+tsconfig 무관한 배열 재포맷은 복원했다. 기준 검사는 layer/metric/count와 전수 source를 확인하며
+새 source·missing report·미실행 증가를 nonzero로 처리한다. 삭제 허용, 기존 baseline 덮어쓰기 거부.
+임의 퍼센트 gate 없이 실제 미실행 s/f/b baseline을 기록했다. 동일 개수의 위치 변경은 count gate 한계다.
+
+focused harness20 PASS(기존 unit runner8+T08 12), fail/skip/todo/cancelled0,8.92초.
+최종 test:coverage unit276/component110/server33 및 baseline PASS,11.50초(3.07/6.71/1.51/0.21초).
+statement/branch/function/line은 unit91.51/93.87/94.59/91.51%, component27.31/27.88/24.82/28.69%,
+server2.61/1.22/2.85/3.12%이며 분모/계층이 달라 합산하지 않는다.
+기존 Supabase client 미import와 SW의 report0, 타입/테스트/생성물 제외·disabled marker0을 확인했다.
+명령·로그·공식문서/로컬 CLI/types 근거는 task32와 docs/development-harness.md에 연결했다.
+
+root 초기 검토4항(SW 포함, 기존 ignore 확인, tsconfig최소diff, baseline키/새 source 정책)을 반영했다.
+source/config/baseline 동결 이후 문서만 정리했다. 독립 pane이 verify:fast → verify:all → test:coverage를
+순차 실행해 전체 발견/시간/실패·skip·todo/현재 typecheck/build를 확정할 때까지 Complete로 표시하지 않는다.
+이전 별도 component/server/harness/browser 시간은 참고 이력이며 현재 fast/all wall time이 아니다.
+DB/RLS/OAuth·실기기 미검증. commit/push/Step33 착수 없음.
 
 ## Step31a Complete — 2026-10-20 (구현 focused 검증)
 
