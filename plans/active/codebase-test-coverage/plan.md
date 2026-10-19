@@ -173,9 +173,10 @@ Herdr 구현 `wY:p5`/테스트 `wY:p6`은 모두 GPT-6.1-Sol·medium이다. 한�
 Step30에서 재현한 모바일 등록/배정4 RED는 사용자 “그렇게 하자” 승인(2026-10-19)의 Step30a에서
 동일 테스트 source/assertion을 유지한 최소 CSS 수정으로21 PASS가 됐다. Phase6 verify와 프로젝트별
 browser 검증·최종 검토를 완료했으며 초기 전체 실행의 U06 테스트 동기화 실패/보완은 review.md에 구분 기록한다.
-Step 31–33과 별도 수정 Step 31a는 Pending이며 전체 자동 계획 완료를 의미하지 않는다.
+Step31은 제품변경 없는 tempfixture child-process59개 PASS와 contracts/PWA PASS로 Complete다.
+독립 전체harness/typecheck를 기다리며 Step32–33과 별도 Step31a는 Pending이다. 전체 자동 계획 완료를 의미하지 않는다.
 사용자가 기존 결함 4종의 최소 수정 요청에 “계속해”라고 응답했으므로 Step 31a의 수정 권한은 유지한다.
-모델 설정은 유지한다. 구현 pane은 Step 30의 좁은 검사 후 인계하며, 전체 검사와 step별 커밋은 루트가 맡는다.
+모델 설정은 유지한다. 구현 pane은 Step31의 좁은 검사 후 인계하며, 전체 검사와 step별 커밋은 루트가 맡는다.
 
 ### Step 공통 완료 규칙
 

@@ -2,7 +2,36 @@
 
 ## Status
 
-Step01–30 및 사용자 승인 Step30a Complete. GPT-6.1-Sol medium 유지. 모바일 4 RED → 동일 21개 PASS, 독립 verify와 각 browser 프로젝트 검증·루트 최종 검토를 마쳤다. Step31–33/31a는 Pending이다.
+Step01–31 및 승인된 Step30a Complete. GPT-6.1-Sol medium 유지. Step31 신규 59개와 기존 28개를 합친 독립 harness 87 PASS 및 정적 검사·최종 검토를 마쳤다. Step31a·32–33은 Pending이다.
+
+## Step31 Complete — 2026-10-19
+
+루트 최종 확인: 독립 `test:harness` 87 PASS, fail/skip/todo/cancelled 0, exit 0.
+typecheck/contracts/PWA/diff check도 모두 exit 0이다. 로그는
+`verification-artifacts/step31-independent-{harness,typecheck,contracts,pwa,diffcheck}.log`.
+독립 및 루트 Standards/Spec 검토는 0/0 findings다. 제품 스크립트 변경은 없다.
+
+제품 변경 없이 신규 `tests/harness/static-checks.test.mjs`19개,
+`plan-scripts.test.mjs`25개, `git-publish.test.mjs`15개와 작은 test-only fixture helper를 추가했다.
+대상script5개는 cwd tempfixture에서 실제 CLI로 실행한다. git fake는 exact argv 응답만 허용하고
+realgit에 위임하지 않으며, 실제git은 remote없는 temp unbornrepo init/status만 실행한다.
+archive실제이동/삭제는 생성한 tempfixture 안에 한정한다. subprocess NODE_TEST_CONTEXT와
+상속Git경로변수를 제거하고 t.after에서 root제거/부재를 확인한다.
+
+| 명령 | 결과 |
+| --- | --- |
+| sandbox밖 `env -u NODE_TEST_CONTEXT node --test tests/harness/static-checks.test.mjs tests/harness/plan-scripts.test.mjs tests/harness/git-publish.test.mjs` | exit0,59 PASS/fail0/skip0/todo0(1.47s); `verification-artifacts/step31-focused-initial.log` |
+| `npm run check:contracts` | PASS; `verification-artifacts/step31-contracts.log` |
+| `npm run check:pwa` | PASS; `verification-artifacts/step31-pwa.log` |
+| `git diff --check` | PASS |
+
+정상·edge·invalid를작은 GWT로 분리해 missing/JSON/budget·manifest/cache·분류/경고·archive거부/
+git단계실패의 메시지와 exit를 확인했다. 계획 생성은 기존workflow의 텍스트 안내 계약이며 새파일을
+생성하는 기능을 추가하지 않았다. unit-runner T01 기존8회귀는 재사용하며 Next config는 기존
+build PASS와 실제Next/Auth4·PWA4 실행 증거를 연결했다. step30a 최초전체browser exit1 기록도 유지한다.
+새 제품결함/제품수정/skip/expected-fail은 없다. 기존4종 결함·Step31a는 착수하지 않았다.
+전체harness/typecheck/build/verify는 이번pane에서 실행하지 않았다. Linux/Node22.23.2 fixture이며
+EXDEV fallback/Windows shim/실remote·DB/RLS·실기기는 미검증이다. commit/push/다른pane제어 없음.
 
 ## Step30/30a Complete — 2026-10-19
 

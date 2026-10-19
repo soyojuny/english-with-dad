@@ -142,6 +142,23 @@ npm run check:pwa
 - service worker cache 대상 파일 존재
 - navigation fallback 유지
 
+### 스크립트 격리 회귀
+
+다음 명령은 개발 스크립트의 성공·거부·경계만 좁게 검증한다.
+
+```bash
+env -u NODE_TEST_CONTEXT node --test tests/harness/static-checks.test.mjs tests/harness/plan-scripts.test.mjs tests/harness/git-publish.test.mjs
+```
+
+세 파일59개는 contracts/PWA 입력을 임시 복사본에서 변경하고, workflow/archive/git wrapper를
+독립 child process로 실행한다. 운영script는 절대경로로 호출하되 cwd는 각 임시fixture다.
+`run-unit-tests.mjs`는 import.meta 위치가 기준이므로 기존 `unit-runner.test.mjs`의 복사본 회귀를 재사용한다.
+git mutation은 예상argv만 응답하는 fake executable에 한정하며 실제git은 remote없는 temprepo
+init/status만 쓴다. archive rename과 cleanup 삭제도 tempfixture 안에서만 수행한다.
+각 subprocess는 NODE_TEST_CONTEXT와 상속Git경로 환경을 제거하고 각 fixture는 종료 뒤 부재를 확인한다.
+현재 fake executable은 Linux/POSIX용이며 EXDEV/Windows shim/실제remote·DB/RLS는 이 검사의 증거가 아니다.
+전체하네스는 `npm run test:harness`가 담당하며 위 focused명령의 통과를 전체suite 통과로 보고하지 않는다.
+
 ### 3. 타입 계약
 
 ```powershell

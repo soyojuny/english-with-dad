@@ -81,14 +81,14 @@ private row mapper는 공개 함수의 입출력으로 검증한다. 테스트 �
 | public/sw.js | check:sw/check:pwa PASS; `tests/harness/service-worker.test.mjs` 15 PASS; `tests/browser/pwa/service-worker.spec.mjs` 4 PASS | install/activate/fetch 실행 및 실제 Next SW context, 29 Complete | P01-N01–N03/E01–E06/F01–F03/B01–B04; offline HTML만 보장, 전체 앱 offline 제외 |
 | public/manifest.webmanifest | check:pwa PASS; next-pwa P01-B01 manifest/icon HTTP 응답 PASS | 실제 응답·설치 메타 29 Complete; 모바일 30 | P01·P02 (실제 기기 설치 제외) |
 | public/assets/** | manifest icon HTTP MIME/내용, SW app shell 전체 cache key, offline SVG 응답 PASS | 자산 응답 29 Complete; 표시 30; 이미지 자체 단위 테스트 없음 | P01-B01–B03·P02 |
-| scripts/run-unit-tests.mjs | Step 02: unit 7파일·harness 8사례 PASS | 정리/컴파일/신규·중첩 발견·삭제 stale·0개·실패/컴파일 오류 검증 완료; Step 31에서 재사용 | T01 |
+| scripts/run-unit-tests.mjs | Step 02: unit 7파일·harness 8사례 PASS | 정리/컴파일/신규·중첩 발견·삭제 stale·0개·실패/컴파일 오류 검증 완료; Step31에서 기존8개 재사용(이번 재실행 없음) | T01 |
 | scripts/smoke-audio-completion.mjs | 7개 브라우저 시나리오 | fixture·정리·실패 artifact·기존 회귀 보존, 04·25 | T01·H01·C03·U05·U06·U07 |
-| scripts/check-contracts.mjs | 현재 실행 통과 | 정상/누락/위반 fixture, 31 | T01 |
-| scripts/check-pwa.mjs | verify의 정적 검사 | manifest/cache 누락 fixture, 31 | T01 |
-| scripts/plan-workflow.mjs | 현재 요청에서 실행 | 분류·추천·경고 fixture, 31 | T01 |
-| scripts/plan-archive.mjs | 구현 파일 조사 | 임시 plan의 통과/거부/중복/입력, 31 | T01 |
-| scripts/git-publish.mjs | 구현 파일 조사 | 가짜 git/임시 repo로 인자·실패·변경 없음, 31 | T01 |
-| next.config.mjs | build | 실제 Next 실행과 StrictMode 수명주기, 03·04·31 | T02 |
+| scripts/check-contracts.mjs | `tests/harness/static-checks.test.mjs`: contracts7 PASS; 직접check PASS | 정상/누락/복수위반/byte경계/JSON, 31 Complete | T03-N01/E01/E02/F01/F02 |
+| scripts/check-pwa.mjs | `tests/harness/static-checks.test.mjs`: PWA12 PASS; 직접check PASS | manifest/icon/cache/navigation 거부, 31 Complete; runtime은 Step29 | T04-N01/E01/E02/F01/F02/F03 |
+| scripts/plan-workflow.mjs | `tests/harness/plan-scripts.test.mjs`: workflow8 PASS | 분류/추천·중복·scope경고·빈입력·git실패fallback,31 Complete | T05-N01/E01/E02/F01 |
+| scripts/plan-archive.mjs | `tests/harness/plan-scripts.test.mjs`: archive17 PASS | temp plan 실제이동·보존/거부·재실행·상태·입력,31 Complete | T06-N01/E01–E04/F01–F03; EXDEV 미검증 |
+| scripts/git-publish.mjs | `tests/harness/git-publish.test.mjs`:15 PASS | exact argv fakegit + remote없는 temprepo status,31 Complete | T07-N01–N05/E01/E02/F01–F05; 실제commit/push 없음 |
+| next.config.mjs | 기존 build/실제Next·StrictMode 증거 재사용 | Step31 새직접테스트 제외: config는 build/Next 실행이 담당 | T02; step30a-independent-verify.log build PASS, step30a-independent-browser.log Next/Auth4·PWA4 PASS(해당전체명령은 exit1) |
 | package.json / package-lock.json | Step 02: test:unit 단일 러너, test:harness 8 PASS; 의존성/lock 변경 없음 | 러너 경계·재현 가능한 dev 도구·실패 exit, 02–04·32 | T02 |
 | tsconfig.json / tsconfig.test.json | Step 02: typecheck PASS, unit 루트/중첩 경계·다른 계층 제외/noEmitOnError 검증 | 러너 대상 분리·신규 suite typecheck, 02·03·32 | T02 |
 | next-env.d.ts | typecheck | 생성된 타입 계약; 직접 테스트/수정 대상 아님 | T02 (생성 타입) |
@@ -194,3 +194,7 @@ store의 23개 함수는 위 개별 행에 대응한다. 나머지 export는 아
 - playwright.config.ts의 next-auth-http와 tests/browser/next/auth-feasibility.spec.mjs(T01-N05/N06·A03 일부)는 독립 실행 2 PASS다. tests/browser/support/next-server.mjs·next-fixture.mjs가 실제 middleware/Page/NextRequest HTTP와 로컬 Auth HTTP를 연결한다. root app/lib/middleware/next.config 제품 소스는 변경하지 않고 .env.local 없는 복사본에서 실행한다.
 - tests/harness/browser-runner.test.mjs(T01-N07/F06/F07)는 신규 발견·미등록 요청 nonzero/trace/화면/요청 artifact·실제 Next 시작 실패/정리를 검사한다. network.mjs·next-network-guard.cjs는 브라우저 loopback과 Next SDK fetch 경계를 고정한다. 최초·2차 harness의 T01-F06 요청 JSON 누락은 별도 파일 저장으로 보완했고 단독 1 PASS 및 최종 harness 13 PASS다.
 - package.json/lock은 repo exact dev 도구를 고정하며 별도 직접 playwright 설치는 없다. docs/development-harness.md·testing-guidelines.md에 명령/계층/artifact 경계를 승격했다. source coverage 재측정이나 임의 gate는 없고 Step 02 미import baseline을 유지한다.
+
+Step31의 `tests/harness/helpers/script-fixture.mjs`는 test-only temp root/cwd·child 환경·timeout·cleanup과
+exact argv fakegit fixture를 제공한다. 제품source 커버리지 분모에 포함하지 않는다.
+신규 static-checks/plan-scripts/git-publish 세 파일의59개 focused PASS 증거는 `step31-focused-initial.log`다.

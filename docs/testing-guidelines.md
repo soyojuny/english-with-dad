@@ -124,6 +124,11 @@ npm run test:unit
 | 실제 Next/Auth HTTP 브라우저 | tests/browser/next/*.spec.mjs | npm run test:browser:next |
 | 실제 Next/PWA 브라우저 | tests/browser/pwa/*.spec.mjs | npm run test:browser -- --project=next-pwa |
 
+개발 script 격리 회귀는 `tests/harness/static-checks.test.mjs`, `plan-scripts.test.mjs`,
+`git-publish.test.mjs`에 둔다. 실제script의 cwd를 임시fixture로 지정하고 child NODE_TEST_CONTEXT를 제거한다.
+archive move/cleanup은 temp경로에만, git mutation은 exact argv fake에만 허용한다. 실제git은 remote없는
+임시repo init/status만 실행한다. focused명령과 import.meta 기반 unit-runner의 구분은 [개발 하네스](development-harness.md#스크립트-격리-회귀)를 따른다.
+
 `npm run test:browser`는 세 브라우저 프로젝트를 함께 발견한다.
 기존 `client-http`와 `next-auth-http`는 service worker를 block하고, `next-pwa`만 allow한다.
 PWA는 실제 Next의 등록·manifest/icon 응답과 준비된 cache의 root HTML/icon offline 응답을 검증한다.

@@ -49,7 +49,7 @@
 | M03 | 카메라/업로드 | 필드 적용·권한/미지원·late stream·track/interval 정리 | 28 Complete | browser API 대역 | app/reading-manager-client.tsx | tests/browser/client/camera-upload.spec.mjs | Step 28 Complete: 승인된 play 취소 guard로 close/unmount 2 FAIL → 2 PASS; 파일 독립 17 PASS, 전체 browser 95 ordinary PASS + 기존 expected-fail 1, verify exit 0. 실제 카메라/DB/RLS 제외. |
 | P01 | SW 실행 | install/activate·cache cleanup·GET/nonGET·offline fallback·등록 실패 | 29 Complete | worker 대역/실제 Next SW allow | public/sw.js; public/manifest.webmanifest; app/reading-manager-client.tsx | tests/harness/service-worker.test.mjs; tests/browser/pwa/service-worker.spec.mjs | worker 15 PASS + browser 4 PASS; SW/PWA 정적 PASS. cached HTML/icon 응답이며 전체 offline 앱 보장 아님 |
 | P02 | 모바일 표시 | 360/390/1280px·긴 한국어·버튼·dialog·의도된 표 스크롤 | 30/30a Complete | client HTTP browser | styles.css; app/reading-manager-client.tsx (layout/manifest는 Step29와 정적 증거 구분) | tests/browser/client/mobile-layout.spec.mjs | 기준17 PASS/4 RED → 승인된 Step30a 후21 PASS; document360/390/1280px, 새 expected-fail 없음 |
-| T01 | 러너/하네스 | 새 파일 발견·삭제 산출물·0개/실패 exit·임시 fixture | 02·03·31 | harness/component/hook | scripts/run-unit-tests.mjs; scripts/check-contracts.mjs; scripts/check-pwa.mjs; scripts/plan-workflow.mjs; scripts/plan-archive.mjs; scripts/git-publish.mjs; scripts/smoke-audio-completion.mjs; tests/helpers/completion-supabase-fake.ts; tests/helpers/async-fixtures.ts; tests/helpers/reading-fixture.ts; vitest.component.config.ts; vitest.server.config.ts; tests/support/ | tests/harness/unit-runner.test.mjs; tests/unit/test-fixtures.test.ts; tests/harness/component-server-runner.test.mjs; tests/hooks/lifecycle-harness.test.tsx; tests/components/assignment-quiz-score.test.tsx | Step 02: harness 8·fixture 4 PASS; Step 03 실행 기록 아래; Step 31 다른 도구 대기 |
+| T01 | 러너/하네스 | 새 파일 발견·삭제 산출물·0개/실패 exit·임시 fixture | 02·03·31 | harness/component/hook | scripts/run-unit-tests.mjs; scripts/check-contracts.mjs; scripts/check-pwa.mjs; scripts/plan-workflow.mjs; scripts/plan-archive.mjs; scripts/git-publish.mjs; scripts/smoke-audio-completion.mjs; tests/helpers/completion-supabase-fake.ts; tests/helpers/async-fixtures.ts; tests/helpers/reading-fixture.ts; vitest.component.config.ts; vitest.server.config.ts; tests/support/ | tests/harness/unit-runner.test.mjs; tests/unit/test-fixtures.test.ts; tests/harness/component-server-runner.test.mjs; tests/hooks/lifecycle-harness.test.tsx; tests/components/assignment-quiz-score.test.tsx; tests/harness/static-checks.test.mjs; tests/harness/plan-scripts.test.mjs; tests/harness/git-publish.test.mjs | Step 02: harness 8·fixture 4 PASS; Step 03 실행 기록 아래; Step31 Complete: static19/plan25/git15=59 PASS; T03–T07 상세 아래 |
 | T02 | 전체 검증 | 필수 suite 탐색·독립/전체 실행·coverage 공백·로그 인계 | 32·33 | 전체 자동 | package.json; package-lock.json; tsconfig.json; tsconfig.test.json; next.config.mjs; .gitignore; next-env.d.ts; AGENTS.md; README.md; docs/**; plans/**; .env.example | review.md; inventory.md; scenarios.md; 후속 coverage report 경로 확정 | Step 02 source baseline 기록; 전체 gate/coverage는 Step 32–33 대기 |
 
 ## 우선순위와 실패 처리
@@ -315,3 +315,20 @@ exit1 (24.4s)로 보존했다. 중간 생성후 disabled 검사 오류는 최종
 `verification-artifacts/step30a-mobile-layout-green.log`에 보존했다. max1100px의 management-grid
 0-minimum 열, book-picker minimum 해제, picker 필터 컨테이너/select 최대폭 제한만 적용했다.
 N01/E01 필수4 RED 해소 및 desktop7 회귀 PASS. 과거 승인전/임시probe 기록은 실제GREEN과 구분해 보존한다.
+
+## Step31 — 스크립트 격리 계약
+
+| ID | 동작·입력 경계 | 경로/결과 |
+| --- | --- | --- |
+| T03-N01/E01/E02/F01/F02 | contracts 정상·필수파일·복수script/type위반·120000/120001byte·깨진/없는package | static-checks.test.mjs contracts7 PASS |
+| T04-N01/E01/E02/F01–F03 | PWA 정상·0/1icon·src/자산 누락·잘못된manifest필드·shell/navigation문자열·JSON | static-checks.test.mjs PWA12 PASS; runtime SW는 Step29 |
+| T05-N01/E01/E02/F01 | 요청5분류/skill·추천, tracked/untracked dedup·경고, 빈요청·git실패fallback | plan-scripts.test.mjs workflow8 PASS; 파일생성없음 |
+| T06-N01/E01–E04/F01–F03 | 통과상태3종/경로정규화·temp실제move·재실행/충돌·pending·shape/status·invalidslug/없는plan | plan-scripts.test.mjs archive17 PASS; EXDEV 제외 |
+| T07-N01–N05/E01/E02/F01–F05 | status·tempunbornrepo·message argv·nochange·push대상·publish·단계실패·unknown | git-publish.test.mjs15 PASS; mutation은 fakegit만 사용 |
+
+실제 scripts를 절대경로로 호출하지만 cwd는 테스트마다 temp root다. child NODE_TEST_CONTEXT와
+상속Git경로 환경을 제거한다. exact argv fakegit은 realgit로 위임하지 않으며 realgit은
+remote없는 temp init/status만 실행한다. t.after의 삭제/부재 assertion과 invalid의 nonzero exit를 확인했다.
+전체명령 `env -u NODE_TEST_CONTEXT node --test tests/harness/static-checks.test.mjs tests/harness/plan-scripts.test.mjs tests/harness/git-publish.test.mjs`
+59 PASS/exit0, `verification-artifacts/step31-focused-initial.log`. 기존 T01 unit-runner8과 Next config의
+build/Next 증거는 재사용하고 이번에 재실행하지 않았다. 전체harness/typecheck는 독립pane 담당이다.
