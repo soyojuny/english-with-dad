@@ -39,6 +39,7 @@ import {
   activityCategoryDefinitions,
   dateKey,
   emptyReadingData,
+  removeAssignmentFromReadingData,
   taskDefinitions,
 } from "../lib/reading-data";
 import {
@@ -1252,24 +1253,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     try {
       await deleteAssignmentRecord(supabase, ownerUserId, assignmentId);
       const assignedBookIds = await fetchAssignedBookIds(supabase, ownerUserId);
-      setData((current) => {
-        const completions = { ...current.completions };
-        const audioLaunches = { ...current.audioLaunches };
-
-        Object.keys(completions)
-          .filter((key) => key.startsWith(`${assignmentId}:`))
-          .forEach((key) => delete completions[key]);
-        Object.keys(audioLaunches)
-          .filter((key) => key.startsWith(`${assignmentId}:`))
-          .forEach((key) => delete audioLaunches[key]);
-
-        return {
-          ...current,
-          completions,
-          audioLaunches,
-          assignments: current.assignments.filter((assignment) => assignment.id !== assignmentId),
-        };
-      });
+      setData((current) => removeAssignmentFromReadingData(current, assignmentId));
       setEditingAssignmentId((current) => (current === assignmentId ? null : current));
       setAssignHistoryBookIds(assignedBookIds);
       showToast("할 일을 삭제했습니다.");

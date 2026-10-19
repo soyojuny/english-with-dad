@@ -89,6 +89,24 @@ export const test = base.extend({
       await testInfo.attach('requests', { path: requestsPath, contentType: 'application/json' });
     }
   },
+  assignment: async ({ context, page, clientServer }, use, testInfo) => {
+    const guard = await guardBrowser(context, [clientServer.origin, 'http://127.0.0.1:54321']);
+    let fixture;
+    try {
+      fixture = await profileMaterialFixture(context, page, clientServer.origin, guard);
+      await use(fixture);
+      guard.verify();
+      expect(clientServer.unexpected, 'Unexpected client server request').toEqual([]);
+    } catch (error) {
+      if (!page.isClosed()) await page.screenshot({ path: testInfo.outputPath('fixture-failed.png'), fullPage: true });
+      throw error;
+    } finally {
+      await mkdir(testInfo.outputDir, { recursive: true });
+      const requestsPath = testInfo.outputPath('requests.json');
+      await writeFile(requestsPath, JSON.stringify({ requests: guard.requests, fixture: fixture?.requests ?? [] }, null, 2));
+      await testInfo.attach('requests', { path: requestsPath, contentType: 'application/json' });
+    }
+  },
 });
 export { expect };
 
@@ -120,7 +138,9 @@ async function audioFixture(context, page, origin, guard) {
     const url = new URL(request.url());
     const table = url.pathname.split('/').at(-1);
     const methods = {children:['GET'],assignments:['GET'],completions:['GET','POST','PATCH'],audio_launches:['GET','POST','PATCH']};
-    if (!methods[table]?.includes(request.method()) || url.pathname !== `/rest/v1/${table}`) {
+    const requiresOwnerFilter = ['assignments', 'completions', 'audio_launches'].includes(table)
+      && ['GET', 'PATCH', 'DELETE'].includes(request.method());
+    if (!methods[table]?.includes(request.method()) || url.pathname !== `/rest/v1/${table}` || (requiresOwnerFilter && !url.searchParams.has('owner_user_id'))) {
       guard.unexpected.push(`${request.method()} ${request.url()}`);
       return route.fulfill({status:500,contentType:'application/json',body:JSON.stringify({message:'Unexpected client fixture request'})});
     }
@@ -173,15 +193,19 @@ async function audioFixture(context, page, origin, guard) {
 }
 
 async function profileMaterialFixture(context, page, origin, guard) {
-  const state = { children: [], books: [], assignments: [], manualLogs: [] };
+  await page.clock.install({ time: new Date('2026-10-17T15:00:00.000Z') }); // 2026-10-18 in Asia/Seoul.
+  const state = { children: [], books: [], assignments: [], completions: [], audio_launches: [], manualLogs: [] };
   const requests = [];
   const failures = new Set();
   let nextChildId = 1;
   let nextBookId = 1;
+  let nextAssignmentId = 1;
   const methods = {
     children: ['GET', 'POST', 'PATCH'],
     books: ['GET', 'POST', 'PATCH'],
-    assignments: ['GET'],
+    assignments: ['GET', 'POST', 'PATCH', 'DELETE'],
+    completions: ['GET'],
+    audio_launches: ['GET'],
     manual_logs: ['GET'],
     'rpc/book_series_names': ['POST'],
   };
@@ -189,16 +213,29 @@ async function profileMaterialFixture(context, page, origin, guard) {
     'children:GET': { select: ['exact'], owner_user_id: ['eq'], order: ['exact'] },
     'children:POST': { select: ['exact'] },
     'children:PATCH': { select: ['exact'], owner_user_id: ['eq'], id: ['eq'] },
-    'books:GET': { select: ['exact'], owner_user_id: ['eq'], series: ['eq'], title: ['ilike'], active: ['eq'], order: ['exact'] },
+    'books:GET': { select: ['exact'], owner_user_id: ['eq'], series: ['eq'], title: ['ilike'], active: ['eq'], id: ['in'], order: ['exact'] },
     'books:POST': { select: ['exact'] },
     'books:PATCH': { select: ['exact'], owner_user_id: ['eq'], id: ['eq'] },
     'assignments:GET': { select: ['exact'], owner_user_id: ['eq'], child_id: ['eq'], date: ['eq', 'gte', 'lte'], book_id: ['in'], order: ['exact'] },
+    'assignments:POST': { select: ['exact'], on_conflict: ['exact'], columns: ['exact'] },
+    'assignments:PATCH': { select: ['exact'], owner_user_id: ['eq'], id: ['eq'] },
+    'assignments:DELETE': { owner_user_id: ['eq'], id: ['eq'] },
+    'completions:GET': { select: ['exact'], owner_user_id: ['eq'], assignment_id: ['in'] },
+    'audio_launches:GET': { select: ['exact'], owner_user_id: ['eq'], assignment_id: ['in'] },
     'manual_logs:GET': { select: ['exact'], owner_user_id: ['eq'], date: ['gte', 'lte'], order: ['exact'] },
     'rpc/book_series_names:POST': {},
   };
+  const requiredQuery = {
+    'assignments:POST': ['select', 'on_conflict', 'columns'],
+    'assignments:GET': ['owner_user_id'],
+    'assignments:PATCH': ['owner_user_id', 'id'],
+    'assignments:DELETE': ['owner_user_id', 'id'],
+    'completions:GET': ['owner_user_id'],
+    'audio_launches:GET': ['owner_user_id'],
+  };
   const rows = table => state[table] ?? [];
   const matches = (row, query) => [...query].every(([key, value]) => {
-    if (['select', 'order'].includes(key)) return true;
+    if (['select', 'order', 'on_conflict', 'columns'].includes(key)) return true;
     if (value.startsWith('eq.')) return String(row[key]) === value.slice(3);
     if (value.startsWith('ilike.')) return String(row[key]).toLowerCase().includes(value.slice(7).replaceAll('%', '').toLowerCase());
     if (value.startsWith('gte.')) return String(row[key]) >= value.slice(4);
@@ -208,10 +245,11 @@ async function profileMaterialFixture(context, page, origin, guard) {
   });
   const hasAllowedQuery = (path, method, entries) => {
     const rules = queryRules[`${path}:${method}`];
-    return Boolean(rules) && entries.every(([key, value]) => {
+    const keys = new Set(entries.map(([key]) => key));
+    return Boolean(rules) && (requiredQuery[`${path}:${method}`] ?? []).every((key) => keys.has(key)) && entries.every(([key, value]) => {
       const operators = rules[key];
       if (!operators) return false;
-      if (operators.includes('exact')) return key === 'select' || key === 'order';
+      if (operators.includes('exact')) return key === 'select' || key === 'order' || key === 'on_conflict' || key === 'columns';
       return operators.some(operator => value.startsWith(`${operator}.`));
     });
   };
@@ -239,6 +277,12 @@ async function profileMaterialFixture(context, page, origin, guard) {
       data = [...new Set(state.books.map(book => book.series).filter(Boolean))].map(series => ({ series }));
     } else if (request.method() === 'GET') {
       data = rows(path).filter(row => matches(row, url.searchParams));
+      if (path === 'assignments' && String(url.searchParams.get('select')).includes('book:')) {
+        data = data.map(row => ({
+          ...row,
+          book: state.books.find(book => book.id === row.book_id) ?? null,
+        }));
+      }
     } else if (path === 'children' && request.method() === 'POST') {
       const row = { id: `child-${nextChildId++}`, ...body };
       state.children.push(row);
@@ -247,6 +291,21 @@ async function profileMaterialFixture(context, page, origin, guard) {
       const row = bookRow(body);
       state.books.push(row);
       data = [row];
+    } else if (path === 'assignments' && request.method() === 'POST') {
+      data = body.map(payload => {
+        const existing = state.assignments.find(row =>
+          row.owner_user_id === payload.owner_user_id && row.child_id === payload.child_id && row.date === payload.date
+          && row.book_id === payload.book_id && row.activity_category === payload.activity_category,
+        );
+        if (existing) return Object.assign(existing, payload);
+        const row = { id: `assignment-${nextAssignmentId++}`, ...payload };
+        state.assignments.push(row);
+        return row;
+      });
+    } else if (path === 'assignments' && request.method() === 'DELETE') {
+      const target = rows(path).filter(row => matches(row, url.searchParams));
+      state.assignments = state.assignments.filter(row => !target.includes(row));
+      data = [];
     } else {
       const target = rows(path).filter(row => matches(row, url.searchParams));
       target.forEach(row => Object.assign(row, body));
@@ -262,9 +321,10 @@ async function profileMaterialFixture(context, page, origin, guard) {
     state,
     fail(table) { failures.add(table); },
     recover(table) { failures.delete(table); },
-    seed({ children = [], books = [] }) {
+    seed({ children = [], books = [], assignments = [] }) {
       state.children.push(...children.map(child => ({ owner_user_id: 'owner-1', ...child })));
       state.books.push(...books.map(book => bookRow(book)));
+      state.assignments.push(...assignments.map(assignment => ({ owner_user_id: 'owner-1', ...assignment })));
     },
     writes(table) { return requests.filter(request => request.path === `/rest/v1/${table}` && request.method !== 'GET'); },
   };

@@ -9,6 +9,19 @@ export const emptyReadingData: ReadingData = {
   manualLogs: [],
 };
 
+export function removeAssignmentFromReadingData(data: ReadingData, assignmentId: string): ReadingData {
+  const assignmentKeyPrefix = `${assignmentId}:`;
+  const withoutAssignmentCaches = <T>(records: Record<string, T>) =>
+    Object.fromEntries(Object.entries(records).filter(([key]) => !key.startsWith(assignmentKeyPrefix)));
+
+  return {
+    ...data,
+    assignments: data.assignments.filter((assignment) => assignment.id !== assignmentId),
+    completions: withoutAssignmentCaches(data.completions),
+    audioLaunches: withoutAssignmentCaches(data.audioLaunches),
+  };
+}
+
 export const taskDefinitions: Record<
   TaskType,
   { label: string; minutes: number; needsAudio: boolean }

@@ -2,9 +2,9 @@
 
 ## Status
 
-Step 23 Complete
+Step 24 Complete
 
-Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 09–23은 Complete, Step 24–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
+Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 01–24는 Complete, Step 25–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
 
 ## Step 22 Completion — 2026-10-16
 
@@ -152,7 +152,7 @@ focused component 결과는 `verification-artifacts/step22-focused-root-final.lo
 | 4 | 21 배정 선택 복원 hook | Complete | focused hook 1 file, 14 passed + 2 expected-fail; full component 10 files, 69 passed + 4 expected-fail (`verification-artifacts/step21-component-root-final.log`); typecheck/contracts/build/diff check exit 0; final Standards 0 findings and Spec 0 findings. 제품 코드는 변경하지 않았다. H01-F05/F06은 배열에 있는 assignment를 childId/date와 달라도 callback이 수용하는 확인된 expected-fail 결함이며, 실제 `reading-manager-client.tsx` caller는 filtered `todayAssignments`를 전달해 노출이 제한된다. unmount cleanup N/A; browser reload/다른 탭 storage event/전체 profile switching은 Step 25 후속. |
 | 4 | 22 완료·복귀 hook 수명주기 | Complete | focused hook 1 file/22 PASS (`verification-artifacts/step22-focused-root-final.log`); full component 11 files/91 PASS + 4 expected-fail (`verification-artifacts/step22-component-root-final.log`); unit PASS (`verification-artifacts/step22-unit-root-final.log`); phase 경계 `npm run verify` PASS, exit 0 (`verification-artifacts/step22-verify-root-final.log`). 최종 Standards/Spec review는 각각 0 findings이며 실제 DB/RLS·실기기/PWA·browser completion은 Step 25 후속이다. |
 | 5 | 23 프로필·자료 등록과 관리 흐름 | Complete | focused profile/material 15 PASS (`verification-artifacts/step23-focused-root-final.log`); full client HTTP 22 PASS (`verification-artifacts/step23-client-root-final.log`); audio-only wrapper 7 PASS (`verification-artifacts/step23-audio-root-final.log`); typecheck/contracts/build PASS (`verification-artifacts/step23-typecheck-root-final.log`, `verification-artifacts/step23-contracts-root-final.log`, `verification-artifacts/step23-build-root-final.log`); `git diff --check` PASS. 최종 Standards/Spec review 각각 0 findings, 신규 제품 결함·expected-fail 없음. `npm run verify`는 Phase 5 종료가 아니므로 미실행. |
-| 5 | 24 배정 생성·갱신·편집·삭제 흐름 | Pending | 미실행 |
+| 5 | 24 배정 생성·갱신·편집·삭제 흐름 | Complete | focused browser 16 PASS (`verification-artifacts/step24-focused-root-final.log`); full client 38 PASS (`verification-artifacts/step24-client-root-final.log`); audio wrapper 7 PASS (`verification-artifacts/step24-audio-root-final.log`). focused `./node_modules/.bin/tsc -p tsconfig.test.json && node .test-build/tests/reading-data.test.js` 5 cases PASS (`verification-artifacts/step24-cache-unit-root-final.log`); full `npm run test:unit` 17 files PASS (`verification-artifacts/step24-unit-root-final.log`). contracts/typecheck/build PASS (`verification-artifacts/step24-contracts-root-final.log`, `verification-artifacts/step24-typecheck-root-final.log`, `verification-artifacts/step24-build-root-final.log`); `git diff --check` PASS. Standards/Spec review 각각 0 findings. 제품 동작은 변경하지 않았고 삭제 상태 전이는 순수 lib helper로 추출해 기존 UI 흐름에 연결했다. 실제 DB upsert conflict/cascade/RLS는 미검증이며 U03-F02는 documented contract-level unreachable guard다. 새 제품 결함·expected-fail 없음; Phase 5는 Step 26에 끝나므로 `npm run verify`는 실행하지 않았다. |
 | 5 | 25 아동 학습과 완료·퀴즈 흐름 | Pending | 미실행 |
 | 5 | 26 부모 활동표·수동 기록·출력 | Pending | 미실행 |
 | 6 | 27 표지 압축과 QR 이미지 판독 | Pending | 미실행 |
