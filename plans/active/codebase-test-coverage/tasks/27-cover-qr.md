@@ -2,7 +2,7 @@
 
 ## Status
 
-Pending — 계획만 작성했으며 구현하지 않았다.
+Complete — 경계·실제 canvas/jsQR 검사와 전체 browser 회귀 및 직접 검토를 완료했다.
 
 ## Phase
 
@@ -31,11 +31,11 @@ Image/canvas/object URL 경계는 제어 대역으로, QR 실제 판독은 알�
 
 ## Acceptance Criteria
 
-- [ ] 브라우저 fixture는 개인정보 없는 합성 이미지이고 압축 품질을 픽셀 완전일치로 고정하지 않는다.
-- [ ] 대상 계약과 테스트 경로/시나리오 ID를 inventory.md 및 scenarios.md에 연결했다.
-- [ ] 기존 관련 회귀를 보존하고 정상·경계·invalid의 적용 여부를 기록했다.
-- [ ] 테스트가 독립 실행되며 실행 발견·실패 전달·환경/대역 정리가 확인된다.
-- [ ] 필요한 검사를 실행했고 명령·결과·제한을 기록했다.
+- [x] 브라우저 fixture는 개인정보 없는 합성 이미지이고 압축 품질을 픽셀 완전일치로 고정하지 않는다.
+- [x] 대상 계약과 테스트 경로/시나리오 ID를 inventory.md 및 scenarios.md에 연결했다.
+- [x] 기존 관련 회귀를 보존하고 정상·경계·invalid의 적용 여부를 기록했다.
+- [x] 테스트가 독립 실행되며 실행 발견·실패 전달·환경/대역 정리가 확인된다.
+- [x] 필요한 검사를 실행했고 명령·결과·제한을 기록했다.
 
 ## Required Verification
 
@@ -53,8 +53,10 @@ Image/canvas/object URL 경계는 제어 대역으로, QR 실제 판독은 알�
 
 | 항목 | 기록 |
 | --- | --- |
-| 테스트 경로·시나리오 | 미작성 |
-| 실행 명령/결과 | 미실행 |
-| 신규 동작/기존 동작 | 구현 시 기록 |
-| 결함 재현 RED → GREEN | 결함 수정이 승인된 경우에만 기록; 정상 기존 동작은 GREEN 확인 |
-| 미검증·제외·후속 | 구현 시 기록 |
+| 테스트 경로·시나리오 | M01: tests/components/cover-image.test.ts 8개; M02: tests/components/qr-reader.test.ts 7개; tests/browser/client/qr-image.spec.mjs 6개 |
+| 정상 | 가로/세로/정사각 축소, 확대 없음, 960px 경계, 흰 배경 JPEG; 실제 jsQR 정상/반전/일반 text 판독과 trim |
+| 경계·invalid | 0 크기/blank/context 없음, QR 없음/공백 값, 비이미지, load 실패, 깨진 실제 이미지, object URL 1회 해제 |
+| 실행 명령/결과 | focused test:component 15 PASS; full test:component 106 PASS + 기존 expected-fail 4; focused test:browser:client -- qr-image.spec.mjs 6 PASS; 전체 browser 결과는 review.md; typecheck/check:contracts/check:pwa/diff --check exit 0 |
+| 신규 동작/기존 동작 | 제품·설정·의존성 변경 없음. file-local 대역은 공통 teardown에서 복원하고 browser는 독립 context/네트워크 guard/HTTP server finally 정리와 요청 JSON·실패 trace/화면을 사용한다. 신규 발견/실패 전달은 Step 03/04 러너 회귀를 재사용했다. |
+| 결함 재현 RED → GREEN | 제품 결함 없음. 최초 typecheck에서 test spy 타입·canvas context 타입을 정정했다. Chromium sandbox EPERM은 sandbox 밖 동일 focused/browser 실행으로 해소했다. |
+| 미검증·제외·후속 | 실제 카메라/DB/RLS/실기기는 제외. QR decode는 URL 유효성 검증과 별개이며 text QR도 원문을 반환한다. 압축 JPEG 픽셀 완전일치는 요구하지 않고 균일 투명 입력의 흰 배경만 확인한다. |

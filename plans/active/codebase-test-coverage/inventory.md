@@ -18,8 +18,8 @@
 | lib/child-task-policy.ts | child-task-policy.test.ts | 완료 표시·snapshot D07 완료; 선택/hook 범위는 후속 | D07(08 최종 review PASS)·H01·H03·U06 |
 | lib/task-completion.ts | task-completion.test.ts | 기존 비동기/결과 불명확 회귀 유지, 15 | S07·H03·U07 |
 | lib/audio-return.ts | audio-return.test.ts | 이벤트·첫 복귀·이전 응답 회귀 유지, 15 | S08·H03·U06 |
-| lib/cover-image.ts | 직접 자동 테스트 없음 | Image/canvas/URL 경계·실제 브라우저, 27 | M01 |
-| lib/qr-reader.ts | 직접 자동 테스트 없음 | 경계 대역 + 실제 jsQR/canvas fixture, 27 | M02 |
+| lib/cover-image.ts | Step 27: DOM 경계 8개 및 실제 JPEG/깨진 이미지 browser 검사 | Image/canvas/URL 경계·실제 브라우저, 27 | M01 |
+| lib/qr-reader.ts | Step 27: DOM 경계 7개 + 실제 canvas/jsQR 정상·반전·일반 text·blank·0 크기 | 경계 대역 + 실제 jsQR/canvas fixture, 27 | M02 |
 | app/use-child-assignment-selection.ts | `tests/hooks/use-child-assignment-selection.test.tsx` | effect·storage 예외·owner/child/date scope 전환, 21 Complete | H01·H03 (focused hook 1 file, 14 passed + 2 expected-fail; full component 10 files, 69 passed + 4 expected-fail, `verification-artifacts/step21-component-root-final.log`; unmount cleanup N/A; typecheck/contracts/build/diff check exit 0; final Standards 0 findings and Spec 0 findings) |
 | app/use-child-task-requests.ts | `tests/hooks/use-child-task-requests.test.tsx`; `tests/browser/client/child-completion.spec.mjs` | timer 경계·listener/cleanup·late response, 22·25 Complete | H02·H03·U07 (hook 22 PASS; Step25 browser child round-trip stale-response and lost-response/result-query recovery focused 15 PASS, root full client 53 PASS; actual DB/RLS·PWA/실기기 제외) |
 | app/assignment-book-picker.tsx | `tests/components/assignment-book-picker.test.tsx` | 선택·활동·폼 전달·rerender, 19 Complete | Step 19 root component 6 files/28 PASS + 2 expected-fail, exit 0 (`verification-artifacts/step19-component-root-final.log`); C01-N01/E01/E02·D06-N02/N03/E02 (6 PASS) |

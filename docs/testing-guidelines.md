@@ -129,6 +129,10 @@ npm run test:unit
 브라우저 route 대체 결과와 구분한다. cache/임시파일/실패 artifact의 경로와 실행 조건은
 [개발 하네스](development-harness.md#오디오-완료-화면-회귀-테스트)에 기록한다.
 
+이미지 경계는 `tests/components/cover-image.test.ts`와 `qr-reader.test.ts`에서 제어하고,
+`npm run test:browser:client -- qr-image.spec.mjs`는 합성 PNG와 실제 canvas/jsQR로 판독한다.
+합성 이미지의 원문과 생성 조건은 `tests/browser/fixtures/README.md`에 기록한다.
+
 기능 변경의 전체 검증은 `npm run verify`로 수행한다. UI와 외부 앱 전환 등 브라우저 검증의 범위와 실행 방법은 [개발 하네스](development-harness.md)를 따른다.
 
 ## 리뷰 체크리스트

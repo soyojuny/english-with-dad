@@ -2,13 +2,36 @@
 
 ## Status
 
-Step 26 Complete (Phase 5 verification complete; see `verification-artifacts/step26-handoff.md`)
+Step 27 Complete; Phase 6 진행 중. Step 28–33 Pending.
+
+## Step 27 Execution — 2026-10-19
+
+기준 HEAD는 `a1b817c`다. 제품 코드·의존성은 변경하지 않고 표지 DOM 경계 8개,
+QR DOM 경계 7개와 실제 Chromium 이미지 검사 6개를 추가했다. 가로/세로/정사각·작은 이미지·
+960px 경계, JPEG 흰 배경, invalid MIME/load/context, object URL 해제와 QR blank/0 크기/
+공백/반전/text를 구분했다. QR DOM 테스트는 jsQR 경계만 대역하며 실제 판독 근거는
+`tests/browser/client/qr-image.spec.mjs`의 합성 PNG + 운영 jsQR + 실제 canvas다.
+원문과 생성 조건은 fixture README에 있고 Python 생성기는 테스트 의존성이 아니다.
+
+- focused component: 15 PASS. full component: 13 files, 106 PASS + 기존 expected-fail 4,
+  exit 0 (`verification-artifacts/step27-component.log`).
+- focused browser: 6 PASS, exit 0 (`verification-artifacts/step27-browser.log`). 최초 sandbox EPERM
+  6건은 실행 환경 실패이며 sandbox 밖 동일 명령으로 재실행했다.
+- `npm run typecheck`, `check:contracts`, `check:pwa`, `git diff --check`: exit 0.
+- 브라우저별 context/허용 목록/요청 JSON, server finally cleanup, 실패 trace/화면을 보존한다.
+  file-local spy/global은 공통 teardown으로 복원한다. 발견·실패 exit 증거는 Step 03/04를 재사용한다.
+- 전체 `npm run test:browser`: exit 0, 78 ordinary PASS + 기존 U09-F07 1 expected-fail
+  (Playwright summary 79 passed), `verification-artifacts/step27-browser-all.log`. 기존 audio 7개와 Next 4개 보존.
+- 직접 Standards/Spec 검토: 각각 0 findings. 사용자 지시에 따라 하위 에이전트는 사용하지 않았다.
+  초기 test spy 타입 오류는 수정 후 typecheck로 확인했다. 새로운 제품 결함은 없다.
+- 실제 카메라/DB/RLS/Android·기기별 JPEG 픽셀 보장은 이번 결과에 포함하지 않는다.
+  Phase 6은 진행 중이므로 전체 `verify`는 Phase 종료 gate에서 실행한다.
 
 ## Step 26 Complete — 2026-10-19
 
 제품 코드는 변경하지 않았다. `tests/browser/client/parent-report.spec.mjs`와 strict parent HTTP fixture를 추가했다. final focused는 `verification-artifacts/step26-focused-root-final.log`에서 ordinary 15 PASS + U09-F07 1 expected-fail(exit 0; Playwright summary 16 passed)다. U09-F07은 아동 화면 전환이 완료된 뒤에도 대기 print가 1회 호출되는 정확한 `1 !== 0`만 허용하며, 다른 setup/selector/network 실패는 통과로 바꾸지 않는다. 이는 제품 미수정 follow-up이다. print 정상 경로는 월간 전용 기록이 week fetch 뒤 사라지고 5건/20분/2권/7일이 된 뒤 at-call snapshot을 검사한다. print 준비 실패 재검사는 `step26-print-failure-root-final.log`에서 1 PASS다. full client HTTP는 ordinary 68 PASS + U09-F07 1 expected-fail, audio wrapper는 7 PASS다. root Phase 5 gate는 verify exit 0 (`verification-artifacts/step26-verify-root-final.log`: contracts/SW/PWA/unit 17/typecheck/build) 및 component 11 files/91 PASS + 기존 component expected-fail 4 (`verification-artifacts/step26-component-root-final.log`)다. Standards/Spec final review는 0/0이다. 실제 DB/RLS/OAuth, 물리 출력, Android는 범위 밖이다.
 
-Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 01–26은 Complete, Step 27–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
+Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 01–27은 Complete, Step 28–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
 
 ## Step 25 Complete — 2026-10-19
 
