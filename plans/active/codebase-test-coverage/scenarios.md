@@ -2,11 +2,11 @@
 
 ## 적용 방식
 
-아래 43개 ID는 필수 자동 시나리오 묶음이다. 하나의 ID가 테스트 하나를 뜻하지 않는다. Step 01에서 코드/공개 API, 기대 동작, 기존 증거와 작성할 테스트 경로를 연결했다. **계약 목록 확정·Step 02 단위 기반·Step 03 환경별 호환성·Step 04 브라우저 실행 경계 검증은 완료했고, 나머지 신규 런타임 검증은 대기**다. 각 담당 step에서 사례를 `<ID>-N01/E01/F01`로 나누고 테스트명·실행 결과를 기록한다. 기존 회귀 일부가 있다는 이유로 묶음 전체를 PASS 처리하지 않는다.
+아래 43개 ID는 필수 자동 시나리오 묶음이다. 하나의 ID가 테스트 하나를 뜻하지 않는다. Step 01에서 코드/공개 API, 기대 동작, 기존 증거와 작성할 테스트 경로를 연결했다. **Step01–33 및 승인된 추가 step의 자동 범위를 완료했다. 현재 전체 결과는 Step32 독립 실행과 Step33 최종 대조를 따른다. 표의 과거 step별 숫자/expected-fail은 당시 이력이다.** 각 담당 step에서 사례를 `<ID>-N01/E01/F01`로 나누고 테스트명·실행 결과를 기록한다. 기존 회귀 일부가 있다는 이유로 묶음 전체를 PASS 처리하지 않는다.
 
 기대 결과가 계약/문서로 확인되지 않은 invalid 입력은 현재 출력값을 복사하지 않고 확인 필요 또는 결함으로 기록한다. 이미 있는 테스트는 대응시키고 미검증 사례만 추가한다. query 대역/HTTP fixture는 실제 DB·RLS 증거가 아니다.
 
-| ID | 계약 | 기대 동작 / 확인 지점 | 담당 step | 계층 | 운영 파일 | 테스트 경로 (후속 제안 포함) | 기존 증거 / 현재 결과 |
+| ID | 계약 | 기대 동작 / 확인 지점 | 담당 step | 계층 | 운영 파일 | 현재 테스트 경로 (step별 이력 포함) | 기존 증거 / 현재 결과 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | D01 | 날짜·기간 | 일요일 시작 주간·윤년/월말·포함 범위·주/월 이동 | 05 | unit | lib/reading-data.ts; lib/reading-calculations.ts; lib/reading-period.ts | tests/reading-calculations.test.ts; tests/reading-period.test.ts | Step 05 PASS: 3개 TZ 명령에서 8 unit 파일 PASS; malformed 날짜는 Q01 |
 | D02 | 초안·데이터 정의 | null 기본값·자료 필드 보존·audio 참조 분리·초기 컬렉션/정의/옵션 | 06 | unit | lib/reading-drafts.ts; lib/reading-data.ts | tests/reading-drafts.test.ts | Step 06 2026-10-14 PASS: unit·contracts·typecheck; 타입 밖 입력은 폼 U01·row S01 담당 |
@@ -50,7 +50,7 @@
 | P01 | SW 실행 | install/activate·cache cleanup·GET/nonGET·offline fallback·등록 실패 | 29 Complete | worker 대역/실제 Next SW allow | public/sw.js; public/manifest.webmanifest; app/reading-manager-client.tsx | tests/harness/service-worker.test.mjs; tests/browser/pwa/service-worker.spec.mjs | worker 15 PASS + browser 4 PASS; SW/PWA 정적 PASS. cached HTML/icon 응답이며 전체 offline 앱 보장 아님 |
 | P02 | 모바일 표시 | 360/390/1280px·긴 한국어·버튼·dialog·의도된 표 스크롤 | 30/30a Complete | client HTTP browser | styles.css; app/reading-manager-client.tsx (layout/manifest는 Step29와 정적 증거 구분) | tests/browser/client/mobile-layout.spec.mjs | 기준17 PASS/4 RED → 승인된 Step30a 후21 PASS; document360/390/1280px, 새 expected-fail 없음 |
 | T01 | 러너/하네스 | 새 파일 발견·삭제 산출물·0개/실패 exit·임시 fixture | 02·03·31 | harness/component/hook | scripts/run-unit-tests.mjs; scripts/check-contracts.mjs; scripts/check-pwa.mjs; scripts/plan-workflow.mjs; scripts/plan-archive.mjs; scripts/git-publish.mjs; scripts/smoke-audio-completion.mjs; tests/helpers/completion-supabase-fake.ts; tests/helpers/async-fixtures.ts; tests/helpers/reading-fixture.ts; vitest.component.config.ts; vitest.server.config.ts; tests/support/ | tests/harness/unit-runner.test.mjs; tests/unit/test-fixtures.test.ts; tests/harness/component-server-runner.test.mjs; tests/hooks/lifecycle-harness.test.tsx; tests/components/assignment-quiz-score.test.tsx; tests/harness/static-checks.test.mjs; tests/harness/plan-scripts.test.mjs; tests/harness/git-publish.test.mjs | Step 02: harness 8·fixture 4 PASS; Step 03 실행 기록 아래; Step31 Complete: static19/plan25/git15=59 PASS; T03–T07 상세 아래 |
-| T02 | 전체 검증 | 필수 suite 탐색·독립/전체 실행·coverage 공백·로그 인계 | 32·33 | 전체 자동 | package.json; package-lock.json; tsconfig.json; tsconfig.test.json; next.config.mjs; .gitignore; next-env.d.ts; AGENTS.md; README.md; docs/**; plans/**; .env.example | review.md; inventory.md; scenarios.md; 후속 coverage report 경로 확정 | Step 02 source baseline 기록; 전체 gate/coverage는 Step 32–33 대기 |
+| T02 | 전체 검증 | 필수 suite 탐색·독립/전체 실행·coverage 공백·로그 인계 | 32·33 | 전체 자동 | package.json; package-lock.json; tsconfig.json; tsconfig.test.json; next.config.mjs; .gitignore; next-env.d.ts; AGENTS.md; README.md; docs/**; plans/**; .env.example | tests/harness/verification-gates.test.mjs; tests/harness/unit-runner.test.mjs; review.md; inventory.md; coverage/{unit,component,server}/ | Step32 독립 fast/all/coverage exit0, unit276/component110/server33/harness99/browser121 일반 PASS; Step33 문서 감사 완료 |
 
 ## 우선순위와 실패 처리
 
@@ -366,3 +366,14 @@ source disabled-marker0·실제 미import0·unit V8 실행 부재·보고서 제
 독립 fast24.83초/all258.86초/coverage15.28초 모두 exit 0이다. unit276/component110/server33/
 harness99/browser121 전부 일반 PASS, runtime/source skip/todo/expected-fail 0과 baseline 불변을 확인했다.
 로그는 `verification-artifacts/step32-independent-{fast,all,coverage,audit}.log`다.
+
+## Step33 필수 시나리오 최종 대조 — 2026-10-20
+
+주 표43묶음(D/S/A/C/H/U/M/P/T) 모두 현재 존재하는 테스트 경로와 정상/edge/invalid 책임을 연결했다.
+T02는 실제 gate fixture와 세 coverage 보고서로 확정했다. `step33-scenarios-audit.json`에 ID별 테스트 경로를 보존한다.
+Step32의 동일 source 독립 실행에서 unit276/component110/server33/harness99/browser121 모두 일반 PASS다.
+이전 시점의 expected-fail6건은 Step31a에서 해소됐으며 현재 skip/todo/expected-fail은 0이다.
+실제 browser121개는 client113/Next Auth4/PWA4이며 HTTP fixture와 실제 Next/SW 실행 계층을 구분한다.
+SW cache HTML/icon 성공은 앱 전체 offline 보장이 아니다. async Page는 Next Auth browser 증거이며
+Vitest 수치0과 충돌하지 않는다. DB/RLS/OAuth·실기기 계약은 자동 PASS에 포함하지 않는다.
+실행 로그는 `step32-independent-{fast,all,coverage,audit}.log`이며 Step33에서는 suite를 재실행하지 않았다.

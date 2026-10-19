@@ -60,10 +60,24 @@ max-inline-size100%를 적용했다. 실제 등록 document는360/390/1280px 모
 1280px의7개 회귀도 PASS다. 임시CSS 주입 probe와 중간 fixture/disabled 검사 오류는 제품GREEN에 합산하지 않는다.
 
 실제 Android 설치/소프트 키보드·글자크기·TalkBack/실카메라/외부앱복귀는 위 실기기 checklist에 남긴다.
-전체 Phase6 verify/browser gate는 독립 테스트 pane/루트가 수행한다.
+Phase6 gate 및 최종 Step32 전체 browser/verify는 독립 PASS했다. 당시 승인 대기·probe 기록은 이력이다.
 
 ## Step31a 구현 인계 — 2026-10-20
 
 기존 네 결함/여섯 expected-fail은 승인된 최소 수정으로 일반 assertion GREEN이다.
 focused 22+6+1 PASS와 RED artifact는 tasks/31a-existing-regressions.md에 기록했다.
-독립 전체 suite/typecheck/build·최종 검토는 루트가 수행한다. 실제 DB/RLS/OAuth/실기기 범위는 확대하지 않았다.
+Step31a 독립 component110/server33/parent16·verify PASS 뒤 dae764b로 커밋했다. Step32 전체 gate도 PASS했다. 실제 DB/RLS/OAuth/실기기 범위는 확대하지 않았다.
+
+## 최종 자동 인계와 후속 시작 조건 — 2026-10-20
+
+Step33 문서 대조까지 자동 계획은 Passed다. Step32 동일 source의 unit276/component110/server33/
+harness99/browser121 일반 PASS와 skip/todo/expected-fail0을 재사용한다. 실제 DB/RLS·OAuth·Android 설치/
+실카메라·외부 앱에서 복귀/TalkBack·소프트 키보드/물리 출력은 위 checklist의 별도 사용자 요청과 환경 준비 뒤 확인한다.
+SQL13개를 적용하거나 실제 Google/Supabase 계정·원격 Git에 쓰는 작업은 이번 인계에서 수행하지 않았다.
+
+현재 source coverage baseline은 unit/component/server 분리 원본14/31/31 파일이다.
+Step02 엔진/범위의 수치와 직접 비교하지 않는다. count baseline은 동일 개수의 실행 위치 교체를 포착하지 못하므로
+핵심 시나리오 assertion과 별도 browser/harness 실행을 함께 유지한다. SW/async Page의 Vitest0은
+각각 Step29 worker·실제 PWA 및 Next Auth 실행 증거와 구분한다. cached root HTML/icon 성공은 전체 offline 앱 보장이 아니다.
+EXDEV archive fallback·Windows shim/도구 호환·실remote commit/push는 기존 fixture 범위 밖이다.
+계획 경로는 사용자 참조를 위해 active에 유지하며 archive 이동/삭제하지 않는다.

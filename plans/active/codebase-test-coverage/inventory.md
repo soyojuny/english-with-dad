@@ -2,7 +2,7 @@
 
 ## 기준과 판정
 
-2026-10-13에 현재 저장소를 조사했다. Step 01에서 운영 파일/공개 API와 **구현 대상 배정표**를 대조했다. 계약 목록 확정은 완료했지만 전체 런타임 검증 완료 결과가 아니다. 각 행의 시나리오 ID는 [시나리오 표](scenarios.md)의 테스트 경로·기존 증거·Step별 실행 결과에 연결된다. 후속 실행 결과는 그 표와 task Execution Record에 갱신한다.
+초기 조사는 2026-10-13에 수행했다. 최종 현재 결과는 아래 Step33 인계 대조(2026-10-20)이며, 기존 행의 step별 숫자와 expected-fail은 당시 이력이다. Step 01에서 운영 파일/공개 API와 **구현 대상 배정표**를 대조했으며, 당시 목록 확정만으로 런타임 검증 완료를 뜻하지는 않았다. 각 행의 시나리오 ID는 [시나리오 표](scenarios.md)의 테스트 경로·기존 증거·Step별 실행 결과에 연결된다. 최종 실행 결과는 그 표와 task Execution Record에 기록했다.
 
 기존 있음 = 직접 또는 기존 테스트 파일에 함께 검증된 동작이 있다. 정적 검사 = 구문/텍스트/타입/빌드 확인이며 런타임 검증을 뜻하지 않는다. 모든 파일에 테스트를 1개씩 기계적으로 생성하지 않고 관찰 가능한 행동이 있는 적절한 계층을 지정한다.
 
@@ -230,3 +230,33 @@ source map 원본 경로 및 source 전수 목록을 check:coverage가 확인한
 독립 fast24.83초/all258.86초/coverage15.28초 모두 exit 0이다. unit276/component110/server33/
 harness99/browser121 모두 일반 PASS, skip/todo/expected-fail 0 및 baseline 불변을 확인했다.
 최신 증거는 `verification-artifacts/step32-independent-{fast,all,coverage,audit}.log`다.
+
+## Step33 최종 인계 대조 — 2026-10-20
+
+기준 source/config/baseline은 Step32 `ae94e04`다. Step33은 문서만 변경한다.
+tracked app/lib/public/scripts/supabase 및 root runtime·검증 config·baseline 75파일을 전수 대조했다.
+`verification-artifacts/step33-inventory-audit.json`에 각 파일의 책임 행/제외 근거를 기록한다.
+새 scripts/run-verification.mjs, scripts/check-coverage.mjs, 두 Vitest config, tsconfig.test.json,
+package/lock, tests/coverage-baseline.json도 위 Step32 책임 표에 포함된다.
+public 자산7개는 public/assets/** 응답·표시 책임과 파일별 이름으로, migration13개는 파일별 목록과
+실제 DB 실행 제외 합의로 대조했다. 타입·문서·생성물·개발설정 제외는 기존 경계를 유지한다.
+
+현재 실행 근거는 `step32-independent-{fast,all,coverage,audit}.log`다.
+fast24.83초/all258.86초/coverage15.28초 각각 exit0; unit276/component110/server33/harness99/browser121
+모두 일반 PASS, skip/todo/expected-fail0. Step31a의 여섯 회귀는 현재 일반 assertion GREEN이다.
+Step02 V8 함수 baseline과 현재 c8/Vitest source-map 수치는 엔진/범위/좌표가 달라 직접 비교하지 않는다.
+현재 수치는 unit14·component31·server31 source의 분리 baseline이며 합산/과거대비 퍼센트 증감은 주장하지 않는다.
+public/sw.js와 async Page 등 Vitest0은 각각 worker/PWA와 실제 Next 실행 책임으로 확인하며
+그 실행을 TS/TSX 수치에 가산하지 않는다. count baseline은 같은 개수의 실행 위치 변경을 검출하지 못한다.
+실제 DB/RLS/OAuth/Android·실카메라·외부앱복귀 및 EXDEV/실remote 후속은 follow-up.md에 남긴다.
+
+### 최종 대조에서 명시한 간접 책임/제외
+
+| 파일/그룹 | 검증 책임 또는 제외 근거 |
+| --- | --- |
+| lib/supabase/reading-store.ts | 위 공개 함수별 S01–S08 매핑/query/쓰기/오류 계약과 unit276 실행. 실제 DB/RLS 제외 |
+| playwright.config.ts | browser-runner harness의 discovery/격리·실패 exit, 실제 전체 browser121 및 TZ/SW 프로젝트 설정 증거 |
+| assets/** | 루트 legacy 정적 자산으로 production Next 정적 경로는 public/assets/**다. 운영 source 분모에서 제외하고 production 자산7개 응답/표시 검증을 유지 |
+| .codex-remote-attachments/** | 사용자 제공 사진 입력 첨부물이며 앱 runtime/code가 아니므로 source coverage 제외 |
+
+이 두 legacy/input 그룹도 tracked 파일 전수 대조에 포함하되 운영75파일 수에는 합산하지 않는다.

@@ -2,8 +2,20 @@
 
 ## Status
 
-Step01–31 및 승인된 Step30a/31a Complete. GPT-6.1-Sol medium 유지.
-Step31a의 독립 전체 관련 suite·verify와 최종 검토를 마쳤다. Step32도 독립 fast/all/coverage 검증과 source 감사를 통과해 Complete이며 Step33은 Pending이다.
+Passed
+
+Step01–33 및 승인된 Step28a/30a/31a의 합의된 자동 범위를 완료했다. GPT-6.1-Sol medium 유지.
+Step32 기준 source `ae94e04`의 독립 검증을 재사용했고 Step33은 문서 인계만 수행했다.
+실제 DB/RLS/OAuth·실기기 후속은 자동 완료 범위와 구분한다. 루트 최종 직접 Standards/Spec 검토도 완료했다.
+
+## Step33 Complete — 2026-10-20
+
+운영75파일의 검증 책임/합의 제외, 필수43시나리오의 실제 테스트 경로, task36개 Complete 및
+Blocked By/로컬 Markdown 링크를 대조했다. 새 scripts2개·config·실측 baseline도 inventory에 포함된다.
+T02의 제안 경로와 현재형 초기 대기 문구를 최종 연결로 갱신하고, 과거 step의 숫자·expected-fail 이력은 보존했다.
+artifact는 `verification-artifacts/step33-{inventory-audit,scenarios-audit,task-audit,links-audit,audit-summary}.json`이다.
+Step32 source/config/baseline 변경·추가 suite·archive 없이 문서만 변경했다.
+문서 후 check:contracts/diff-check 로그는 `step33-contracts.log`, `step33-diffcheck.log`다.
 
 ## Step32 Complete — 2026-10-20 (source 동결·독립 검증 완료)
 
@@ -294,6 +306,8 @@ focused component 결과는 `verification-artifacts/step22-focused-root-final.lo
 
 ## Plan Conformance
 
+현재 최종 범위: Step01–33과 별도 승인된 수정 task 완료. 아래 초기 변경 설명은 당시 이력이며, 승인된 제품 수정/RED→GREEN은 각 step 기록을 따른다. Step33은 문서만 변경했다.
+
 - Step 01은 계획 문서만, Step 02는 단위 러너·컴파일 경계·공통 fixture, Step 03은 환경별 설정·호환성 테스트를 변경했다. Step 04는 browser 프로젝트·HTTP fixture·실행/실패/정리 검증과 관련 문서를 추가한다.
 - 제품 app/lib/Supabase migration은 변경하지 않았다. Step 03–04의 dev 도구 exact pin 설치와 lock 변경은 루트가 수행했다.
 - 사용자의 전체 순차 구현·step별 커밋 요청을 반영했다. Step 04 개발 pane은 이 step만 수행했고 검토·커밋·다음 step 전달은 루트가 맡았다. push·배포 권한은 없다. 사용자 제공 초기 계획 문서 38개는 첫 step 커밋 범위다.
@@ -302,6 +316,15 @@ focused component 결과는 `verification-artifacts/step22-focused-root-final.lo
 - 용어와 도메인 규칙을 바꾸지 않아 docs/CONTEXT.md·ADR 추가는 필요하지 않다.
 
 ## Findings
+
+현재 미해결 필수 자동 계약 finding: 0. Step31a에서 기존4종/6expected-fail을 해소했고 현재 전체 ordinary PASS다.
+후속 실제 환경 항목은 합의한 제외 범위이며 필수 실패를 예외로 숨긴 것이 아니다.
+루트 최종 직접 검토의 미해결 finding은 Standards 0건, Spec 0건이다.
+재개 기준 `536ffdd`부터 Step32 `ae94e04`까지의 변경과 Step33 문서 diff를 대조했고,
+이전 단계는 기록된 검토·현재 전체 suite 및 파일/시나리오 감사로 확인했다.
+검증 책임·제외 근거의 누락과 초기 대기 문구를 보완했으며 추가 제품 수정은 없었다.
+
+아래는 계획 작성 당시의 공백 관찰 이력이며, 현재 미구현 목록으로 해석하지 않는다.
 
 - 기존 테스트는 순수 계산·선택 policy·완료/복귀 coordinator 및 관련 store 동작을 이미 보호한다.
 - 자료/배정/부모 기록의 store 공개 API, 컴포넌트·hook 수명주기, 인증, QR/image, SW 실행, 하네스 실패 경로는 추가 검증이 필요하다.
@@ -647,21 +670,34 @@ afterEach는 DOM/storage/timer/spy/global/env를 복원하고 StrictMode effect�
 
 ## Final Verification
 
-구현 완료 시 채울 항목:
+기준 source/config/baseline은 Step32 `ae94e04`이며 Step33에서 변경하지 않았다.
 
-- 기준 소스와 최종 변경 범위.
-- 필수 시나리오 → 실제 테스트 경로/이름 → 발견/실행 결과.
-- npm run verify 및 구현 후 verify:all의 로그.
-- source 커버리지 공백·제외와 기존 대비 후퇴 여부.
-- 실패/skip/todo·해결된 결함·별도 수정 승인 기록.
-- 실제 DB/RLS·OAuth·실기기 미검증 범위.
-- docs 승격과 후속 인계.
+| 재사용한 동일 source 독립 실행 | 결과 | artifact (`verification-artifacts/`) |
+| --- | --- | --- |
+| `verify:fast` | exit0,24.83초 | `step32-independent-fast.log` |
+| `verify:all` (기존 verify의 unit/typecheck/build 포함) | exit0,258.86초, unit276/component110/server33/harness99/browser121 일반 PASS | `step32-independent-all.log` |
+| `test:coverage` | exit0,15.28초, 세 분리 보고서/원본 source14·31·31·baseline PASS | `step32-independent-coverage.log` |
+| source 좌표/미import0/실행 결과 감사 | baseline SHA 불변, browser121 ordinary PASS, skip/todo/expected-fail0 | `step32-independent-audit.log` |
+| Step33 문서 책임·시나리오·task 의존성·링크 감사 | 운영75/시나리오43/task36, 누락·cycle·깨진 링크0 | `step33-*-audit.json`, `step33-audit-summary.json` |
+| 문서 수정 후 contracts/diff-check | PASS | `step33-contracts.log`, `step33-diffcheck.log` |
 
-필수 자동 범위가 통과하면 Status를 정확히 Passed로 바꾼다. DB/RLS·실기기 후속 미검증은 별도로 남긴다. 핵심 테스트 실패나 실제 실행 누락을 미검증 예외로 숨기지 않는다.
+기존 단위/오디오7회귀는 유지하며 전체 browser는 client113/Next Auth4/PWA4다.
+과거 expected-fail과 RED 로그는 당시 증거로 남기고 현재 skip/todo/expected-fail0과 구분했다.
+Step02의 V8 함수 baseline과 현재 c8/Vitest TS/TSX 수치는 엔진/범위가 달라 직접 비교하지 않는다.
+현재 unit/component/server 수치는 합산하지 않는다. SW·async Page의 Vitest0은 실제 worker/PWA·Next
+실행 증거와 분리하며 0을 삭제하거나 browser 실행 수치를 가산하지 않는다.
+미실행 count baseline은 동일 개수로 위치가 바뀐 회귀를 놓칠 수 있으므로 핵심 assertion을 유지한다.
+
+## Follow-up
+
+[follow-up.md](follow-up.md)의 실제 DB migrations13/RLS·constraints·RPC·DB 경쟁,
+실제 OAuth/session, Android 설치·실카메라/권한·외부 앱 복귀·키보드/TalkBack·물리 출력을 유지한다.
+실제 SQL/계정/실기기 및 EXDEV/Windows/실remote는 자동 PASS로 주장하지 않는다.
+SW offline은 cached root HTML/icon 응답 범위다. 전체 앱 offline 가능을 보장하지 않는다.
+사용자 참조를 위해 active 계획 경로를 유지하며 archive 이동/삭제하지 않는다.
 
 ## Promotion Candidates
 
-- 테스트 계층별 파일 위치와 명령: docs/testing-guidelines.md.
-- fixture 격리, 서버/클라이언트 browser 경계, 실행/결과 artifact: docs/development-harness.md.
-- 테스트 운영 규칙이 매 세션에 필요해진 경우만 AGENTS.md에 최소 반영.
-- 도메인 용어·장기 ADR: 현재 새 항목 없음.
+- Closed: 테스트 계층·명령·GWT·감사·baseline 운영 규칙은 [testing-guidelines.md](../../../docs/testing-guidelines.md)에 승격 완료.
+- Closed: fixture 격리·HTTP/Next browser 경계·순차 실행·source 보고서/제외·artifact는 [development-harness.md](../../../docs/development-harness.md)에 승격 완료.
+- 새 상시 규칙/도메인 용어/장기 ADR 없음. AGENTS.md·CONTEXT·ADR 추가 불필요로 닫는다.

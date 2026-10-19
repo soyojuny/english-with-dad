@@ -178,17 +178,17 @@ Step31은 신규59개를 포함한 독립 harness87 PASS와 typecheck/contracts/
 2026-10-20 사용자 재개 지시에 따라 승인된 네 제품 최소 수정과 동일 assertion GREEN을 완료했다.
 focused component22/server callback6/print1 PASS, diff-check PASS다. Step31a 구현 Complete이며
 Step31a는 독립 component110/server33/parent16 및 verify unit276/typecheck/build PASS와 최종 검토 뒤
-`dae764b`로 커밋했다. 모델 설정을 유지하며 Step32의 독립 검증도 마쳤다. Step33은 Pending이다.
+`dae764b`로 커밋했다. 모델 설정을 유지하며 Step32 독립 검증과 Step33 문서 인계까지 마쳤다.
 
 Step32는 기존 verify 보존·고정 순차 fast/all·분리 coverage 구현과 focused20/coverage276·110·33 PASS를 확보했다.
 실측 파일별 baseline과 source 누락/새파일/후퇴 거부를 확인했다. 2026-10-20 root 지시로 source/config/baseline을
 동결한 뒤 독립 verify:fast(24.83초) → verify:all(258.86초) → test:coverage(15.28초)를 모두 exit 0으로
 완료했다. 일반 PASS는 unit276/component110/server33/harness99/browser121이며 skip/todo/expected-fail은 0이다.
-Step32는 Complete, Step33은 Pending이다. 원본14/31/31 source와 baseline 불변도 독립 감사했다.
+Step32는 Complete, Step33 문서 인계까지 완료했다. 원본14/31/31 source와 baseline 불변도 독립 감사했다.
 
 ### Step 공통 완료 규칙
 
-- 상태는 Pending → In Progress → Complete로 기록한다. 계획 작성 시에는 모두 Pending이었고, 현재 Step 01의 완료 결과는 해당 task와 review.md에 기록한다. 나머지 step은 루트가 전달하기 전까지 Pending이다.
+- 상태는 Pending → In Progress → Complete로 기록한다. 계획 작성 시에는 모두 Pending이었으며 각 task Execution Record와 review.md에 진행·최종 검증 결과를 기록했다.
 - 하나의 step에서 새 테스트 파일/공개 API/사용자 계약을 명확히 적고 unrelated refactor를 섞지 않는다.
 - 정상·경계·invalid 사례의 적용 여부와 요구사항 근거를 기록한다.
 - 관련 최소 검사부터 실행한다. 한 phase 종료 시 기존 verify와 그 phase에서 준비된 신규 suite를 실행한다.
@@ -198,42 +198,34 @@ Step32는 Complete, Step33은 Pending이다. 원본14/31/31 source와 baseline �
 
 ## Required Verification
 
-### 현재 존재하는 명령
+### 현재 검증 명령과 최종 증거
 
-- npm run test:unit
-- npm run test:audio-browser — 임시 Playwright/esbuild·Chromium 도구가 필요하며 현재 verify에는 없다.
-- npm run check:contracts / npm run check:sw / npm run check:pwa
-- npm run typecheck / npm run build / npm run verify
+- `npm run verify`: 기존 contracts/SW/PWA/unit/typecheck/build 순서를 보존한다.
+- `npm run verify:fast`: build/browser 제외 필수 계층, 독립24.83초 exit0.
+- `npm run verify:all`: verify → component → server → harness → 전체 browser, 독립258.86초 exit0.
+- `npm run test:coverage`: unit(c8)/component(V8)/server(V8) 분리·baseline 검사, 독립15.28초 exit0.
+- 개별 unit/component/server/harness/browser·audio-browser 및 contracts/SW/PWA/typecheck/build 명령도 유지한다.
 
-### 구현 후 만들 명령
-
-다음은 **제안 이름이며 현재 package.json에 없다**. Phase 0에서 확정한다.
-
-| 제안 | 실행 범위 |
-| --- | --- |
-| test:component | 컴포넌트·hook·브라우저 API 경계의 DOM 테스트 |
-| test:server | env·cookie·route·middleware 경계 |
-| test:harness | 임시 fixture 기반 scripts/SW 동작 |
-| test:browser | client fixture 및 실제 Next 프로젝트를 명확히 나눈 브라우저 검사 |
-| test:coverage | source 기준 단위/UI/서버 커버리지; 엔진별 결과를 구분 |
-| verify:all | 기존 verify + 신규 필수 suite + 브라우저 검사 |
-
-기본 verify의 변경은 Step 32에서 빠른 실행 비용을 확인하고 결정한다. 전체 자동 검사에는 DB/RLS와 실기기를 넣지 않는다. CI가 필요해지면 같은 명령을 연결하는 별도 요청으로 다룬다.
+최종 source는 `ae94e04`이며 Step33은 문서만 변경한다. 독립 실행 로그는
+`verification-artifacts/step32-independent-{fast,all,coverage,audit}.log`다.
+unit276/component110/server33/harness99/browser121 일반 PASS, skip/todo/expected-fail0.
+실제 DB/RLS·OAuth·Android 실기기 확인은 follow-up.md 범위이며 이 자동 PASS에 포함하지 않는다.
+기존 verify를 변경하지 않는 결정을 확정했다. CI 연결은 별도 요청 범위다.
 
 ### 계획 완료 기준
 
-- [ ] inventory.md의 모든 운영 파일에 실행 가능한 검증 책임 또는 합의한 제외 이유가 있다.
-- [ ] scenarios.md의 필수 자동 시나리오에 테스트 경로·결과를 연결했고 모두 통과한다.
-- [ ] reading-store의 모든 공개 함수에 매핑·조회/쓰기 범위·오류 처리 검증이 있다.
-- [ ] 기존 단위 6개 파일과 오디오 7개 브라우저 회귀가 보존된다.
-- [ ] 새 테스트의 단독/전체 실행, 신규 파일 발견, 실패 exit code를 확인한다.
-- [ ] 날짜·storage·env·mock·timer 상태 누출이 없고 미import 모듈 커버리지를 확인한다.
-- [ ] npm run verify와 구현 후 verify:all이 통과한다.
-- [ ] 실제 DB/RLS·실기기·OAuth의 미검증 범위를 명시한다.
-- [ ] 발견 결함이 필수 기대 동작을 깨뜨리지 않으며 구현 리뷰와 문서 승격을 완료한다.
+- [x] inventory.md의 모든 운영 파일에 실행 가능한 검증 책임 또는 합의한 제외 이유가 있다.
+- [x] scenarios.md의 필수 자동 시나리오에 테스트 경로·결과를 연결했고 모두 통과한다.
+- [x] reading-store의 모든 공개 함수에 매핑·조회/쓰기 범위·오류 처리 검증이 있다.
+- [x] 기존 단위 6개 파일과 오디오 7개 브라우저 회귀가 보존된다.
+- [x] 새 테스트의 단독/전체 실행, 신규 파일 발견, 실패 exit code를 확인한다.
+- [x] 날짜·storage·env·mock·timer 상태 누출이 없고 미import 모듈 커버리지를 확인한다.
+- [x] npm run verify와 구현 후 verify:all이 통과한다.
+- [x] 실제 DB/RLS·실기기·OAuth의 미검증 범위를 명시한다.
+- [x] 발견 결함이 필수 기대 동작을 깨뜨리지 않으며 구현 리뷰와 문서 승격을 완료한다.
 
 커버리지는 공백을 찾는 증거다. 초기 수치를 측정하지 않은 채 임의의 전역 퍼센트 gate를 만들지 않는다. Step 02에서 source 범위/baseline, Step 32에서 기존 대비 후퇴 방지 방식을 기록한다. 핵심 시나리오 누락은 높은 커버리지로 상쇄하지 않는다.
 
 ## Planning Verification
 
-계획 작성 중 npm run plan:workflow, npm run test:unit, npm run check:contracts를 실행했다. 신규 테스트·하네스는 아직 구현하거나 실행하지 않았다. 상세 기록은 review.md에 둔다.
+계획 작성 당시 npm run plan:workflow/test:unit/check:contracts를 실행했다. 이후 Step01–33과 승인된 추가 step을 완료했다. 최종 자동 검증은 위 Step32 로그를 재사용하며 Step33 문서 감사/계약·diff 결과와 후속 인계는 review.md에 기록한다.
