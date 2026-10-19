@@ -47,7 +47,7 @@
 | M01 | 표지 | 960px 상한·확대 없음·JPEG 흰 배경·load/context 오류·URL 해제 | 27 Complete | DOM 경계/browser | lib/cover-image.ts | tests/components/cover-image.test.ts; tests/browser/client/qr-image.spec.mjs | Step 27: focused component 15 PASS; real browser 6 PASS. full 결과는 review.md; DB/실기기 제외. |
 | M02 | QR 판독 | 합성 QR의 실제 decode·반전·공백·없는 QR·0크기 | 27 Complete | DOM 경계/browser | lib/qr-reader.ts | tests/components/qr-reader.test.ts; tests/browser/client/qr-image.spec.mjs | Step 27: focused component 15 PASS; real browser 6 PASS. full 결과는 review.md; DB/실기기 제외. |
 | M03 | 카메라/업로드 | 필드 적용·권한/미지원·late stream·track/interval 정리 | 28 Complete | browser API 대역 | app/reading-manager-client.tsx | tests/browser/client/camera-upload.spec.mjs | Step 28 Complete: 승인된 play 취소 guard로 close/unmount 2 FAIL → 2 PASS; 파일 독립 17 PASS, 전체 browser 95 ordinary PASS + 기존 expected-fail 1, verify exit 0. 실제 카메라/DB/RLS 제외. |
-| P01 | SW 실행 | install/activate·cache cleanup·GET/nonGET·offline fallback | 29 | worker 대역/Next browser | public/sw.js; public/manifest.webmanifest | tests/harness/service-worker.test.mjs; tests/browser/pwa.spec.ts | E08 정적만; 신규 대기 |
+| P01 | SW 실행 | install/activate·cache cleanup·GET/nonGET·offline fallback·등록 실패 | 29 Complete | worker 대역/실제 Next SW allow | public/sw.js; public/manifest.webmanifest; app/reading-manager-client.tsx | tests/harness/service-worker.test.mjs; tests/browser/pwa/service-worker.spec.mjs | worker 15 PASS + browser 4 PASS; SW/PWA 정적 PASS. cached HTML/icon 응답이며 전체 offline 앱 보장 아님 |
 | P02 | 모바일 표시 | 360/390px·긴 한국어·버튼·dialog·의도된 표 스크롤 | 30 | browser | app/layout.tsx; styles.css; public/manifest.webmanifest; public/assets/** | tests/browser/mobile-layout.spec.ts | E07 모바일 실행 일부·E08 정적; 신규 대기 |
 | T01 | 러너/하네스 | 새 파일 발견·삭제 산출물·0개/실패 exit·임시 fixture | 02·03·31 | harness/component/hook | scripts/run-unit-tests.mjs; scripts/check-contracts.mjs; scripts/check-pwa.mjs; scripts/plan-workflow.mjs; scripts/plan-archive.mjs; scripts/git-publish.mjs; scripts/smoke-audio-completion.mjs; tests/helpers/completion-supabase-fake.ts; tests/helpers/async-fixtures.ts; tests/helpers/reading-fixture.ts; vitest.component.config.ts; vitest.server.config.ts; tests/support/ | tests/harness/unit-runner.test.mjs; tests/unit/test-fixtures.test.ts; tests/harness/component-server-runner.test.mjs; tests/hooks/lifecycle-harness.test.tsx; tests/components/assignment-quiz-score.test.tsx | Step 02: harness 8·fixture 4 PASS; Step 03 실행 기록 아래; Step 31 다른 도구 대기 |
 | T02 | 전체 검증 | 필수 suite 탐색·독립/전체 실행·coverage 공백·로그 인계 | 32·33 | 전체 자동 | package.json; package-lock.json; tsconfig.json; tsconfig.test.json; next.config.mjs; .gitignore; next-env.d.ts; AGENTS.md; README.md; docs/**; plans/**; .env.example | review.md; inventory.md; scenarios.md; 후속 coverage report 경로 확정 | Step 02 source baseline 기록; 전체 gate/coverage는 Step 32–33 대기 |
@@ -269,3 +269,25 @@ Step 01은 아래 파일과 테스트명을 정적으로 대조했다. E01~E06�
 | A04-B01 | OAuth 요청 중 Google·로컬 로그인 버튼 → 모두 disabled, 완료 뒤 Google 재활성화 | tests/components/auth-panel.test.tsx::A04-B01 | PASS |
 
 Step 18에서 추가·실행한 경계 테스트다. root component 4 files/17 tests PASS (`verification-artifacts/step18-component-root-final.log`); 제품 코드 변경 없음이며 실제 Google/OAuth redirect/session persistence/DB/RLS는 미검증이다. non-local hostname은 jsdom 클릭 시점 `window.location.hostname` 대역이다.
+
+## Step 29 — P01 서비스 워커 실행 시나리오
+
+| ID | 사전 상태 → 행동 → 기대 결과 | 검증 |
+| --- | --- | --- |
+| P01-N01 | install → 현재 shell 전체 준비/skipWaiting 및 cache 자산 사용 | worker PASS |
+| P01-N02 | root cache 있음 → online navigation → 서버 문서 우선 | worker PASS |
+| P01-N03 | cache hit → offline 자산 GET → 네트워크 없이 cache 응답 | worker PASS |
+| P01-E01/E02 | 이전 cache 또는 빈 목록 → activate → 이전 cache만 삭제/client claim | worker 2 PASS |
+| P01-E03 | root 준비/네트워크 실패 → navigation → root fallback | worker PASS |
+| P01-E04 | cache miss → GET → network 응답, 동적 cache 없음 | worker PASS |
+| P01-E05 | POST/PUT/DELETE/HEAD → fetch event → 가로채지 않음 | worker 4 PASS |
+| P01-E06 | root cache 부재/오프라인 → navigation → 유효 fallback Response 없음 (성공 보장 불가) | worker PASS; offline 계약의 한계 |
+| P01-F01/F03 | addAll/open 거절 → install → promise 실패 관찰 | worker 2 PASS |
+| P01-F02 | 미캐시 자산/네트워크 실패 → GET → 실패 유지 | worker PASS |
+| P01-B01 | 실제 Next → manifest/icon 조회 → 설치 메타와 MIME/내용 응답 | next-pwa PASS |
+| P01-B02 | 로그인 앱 shell → 실제 SW 등록/제어·shell cache → online auth/error 문서 | next-pwa PASS |
+| P01-B03 | 성공한 shell 준비 → offline auth/error navigation → cached root HTML 동일 및 SVG GET 성공 | next-pwa PASS; 전체 hydration/쓰기 보장 제외 |
+| P01-B04 | register 거절 대역 → 실제 Next 앱 → 등록 실패 안내/프로필 shell 유지 | next-pwa PASS |
+
+각 worker는 독립 VM/cache 대역, 각 browser는 독립 context/local Next·Auth HTTP fixture다.
+기존 mock 브라우저는 SW block을 유지한다. 상세 명령/로그/정리 증거는 Step 29 task와 review에 기록했다.

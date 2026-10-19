@@ -260,7 +260,7 @@ mkdir -p "$TMPDIR"
 node node_modules/@playwright/test/cli.js install chromium --no-remove
 npm run test:audio-browser
 npm run test:browser:next
-# 두 프로젝트를 함께 실행한다.
+# 세 프로젝트를 함께 실행한다.
 npm run test:browser
 ```
 
@@ -280,7 +280,16 @@ Next SSR/Auth 검증이 아니다.
 Auth HTTP 대역은 등록한 경로/메서드만 응답한다. Next child의 fetch는 로컬 Auth origin만
 허용한다. Next dev의 알려진 npm 버전 확인 요청 한 건은 외부 전송 없이 503으로 대체한다.
 다른 요청은 차단하고 catch하더라도 teardown에서 실패한다. 이 guard는 앱의 fetch 경계이며
-임의 Node socket의 보안 sandbox를 제공하지 않는다. service worker는 이 계층에서 block한다.
+임의 Node socket의 보안 sandbox를 제공하지 않는다. 기존 `client-http`와 `next-auth-http`는
+service worker를 block하고, 별도 `next-pwa` 프로젝트만 allow한다.
+
+`npm run test:browser -- --project=next-pwa`는 `tests/browser/pwa/*.spec.mjs`를 실행한다.
+실제 Next/local Auth HTTP fixture와 test별 독립 context에서 manifest/icon 응답, 앱의 SW 등록,
+online navigation, 등록 거절 안내를 확인한다. offline은 성공한 shell 준비 뒤 cached root HTML과
+precached icon 응답의 증거다. 앱 전체 offline hydration·조작·쓰기, 설치 전 offline 접근,
+production build나 Android 설치를 보장하지 않는다. `page.request`는 browser route guard를
+우회하므로 manifest/icon의 resolved origin을 로컬 Next origin과 요청 전에 대조하고 redirect를 차단한다.
+worker event/cache/fetch 실행은 `node --test tests/harness/service-worker.test.mjs`로 별도 검증한다.
 
 매 명령은 `verification-artifacts/browser-<time>-<pid>/`에 JSON report/요청 attachment를 남기고
 실패에는 trace.zip·screenshot·오류 맥락을 보존한다. 서버 시작 실패는 Next 로그와 cleanup.json을
@@ -289,7 +298,8 @@ context를 닫고, fixture가 지연 응답을 풀고 HTTP 서버·Next process 
 finally에서 정리한다. 실패 artifact와 버전별 브라우저 cache만 보존한다.
 
 이 검사는 기본 `verify`와 별도다. phase 0 종료에는 verify와 component/server/harness/browser를
-함께 실행하고 browser 두 프로젝트를 각각 독립 명령으로 두 번 확인한다. 실제 안드로이드
+함께 실행했다. 당시 browser 두 프로젝트의 독립 실행 증거는 Step 04에, 추가한 PWA 프로젝트의
+독립 실행 증거는 Step 29에 기록한다. 실제 안드로이드
 설치형 PWA와 외부 오디오 앱 전환 검증은 후속으로 남긴다. [Playwright fixture 수명주기](https://playwright.dev/docs/test-fixtures), [네트워크 대체](https://playwright.dev/docs/network).
 
 ## 다음 하네스 후보

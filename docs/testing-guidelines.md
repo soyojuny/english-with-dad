@@ -122,8 +122,13 @@ npm run test:unit
 | 하네스 발견/실패/정리 | tests/harness/*.test.mjs | npm run test:harness |
 | client HTTP 브라우저 | tests/browser/client/*.spec.mjs | npm run test:audio-browser 또는 test:browser:client |
 | 실제 Next/Auth HTTP 브라우저 | tests/browser/next/*.spec.mjs | npm run test:browser:next |
+| 실제 Next/PWA 브라우저 | tests/browser/pwa/*.spec.mjs | npm run test:browser -- --project=next-pwa |
 
-`npm run test:browser`는 두 브라우저 프로젝트를 함께 발견한다. UI/서버 mock은 네트워크를
+`npm run test:browser`는 세 브라우저 프로젝트를 함께 발견한다.
+기존 `client-http`와 `next-auth-http`는 service worker를 block하고, `next-pwa`만 allow한다.
+PWA는 실제 Next의 등록·manifest/icon 응답과 준비된 cache의 root HTML/icon offline 응답을 검증한다.
+앱 전체 offline hydration·조작·쓰기나 설치 전 offline 접근을 보장하지 않는다.
+`page.request`는 route guard를 우회하므로 manifest/icon URL의 origin을 요청 전에 확인하고 redirect를 차단한다. UI/서버 mock은 네트워크를
 명시 대체하고 test 종료 시 DOM/storage/env/spy/timer를 복원한다. 브라우저는 독립 context를
 사용한다. async Page·middleware의 SSR HTTP는 실제 Next와 로컬 HTTP 대역으로 검사하며,
 브라우저 route 대체 결과와 구분한다. cache/임시파일/실패 artifact의 경로와 실행 조건은

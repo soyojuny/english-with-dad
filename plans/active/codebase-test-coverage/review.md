@@ -2,7 +2,43 @@
 
 ## Status
 
-Step 01–28 Complete (Step 28a 승인된 결함 수정 포함). 사용자 요청으로 Step 28 완료 후 중단한다. Step 29–33 Pending.
+Step 01–29 Complete (Step 28a 승인된 결함 수정 포함). Step 29의 독립 harness·정적 검증과 루트 최종 검토를 마쳤다. Step 30–33 및 승인된 별도 수정 Step 31a는 Pending이다. 지정 모델의 Codex 계정 사용량 한도로 Herdr pane의 후속 작업은 실행하지 못했다.
+
+## Step 29 Complete — 2026-10-19
+
+제품 변경 없이 `tests/harness/service-worker.test.mjs` 15개와
+`tests/browser/pwa/service-worker.spec.mjs` 4개를 추가했다. `next-pwa`만 serviceWorkers=allow이며
+기존 두 프로젝트의 block은 유지했다. 작은 GWT 시나리오로 install/activate/GET/nonGET,
+cache open/addAll 실패, uncached fetch 실패, root cache 부재, manifest/icon 응답,
+앱의 실제 등록 및 online/offline root HTML fallback, 등록 실패 안내를 보호한다.
+
+| 명령/근거 | 결과 |
+| --- | --- |
+| `env -u NODE_TEST_CONTEXT node --test tests/harness/service-worker.test.mjs` | 15 PASS, exit 0; `verification-artifacts/step29-worker-focused.log` |
+| `npm run test:browser -- --project=next-pwa` | 4 PASS, exit 0 (57.8s); `verification-artifacts/step29-browser-focused.log` |
+| 독립 검토 수정 후 focused | `env -u NODE_TEST_CONTEXT node --test tests/harness/service-worker.test.mjs`: 15 PASS/exit 0; `npm run test:browser -- --project=next-pwa service-worker.spec.mjs`: 4 PASS/exit 0 (36.0s); `verification-artifacts/step29-worker-focused.log`, `verification-artifacts/step29-browser-focused-final.log`; artifact `verification-artifacts/browser-1792400493264-345194/` |
+| `npm run check:sw`; `npm run check:pwa` | PASS, exit 0; `verification-artifacts/step29-static.log` |
+| `npm run test:browser -- --project=next-pwa --list` | 1 file/4 tests 발견; `verification-artifacts/step29-discovery.log` |
+| 임시 잘못된 cache 기대값 probe | P01-N01 assertion 실패/exit 1 확인, 임시파일 제거; `verification-artifacts/step29-worker-failure-probe.log` |
+| Next fixture 정리 | `verification-artifacts/browser-1792400320381-342144/`의 cleanup.json 4개 모두 임시 디렉터리 제거/프로세스 종료 true |
+| 독립 worker·전체 harness | sandbox 밖 `env -u NODE_TEST_CONTEXT node --test tests/harness/service-worker.test.mjs`: 15 PASS; `env -u NODE_TEST_CONTEXT npm run test:harness`: 28 PASS, fail/skip/todo 0; `verification-artifacts/step29-independent-worker-unsandboxed.log`, `verification-artifacts/step29-independent-harness-unsandboxed.log` |
+| 독립 정적 검사 | typecheck/contracts/SW/PWA/diff check 모두 exit 0; `verification-artifacts/step29-independent-{typecheck,contracts,sw,pwa,diff}.log` |
+
+첫 browser sandbox 실행은 Chromium 시작 권한 오류였고 권한 확보 뒤 동일 suite가 통과했다.
+root cache가 없으면 worker는 유효 fallback Response를 만들 수 없다. 성공한 shell 준비 뒤의
+cached HTML과 precached icon 응답만 자동 검증하며, 앱 전체 offline 사용/JS·CSS precache/
+offline 쓰기/production build·Android/실제 DB·RLS·OAuth는 보장하지 않는다.
+신규 제품 결함/제품 수정/skip/expected-fail은 없다. 기존 결함 4종/6 expected-fail은 사용자 “계속해” 응답으로
+별도 최소 수정 Step 31a를 승인받았으나 아직 수정하지 않았다. build/verify/전체 browser 재실행은 이번 step에서 하지 않았다.
+독립 검토 finding 3개를 반영했다: N01 fetch/B01 icon 요청을 When으로 옮겼고,
+manifest/icon resolved origin을 실제 HTTP 요청 전에 로컬 Next origin과 assert하며 redirect도 차단했다.
+`docs/development-harness.md`와 `docs/testing-guidelines.md`는 3개 프로젝트 및 기존 2 block/next-pwa만 allow,
+offline HTML/icon 증거 범위로 갱신했다. `env -u NODE_TEST_CONTEXT` 단일 worker 재실행은 15 PASS다.
+독립 pane의 초기 검토 finding 3개 반영 후 루트가 최종 파일과 실제 로그를 대조했다.
+최종 직접 Standards/Spec 검토는 0/0 findings다. 독립 pane의 최종 서면 보고 생성은 계정 한도로 실패했지만,
+이미 종료된 검사 로그의 15/28 PASS와 정적 검사 결과는 루트가 직접 확인했다.
+구현·테스트 pane은 GPT-6.1-Sol·medium을 유지하며, 계정 한도 안내는 오후 9:40 이후 재시도다.
+남은 step은 실행하거나 완료로 표시하지 않았다. push/배포는 하지 않았다.
 
 ## Step 28 Complete — 2026-10-19
 

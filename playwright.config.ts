@@ -25,5 +25,6 @@ export default defineConfig({
   projects: [
     { name: "client-http", testDir: "./tests/browser/client" },
     { name: "next-auth-http", testDir: "./tests/browser/next" },
+    { name: "next-pwa", testDir: "./tests/browser/pwa", use: { serviceWorkers: "allow" } },
   ],
 });
