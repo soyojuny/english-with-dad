@@ -2,7 +2,49 @@
 
 ## Status
 
-Step 27 Complete; Phase 6 진행 중. Step 28–33 Pending.
+Step 01–28 Complete (Step 28a 승인된 결함 수정 포함). 사용자 요청으로 Step 28 완료 후 중단한다. Step 29–33 Pending.
+
+## Step 28 Complete — 2026-10-19
+
+기준 HEAD는 `ebfe826`이다. `tests/browser/client/camera-upload.spec.mjs`의 17개 테스트와
+실제 React root unmount test hook을 추가했다. 카메라 권한·영상 재생·프레임 source는 대역이며,
+QR 파일의 createImageBitmap·canvas·운영 jsQR 판독은 실제로 실행한다. 브라우저마다 독립 context와
+고정 한국 시간·제어 Promise/clock을 사용하며, context 종료로 API 대역과 timer를 폐기한다.
+기존 fixture의 엄격한 HTTP 허용 목록/요청 JSON/실패 trace·화면과 server finally 정리를 재사용한다.
+
+- 정상: listen/shadow 필드 분리, 합성 camera QR 판독 후 listen→shadow 복사,
+  압축된 JPEG preview와 word-reading QR 대상 필드를 검증한다.
+- 경계: blank 프레임·QR 없는 파일과 같은 input 재시도, 닫기/재오픈, 일반 책의 shadow QR 사용 뒤
+  word-reading으로 전환한 저장 payload, non-URL QR의 form invalid/no-write를 확인한다.
+- 실패·수명주기: 권한 거부/장치 없음/미지원 안내와 수동 입력, 깨진 파일 안내,
+  late stream close/unmount, 실행 중 scan unmount, play 대기 중 close/unmount를 확인한다.
+- file QR의 bitmap.close와 scan track.stop/interval.clear를 관찰한다. file QR 경로는 object URL을
+  만들지 않으며 표지 helper의 object URL 해제는 Step 27에서 검증했다.
+
+M03-E07은 `video.play()` 보류 → 닫기 또는 unmount → resolve 순서에서 미해제 interval을
+각각 1개 관찰했다. 최초 1 FAIL은 `step28-play-close-red.log`, 최종 두 재현의 2 FAIL은
+`step28-play-cancel-red.log`다. 사용자에게 별도 [Step 28a](tasks/28a-qr-scan-cancellation.md)의
+최소 guard 수정 승인을 받은 뒤 `await qrVideoRef.current.play()` 다음에 `if (cancelled) return;`
+1줄을 추가했다. 기존 cleanup은 track 정지를 맡고, guard는 종료 후 상태 갱신/타이머 설치를 막는다.
+기대 단언을 변경하거나 expected-fail/skip으로 바꾸지 않고 동일 두 회귀가 GREEN으로 전환됐다.
+
+| 명령 | 결과·artifact |
+| --- | --- |
+| 수정 전 focused | 초기 15 PASS (`step28-focused.log`); 유형 전환 payload 보강 1 PASS (`step28-type-switch.log`) |
+| 수정 전 나머지 client | `--grep-invert M03-E07`: 89 ordinary PASS + 기존 U09-F07 expected-fail 1, exit 0 (`step28-client-before-fix.log`). 새 실패를 제외한 실행으로 전체 통과 근거가 아니다. |
+| 수정 후 M03-E07 focused | 2 PASS, exit 0; `verification-artifacts/step28-play-cancel-green.log` |
+| 수정 후 camera 파일 독립 실행 | 17 PASS, exit 0; `verification-artifacts/step28-camera-final.log` |
+| `TMPDIR="$PWD/verification-artifacts/tmp" npm run verify` | exit 0; contracts/SW/PWA/unit 17 files/typecheck/build PASS; `verification-artifacts/step28-verify-final.log` |
+| 수정 후 전체 `npm run test:browser` | exit 0, 95 ordinary PASS + 기존 U09-F07 expected-fail 1 (summary 96 passed), skip/unexpected/flaky 0; `verification-artifacts/step28-browser-all-final.log`, JSON report `verification-artifacts/browser-1792398916694-316018/report.json` |
+| `git diff --check` | exit 0 |
+
+기존 PWA cached asset/manifest/install 동작과 DB 계약은 변경하지 않았다. 실제 카메라/Android,
+DB/RLS/OAuth는 검증하지 않았다. 신규 발견·실패 전달은 Step 04의 러너 회귀와 이번 M03-E07의
+실제 nonzero RED 실행을 근거로 삼는다. 직접 Standards/Spec 검토는 각각 0 findings다.
+기존 U09-F07의 print 취소 결함은 이번 수정 범위 밖이며 expected-fail 1개로 구분했다.
+기존 audio 7개와 실제 Next 4개도 전체 browser 실행에서 보존했다.
+사용자가 Step 28 완료 후 우선 중단하도록 지정했으며 Step 29–33은 시작하지 않았다.
+Step 28/28a를 Complete로 기록하고 요청한 지점에서 중단한다.
 
 ## Step 27 Execution — 2026-10-19
 
@@ -31,7 +73,7 @@ QR DOM 경계 7개와 실제 Chromium 이미지 검사 6개를 추가했다. 가
 
 제품 코드는 변경하지 않았다. `tests/browser/client/parent-report.spec.mjs`와 strict parent HTTP fixture를 추가했다. final focused는 `verification-artifacts/step26-focused-root-final.log`에서 ordinary 15 PASS + U09-F07 1 expected-fail(exit 0; Playwright summary 16 passed)다. U09-F07은 아동 화면 전환이 완료된 뒤에도 대기 print가 1회 호출되는 정확한 `1 !== 0`만 허용하며, 다른 setup/selector/network 실패는 통과로 바꾸지 않는다. 이는 제품 미수정 follow-up이다. print 정상 경로는 월간 전용 기록이 week fetch 뒤 사라지고 5건/20분/2권/7일이 된 뒤 at-call snapshot을 검사한다. print 준비 실패 재검사는 `step26-print-failure-root-final.log`에서 1 PASS다. full client HTTP는 ordinary 68 PASS + U09-F07 1 expected-fail, audio wrapper는 7 PASS다. root Phase 5 gate는 verify exit 0 (`verification-artifacts/step26-verify-root-final.log`: contracts/SW/PWA/unit 17/typecheck/build) 및 component 11 files/91 PASS + 기존 component expected-fail 4 (`verification-artifacts/step26-component-root-final.log`)다. Standards/Spec final review는 0/0이다. 실제 DB/RLS/OAuth, 물리 출력, Android는 범위 밖이다.
 
-Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 01–27은 Complete, Step 28–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
+Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 01–28은 Complete, Step 29–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
 
 ## Step 25 Complete — 2026-10-19
 

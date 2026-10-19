@@ -631,6 +631,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
         if (!qrVideoRef.current) return;
         qrVideoRef.current.srcObject = stream;
         await qrVideoRef.current.play();
+        if (cancelled) return;
         setQrState((current) => ({
           ...current,
           status: "QR 코드를 화면 중앙에 맞춰 주세요. 안 되면 아래에서 QR 사진을 올리세요.",

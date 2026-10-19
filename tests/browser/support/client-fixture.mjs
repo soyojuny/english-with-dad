@@ -18,7 +18,7 @@ export const test = base.extend({
     try {
       await build({
         stdin: {
-          contents: `import React from 'react'; import {createRoot} from 'react-dom/client'; import ReadingManagerClient from '${root}/app/reading-manager-client.tsx'; createRoot(document.getElementById('root')).render(React.createElement(ReadingManagerClient,{ownerUserId:'owner-1',onSignOut:()=>{},isSigningOut:false}));`,
+          contents: `import React from 'react'; import {createRoot} from 'react-dom/client'; import ReadingManagerClient from '${root}/app/reading-manager-client.tsx'; const root=createRoot(document.getElementById('root')); window.__unmountReadingManager=()=>root.unmount(); root.render(React.createElement(ReadingManagerClient,{ownerUserId:'owner-1',onSignOut:()=>{},isSigningOut:false}));`,
           resolveDir: root, loader: 'jsx',
         },
         outfile: join(directory, 'app.js'), bundle: true, platform: 'browser', jsx: 'automatic',

@@ -162,6 +162,13 @@ DB/RLS 후속 검증은 로컬 환경과 별도 실행 계층이 필요하다. S
 
 Phase 0 완료 뒤 순수 로직부터 검증하고 store 대역에 필요한 fixture를 다듬는다. UI 전체 흐름은 관련 컴포넌트와 store 계약이 준비된 뒤 작성한다. Step 04의 실제 Next 서버용 Auth 대역 feasibility는 초기에 확인해 서버 페이지 검증을 마지막에 미루지 않는다.
 
+### 실행 체크포인트 — 2026-10-19
+
+Step 01–28은 Complete다. Step 28에서 재현한 play 이후 스캔 타이머 재생성은
+별도 [Step 28a](tasks/28a-qr-scan-cancellation.md)로 최소 guard 수정을 승인받아
+RED → GREEN을 확인했다. **사용자 요청에 따라 Step 28 완료 후 여기서 중단한다.**
+Step 29–33은 Pending이며 전체 자동 계획 완료를 의미하지 않는다.
+
 ### Step 공통 완료 규칙
 
 - 상태는 Pending → In Progress → Complete로 기록한다. 계획 작성 시에는 모두 Pending이었고, 현재 Step 01의 완료 결과는 해당 task와 review.md에 기록한다. 나머지 step은 루트가 전달하기 전까지 Pending이다.

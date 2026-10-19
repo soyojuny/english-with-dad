@@ -133,6 +133,11 @@ npm run test:unit
 `npm run test:browser:client -- qr-image.spec.mjs`는 합성 PNG와 실제 canvas/jsQR로 판독한다.
 합성 이미지의 원문과 생성 조건은 `tests/browser/fixtures/README.md`에 기록한다.
 
+`npm run test:browser:client -- camera-upload.spec.mjs`는 실제 QR 파일 판독과 폼 연결,
+카메라 권한 오류 및 close/unmount 정리를 검사한다. 카메라·영상 재생은 합성 대역이고
+파일 decode·canvas·jsQR는 실제 실행한다. 테스트 bundle의 unmount hook과 브라우저 API 대역은
+테스트별 독립 context에만 존재하며 실제 기기 카메라 검증은 후속으로 남긴다.
+
 기능 변경의 전체 검증은 `npm run verify`로 수행한다. UI와 외부 앱 전환 등 브라우저 검증의 범위와 실행 방법은 [개발 하네스](development-harness.md)를 따른다.
 
 ## 리뷰 체크리스트
