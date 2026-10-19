@@ -690,11 +690,13 @@ Step02의 V8 함수 baseline과 현재 c8/Vitest TS/TSX 수치는 엔진/범위�
 
 ## Follow-up
 
+2026-10-20 사용자 결정: 개인용 간단한 시스템의 동작 정책 Q01–Q05(날짜 입력·검색 wildcard·삭제 0행·인증 상세 처리·표지 load 실패)는 현재 동작을 유지한다. 추가 정책 결정이나 적대적 입력 검토·구현·테스트를 요구하지 않고 닫는다. 본문의 이전 미확정 표기는 당시 이력이다.
+
 [follow-up.md](follow-up.md)의 실제 DB migrations13/RLS·constraints·RPC·DB 경쟁,
 실제 OAuth/session, Android 설치·실카메라/권한·외부 앱 복귀·키보드/TalkBack·물리 출력을 유지한다.
 실제 SQL/계정/실기기 및 EXDEV/Windows/실remote는 자동 PASS로 주장하지 않는다.
 SW offline은 cached root HTML/icon 응답 범위다. 전체 앱 offline 가능을 보장하지 않는다.
-사용자 참조를 위해 active 계획 경로를 유지하며 archive 이동/삭제하지 않는다.
+2026-10-20 사용자 요청으로 계획을 `plans/archive/codebase-test-coverage/`로 이관했다. 앞선 active 경로 유지·archive 미실행 기록은 이관 전 이력이다.
 
 ## Promotion Candidates
 

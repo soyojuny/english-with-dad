@@ -195,14 +195,14 @@ Step 01은 아래 파일과 테스트명을 정적으로 대조했다. E01~E06�
 
 ## 결정 필요 입력 경계
 
-이 항목들은 제품 결함으로 판정하지 않았다. 후속 step은 외부에서 도달 가능한 입력인지 확인하고 요구사항/기존 도메인 문서로 기대 결과를 정한다. 실패 계약이 확인되면 root에 증거를 보고하며 제품 코드를 임의 수정하지 않는다.
+2026-10-20 사용자 결정: 개인이 쓰는 간단한 시스템이므로 아래 Q01–Q05는 현재 동작을 유지하고 검토를 닫는다. 추가 정책 결정·적대적 입력 검토·구현·테스트를 후속 과제로 요구하지 않는다. 문서의 앞선 미확정 표기는 당시 이력이다.
 
 | ID | 확인할 경계 | 담당 step | 현재 처리 |
 | --- | --- | --- | --- |
 | Q01 | malformed/존재하지 않는 날짜, native date 입력 밖 조작의 처리 | 05·24 | 역전 범위=[]는 확정; 다른 invalid 날짜를 현재 출력으로 고정하지 않음 |
 | Q02 | 검색 ilike의 %, _ 등 wildcard를 literal로 볼지 패턴으로 볼지 | 12·23 | 현재 요청 전달 대조만; escaping 정책을 새 요구로 추가하지 않음 |
 | Q03 | 삭제 대상이 이미 없는 0행 결과를 idempotent 성공으로 볼지 | 14·24·26 | DB error 전파는 확정; 별도 오류 처리를 임의 추가하지 않음 |
-| Q04 | callback next의 query/hash·SDK rejection, getUser 오류 상세 표시 | 17 | 같은 origin redirect·code/next 제거·no-store는 확정; query/hash 정책은 미확정, 추가 정책 확인 |
+| Q04 | callback next의 query/hash·SDK rejection, getUser 오류 상세 표시 | 17 | 같은 origin redirect·code/next 제거·no-store 및 나머지 현재 동작 유지; 추가 정책 확인 없이 닫음 |
 | Q05 | 잘못된 cover URL의 이미지 load 실패 시 UI 대체 표시 | 20·30 | 없는 cover/단어 자료의 대체 표시만 확정; load fallback 신설 없음 |
 
 ## Step 02 실제 실행 기록

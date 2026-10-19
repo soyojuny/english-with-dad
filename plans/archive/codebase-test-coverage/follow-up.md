@@ -4,6 +4,8 @@
 
 현재 필수 계획은 DB query 대역·HTTP fixture·로컬 Next 브라우저 검사까지다. 실제 DB가 없어 SQL·RLS를 실행하지 않으며, 실기기는 후속 확인하도록 사용자가 선택했다. 아래 항목은 필수 step에 포함하지 않고 이 계획의 자동 통과를 막지 않는다. 미확인 결과를 검증 성공으로 표시하지 않는다.
 
+2026-10-20 사용자 결정: 개인용 간단한 시스템이므로 동작 정책 Q01–Q05는 현재 동작을 유지하고 닫는다. 날짜 입력·검색 wildcard·삭제 0행·인증 상세 처리·표지 load 실패에 대한 추가 정책 결정이나 적대적 입력 검토·구현·테스트는 후속 과제로 요구하지 않는다.
+
 ## DB와 RLS
 
 시작 조건: 사용자가 별도 DB 검증 작업을 요청하고, 운영과 분리된 폐기 가능한 로컬 Supabase 또는 테스트 전용 환경이 준비된다. 이 계획은 그 환경을 설치·연결·초기화하지 않는다. 후속 계획에서 실행 대상과 reset 범위를 먼저 확인한다.
@@ -80,4 +82,4 @@ Step02 엔진/범위의 수치와 직접 비교하지 않는다. count baseline�
 핵심 시나리오 assertion과 별도 browser/harness 실행을 함께 유지한다. SW/async Page의 Vitest0은
 각각 Step29 worker·실제 PWA 및 Next Auth 실행 증거와 구분한다. cached root HTML/icon 성공은 전체 offline 앱 보장이 아니다.
 EXDEV archive fallback·Windows shim/도구 호환·실remote commit/push는 기존 fixture 범위 밖이다.
-계획 경로는 사용자 참조를 위해 active에 유지하며 archive 이동/삭제하지 않는다.
+2026-10-20 사용자 요청으로 계획을 `plans/archive/codebase-test-coverage/`로 이관했다. 실제 환경 후속 확인 목록은 이 문서에 보존한다.

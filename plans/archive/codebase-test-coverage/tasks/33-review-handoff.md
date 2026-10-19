@@ -14,7 +14,7 @@ Phase 7 — 하네스와 최종 검증.
 
 대상 코드:
 
-- plans/active/codebase-test-coverage/
+- plans/archive/codebase-test-coverage/ (2026-10-20 사용자 요청으로 이관)
 - docs/testing-guidelines.md
 - docs/development-harness.md
 
