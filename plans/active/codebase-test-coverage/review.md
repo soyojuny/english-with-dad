@@ -2,9 +2,15 @@
 
 ## Status
 
-Step 24 Complete
+Step 25 Complete
 
-Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 01–24는 Complete, Step 25–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
+Step 01–03은 루트의 두 축 검토 0 findings와 필수 PASS 후 main 7dd0f93·1573172·8ee525c로 커밋됐다. Step 04는 최종 검증과 재검토까지 완료했고 Step 05는 unit 3개 TZ 환경 PASS, Step 06은 unit·contracts·typecheck PASS, Step 07은 unit PASS, Step 08은 최종 review와 Phase 1 경계 verify까지 완료했다. Step 01–25는 Complete, Step 26–33은 Pending이다. 전체 자동 계획 또는 런타임 검증이 완료됐다는 의미가 아니다.
+
+## Step 25 Complete — 2026-10-19
+
+제품 코드는 변경하지 않고 `tests/browser/client/child-completion.spec.mjs`와 test-only HTTP/popup fixture를 추가했다. 신규 suite는 reachable category별 읽기·정따·스스로 읽기·단어 읽기·필사의 저장, PASS/FAIL, target upper bound, selection reload/profile isolation, launch 없는 audio guard, 60,001ms first return, popup blocked contract, profile switch 뒤 late completion response를 나눠 Given–When–Then으로 기록한다. 기존 audio 7개는 변경 없이 보존했다.
+
+초기 `step25-*` 결과(13/7/51 PASS)는 PATCH fixture finding 전 provisional 기록으로 보존한다. fix 뒤 focused 15 PASS (`step25-fix-focused.log`, root `step25-focused-root-final.log`), audio 7 PASS, root full client 53 PASS, unit 17 PASS, contracts/typecheck/build PASS다. fixture는 PATCH filter만 매치하고 0-row completion PATCH를 insert하지 않으며, U06 persisted/reload/2분과 settled duplicate return, U07 response-lost→non-retryable result GET failure→recheck, H03 child 왕복 stale response browser evidence를 보강했다. Standards/Spec final review는 각각 0 findings다. 실제 DB/RLS, Android, 외부 앱/popup, OAuth는 검증하지 않았고 synthetic blur/focus는 실기기 증거가 아니다. Phase 5는 Step 26에서 끝나므로 `npm run verify`는 실행하지 않았다.
 
 ## Step 22 Completion — 2026-10-16
 
@@ -153,7 +159,7 @@ focused component 결과는 `verification-artifacts/step22-focused-root-final.lo
 | 4 | 22 완료·복귀 hook 수명주기 | Complete | focused hook 1 file/22 PASS (`verification-artifacts/step22-focused-root-final.log`); full component 11 files/91 PASS + 4 expected-fail (`verification-artifacts/step22-component-root-final.log`); unit PASS (`verification-artifacts/step22-unit-root-final.log`); phase 경계 `npm run verify` PASS, exit 0 (`verification-artifacts/step22-verify-root-final.log`). 최종 Standards/Spec review는 각각 0 findings이며 실제 DB/RLS·실기기/PWA·browser completion은 Step 25 후속이다. |
 | 5 | 23 프로필·자료 등록과 관리 흐름 | Complete | focused profile/material 15 PASS (`verification-artifacts/step23-focused-root-final.log`); full client HTTP 22 PASS (`verification-artifacts/step23-client-root-final.log`); audio-only wrapper 7 PASS (`verification-artifacts/step23-audio-root-final.log`); typecheck/contracts/build PASS (`verification-artifacts/step23-typecheck-root-final.log`, `verification-artifacts/step23-contracts-root-final.log`, `verification-artifacts/step23-build-root-final.log`); `git diff --check` PASS. 최종 Standards/Spec review 각각 0 findings, 신규 제품 결함·expected-fail 없음. `npm run verify`는 Phase 5 종료가 아니므로 미실행. |
 | 5 | 24 배정 생성·갱신·편집·삭제 흐름 | Complete | focused browser 16 PASS (`verification-artifacts/step24-focused-root-final.log`); full client 38 PASS (`verification-artifacts/step24-client-root-final.log`); audio wrapper 7 PASS (`verification-artifacts/step24-audio-root-final.log`). focused `./node_modules/.bin/tsc -p tsconfig.test.json && node .test-build/tests/reading-data.test.js` 5 cases PASS (`verification-artifacts/step24-cache-unit-root-final.log`); full `npm run test:unit` 17 files PASS (`verification-artifacts/step24-unit-root-final.log`). contracts/typecheck/build PASS (`verification-artifacts/step24-contracts-root-final.log`, `verification-artifacts/step24-typecheck-root-final.log`, `verification-artifacts/step24-build-root-final.log`); `git diff --check` PASS. Standards/Spec review 각각 0 findings. 제품 동작은 변경하지 않았고 삭제 상태 전이는 순수 lib helper로 추출해 기존 UI 흐름에 연결했다. 실제 DB upsert conflict/cascade/RLS는 미검증이며 U03-F02는 documented contract-level unreachable guard다. 새 제품 결함·expected-fail 없음; Phase 5는 Step 26에 끝나므로 `npm run verify`는 실행하지 않았다. |
-| 5 | 25 아동 학습과 완료·퀴즈 흐름 | Pending | 미실행 |
+| 5 | 25 아동 학습과 완료·퀴즈 흐름 | Complete | root focused 15/full client 53 PASS, audio 7 보존, unit 17 PASS; contracts/typecheck/build/PWA/diff PASS (root final logs). Standards/Spec code review 각각 0 findings, 제품 변경 없음. DB/RLS/OAuth/Android/external popup 제외; Phase 5 Step 26 전까지 `npm run verify` 보류. |
 | 5 | 26 부모 활동표·수동 기록·출력 | Pending | 미실행 |
 | 6 | 27 표지 압축과 QR 이미지 판독 | Pending | 미실행 |
 | 6 | 28 카메라·QR 입력 수명주기 | Pending | 미실행 |

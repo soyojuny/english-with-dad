@@ -107,6 +107,24 @@ export const test = base.extend({
       await testInfo.attach('requests', { path: requestsPath, contentType: 'application/json' });
     }
   },
+  childCompletion: async ({ context, page, clientServer }, use, testInfo) => {
+    const guard = await guardBrowser(context, [clientServer.origin, 'http://127.0.0.1:54321']);
+    let fixture;
+    try {
+      fixture = await childCompletionFixture(context, page, clientServer.origin, guard);
+      await use(fixture);
+      guard.verify();
+      expect(clientServer.unexpected, 'Unexpected client server request').toEqual([]);
+    } catch (error) {
+      if (!page.isClosed()) await page.screenshot({ path: testInfo.outputPath('fixture-failed.png'), fullPage: true });
+      throw error;
+    } finally {
+      await mkdir(testInfo.outputDir, { recursive: true });
+      const requestsPath = testInfo.outputPath('requests.json');
+      await writeFile(requestsPath, JSON.stringify({ requests: guard.requests, fixture: fixture?.requests ?? [] }, null, 2));
+      await testInfo.attach('requests', { path: requestsPath, contentType: 'application/json' });
+    }
+  },
 });
 export { expect };
 
@@ -190,6 +208,165 @@ async function audioFixture(context, page, origin, guard) {
   await page.getByRole('button',{name:'1회 완료',exact:true}).waitFor();
   await page.clock.pauseAt(new Date('2026-10-14T03:01:00Z'));
   return {context,page,completions,get writes(){return writes;},get audioReturnPending(){return Boolean(releaseAudio);},hold(){held=true;},holdAudio(){heldAudio=true;},holdCheck(){heldCheck=true;},release(){held=false;heldAudio=false;heldCheck=false;release?.();releaseAudio?.();releaseCheck?.();},fail(){fail=true;},recover(){fail=false;},loseResponse(){loseResponse=true;}};
+}
+
+async function childCompletionFixture(context, page, origin, guard) {
+  await page.clock.install({ time: new Date('2026-10-17T14:59:00.000Z') }); // 2026-10-17 23:59 Asia/Seoul; the pause below is 2026-10-18 00:00.
+  const date = '2026-10-18';
+  const children = [
+    { id: 'child-1', owner_user_id: 'owner-1', name: '민준', level: '2', goal: '오늘 5개 활동' },
+    { id: 'child-2', owner_user_id: 'owner-1', name: '서준', level: '1', goal: '다른 프로필' },
+  ];
+  const books = [
+    { id: 'book-main', owner_user_id: 'owner-1', active: true, content_type: 'book', series: '테스트', title: '다섯 활동 책', volume: '', level: '', cover: '', audio_listen: 'https://example.com/listen', audio_shadow: 'https://example.com/shadow', note: '' },
+    { id: 'book-second', owner_user_id: 'owner-1', active: true, content_type: 'book', series: '테스트', title: '선택 복원 책', volume: '', level: '', cover: '', audio_listen: 'https://example.com/second', audio_shadow: 'https://example.com/second-shadow', note: '' },
+    { id: 'book-word', owner_user_id: 'owner-1', active: true, content_type: 'wordReading', series: 'Words', title: '단어 자료', volume: '', level: '', cover: '', audio_listen: 'https://example.com/word', audio_shadow: '', note: '' },
+    { id: 'book-copy', owner_user_id: 'owner-1', active: true, content_type: 'book', series: '테스트', title: '필사 책', volume: '', level: '', cover: '', audio_listen: 'https://example.com/copy', audio_shadow: 'https://example.com/copy-shadow', note: '' },
+    { id: 'book-no-launch', owner_user_id: 'owner-1', active: true, content_type: 'book', series: '테스트', title: '미실행 오디오 책', volume: '', level: '', cover: '', audio_listen: 'https://example.com/no-launch', audio_shadow: 'https://example.com/no-launch-shadow', note: '' },
+    { id: 'book-other', owner_user_id: 'owner-1', active: true, content_type: 'book', series: '다른', title: '서준의 책', volume: '', level: '', cover: '', audio_listen: 'https://example.com/other', audio_shadow: 'https://example.com/other-shadow', note: '' },
+  ];
+  const assignments = [
+    { id: 'assignment-main', owner_user_id: 'owner-1', child_id: 'child-1', date, book_id: 'book-main', activity_category: 'focusListen', tasks: ['listen', 'shadow', 'self'], task_counts: { listen: 2, shadow: 1, self: 1 }, quiz_enabled: true, quiz_score: null },
+    { id: 'assignment-second', owner_user_id: 'owner-1', child_id: 'child-1', date, book_id: 'book-second', activity_category: 'focusListen', tasks: ['self'], task_counts: { self: 1 }, quiz_enabled: false, quiz_score: null },
+    { id: 'assignment-word', owner_user_id: 'owner-1', child_id: 'child-1', date, book_id: 'book-word', activity_category: 'extraStudy', tasks: ['wordRead'], task_counts: { wordRead: 1 }, quiz_enabled: false, quiz_score: null },
+    { id: 'assignment-copy', owner_user_id: 'owner-1', child_id: 'child-1', date, book_id: 'book-copy', activity_category: 'extraStudy', tasks: ['copywork'], task_counts: { copywork: 1 }, quiz_enabled: false, quiz_score: null },
+    { id: 'assignment-no-launch', owner_user_id: 'owner-1', child_id: 'child-1', date, book_id: 'book-no-launch', activity_category: 'englishPicture', tasks: ['listen'], task_counts: { listen: 1 }, quiz_enabled: false, quiz_score: null },
+    { id: 'assignment-other', owner_user_id: 'owner-1', child_id: 'child-2', date, book_id: 'book-other', activity_category: 'focusListen', tasks: ['self'], task_counts: { self: 1 }, quiz_enabled: false, quiz_score: null },
+  ];
+  const completions = [];
+  const launches = [
+    { owner_user_id: 'owner-1', assignment_id: 'assignment-main', task_type: 'listen', opened_at: '2026-10-17T14:50:00.000Z', returned_at: null },
+    { owner_user_id: 'owner-1', assignment_id: 'assignment-main', task_type: 'shadow', opened_at: '2026-10-17T14:50:00.000Z', returned_at: null },
+    { owner_user_id: 'owner-1', assignment_id: 'assignment-word', task_type: 'wordRead', opened_at: '2026-10-17T14:50:00.000Z', returned_at: null },
+  ];
+  const requests = [];
+  let holdCompletion = false;
+  let releaseCompletion;
+  let loseCompletionResponse = false;
+  let remainingCompletionCheckFailures = 0;
+  await page.addInitScript(() => {
+    window.__ewdPopup = { allowed: true, calls: [] };
+    window.open = (url, target) => {
+      window.__ewdPopup.calls.push({ url, target });
+      return window.__ewdPopup.allowed ? { opener: 'unsafe' } : null;
+    };
+  });
+  const queryRules = {
+    'children:GET': { select: ['exact'], owner_user_id: ['eq'], order: ['exact'] },
+    'assignments:GET': { select: ['exact'], owner_user_id: ['eq'], child_id: ['eq'], date: ['eq'], order: ['exact'] },
+    'assignments:PATCH': { select: ['exact'], owner_user_id: ['eq'], id: ['eq'] },
+    'completions:GET': { select: ['exact'], owner_user_id: ['eq'], assignment_id: ['eq'], task_type: ['eq'] },
+    'completions:POST': { select: ['exact'] },
+    'completions:PATCH': { select: ['exact'], owner_user_id: ['eq'], assignment_id: ['eq'], task_type: ['eq'], count: ['eq'] },
+    'audio_launches:GET': { select: ['exact'], owner_user_id: ['eq'], assignment_id: ['eq'], task_type: ['eq'] },
+    'audio_launches:POST': { select: ['exact'], on_conflict: ['exact'], columns: ['exact'] },
+    'audio_launches:PATCH': { select: ['exact'], owner_user_id: ['eq'], assignment_id: ['eq'], task_type: ['eq'], opened_at: ['eq'], returned_at: ['is.null'] },
+    'manual_logs:GET': { select: ['exact'], owner_user_id: ['eq'], date: ['eq'], order: ['exact'] },
+  };
+  const hasRequiredFilters = (table, method, query) => {
+    const required = {
+      'children:GET': ['owner_user_id'],
+      'assignments:GET': ['owner_user_id', 'child_id', 'date'],
+      'assignments:PATCH': ['owner_user_id', 'id'],
+      'completions:GET': ['owner_user_id', 'assignment_id', 'task_type'],
+      'completions:PATCH': ['owner_user_id', 'assignment_id', 'task_type', 'count'],
+      'audio_launches:GET': ['owner_user_id', 'assignment_id', 'task_type'],
+      'audio_launches:PATCH': ['owner_user_id', 'assignment_id', 'task_type', 'opened_at', 'returned_at'],
+    }[`${table}:${method}`] ?? [];
+    return required.every(key => query.some(([queryKey]) => queryKey === key));
+  };
+  const queryIsAllowed = (table, method, query) => {
+    const rules = queryRules[`${table}:${method}`];
+    if (!rules || !hasRequiredFilters(table, method, query)) return false;
+    return query.every(([key, value]) => {
+      const operations = rules[key];
+      if (!operations) return false;
+      return operations.includes('exact')
+        ? !['eq.', 'in.', 'is.'].some(prefix => value.startsWith(prefix))
+        : operations.some(operation => operation === 'is.null' ? value === operation : value.startsWith(`${operation}.`));
+    });
+  };
+  const matches = (row, query) => [...query].every(([key, value]) => {
+    if (['select', 'order', 'on_conflict', 'columns'].includes(key)) return true;
+    if (value.startsWith('eq.')) return String(row[key]) === value.slice(3);
+    return value === 'is.null' && row[key] == null;
+  });
+  await page.route('http://127.0.0.1:54321/**', async route => {
+    const request = route.request();
+    const url = new URL(request.url());
+    const table = url.pathname.replace('/rest/v1/', '');
+    const body = request.postDataJSON() ?? null;
+    const headers = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' };
+    const allowed = { children: ['GET'], assignments: ['GET', 'PATCH'], completions: ['GET', 'POST', 'PATCH'], audio_launches: ['GET', 'POST', 'PATCH'], manual_logs: ['GET'] }[table];
+    const query = [...url.searchParams.entries()];
+    if (!allowed?.includes(request.method()) || !queryIsAllowed(table, request.method(), query)) {
+      guard.unexpected.push(`${request.method()} ${request.url()}`);
+      return route.fulfill({ status: 500, headers, body: JSON.stringify({ message: 'Unexpected child completion fixture request' }) });
+    }
+    requests.push({ method: request.method(), path: url.pathname, query, body });
+    let data = [];
+    if (table === 'children') data = children;
+    if (table === 'assignments') {
+      if (request.method() === 'GET') data = assignments.filter(row => matches(row, url.searchParams)).map(row => ({
+        ...row, book: books.find(book => book.id === row.book_id),
+        completions: completions.filter(completion => completion.assignment_id === row.id),
+        audioLaunches: launches.filter(launch => launch.assignment_id === row.id),
+      }));
+      else {
+        const row = assignments.find(item => matches(item, url.searchParams));
+        if (row) Object.assign(row, body);
+        data = row ? [row] : [];
+      }
+    }
+    if (table === 'completions') {
+      if (request.method() === 'GET') {
+        if (remainingCompletionCheckFailures > 0) {
+          remainingCompletionCheckFailures--;
+          return route.fulfill({ status: 400, headers, body: JSON.stringify({ message: '테스트 결과 조회 실패', code: 'TEST_RESULT_GET_FAILURE' }) });
+        }
+        data = completions.filter(row => matches(row, url.searchParams));
+      }
+      else {
+        if (holdCompletion) await new Promise(resolve => { releaseCompletion = resolve; });
+        const row = request.method() === 'PATCH'
+          ? completions.find(item => matches(item, url.searchParams))
+          : completions.find(item => item.assignment_id === body.assignment_id && item.task_type === body.task_type);
+        if (row) Object.assign(row, body);
+        else if (request.method() === 'POST') completions.push(body);
+        data = row ? [row] : request.method() === 'POST' ? [body] : [];
+        if (loseCompletionResponse) {
+          loseCompletionResponse = false;
+          return route.fulfill({ status: 503, headers, body: JSON.stringify({ message: '저장 후 응답 유실', code: 'TEST_NETWORK' }) });
+        }
+      }
+    }
+    if (table === 'audio_launches') {
+      if (request.method() === 'GET') data = launches.filter(row => matches(row, url.searchParams));
+      else {
+        const row = request.method() === 'PATCH'
+          ? launches.find(item => matches(item, url.searchParams))
+          : launches.find(item => item.assignment_id === body.assignment_id && item.task_type === body.task_type);
+        if (row) Object.assign(row, body);
+        else if (request.method() === 'POST') launches.push(body);
+        data = row ? [row] : request.method() === 'POST' ? [body] : [];
+      }
+    }
+    if (table === 'manual_logs') data = [];
+    const object = (request.headers().accept ?? '').includes('vnd.pgrst.object');
+    await route.fulfill({ status: 200, headers, body: JSON.stringify(object ? (data[0] ?? null) : data) });
+  });
+  await page.goto(origin);
+  await page.clock.pauseAt(new Date('2026-10-17T15:00:00.000Z'));
+  return {
+    page, requests, completions, launches,
+    writes(table) { return requests.filter(request => request.path === `/rest/v1/${table}` && request.method !== 'GET'); },
+    async popupAllowed(allowed) { await page.evaluate(value => { window.__ewdPopup.allowed = value; }, allowed); },
+    async popupCalls() { return page.evaluate(() => window.__ewdPopup.calls); },
+    holdCompletion() { holdCompletion = true; },
+    releaseCompletion() { holdCompletion = false; releaseCompletion?.(); },
+    loseCompletionResponse() { loseCompletionResponse = true; },
+    failNextCompletionCheck() { remainingCompletionCheckFailures++; },
+  };
 }
 
 async function profileMaterialFixture(context, page, origin, guard) {
