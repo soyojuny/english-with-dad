@@ -1329,7 +1329,14 @@ label > textarea {
 }
 
 .quick-log-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
   max-width: 520px;
+  max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
+  overflow: auto;
+  overscroll-behavior: contain;
 }
 
 .quick-log-form {

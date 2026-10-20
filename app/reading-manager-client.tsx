@@ -6,6 +6,7 @@ import { ActivityLogCell } from "./activity-log-cell";
 import { AssignmentBookPicker } from "./assignment-book-picker";
 import { AssignmentEditForm } from "./assignment-edit-form";
 import { AssignmentQuizScore } from "./assignment-quiz-score";
+import { ChildReadingLogDialog } from "./child-reading-log-dialog";
 import { MaterialThumb, formatMaterialMeta } from "./material-thumb";
 import { TaskCompletionFeedback } from "./task-completion-feedback";
 import { useChildTaskRequests } from "./use-child-task-requests";
@@ -149,6 +150,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const [editingAssignmentId, setEditingAssignmentId] = useState<string | null>(null);
   const [bookListFilter, setBookListFilter] = useState<BookListFilter>("active");
   const [isChildManualLogOpen, setIsChildManualLogOpen] = useState(false);
+  const [childManualLogError, setChildManualLogError] = useState("");
   const [bookDraft, setBookDraft] = useState<BookDraft>(() => bookToDraft(null));
   const [bookDraftMode, setBookDraftMode] = useState<"new" | "edit">("new");
   const [childDraft, setChildDraft] = useState<ChildDraft>(emptyChildDraft);
@@ -167,6 +169,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const qrTimerRef = useRef<number | null>(null);
   const qrFileInputRef = useRef<HTMLInputElement | null>(null);
   const profileLoadedRef = useRef(false);
+  const childManualLogTriggerRef = useRef<HTMLButtonElement>(null);
 
   const activeBooks = useMemo(() => data.books.filter((book) => book.active !== false), [data.books]);
   const activeBookItems = useMemo(() => activeBooks.filter((book) => !isWordReadingMaterial(book)), [activeBooks]);
@@ -1365,8 +1368,9 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
 
   const addChildManualLogDb = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setChildManualLogError("");
     if (!childId) {
-      showToast("먼저 아동을 선택하세요.");
+      setChildManualLogError("먼저 아동을 선택하세요.");
       return;
     }
 
@@ -1376,7 +1380,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     const type = String(formData.get("childManualType") ?? "korean") as ChildManualLogType;
     if (!title) return;
     if (type !== "korean" && type !== "englishPicture") {
-      showToast("기록 구분을 다시 선택하세요.");
+      setChildManualLogError("기록 구분을 다시 선택하세요.");
       return;
     }
 
@@ -1395,7 +1399,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       setIsChildManualLogOpen(false);
       showToast("읽은 책 기록을 추가했습니다.");
     } catch (error) {
-      showToast(error instanceof Error ? error.message : "읽은 책 기록을 저장하지 못했습니다.");
+      setChildManualLogError(error instanceof Error ? error.message : "읽은 책 기록을 저장하지 못했습니다.");
     }
   };
 
@@ -1667,7 +1671,15 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                 <span className="summary-pill">
                   <strong>{todayAssignments.length}</strong>건 예정
                 </span>
-                <button className="secondary-button child-quick-log-button" type="button" onClick={() => setIsChildManualLogOpen(true)}>
+                <button
+                  ref={childManualLogTriggerRef}
+                  className="secondary-button child-quick-log-button"
+                  type="button"
+                  onClick={() => {
+                    setChildManualLogError("");
+                    setIsChildManualLogOpen(true);
+                  }}
+                >
                   읽은 책 기록
                 </button>
               </div>
@@ -2730,46 +2742,12 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       )}
 
       {isChildManualLogOpen && (
-        <dialog className="qr-dialog quick-log-dialog" open>
-          <button
-            className="icon-button"
-            type="button"
-            aria-label="닫기"
-            onClick={() => setIsChildManualLogOpen(false)}
-          >
-            ×
-          </button>
-          <div>
-            <p className="eyebrow">빠른 기록</p>
-            <h2>읽은 책 추가</h2>
-            <p className="task-meta">오늘 날짜로 저장됩니다.</p>
-          </div>
-          <form className="book-form quick-log-form" onSubmit={addChildManualLogDb}>
-            <label>
-              구분
-              <select name="childManualType" defaultValue="korean">
-                <option value="korean">한글책</option>
-                <option value="englishPicture">영어 그림책</option>
-              </select>
-            </label>
-            <label className="wide">
-              제목
-              <input name="childManualTitle" type="text" placeholder="책 제목" required autoFocus />
-            </label>
-            <label>
-              시간
-              <input name="childManualMinutes" type="number" min="0" step="5" defaultValue="10" />
-            </label>
-            <div className="form-actions wide">
-              <button className="secondary-button" type="button" onClick={() => setIsChildManualLogOpen(false)}>
-                취소
-              </button>
-              <button className="primary-button" type="submit">
-                기록 추가
-              </button>
-            </div>
-          </form>
-        </dialog>
+        <ChildReadingLogDialog
+          error={childManualLogError}
+          returnFocusRef={childManualLogTriggerRef}
+          onClose={() => setIsChildManualLogOpen(false)}
+          onSubmit={addChildManualLogDb}
+        />
       )}
 
       <div className={`toast ${toast ? "is-visible" : ""}`} role="status" aria-live="polite">

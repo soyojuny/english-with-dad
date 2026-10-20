@@ -11,14 +11,15 @@ import { guardBrowser } from './network.mjs';
 const root = fileURLToPath(new URL('../../../', import.meta.url));
 
 export const test = base.extend({
-  clientServer: [async ({}, use) => {
+  clientStrictMode: [false, { option: true, scope: 'worker' }],
+  clientServer: [async ({ clientStrictMode }, use) => {
     const directory = await mkdtemp(join(tmpdir(), 'ewd-client-browser-'));
     let server;
     const unexpected = [];
     try {
       await build({
         stdin: {
-          contents: `import React from 'react'; import {createRoot} from 'react-dom/client'; import ReadingManagerClient from '${root}/app/reading-manager-client.tsx'; const root=createRoot(document.getElementById('root')); window.__unmountReadingManager=()=>root.unmount(); root.render(React.createElement(ReadingManagerClient,{ownerUserId:'owner-1',onSignOut:()=>{},isSigningOut:false}));`,
+          contents: `import React from 'react'; import {createRoot} from 'react-dom/client'; import ReadingManagerClient from '${root}/app/reading-manager-client.tsx'; const root=createRoot(document.getElementById('root')); window.__unmountReadingManager=()=>root.unmount(); const app=React.createElement(ReadingManagerClient,{ownerUserId:'owner-1',onSignOut:()=>{},isSigningOut:false}); root.render(${clientStrictMode ? 'React.createElement(React.StrictMode,null,app)' : 'app'});`,
           resolveDir: root, loader: 'jsx',
         },
         outfile: join(directory, 'app.js'), bundle: true, platform: 'browser', jsx: 'automatic',
