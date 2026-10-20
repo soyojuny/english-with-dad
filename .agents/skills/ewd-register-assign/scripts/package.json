@@ -1,0 +1,11 @@
+{
+  "name": "ewd-register-assign-tools",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test *.test.mjs"
+  },
+  "dependencies": {
+    "sharp": "0.34.5"
+  }
+}

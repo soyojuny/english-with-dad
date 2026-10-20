@@ -9,6 +9,8 @@ Use this repo's [operating contract](../../../docs/ai-registration-assignment.md
 [current routines](references/routines.json). Read them before processing a batch;
 do not ask the parent to repeat the interview or reconstruct routines from chat memory.
 This skill implements direct Supabase operations, without changing the app or schema.
+Keep its helper tools inside this skill. Do not add app upload APIs, shared app
+image modules, schema changes, locking or automatic retry systems for this workflow.
 
 ## Request and inputs
 
@@ -53,18 +55,15 @@ Do not choose books or a start date on the parent's behalf.
   `getTaskAudioUrl()` has no missing-field fallback.
 - Read `lib/reading-types.ts`, `lib/reading-data.ts`,
   `lib/supabase/reading-store.ts`, `lib/cover-image.ts` and applicable migrations.
-  Before compression, check whether the photographed book's four outer edges match
-  the image frame. If surrounding background is visible or the cover is rotated or
-  mildly skewed, preserve the source and create a separate corrected file that crops
-  to the book edges and applies only rotation or perspective correction. Do not
-  redraw or alter cover text, artwork, publisher marks, physical labels, barcodes,
-  wear, color or texture. Visually compare the correction with the source and reject
-  it if any cover content changed. If an edge is missing from the source, request a
-  new photo instead of inventing it. Skip correction when the cover already fits.
-  Use `compressCoverImage()` for a JPEG data URL (960px max, quality 0.72);
-  compress the verified corrected file when one exists, otherwise the source. Do not
-  invent a Storage bucket. After saving, requery the stored cover length and hash and
-  compare them with the selected compressed candidate.
+  The parent prepares the cover framing. Use their supplied file as `sourceCover`
+  and compress the whole image without cropping, background removal, perspective
+  correction, redrawing or a separate correction/review step. Preserve the input.
+  Prepare a JPEG data URL with the skill's local Sharp tool (960px max, quality 72),
+  retaining aspect ratio and normalizing EXIF orientation. Never launch Playwright, Chromium or
+  a browser MCP to compress a cover. Follow [batch preparation](references/batch-preparation.md)
+  for the manifest, local-only dependencies, limits and before/after image evidence.
+  Do not change the app's compression code or invent a Storage bucket. After saving,
+  compare stored data URL length/hash with the prepared candidate, not the JPEG hash.
 - Confirm the connected `english-with-dad` project and parent owner, querying only
   needed metadata. Look up documented parent names, app aliases and child IDs in
   the operating contract, then revalidate the child within that owner. Reuse an
@@ -82,9 +81,13 @@ Do not choose books or a start date on the parent's behalf.
 
 ## Generate and save assignments
 
-1. Use `scripts/plan-assignments.mjs` to generate candidates from resolved IDs. The
-   script does not access the DB. Read [its input format](references/schedule-input.md)
-   when preparing the agent's temporary JSON; the parent need not write that file.
+1. Use `scripts/prepare-batch.mjs` with one agent-written manifest for books, covers,
+   URLs and ordered child/purpose bundles. Read [batch preparation](references/batch-preparation.md).
+   It calls the unchanged `scripts/plan-assignments.mjs`, applies only explicitly
+   recorded book exceptions and writes candidates without DB access. Registration
+   alone omits bundles. The parent need not write JSON. Do not reinterpret the
+   prepared order or fields while saving. The standalone generator's
+   [input format](references/schedule-input.md) remains available for schedule-only work.
 2. Compare candidate activities against the agreed routine and book-specific
    exceptions in the operating contract, applying the parent's latest instructions.
    Validate ownership and active book status, and require audio only for assigned tasks.
@@ -101,12 +104,12 @@ Do not choose books or a start date on the parent's behalf.
    `owner_user_id`, `child_id`, `date`, `book_id`, `activity_category`, `tasks`,
    `task_counts`, `quiz_enabled`. Preserve the compound owner foreign keys.
    Do not blindly call the app's upsert, which can change an existing assignment.
-   Guard against intervening overlaps within the write transaction. A unique-key
-   collision is a reason to requery, not overwrite. Change no completed or unrelated rows.
+   A unique-key collision is a reason to requery, not overwrite. Change no completed
+   or unrelated rows. Do not build a transaction/locking service for this skill.
    Before transporting cover-heavy batches, follow the large-payload guidance in
    [photo processing](references/photo-processing.md). Verify complete input before
    any write. New book IDs may be allocated locally to validate assignments before
-   inserting both sets in one transaction; planned IDs are not persisted rows.
+   saving; planned IDs are not persisted rows.
 5. Requery the stored rows and compare every candidate's owner, child, date, book,
    category, tasks, counts and quiz. If a response fails or is unclear, requery
    before retrying and write only confirmed missing rows; stop and report if state
@@ -125,6 +128,9 @@ Do not mark the live trial complete from mocked UI or database reads alone.
 
 Report created/reused books, created/reused assignments, unresolved items, date
 range and IDs. Preserve the batch order and summarize conflicts separately.
+Update the prepared `result.json` with actual IDs and the last confirmed state:
+`prepared`, `applied`, `db_verified`, or `app_verified`. Keep app verification pending
+without an actual logged-in check. Summarize image dimensions/bytes; never print full base64.
 Keep durable agreements and trial progress in the operating document and the
 active plan at `plans/active/ai-registration-assignment/` while that trial is open.
 No API purchases, schema changes or Git publishing are implied by this skill.
