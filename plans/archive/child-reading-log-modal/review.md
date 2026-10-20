@@ -2,7 +2,9 @@
 
 ## Status
 
-Completed — 2026-10-20 viewport 중앙 모달 구현과 자동 검증을 완료했다. Herdr의 `log-tests`와 `log-ui` pane에서 재현·테스트와 UI 구현을 분담하고 Standards·Spec 리뷰를 병렬 진행했다. 실제 모바일 가상 키보드·설치형 PWA는 미검증이며, 커밋·push·배포는 수행하지 않았다.
+Passed
+
+2026-10-20 viewport 중앙 모달 구현과 자동 검증을 완료했다. Herdr의 `log-tests`와 `log-ui` pane에서 재현·테스트와 UI 구현을 분담하고 Standards·Spec 리뷰를 병렬 진행했다. 실제 모바일 가상 키보드·설치형 PWA는 미검증이다.
 
 ## Scope Review
 
@@ -72,11 +74,11 @@ Completed — 2026-10-20 viewport 중앙 모달 구현과 자동 검증을 완�
 
 - 실제 모바일 기기에서의 가상 키보드 표시와 입력·저장 버튼 접근은 확인하지 않았다.
 - 실제 설치형 PWA와 iOS/Safari에서의 동작은 확인하지 않았다. 모바일 폭 Chromium 검증과 구분한다.
-- 커밋·push·배포와 운영 데이터 변경은 수행하지 않았다.
+- 배포와 운영 데이터 변경은 수행하지 않았다.
 
 ## Code Review
 
-- 기준점: 작업 시작 커밋 `f4f778d7c2f21395961d6837f09e5a64d7733f91`. 커밋을 만들지 않으므로 이 기준점 대비 작업 트리 diff와 신규 파일을 함께 검토했다.
+- 기준점: 작업 시작 커밋 `f4f778d7c2f21395961d6837f09e5a64d7733f91`. 리뷰 당시에는 커밋 전이므로 이 기준점 대비 작업 트리 diff와 신규 파일을 함께 검토했다.
 - Herdr의 두 pane에서 Standards와 Spec 축을 병렬 검토했다.
 
 ### Standards
@@ -88,3 +90,13 @@ Completed — 2026-10-20 viewport 중앙 모달 구현과 자동 검증을 완�
 초기 검토: P2 1건 — task 02의 “unmount와 effect 재실행에도 오류가 없다” 중 effect 재실행 경로의 브라우저 검증 누락. 실행 오류가 발견된 것은 아니다.
 
 해결: 기본 렌더를 유지하는 fixture 옵션과 StrictMode 브라우저 회귀를 추가했다. 재검토에서 동일 dialog의 지연 close 이벤트 관찰, 모달·포커스 유지, 종료 후 overflow·scroll·진입 포커스 복원, Escape·재열기 및 오류 부재를 확인했다. 최종 지적 0건, 최악 이슈 없음.
+
+## Promotion Candidates
+
+없음. 새 도메인 개념이나 장기 아키텍처 결정, 운영 규칙 변경이 없어 `docs/CONTEXT.md`, ADR, 하네스 문서로 승격할 항목은 없다.
+
+## Publication and Archive
+
+- 후속 사용자 요청에 따라 구현 커밋 `1ed2e1e`를 `origin/main`에 반영했다.
+- 2026-10-20 사용자 요청에 따라 `npm run plan:archive -- "child-reading-log-modal"`로 완료 계획을 아카이브했다. 실제 기기 미검증 항목은 위 기록을 유지한다.
+- 이관 후 필수 문서 구조·Markdown 5개의 UTF-8·상대 링크·기존 파일 내용 보존을 확인했고, `git diff --check`와 `npm run check:contracts`가 통과했다.
