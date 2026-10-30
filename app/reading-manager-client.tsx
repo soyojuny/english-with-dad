@@ -2145,7 +2145,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                   </label>
                   <label>
                     시간
-                    <input name="manualMinutes" type="number" min="0" step="5" defaultValue="20" />
+                    <input name="manualMinutes" type="number" min="0" step="5" defaultValue="60" />
                   </label>
                   <label className="wide">
                     특이사항
