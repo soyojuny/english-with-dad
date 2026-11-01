@@ -146,6 +146,18 @@ export function buildAssignmentActivityLogs(data: ReadingData) {
   });
 }
 
+export function getActivityMinutes(logs: ActivityLog[]) {
+  return logs.reduce(
+    (totals, log) => {
+      const minutes = Number(log.minutes || 0);
+      if (log.type === "dvd") totals.dvdMinutes += minutes;
+      else totals.readingMinutes += minutes;
+      return totals;
+    },
+    { readingMinutes: 0, dvdMinutes: 0 },
+  );
+}
+
 export function hasCustomCover(cover: string) {
   return Boolean(cover && cover !== "/assets/app-icon.svg");
 }
