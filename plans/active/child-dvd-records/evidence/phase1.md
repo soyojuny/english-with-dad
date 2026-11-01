@@ -35,3 +35,9 @@
 
 - Red: `npm run test:component -- tests/components/parent-dvd-catalog.test.tsx --reporter=verbose`에서 기존 5건 통과, 추가된 4건은 DVD 제목 입력란 부재로 실패했다.
 - Green: 같은 컴포넌트 테스트 9건과 `npm run typecheck` 통과. 추가, 빈 제목 거부, 저장 중 중복 방지 및 저장 실패 시 입력 유지·오류 표시를 검증했다.
+
+## Step 4c — 상태 전환과 주간 유지
+
+- Red: 기존 컴포넌트 테스트 9건은 통과, 신규 2건은 상태 전환 버튼 부재로 실패했다.
+- Green: 부모 DVD 컴포넌트 테스트 11건과 `npm run typecheck` 통과. 양방향 전환과 실패 시 기존 상태 보존을 확인했다.
+- `npm run test:browser:client -- dvd-week.spec.mjs`는 샌드박스에서 Chromium 시작 권한 오류로 1회 실패했으며, 실행 권한을 확보한 뒤 재실행해 모바일 폭 1건이 통과했다. 테스트는 DB 대역을 사용한다.

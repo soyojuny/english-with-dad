@@ -5,7 +5,7 @@ import ReadingManagerClient from "../../app/reading-manager-client";
 import type { Dvd } from "../../lib/reading-types";
 
 const boundary = vi.hoisted(() => ({
-  fetchProfile: vi.fn(), fetchParent: vi.fn(), fetchCatalog: vi.fn(), addDvd: vi.fn(),
+  fetchProfile: vi.fn(), fetchParent: vi.fn(), fetchCatalog: vi.fn(), addDvd: vi.fn(), setDvdActive: vi.fn(),
 }));
 
 vi.mock("../../lib/supabase/client", () => ({ createClient: () => ({}) }));
@@ -15,6 +15,7 @@ vi.mock("../../lib/supabase/reading-store", async (original) => ({
   fetchParentActivityData: boundary.fetchParent,
   fetchDvdCatalogData: boundary.fetchCatalog,
   addDvd: boundary.addDvd,
+  setDvdActive: boundary.setDvdActive,
 }));
 
 const children = [{ id: "child-1", name: "민준", level: "1", goal: "" }];
@@ -25,6 +26,7 @@ beforeEach(() => {
   boundary.fetchParent.mockReset().mockResolvedValue(parentData);
   boundary.fetchCatalog.mockReset().mockResolvedValue({ dvds: [] });
   boundary.addDvd.mockReset().mockResolvedValue({ id: "dvd-new", title: "새 DVD", active: true });
+  boundary.setDvdActive.mockReset().mockImplementation(async (_client, _owner, id, active) => ({ id, title: "첫 DVD", active }));
 });
 
 async function enterParent() {
@@ -184,4 +186,40 @@ test("실패: 저장 오류는 입력을 보존하고 오류를 표시한다", a
   expect((await screen.findByRole("alert")).textContent).toMatch(/실패/);
   expect(title.value).toBe("새 DVD");
   expect(screen.queryByRole("group", { name: "새 DVD" })).toBeNull();
+});
+
+test("정상: 보는 중 DVD를 안 보는 중으로 바꾼 뒤 다시 보는 중으로 전환한다", async () => {
+  // Given
+  const user = userEvent.setup();
+  boundary.fetchCatalog.mockResolvedValue({ dvds: [{ id: "dvd-1", title: "첫 DVD", active: true }] });
+  await enterDvdManagement();
+  const item = await screen.findByRole("group", { name: "첫 DVD" });
+
+  // When
+  await user.click(within(item).getByRole("button", { name: "안 보는 중으로 변경" }));
+  expect(await within(item).findByText("안 보는 중")).toBeTruthy();
+  await user.click(within(item).getByRole("button", { name: "보는 중으로 변경" }));
+
+  // Then
+  expect(await within(item).findByText("보는 중")).toBeTruthy();
+  expect(boundary.setDvdActive.mock.calls.map((call) => call.slice(1))).toEqual([
+    ["owner-1", "dvd-1", false], ["owner-1", "dvd-1", true],
+  ]);
+});
+
+test("실패: 상태 변경 저장이 실패하면 기존 보는 중 상태를 보존하고 오류를 표시한다", async () => {
+  // Given
+  const user = userEvent.setup();
+  boundary.fetchCatalog.mockResolvedValue({ dvds: [{ id: "dvd-1", title: "첫 DVD", active: true }] });
+  boundary.setDvdActive.mockRejectedValue(new Error("변경 실패"));
+  await enterDvdManagement();
+  const item = await screen.findByRole("group", { name: "첫 DVD" });
+
+  // When
+  await user.click(within(item).getByRole("button", { name: "안 보는 중으로 변경" }));
+
+  // Then
+  expect((await screen.findByRole("alert")).textContent).toMatch(/실패/);
+  expect(within(item).getByText("보는 중")).toBeTruthy();
+  expect(within(item).queryByText("안 보는 중")).toBeNull();
 });

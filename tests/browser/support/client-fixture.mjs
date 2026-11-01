@@ -390,7 +390,7 @@ async function childCompletionFixture(context, page, origin, guard) {
 
 async function parentReportFixture(context, page, origin, guard) {
   await page.clock.install({ time: new Date('2026-10-17T15:00:00.000Z') }); // Load at 2026-10-18 in Asia/Seoul, then freeze it.
-  const state = { children: [], books: [], assignments: [], completions: [], audio_launches: [], manual_logs: [] };
+  const state = { children: [], books: [], dvds: [], assignments: [], completions: [], audio_launches: [], manual_logs: [] };
   const requests = [];
   const failures = new Set();
   let nextManualId = 1;
@@ -412,6 +412,7 @@ async function parentReportFixture(context, page, origin, guard) {
     'children:GET': { select: ['exact'], owner_user_id: ['eq'], order: ['exact'] },
     'assignments:GET': { select: ['exact'], owner_user_id: ['eq'], child_id: ['eq'], date: ['gte', 'lte', 'eq'], order: ['exact'] },
     'books:GET': { select: ['exact'], owner_user_id: ['eq'], id: ['in'] },
+    'dvds:GET': { select: ['exact'], owner_user_id: ['eq'], order: ['exact'] },
     'completions:GET': { select: ['exact'], owner_user_id: ['eq'], assignment_id: ['in'] },
     'audio_launches:GET': { select: ['exact'], owner_user_id: ['eq'], assignment_id: ['in'] },
     'manual_logs:GET': { select: ['exact'], owner_user_id: ['eq'], date: ['gte', 'lte'], order: ['exact'] },
@@ -422,6 +423,7 @@ async function parentReportFixture(context, page, origin, guard) {
     'children:GET': ['select', 'owner_user_id', 'order'],
     'assignments:GET': ['select', 'owner_user_id', 'date', 'order'],
     'books:GET': ['select', 'owner_user_id', 'id'],
+    'dvds:GET': ['select', 'owner_user_id', 'order'],
     'completions:GET': ['select', 'owner_user_id', 'assignment_id'],
     'audio_launches:GET': ['select', 'owner_user_id', 'assignment_id'],
     'manual_logs:GET': ['select', 'owner_user_id', 'date', 'order'],
@@ -487,9 +489,10 @@ async function parentReportFixture(context, page, origin, guard) {
   await page.clock.pauseAt(new Date('2026-10-17T15:01:00.000Z'));
   return {
     page, state, requests,
-    seed({ children = [], books = [], assignments = [], completions = [], audio_launches = [], manual_logs = [] }) {
+    seed({ children = [], books = [], dvds = [], assignments = [], completions = [], audio_launches = [], manual_logs = [] }) {
       state.children.push(...children.map(row => ({ owner_user_id: 'owner-1', ...row })));
       state.books.push(...books.map(row => ({ owner_user_id: 'owner-1', active: true, content_type: 'book', series: '', title: '', volume: '', level: '', cover: '', audio_listen: '', audio_shadow: '', note: '', ...row })));
+      state.dvds.push(...dvds.map(row => ({ owner_user_id: 'owner-1', ...row })));
       state.assignments.push(...assignments.map(row => ({ owner_user_id: 'owner-1', tasks: [], task_counts: {}, quiz_enabled: false, quiz_score: null, ...row })));
       state.completions.push(...completions.map(row => ({ owner_user_id: 'owner-1', ...row })));
       state.audio_launches.push(...audio_launches.map(row => ({ owner_user_id: 'owner-1', ...row })));
