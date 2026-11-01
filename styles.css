@@ -123,7 +123,8 @@ a {
 
 .mode-switch,
 .period-switch,
-.parent-panel-switch {
+.parent-panel-switch,
+.quick-log-dialog [role="tablist"] {
   display: inline-flex;
   gap: 4px;
   padding: 4px;
@@ -134,7 +135,8 @@ a {
 
 .mode-switch button,
 .period-switch button,
-.parent-panel-switch button {
+.parent-panel-switch button,
+.quick-log-dialog [role="tab"] {
   min-width: 70px;
   border: 0;
   border-radius: 6px;
@@ -147,7 +149,8 @@ a {
 
 .mode-switch button.is-active,
 .period-switch button.is-active,
-.parent-panel-switch button.is-active {
+.parent-panel-switch button.is-active,
+.quick-log-dialog [role="tab"][aria-selected="true"] {
   background: var(--blue);
   color: #fff;
 }
@@ -1382,6 +1385,10 @@ label > textarea {
 
 .quick-log-form {
   margin-top: 16px;
+}
+
+.quick-log-dialog [role="tab"] {
+  min-height: 44px;
 }
 
 .icon-button {

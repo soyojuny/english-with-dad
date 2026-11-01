@@ -183,7 +183,7 @@ test('U09-N03 정상: 아동 빠른 기록은 오늘/선택 아동 payload와 �
   seedReport(f);
   await f.page.reload();
   await f.page.locator('.profile-grid').getByRole('button', { name: /민준/ }).click();
-  await f.page.getByRole('button', { name: '읽은 책 기록', exact: true }).click();
+  await f.page.getByRole('button', { name: '읽기·DVD 기록', exact: true }).click();
   const dialog = f.page.getByRole('dialog');
   await dialog.locator('input[name="childManualTitle"]').fill('한글 동화');
 
@@ -192,7 +192,7 @@ test('U09-N03 정상: 아동 빠른 기록은 오늘/선택 아동 payload와 �
 
   // Then
   await expect.poll(() => manualWrites(f).length).toBe(1);
-  assert.deepEqual(manualWrites(f)[0].body, { owner_user_id: 'owner-1', child_id: 'child-1', date: '2026-10-18', type: 'korean', title: '한글 동화', minutes: 10, note: '' });
+  assert.deepEqual(manualWrites(f)[0].body, { owner_user_id: 'owner-1', child_id: 'child-1', date: '2026-10-18', type: 'korean', title: '한글 동화', minutes: 30, note: '' });
   await f.page.getByRole('button', { name: '프로필 관리', exact: true }).click();
   await openParent(f.page);
   await expect(f.page.locator('.print-report')).toContainText('한글 동화');
@@ -238,7 +238,7 @@ test('U09-F05 잘못된 입력: 아동 빈 제목은 저장 요청을 만들지 
   seedReport(f);
   await f.page.reload();
   await f.page.locator('.profile-grid').getByRole('button', { name: /민준/ }).click();
-  await f.page.getByRole('button', { name: '읽은 책 기록', exact: true }).click();
+  await f.page.getByRole('button', { name: '읽기·DVD 기록', exact: true }).click();
 
   // When
   await f.page.getByRole('dialog').getByRole('button', { name: '기록 추가', exact: true }).click();
@@ -252,7 +252,7 @@ test('U09-F06 실패: 아동 수기 저장 실패는 닫힘이나 성공 기록�
   seedReport(f);
   await f.page.reload();
   await f.page.locator('.profile-grid').getByRole('button', { name: /민준/ }).click();
-  await f.page.getByRole('button', { name: '읽은 책 기록', exact: true }).click();
+  await f.page.getByRole('button', { name: '읽기·DVD 기록', exact: true }).click();
   const dialog = f.page.getByRole('dialog');
   await dialog.locator('input[name="childManualTitle"]').fill('저장 실패 동화');
   f.fail('manual_logs:POST');
@@ -290,7 +290,8 @@ test('U09-N04 경계: 주간 print는 준비된 week DOM만 호출하고 print m
   await openParent(f.page);
   await f.page.getByRole('button', { name: '월', exact: true }).click();
   await expect(f.page.locator('.print-report')).toContainText('월간 전용 기록');
-  await expect(f.page.locator('.stats-grid')).toContainText('30분');
+  await expect(f.page.locator('.stat').filter({ hasText: '읽기 시간' })).toContainText('20분');
+  await expect(f.page.locator('.stat').filter({ hasText: 'DVD 시청 시간' })).toContainText('10분');
   await f.page.emulateMedia({ media: 'print' });
   await expect(f.page.locator('.print-report')).toBeVisible();
   await expect(f.page.locator('.activity-control-panel')).toBeHidden();
@@ -312,7 +313,7 @@ test('U09-N04 경계: 주간 print는 준비된 week DOM만 호출하고 print m
   assert.equal(await f.printCalls(), 1);
   const [printed] = await f.printSnapshots();
   assert.match(printed.subtitle, /^민준 · 2026\. 10\/18\(일\) - 2026\. 10\/24\(토\)/);
-  assert.deepEqual(printed.stats, ['민준', '5건', '20분', '2권']);
+  assert.deepEqual(printed.stats, ['민준', '5건', '20분', '0분', '2권']);
   assert.deepEqual(printed.dates, ['10/18(일)', '10/19(월)', '10/20(화)', '10/21(수)', '10/22(목)', '10/23(금)', '10/24(토)']);
   assert.ok(printed.cells.some((cell) => cell.includes('집중 책') && cell.includes('읽기 3회')));
 });

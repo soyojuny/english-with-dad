@@ -15,7 +15,7 @@ async function openChild(f) {
   await f.page.reload();
   await f.page.locator('.profile-grid').getByRole('button', { name: /민준/ }).click();
   await expect(f.page.locator('.assignment-card')).toHaveCount(24);
-  return f.page.getByRole('button', { name: '읽은 책 기록', exact: true });
+  return f.page.getByRole('button', { name: '읽기·DVD 기록', exact: true });
 }
 
 async function geometry(dialog) {
@@ -95,7 +95,7 @@ for (const width of [360, 390, 1280]) {
       expectViewport(box);
       expect(Math.abs(box.scrollY - before), '팝업 열기는 배경 페이지를 이동시키지 않아야 한다').toBeLessThanOrEqual(1);
       expect(Math.abs((box.top + box.bottom) / 2 - box.viewportHeight / 2)).toBeLessThanOrEqual(2);
-      for (const control of await dialog.locator('button, input, select').all()) await expectReachable(control);
+      for (const control of await dialog.locator('button:visible, input:visible, select:visible').all()) await expectReachable(control);
       await expectTextClear(dialog);
       expect(await f.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
     });
@@ -114,7 +114,7 @@ for (const action of ['닫기', '취소', 'Escape']) {
     const before = await f.page.evaluate(() => scrollY);
     expect(before).toBeGreaterThan(0);
     await trigger.click();
-    const dialog = f.page.getByRole('dialog', { name: '읽은 책 추가', exact: true });
+    const dialog = f.page.getByRole('dialog', { name: '읽기·DVD 기록', exact: true });
     expectViewport(await geometry(dialog));
     expect(await f.page.evaluate(() => scrollY)).toBe(before);
 
@@ -141,7 +141,7 @@ test('정상: 초기 제목 포커스와 양방향 Tab은 배경에 가지 않�
   const profile = f.page.getByRole('button', { name: '프로필 관리', exact: true });
   const profileBox = await profile.boundingBox();
   await trigger.click();
-  const dialog = f.page.getByRole('dialog', { name: '읽은 책 추가', exact: true });
+  const dialog = f.page.getByRole('dialog', { name: '읽기·DVD 기록', exact: true });
   const before = await f.page.evaluate(() => scrollY);
 
   // When
@@ -176,7 +176,7 @@ test('경계: 짧은 360px 화면은 팝업 내부를 스크롤해 입력과 하
   await f.page.setViewportSize({ width: 360, height: 320 });
   const trigger = await openChild(f);
   await trigger.click();
-  const dialog = f.page.getByRole('dialog', { name: '읽은 책 추가', exact: true });
+  const dialog = f.page.getByRole('dialog', { name: '읽기·DVD 기록', exact: true });
   expectViewport(await geometry(dialog));
   const before = await f.page.evaluate(() => scrollY);
 
@@ -186,7 +186,7 @@ test('경계: 짧은 360px 화면은 팝업 내부를 스크롤해 입력과 하
   await title.scrollIntoViewIfNeeded();
   await expectReachable(title);
   const minutes = dialog.getByLabel('시간', { exact: true });
-  await minutes.fill('15');
+  await minutes.selectOption('40');
   await minutes.scrollIntoViewIfNeeded();
   await expectReachable(minutes);
   for (const name of ['기록 추가', '취소', '닫기']) {
@@ -198,7 +198,7 @@ test('경계: 짧은 360px 화면은 팝업 내부를 스크롤해 입력과 하
   // Then
   expect(await dialog.evaluate(element => element.scrollHeight > element.clientHeight)).toBe(true);
   await expect(title).toHaveValue('짧은 화면 동화');
-  await expect(minutes).toHaveValue('15');
+  await expect(minutes).toHaveValue('40');
   expect(await f.page.evaluate(() => scrollY)).toBe(before);
   expect(await f.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
   await dialog.getByRole('button', { name: '취소', exact: true }).click();
@@ -208,9 +208,9 @@ test('경계: 짧은 360px 화면은 팝업 내부를 스크롤해 입력과 하
 test('잘못된 입력: 빈 제목은 모달과 다른 입력을 유지하고 저장하지 않는다', async ({ parentReport: f }) => {
   // Given
   await (await openChild(f)).click();
-  const dialog = f.page.getByRole('dialog', { name: '읽은 책 추가', exact: true });
+  const dialog = f.page.getByRole('dialog', { name: '읽기·DVD 기록', exact: true });
   await dialog.getByLabel('구분').selectOption('englishPicture');
-  await dialog.getByLabel('시간', { exact: true }).fill('15');
+  await dialog.getByLabel('시간', { exact: true }).selectOption('40');
 
   // When
   await dialog.getByRole('button', { name: '기록 추가', exact: true }).click();
@@ -219,7 +219,7 @@ test('잘못된 입력: 빈 제목은 모달과 다른 입력을 유지하고 �
   await expect(dialog).toBeVisible();
   await expect(dialog.getByLabel('제목', { exact: true })).toBeFocused();
   await expect(dialog.getByLabel('구분')).toHaveValue('englishPicture');
-  await expect(dialog.getByLabel('시간', { exact: true })).toHaveValue('15');
+  await expect(dialog.getByLabel('시간', { exact: true })).toHaveValue('40');
   expect(f.writes('manual_logs')).toHaveLength(0);
 });
 
@@ -227,10 +227,10 @@ test('실패: 저장 오류는 모달 안에서 읽을 수 있고 입력을 유�
   // Given
   const trigger = await openChild(f);
   await trigger.click();
-  const dialog = f.page.getByRole('dialog', { name: '읽은 책 추가', exact: true });
+  const dialog = f.page.getByRole('dialog', { name: '읽기·DVD 기록', exact: true });
   await dialog.getByLabel('제목', { exact: true }).fill('저장 실패 동화');
   await dialog.getByLabel('구분').selectOption('englishPicture');
-  await dialog.getByLabel('시간', { exact: true }).fill('15');
+  await dialog.getByLabel('시간', { exact: true }).selectOption('40');
   f.fail('manual_logs:POST');
 
   // When
@@ -240,7 +240,7 @@ test('실패: 저장 오류는 모달 안에서 읽을 수 있고 입력을 유�
   await expect(dialog.getByText('manual_logs 테스트 실패', { exact: true })).toBeVisible();
   await expect(dialog.getByLabel('제목', { exact: true })).toHaveValue('저장 실패 동화');
   await expect(dialog.getByLabel('구분')).toHaveValue('englishPicture');
-  await expect(dialog.getByLabel('시간', { exact: true })).toHaveValue('15');
+  await expect(dialog.getByLabel('시간', { exact: true })).toHaveValue('40');
   expect(f.state.manual_logs).toHaveLength(0);
   expect(f.writes('manual_logs')).toHaveLength(1);
   f.recover('manual_logs:POST');
@@ -264,7 +264,7 @@ test('경계: 열린 모달을 unmount하면 오류 없이 기존 스크롤 스�
     return { body: document.body.style.overflow, html: document.documentElement.style.overflow };
   });
   await trigger.click();
-  await expect(f.page.getByRole('dialog', { name: '읽은 책 추가', exact: true })).toBeVisible();
+  await expect(f.page.getByRole('dialog', { name: '읽기·DVD 기록', exact: true })).toBeVisible();
 
   // When
   await f.page.evaluate(() => window.__unmountReadingManager());
@@ -309,7 +309,7 @@ strictTest.describe('StrictMode lifecycle', () => {
 
     // When
     await trigger.click();
-    const dialog = f.page.getByRole('dialog', { name: '읽은 책 추가', exact: true });
+    const dialog = f.page.getByRole('dialog', { name: '읽기·DVD 기록', exact: true });
     // Native close is queued by StrictMode cleanup. Observe its delivery on the same DOM dialog.
     await f.page.clock.runFor(100);
     await expect.poll(() => dialog.evaluate(element => window.__strictClosedDialogs.includes(element))).toBe(true);
