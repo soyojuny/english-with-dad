@@ -30,3 +30,9 @@
 - 사용자 요청에 따라 기능을 먼저 구현했다. 책 종류와 제목 입력 및 오늘·현재 아동 저장 흐름을 유지하면서 기록창 이름과 책 탭, 기본 30분부터 90분까지의 시간 선택을 연결했다.
 - `npm run check:contracts`, `npm run check:pwa` 통과. 최초 typecheck는 앞서 작성한 미완성 테스트의 타입 오류로 실패했다. 해당 미추적 테스트를 제거한 후 `npm run typecheck -- --incremental false` 통과.
 - 기능의 브라우저 동작과 모바일 화면은 확인하지 않았다. Chromium은 실행하지 않았다.
+
+## Step 3 — DVD 선택과 저장
+
+- 활성 DVD 목록을 기록창에 연결하고 선택한 제목과 시간을 오늘·현재 아동의 새 DVD 수기 기록으로 저장한다. 저장 중 중복 제출을 막는다.
+- `npm run check:contracts`, `npm run typecheck`, `npm run build`, 기존 단위 테스트 전체 및 DVD 관련 컴포넌트·훅 테스트 15건 통과.
+- 새 DVD 선택부터 저장까지의 연결은 자동화 테스트로 직접 검증하지 않았다. 기존 저장소 검사에는 대역이 사용되며 실제 DB와 Chromium은 확인하지 않았다. 로딩·오류·접근성은 Step 4에서 진행한다.

@@ -67,6 +67,7 @@ import type {
   Assignment,
   Book,
   BookContentType,
+  Dvd,
   ManualLog,
   ManualLogType,
   QuizResult,
@@ -154,6 +155,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const [bookListFilter, setBookListFilter] = useState<BookListFilter>("active");
   const [isChildManualLogOpen, setIsChildManualLogOpen] = useState(false);
   const [childManualLogError, setChildManualLogError] = useState("");
+  const [childManualLogSaving, setChildManualLogSaving] = useState(false);
+  const childManualLogSavingRef = useRef(false);
   const [bookDraft, setBookDraft] = useState<BookDraft>(() => bookToDraft(null));
   const [bookDraftMode, setBookDraftMode] = useState<"new" | "edit">("new");
   const [childDraft, setChildDraft] = useState<ChildDraft>(emptyChildDraft);
@@ -1370,8 +1373,9 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     />
   );
 
-  const addChildManualLogDb = async (event: FormEvent<HTMLFormElement>) => {
+  const addChildManualLogDb = async (event: FormEvent<HTMLFormElement>, tab: "book" | "dvd", dvd?: Dvd) => {
     event.preventDefault();
+    if (childManualLogSavingRef.current) return;
     setChildManualLogError("");
     if (!childId) {
       setChildManualLogError("먼저 아동을 선택하세요.");
@@ -1380,11 +1384,11 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
 
     const form = event.currentTarget;
     const formData = new FormData(form);
-    const title = String(formData.get("childManualTitle") ?? "").trim();
-    const type = String(formData.get("childManualType") ?? "korean") as ChildManualLogType;
+    const title = tab === "dvd" ? dvd?.title ?? "" : String(formData.get("childManualTitle") ?? "").trim();
+    const type = tab === "dvd" ? "dvd" : String(formData.get("childManualType") ?? "korean") as ChildManualLogType;
     const minutes = Number(formData.get("childManualMinutes") ?? CHILD_RECORD_DEFAULT_MINUTES);
     if (!title) return;
-    if (type !== "korean" && type !== "englishPicture") {
+    if (type !== "korean" && type !== "englishPicture" && type !== "dvd") {
       setChildManualLogError("기록 구분을 다시 선택하세요.");
       return;
     }
@@ -1393,6 +1397,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       return;
     }
 
+    childManualLogSavingRef.current = true;
+    setChildManualLogSaving(true);
     try {
       const manualLog = await saveManualLog(supabase, ownerUserId, {
         childId,
@@ -1406,9 +1412,12 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       setData((current) => ({ ...current, manualLogs: [...current.manualLogs, manualLog] }));
       form.reset();
       setIsChildManualLogOpen(false);
-      showToast("읽은 책 기록을 추가했습니다.");
+      showToast(tab === "dvd" ? "DVD 시청 기록을 추가했습니다." : "읽은 책 기록을 추가했습니다.");
     } catch (error) {
       setChildManualLogError(error instanceof Error ? error.message : "읽은 책 기록을 저장하지 못했습니다.");
+    } finally {
+      childManualLogSavingRef.current = false;
+      setChildManualLogSaving(false);
     }
   };
 
@@ -2762,6 +2771,10 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       {isChildManualLogOpen && (
         <ChildReadingLogDialog
           error={childManualLogError}
+          supabase={supabase}
+          ownerUserId={ownerUserId}
+          childId={childId}
+          saving={childManualLogSaving}
           returnFocusRef={childManualLogTriggerRef}
           onClose={() => setIsChildManualLogOpen(false)}
           onSubmit={addChildManualLogDb}
