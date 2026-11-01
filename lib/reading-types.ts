@@ -31,6 +31,12 @@ export type Book = {
   note: string;
 };
 
+export type Dvd = {
+  id: string;
+  title: string;
+  active: boolean;
+};
+
 export type Assignment = {
   id: string;
   childId: string;
@@ -85,6 +91,7 @@ export type ActivityLog = {
 export type ReadingData = {
   children: Child[];
   books: Book[];
+  dvds?: Dvd[];
   assignments: Assignment[];
   completions: Record<string, Completion>;
   audioLaunches: Record<string, AudioLaunch>;

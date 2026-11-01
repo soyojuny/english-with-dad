@@ -3,6 +3,7 @@ import type { ActivityCategory, QuizResult, ReadingData, TaskType } from "./read
 export const emptyReadingData: ReadingData = {
   children: [],
   books: [],
+  dvds: [],
   assignments: [],
   completions: {},
   audioLaunches: {},

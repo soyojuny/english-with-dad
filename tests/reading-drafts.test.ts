@@ -131,6 +131,7 @@ test("정상 입력: 초기 데이터 shape와 UI가 소비하는 task·category
   assert.deepEqual(initialData, {
     children: [],
     books: [],
+    dvds: [],
     assignments: [],
     completions: {},
     audioLaunches: {},

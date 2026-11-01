@@ -9,6 +9,7 @@ import type {
   BookContentType,
   Child,
   Completion,
+  Dvd,
   ManualLog,
   ManualLogType,
   QuizResult,
@@ -40,6 +41,12 @@ type BookRow = {
   audio_listen: string;
   audio_shadow: string;
   note: string;
+};
+
+type DvdRow = {
+  id: string;
+  title: string;
+  active: boolean;
 };
 
 type AssignmentRow = {
@@ -484,6 +491,26 @@ export async function fetchBookSeriesNames(
   if (result.error) throw new Error(result.error.message);
 
   return toUniqueSeriesNames((result.data ?? []) as BookSeriesRow[]);
+}
+
+export async function fetchDvdCatalogData(
+  supabase: SupabaseLikeClient,
+  ownerUserId: string,
+): Promise<{ dvds: Dvd[] }> {
+  const result = await supabase
+    .from("dvds")
+    .select("id, title, active")
+    .eq("owner_user_id", ownerUserId)
+    .order("created_at", { ascending: true });
+
+  if (result.error) throw new Error(result.error.message);
+
+  return {
+    dvds: (result.data ?? []).map((row) => {
+      const dvd = row as DvdRow;
+      return { id: dvd.id, title: dvd.title, active: dvd.active };
+    }),
+  };
 }
 
 export async function fetchLibraryData(
