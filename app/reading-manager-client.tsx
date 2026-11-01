@@ -25,6 +25,7 @@ import {
   getAssignmentBookCandidates,
   getUpcomingAssignments,
   getAssignmentTaskCount,
+  getActivityMinutes,
   getBookSetupIssues,
   getCompletionCount,
   getDefaultTasksForMaterial,
@@ -1437,7 +1438,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     0,
   );
   const totalTaskCount = todayAssignments.reduce((sum, assignment) => sum + countAssignmentProgress(data, assignment).total, 0);
-  const totalMinutes = periodLogs.reduce((sum, log) => sum + Number(log.minutes || 0), 0);
+  const { readingMinutes, dvdMinutes } = getActivityMinutes(periodLogs);
   const readBookCount = new Set(
     periodLogs
       .filter((log) => {
@@ -2078,7 +2079,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                   {[
                     ["선택 아동", childSummary.name],
                     ["기간 활동", `${periodLogs.length}건`],
-                    ["읽기 시간", `${totalMinutes}분`],
+                    ["읽기 시간", `${readingMinutes}분`],
+                    ["DVD 시청 시간", `${dvdMinutes}분`],
                     ["읽은 책", `${readBookCount}권`],
                   ].map(([label, value]) => (
                     <article className="stat" key={label}>
@@ -2094,7 +2096,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                       <p className="eyebrow">진행표</p>
                       <h2 id="logTitle">활동 기록</h2>
                       <p className="print-only report-subtitle">
-                        {childSummary.name} · {periodRangeLabel} · 활동 {periodLogs.length}건 · 읽기 {totalMinutes}분 · 읽은 책 {readBookCount}권
+                        {childSummary.name} · {periodRangeLabel} · 활동 {periodLogs.length}건 · 읽기 {readingMinutes}분 · DVD 시청 {dvdMinutes}분 · 읽은 책 {readBookCount}권
                       </p>
                     </div>
                   </div>
