@@ -24,11 +24,11 @@ export function AssignmentQuizScore({
     >
       <div>
         <h4>퀴즈</h4>
-        <p className="task-meta">점수를 입력한 뒤 PASS/FAIL을 선택하면 부모 활동 기록에 함께 저장됩니다.</p>
+        <p className="task-meta">결과를 누르면 점수와 함께 저장됩니다.</p>
       </div>
       <div className="quiz-input-controls">
         <label htmlFor={`quiz-points-${assignmentId}`}>
-          점수 (선택)
+          점수
           <input
             id={`quiz-points-${assignmentId}`}
             type="number"
@@ -40,12 +40,13 @@ export function AssignmentQuizScore({
             onChange={(event) => setDraft(event.target.value)}
           />
         </label>
-        <div className="task-actions quiz-result-actions" role="group" aria-label="퀴즈 결과 선택">
+        <div className="quiz-result-actions" role="group" aria-label="퀴즈 결과 선택">
           {quizResultOptions.map((result) => (
             <button
               className={score === result ? "primary-button" : "secondary-button"}
               key={result}
               type="button"
+              aria-pressed={score === result}
               onClick={(event) => {
                 if (!event.currentTarget.form?.reportValidity()) return;
                 const value = draft ?? String(points ?? "");

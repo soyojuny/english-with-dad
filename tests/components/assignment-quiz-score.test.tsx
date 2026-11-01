@@ -15,7 +15,8 @@ test("C02-N01: 결과가 없을 때 PASS 클릭은 저장 callback에 PASS를 �
 
   // Then
   expect(onSave).toHaveBeenCalledExactlyOnceWith("PASS", null);
-  expect(screen.getByRole("button", { name: "PASS" }).classList.contains("secondary-button")).toBe(true);
+  expect(screen.getByRole("button", { name: "FAIL" }).getAttribute("aria-pressed")).toBe("false");
+  expect(screen.getByRole("button", { name: "PASS" }).getAttribute("aria-pressed")).toBe("false");
 });
 
 test("C02-N02: PASS와 FAIL은 현재 score에 맞춰 선택 표시되고 각각 저장 callback을 전달한다", async () => {
@@ -30,8 +31,8 @@ test("C02-N02: PASS와 FAIL은 현재 score에 맞춰 선택 표시되고 각각
   await user.click(screen.getByRole("button", { name: "FAIL" }));
 
   // Then
-  expect(screen.getByRole("button", { name: "FAIL" }).classList.contains("primary-button")).toBe(true);
-  expect(screen.getByRole("button", { name: "PASS" }).classList.contains("secondary-button")).toBe(true);
+  expect(screen.getByRole("button", { name: "FAIL" }).getAttribute("aria-pressed")).toBe("true");
+  expect(screen.getByRole("button", { name: "PASS" }).getAttribute("aria-pressed")).toBe("false");
   expect(onSave).toHaveBeenNthCalledWith(1, "PASS", null);
   expect(onSave).toHaveBeenNthCalledWith(2, "FAIL", null);
   expect(onSave).toHaveBeenCalledTimes(2);
@@ -53,8 +54,8 @@ test("T01-E07: StrictMode rerender는 새 선택과 callback을 적용하고 unm
   await user.click(screen.getByRole("button", { name: "FAIL" }));
 
   // Then
-  expect(screen.getByRole("button", { name: "FAIL" }).classList.contains("primary-button")).toBe(true);
-  expect(screen.getByRole("button", { name: "PASS" }).classList.contains("secondary-button")).toBe(true);
+  expect(screen.getByRole("button", { name: "FAIL" }).getAttribute("aria-pressed")).toBe("true");
+  expect(screen.getByRole("button", { name: "PASS" }).getAttribute("aria-pressed")).toBe("false");
   expect(newSave).toHaveBeenCalledExactlyOnceWith("FAIL", null);
   expect(oldSave).not.toHaveBeenCalled();
   view.unmount();
@@ -68,7 +69,7 @@ for (const points of [0, 90, 100]) {
     const user = userEvent.setup();
     render(<AssignmentQuizScore assignmentId="assignment-1" score={null} onSave={onSave} />);
     // When
-    await user.type(screen.getByLabelText("점수 (선택)"), String(points));
+    await user.type(screen.getByLabelText("점수"), String(points));
     await user.click(screen.getByRole("button", { name: "PASS" }));
     // Then
     expect(onSave).toHaveBeenCalledExactlyOnceWith("PASS", points);
@@ -82,7 +83,7 @@ for (const points of [-1, 101, 90.5]) {
     const user = userEvent.setup();
     render(<AssignmentQuizScore assignmentId="assignment-1" score={null} onSave={onSave} />);
     // When
-    await user.type(screen.getByLabelText("점수 (선택)"), String(points));
+    await user.type(screen.getByLabelText("점수"), String(points));
     await user.click(screen.getByRole("button", { name: "PASS" }));
     // Then
     expect(onSave).not.toHaveBeenCalled();
@@ -94,7 +95,7 @@ test("기존 점수를 수정하고 비워 저장할 수 있다", async () => {
   const onSave = vi.fn();
   const user = userEvent.setup();
   render(<AssignmentQuizScore assignmentId="assignment-1" score="PASS" points={90} onSave={onSave} />);
-  const input = screen.getByLabelText("점수 (선택)");
+  const input = screen.getByLabelText("점수");
   expect(input).toHaveProperty("value", "90");
   // When
   await user.clear(input);
@@ -113,7 +114,7 @@ for (const score of [null, "PASS", "FAIL"] as const) {
     const onSave = vi.fn();
     const user = userEvent.setup();
     render(<AssignmentQuizScore assignmentId="assignment-1" score={score} points={50} onSave={onSave} />);
-    const input = screen.getByLabelText("점수 (선택)");
+    const input = screen.getByLabelText("점수");
 
     // When
     await user.clear(input);
@@ -123,7 +124,7 @@ for (const score of [null, "PASS", "FAIL"] as const) {
     expect(onSave).not.toHaveBeenCalled();
     expect(input).toHaveProperty("value", "60");
     if (score !== null) {
-      expect(screen.getByRole("button", { name: score }).classList.contains("primary-button")).toBe(true);
+      expect(screen.getByRole("button", { name: score }).getAttribute("aria-pressed")).toBe("true");
     }
   });
 }
