@@ -18,7 +18,7 @@ type ExpectedQuery = {
 const owner = "owner-1";
 const range = { startKey: "2026-10-14", endKey: "2026-10-20" };
 const bookColumns = "id, owner_user_id, active, content_type, series, title, volume, level, cover, audio_listen, audio_shadow, note";
-const assignmentColumns = "id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_enabled, quiz_score";
+const assignmentColumns = "id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_enabled, quiz_score, quiz_points";
 
 const initialQueries: ExpectedQuery[] = [
   {

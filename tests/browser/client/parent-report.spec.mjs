@@ -12,9 +12,9 @@ const books = [
   { id: 'book-inactive', active: false, series: 'Old', title: '비활성 이력 책' },
 ];
 const assignments = [
-  { id: 'focus', child_id: 'child-1', date: '2026-10-18', book_id: 'book-focus', activity_category: 'focusListen', tasks: ['listen'], task_counts: { listen: 1 }, quiz_enabled: true, quiz_score: 'PASS' },
+  { id: 'focus', child_id: 'child-1', date: '2026-10-18', book_id: 'book-focus', activity_category: 'focusListen', tasks: ['listen'], task_counts: { listen: 1 }, quiz_enabled: true, quiz_score: 'PASS', quiz_points: 90 },
   { id: 'word', child_id: 'child-1', date: '2026-10-18', book_id: 'book-word', activity_category: 'extraStudy', tasks: ['wordRead'], task_counts: { wordRead: 1 } },
-  { id: 'old', child_id: 'child-1', date: '2026-10-18', book_id: 'book-inactive', activity_category: 'readAloud', tasks: ['self'], task_counts: { self: 1 }, quiz_enabled: true, quiz_score: 'FAIL' },
+  { id: 'old', child_id: 'child-1', date: '2026-10-18', book_id: 'book-inactive', activity_category: 'readAloud', tasks: ['self'], task_counts: { self: 1 }, quiz_enabled: true, quiz_score: 'FAIL', quiz_points: 0 },
   { id: 'other', child_id: 'child-2', date: '2026-10-18', book_id: 'book-other', activity_category: 'focusListen', tasks: ['listen'], task_counts: { listen: 1 } },
 ];
 const completions = [
@@ -44,10 +44,10 @@ test('U08-N01 정상: 주간 기본 보고서는 활동 구분·시간·횟수·
   await expect(report).toContainText('Oxford');
   await expect(report).toContainText('집중 책');
   await expect(report).toContainText('읽기 3회');
-  await expect(report).toContainText('퀴즈 (PASS)');
+  await expect(report).toContainText('퀴즈 (PASS · 90점)');
   await expect(report).toContainText('단어 자료');
   await expect(report).toContainText('비활성 이력 책');
-  await expect(report).toContainText('퀴즈 (FAIL)');
+  await expect(report).toContainText('퀴즈 (FAIL · 0점)');
   await expect(f.page.locator('.stats-grid')).toContainText('기간 활동');
   await expect(f.page.locator('.stats-grid')).toContainText('20분');
   await expect(f.page.locator('.stats-grid')).toContainText('2권');

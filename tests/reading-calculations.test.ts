@@ -233,6 +233,7 @@ test("정상 입력: PASS 퀴즈 결과는 task 완료 없이도 책 활동 기�
       note: "",
       count: 1,
       quizScore: "PASS",
+      quizPoints: null,
     },
   ]);
 });
@@ -822,4 +823,14 @@ test("getLaunchMinutes uses rounded elapsed minutes and falls back for invalid l
   );
   assert.equal(getLaunchMinutes({ openedAt: "bad", returnedAt: "2026-06-10T10:00:00.000Z" }, 10), 10);
   assert.equal(getLaunchMinutes({ openedAt: "2026-06-10T10:00:00.000Z", returnedAt: null }, 10), 10);
+});
+
+test("퀴즈 점수를 부모 활동 기록에 전달한다", () => {
+  // Given
+  const data: ReadingData = { ...emptyReadingData, books: candidateBooks, assignments: [{ ...assignment, bookId: "book-1", quizEnabled: true, quizScore: "FAIL", quizPoints: 0 }] };
+  // When
+  const logs = buildAssignmentActivityLogs(data);
+  // Then
+  assert.equal(logs[0].quizScore, "FAIL");
+  assert.equal(logs[0].quizPoints, 0);
 });

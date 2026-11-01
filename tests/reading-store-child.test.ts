@@ -8,8 +8,8 @@ type QueryFailure = { error: { message: string } } | { rejection: Error };
 
 const bookColumns = "id, owner_user_id, active, content_type, series, title, volume, level, cover, audio_listen, audio_shadow, note";
 const expectedSelect = {
-  today: `id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_enabled, quiz_score, book:books!assignments_book_owner_fkey(${bookColumns}), completions:completions!completions_assignment_owner_fkey(assignment_id, task_type, completed_at, minutes, audio_opened_at, count), audioLaunches:audio_launches!audio_launches_assignment_owner_fkey(assignment_id, task_type, opened_at, returned_at)`,
-  upcoming: `id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_enabled, quiz_score, book:books!assignments_book_owner_fkey(${bookColumns})`,
+  today: `id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_enabled, quiz_score, quiz_points, book:books!assignments_book_owner_fkey(${bookColumns}), completions:completions!completions_assignment_owner_fkey(assignment_id, task_type, completed_at, minutes, audio_opened_at, count), audioLaunches:audio_launches!audio_launches_assignment_owner_fkey(assignment_id, task_type, opened_at, returned_at)`,
+  upcoming: `id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_enabled, quiz_score, quiz_points, book:books!assignments_book_owner_fkey(${bookColumns})`,
 };
 
 function normalizeSelect(columns: string) { return columns.replace(/\s+/g, " ").trim(); }

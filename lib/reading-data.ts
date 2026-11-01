@@ -59,6 +59,10 @@ export const logLabels = {
 export const taskCountOptions = [0, 1, 2, 3] as const;
 export const quizResultOptions: QuizResult[] = ["PASS", "FAIL"];
 
+export function isValidQuizPoints(value: number | null): boolean {
+  return value === null || (Number.isInteger(value) && value >= 0 && value <= 100);
+}
+
 const pad = (value: number) => String(value).padStart(2, "0");
 
 export function dateKey(date = new Date()) {

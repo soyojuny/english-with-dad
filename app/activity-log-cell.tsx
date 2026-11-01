@@ -55,14 +55,17 @@ export function ActivityLogCell({
 
   if (matcher.bookSummary) {
     const grouped = automaticLogs.reduce<
-      Record<string, { series: string; title: string; minutes: number; taskCounts: Partial<Record<TaskType, number>>; quizScore: QuizResult | null }>
+      Record<string, { series: string; title: string; minutes: number; taskCounts: Partial<Record<TaskType, number>>; quizScore: QuizResult | null; quizPoints: number | null }>
     >((acc, log) => {
       const book = log.bookId ? getBook(log.bookId) : undefined;
       const series = book?.series || "직접 입력";
       const key = `${series}:${log.title}`;
-      acc[key] ??= { series, title: log.title, minutes: 0, taskCounts: {}, quizScore: null };
+      acc[key] ??= { series, title: log.title, minutes: 0, taskCounts: {}, quizScore: null, quizPoints: null };
       acc[key].minutes += Number(log.minutes || 0);
-      if (log.quizScore !== undefined) acc[key].quizScore = log.quizScore;
+      if (log.quizScore !== undefined) {
+        acc[key].quizScore = log.quizScore;
+        acc[key].quizPoints = log.quizPoints ?? null;
+      }
       if (log.type in taskDefinitions) {
         const taskType = log.type as TaskType;
         acc[key].taskCounts[taskType] = (acc[key].taskCounts[taskType] ?? 0) + log.count;
@@ -85,7 +88,7 @@ export function ActivityLogCell({
             <br />
             <small>
               {detailText || "활동 기록"} ({entry.minutes}분)
-              {entry.quizScore !== null ? ` 퀴즈 (${entry.quizScore})` : ""}
+              {entry.quizScore !== null ? ` 퀴즈 (${entry.quizScore}${entry.quizPoints !== null ? ` · ${entry.quizPoints}점` : ""})` : ""}
             </small>
           </div>
         );

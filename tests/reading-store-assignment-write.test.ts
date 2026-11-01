@@ -10,7 +10,7 @@ type Result = { data: Row[] | Row | null; error: { message: string } | null } | 
 type Plan = { mutation: Mutation; payload?: Row[] | Row; options?: Row; filters?: Filter[]; select?: string; single?: boolean; result: Result };
 
 const owner = "owner-1";
-const assignmentColumns = "id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_enabled, quiz_score";
+const assignmentColumns = "id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_enabled, quiz_score, quiz_points";
 const filters = (id: string): Filter[] => [{ column: "owner_user_id", value: owner }, { column: "id", value: id }];
 const saved = {
   id: "assignment-1", owner_user_id: owner, child_id: "child-1", date: "2026-10-15", book_id: "book-1",
@@ -83,16 +83,16 @@ test("정상 입력: 배정 batch는 모든 snake_case 필드와 conflict key로
   ];
   const fake = createAssignmentMutationFake({ mutation: "upsert", payload: [
     { owner_user_id: owner, child_id: "child-1", date: "2026-10-15", book_id: "book-1", activity_category: "focusListen", tasks: ["listen", "shadow"], task_counts: { listen: 2, shadow: 1 }, quiz_enabled: true },
-    { owner_user_id: owner, child_id: "child-2", date: "2026-10-16", book_id: "book-2", activity_category: "extraStudy", tasks: ["copywork"], task_counts: { copywork: 3 }, quiz_enabled: false, quiz_score: null },
-  ], options: { onConflict: "owner_user_id,child_id,date,book_id,activity_category" }, select: assignmentColumns, result: { data: [saved, { ...saved, id: "assignment-2", child_id: "child-2", date: "2026-10-16", book_id: "book-2", activity_category: "extraStudy", tasks: ["copywork"], task_counts: { copywork: 3 }, quiz_enabled: false, quiz_score: null }], error: null } });
+    { owner_user_id: owner, child_id: "child-2", date: "2026-10-16", book_id: "book-2", activity_category: "extraStudy", tasks: ["copywork"], task_counts: { copywork: 3 }, quiz_enabled: false, quiz_score: null, quiz_points: null },
+  ], options: { onConflict: "owner_user_id,child_id,date,book_id,activity_category" }, select: assignmentColumns, result: { data: [saved, { ...saved, id: "assignment-2", child_id: "child-2", date: "2026-10-16", book_id: "book-2", activity_category: "extraStudy", tasks: ["copywork"], task_counts: { copywork: 3 }, quiz_enabled: false, quiz_score: null, quiz_points: null }], error: null } });
 
   // When
   const actual = await saveAssignments(fake.client, owner, payloads);
 
   // Then
   assert.deepEqual(actual, [
-    { id: "assignment-1", childId: "child-1", date: "2026-10-15", bookId: "book-1", activityCategory: "focusListen", tasks: ["listen", "shadow"], taskCounts: { listen: 2, shadow: 1 }, quizEnabled: true, quizScore: "PASS" },
-    { id: "assignment-2", childId: "child-2", date: "2026-10-16", bookId: "book-2", activityCategory: "extraStudy", tasks: ["copywork"], taskCounts: { copywork: 3 }, quizEnabled: false, quizScore: null },
+    { id: "assignment-1", childId: "child-1", date: "2026-10-15", bookId: "book-1", activityCategory: "focusListen", tasks: ["listen", "shadow"], taskCounts: { listen: 2, shadow: 1 }, quizEnabled: true, quizScore: "PASS", quizPoints: null },
+    { id: "assignment-2", childId: "child-2", date: "2026-10-16", bookId: "book-2", activityCategory: "extraStudy", tasks: ["copywork"], taskCounts: { copywork: 3 }, quizEnabled: false, quizScore: null, quizPoints: null },
   ]);
   fake.assertComplete();
 });
@@ -123,7 +123,7 @@ test("잘못된 입력/실패: 배정 batch DB error는 성공 결과로 바꾸�
 
 test("정상 입력: PASS 퀴즈 결과는 owner/id 범위와 exact select/single 결과로 저장한다", async () => {
   // Given
-  const fake = createAssignmentMutationFake({ mutation: "update", payload: { quiz_score: "PASS" }, filters: filters("assignment-1"), select: assignmentColumns, single: true, result: { data: saved, error: null } });
+  const fake = createAssignmentMutationFake({ mutation: "update", payload: { quiz_score: "PASS", quiz_points: null }, filters: filters("assignment-1"), select: assignmentColumns, single: true, result: { data: saved, error: null } });
 
   // When
   const actual = await saveAssignmentQuizScore(fake.client, owner, "assignment-1", "PASS");
@@ -135,7 +135,7 @@ test("정상 입력: PASS 퀴즈 결과는 owner/id 범위와 exact select/singl
 
 test("정상 입력: FAIL 퀴즈 결과는 반환 row를 도메인 배정으로 매핑한다", async () => {
   // Given
-  const fake = createAssignmentMutationFake({ mutation: "update", payload: { quiz_score: "FAIL" }, filters: filters("assignment-1"), select: assignmentColumns, single: true, result: { data: { ...saved, quiz_score: "FAIL" }, error: null } });
+  const fake = createAssignmentMutationFake({ mutation: "update", payload: { quiz_score: "FAIL", quiz_points: null }, filters: filters("assignment-1"), select: assignmentColumns, single: true, result: { data: { ...saved, quiz_score: "FAIL", quiz_points: null }, error: null } });
 
   // When
   const actual = await saveAssignmentQuizScore(fake.client, owner, "assignment-1", "FAIL");
@@ -147,7 +147,7 @@ test("정상 입력: FAIL 퀴즈 결과는 반환 row를 도메인 배정으로 
 
 test("잘못된 입력/실패: 퀴즈 저장의 data null은 성공 배정으로 반환하지 않는다", async () => {
   // Given
-  const fake = createAssignmentMutationFake({ mutation: "update", payload: { quiz_score: "PASS" }, filters: filters("assignment-1"), select: assignmentColumns, single: true, result: { data: null, error: null } });
+  const fake = createAssignmentMutationFake({ mutation: "update", payload: { quiz_score: "PASS", quiz_points: null }, filters: filters("assignment-1"), select: assignmentColumns, single: true, result: { data: null, error: null } });
 
   // When
   const actual = saveAssignmentQuizScore(fake.client, owner, "assignment-1", "PASS");
@@ -159,7 +159,7 @@ test("잘못된 입력/실패: 퀴즈 저장의 data null은 성공 배정으로
 
 test("잘못된 입력/실패: 퀴즈 저장 DB error는 전용 오류로 전파한다", async () => {
   // Given
-  const fake = createAssignmentMutationFake({ mutation: "update", payload: { quiz_score: "PASS" }, filters: filters("assignment-1"), select: assignmentColumns, single: true, result: { data: null, error: { message: "quiz denied" } } });
+  const fake = createAssignmentMutationFake({ mutation: "update", payload: { quiz_score: "PASS", quiz_points: null }, filters: filters("assignment-1"), select: assignmentColumns, single: true, result: { data: null, error: { message: "quiz denied" } } });
 
   // When
   const actual = saveAssignmentQuizScore(fake.client, owner, "assignment-1", "PASS");
@@ -171,7 +171,7 @@ test("잘못된 입력/실패: 퀴즈 저장 DB error는 전용 오류로 전파
 
 test("잘못된 입력/실패: 퀴즈 저장 Promise rejection은 전파한다", async () => {
   // Given
-  const fake = createAssignmentMutationFake({ mutation: "update", payload: { quiz_score: "PASS" }, filters: filters("assignment-1"), select: assignmentColumns, single: true, result: { rejection: new Error("quiz network") } });
+  const fake = createAssignmentMutationFake({ mutation: "update", payload: { quiz_score: "PASS", quiz_points: null }, filters: filters("assignment-1"), select: assignmentColumns, single: true, result: { rejection: new Error("quiz network") } });
 
   // When
   const actual = saveAssignmentQuizScore(fake.client, owner, "assignment-1", "PASS");
@@ -195,13 +195,13 @@ test("정상 입력: 할 일 횟수와 quizEnabled true는 기존 quiz score를 
 
 test("경계값: 퀴즈를 Y에서 N으로 바꾸면 score를 null로 초기화한다", async () => {
   // Given
-  const fake = createAssignmentMutationFake({ mutation: "update", payload: { tasks: [], task_counts: {}, quiz_enabled: false, quiz_score: null }, filters: filters("assignment-1"), select: assignmentColumns, single: true, result: { data: { ...saved, tasks: [], task_counts: {}, quiz_enabled: false, quiz_score: null }, error: null } });
+  const fake = createAssignmentMutationFake({ mutation: "update", payload: { tasks: [], task_counts: {}, quiz_enabled: false, quiz_score: null, quiz_points: null }, filters: filters("assignment-1"), select: assignmentColumns, single: true, result: { data: { ...saved, tasks: [], task_counts: {}, quiz_enabled: false, quiz_score: null, quiz_points: null }, error: null } });
 
   // When
   const actual = await saveAssignmentTaskCounts(fake.client, owner, "assignment-1", { tasks: [], taskCounts: {}, quizEnabled: false });
 
   // Then
-  assert.deepEqual(actual, { id: "assignment-1", childId: "child-1", date: "2026-10-15", bookId: "book-1", activityCategory: "focusListen", tasks: [], taskCounts: {}, quizEnabled: false, quizScore: null });
+  assert.deepEqual(actual, { id: "assignment-1", childId: "child-1", date: "2026-10-15", bookId: "book-1", activityCategory: "focusListen", tasks: [], taskCounts: {}, quizEnabled: false, quizScore: null, quizPoints: null });
   fake.assertComplete();
 });
 
@@ -252,3 +252,26 @@ test("잘못된 입력/실패: 배정 삭제 DB error는 전파한다", async ()
   await assert.rejects(actual, /delete denied/);
   fake.assertComplete();
 });
+
+for (const points of [null, 0, 90, 100]) {
+  test(`퀴즈 점수 ${points}를 결과와 함께 저장하고 반환한다`, async () => {
+    // Given
+    const fake = createAssignmentMutationFake({ mutation: "update", payload: { quiz_score: "PASS", quiz_points: points }, filters: filters("assignment-1"), select: assignmentColumns, single: true, result: { data: { ...saved, quiz_points: points }, error: null } });
+    // When
+    const actual = await saveAssignmentQuizScore(fake.client, owner, "assignment-1", "PASS", points);
+    // Then
+    assert.equal(actual.quizPoints, points);
+    fake.assertComplete();
+  });
+}
+
+for (const points of [-1, 101, 90.5, NaN, Infinity]) {
+  test(`잘못된 점수 ${points}는 DB 쓰기 전에 거절한다`, async () => {
+    // Given
+    const client = { from() { throw new Error("DB에 접근하면 안 된다"); } } as unknown as Parameters<typeof saveAssignmentQuizScore>[0];
+    // When
+    const result = saveAssignmentQuizScore(client, owner, "assignment-1", "PASS", points);
+    // Then
+    await assert.rejects(result, /0~100 사이의 정수/);
+  });
+}

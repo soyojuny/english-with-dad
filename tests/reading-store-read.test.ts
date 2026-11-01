@@ -16,7 +16,7 @@ const expectedOrder: Partial<Record<TableName, string>> = {
 const expectedSelect: Record<TableName, string> = {
   children: "id, owner_user_id, name, level, goal",
   books: "id, owner_user_id, active, content_type, series, title, volume, level, cover, audio_listen, audio_shadow, note",
-  assignments: "id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_enabled, quiz_score",
+  assignments: "id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_enabled, quiz_score, quiz_points",
   completions: "assignment_id, task_type, completed_at, minutes, audio_opened_at, count",
   audio_launches: "assignment_id, task_type, opened_at, returned_at",
   manual_logs: "id, child_id, date, type, title, minutes, note",
@@ -152,8 +152,8 @@ test("정상 입력: 전체 조회는 여섯 컬렉션을 snake_case row에서 o
       { id: "book-later", active: false, contentType: "wordReading", series: "단어", title: "나중 책", volume: "2", level: "B", cover: "/later.jpg", audio: { listen: "https://audio.example/later", shadow: "" }, note: "메모 2" },
     ],
     assignments: [
-      { id: "assignment-first", childId: "child-first", date: "2026-10-14", bookId: "book-first", activityCategory: "focusListen", tasks: ["listen", "shadow"], taskCounts: {}, quizEnabled: false, quizScore: "PASS" },
-      { id: "assignment-later", childId: "child-later", date: "2026-10-15", bookId: "book-later", activityCategory: "extraStudy", tasks: ["wordRead"], taskCounts: { wordRead: 2 }, quizEnabled: true, quizScore: "FAIL" },
+      { id: "assignment-first", childId: "child-first", date: "2026-10-14", bookId: "book-first", activityCategory: "focusListen", tasks: ["listen", "shadow"], taskCounts: {}, quizEnabled: false, quizScore: "PASS", quizPoints: null },
+      { id: "assignment-later", childId: "child-later", date: "2026-10-15", bookId: "book-later", activityCategory: "extraStudy", tasks: ["wordRead"], taskCounts: { wordRead: 2 }, quizEnabled: true, quizScore: "FAIL", quizPoints: null },
     ],
     completions: { "assignment-first:listen": { completedAt: "2026-10-14T01:10:00.000Z", minutes: 10, audioOpenedAt: null, count: 2 } },
     audioLaunches: { "assignment-later:wordRead": { openedAt: "2026-10-15T01:00:00.000Z", returnedAt: "2026-10-15T01:05:00.000Z" } },

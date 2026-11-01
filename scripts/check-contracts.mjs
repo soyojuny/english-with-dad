@@ -283,6 +283,12 @@ const quizScoreMigration = await read("supabase/migrations/20260621190000_assign
 requireIncludes(quizScoreMigration, "quiz_score", "supabase/migrations/20260621190000_assignment_quiz_score.sql");
 requireIncludes(quizScoreMigration, "between 0 and 100", "supabase/migrations/20260621190000_assignment_quiz_score.sql");
 
+const quizPointsMigration = await read("supabase/migrations/20261101120000_assignment_quiz_points.sql");
+requireIncludes(quizPointsMigration, "quiz_points integer", "supabase/migrations/20261101120000_assignment_quiz_points.sql");
+requireIncludes(quizPointsMigration, "between 0 and 100", "supabase/migrations/20261101120000_assignment_quiz_points.sql");
+requireIncludes(readingStore, "quiz_points", "lib/supabase/reading-store.ts");
+requireIncludes(types, "quizPoints", "lib/reading-types.ts");
+
 const quizEnabledMigration = await read("supabase/migrations/20260621200000_assignment_quiz_enabled.sql");
 requireIncludes(quizEnabledMigration, "quiz_enabled", "supabase/migrations/20260621200000_assignment_quiz_enabled.sql");
 requireIncludes(quizEnabledMigration, "default false", "supabase/migrations/20260621200000_assignment_quiz_enabled.sql");

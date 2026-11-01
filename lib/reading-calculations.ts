@@ -138,6 +138,7 @@ export function buildAssignmentActivityLogs(data: ReadingData) {
         note: "",
         count: 1,
         quizScore: assignment.quizScore,
+        quizPoints: assignment.quizPoints ?? null,
       });
     }
 

@@ -161,3 +161,14 @@ test("C04-F01: 혼합 기록에서 삭제는 manualLogIds에 있는 수동 기�
   expect(screen.getAllByRole("button", { name: "삭제" })).toHaveLength(1);
   expect(onDeleteManualLog).toHaveBeenCalledExactlyOnceWith(manualLog);
 });
+
+for (const points of [0, 90, 100]) {
+  test(`부모 책 요약에 PASS와 ${points}점을 함께 표시한다`, () => {
+    // Given
+    const logs = [automaticLog({ type: "quiz", minutes: 0, quizScore: "PASS", quizPoints: points })];
+    // When
+    renderCell({ logs, matcher: { types: "quiz", bookSummary: true } });
+    // Then
+    expect(screen.getByText(`활동 기록 (0분) 퀴즈 (PASS · ${points}점)`)).toBeTruthy();
+  });
+}

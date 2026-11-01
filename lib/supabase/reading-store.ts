@@ -1,3 +1,4 @@
+import { isValidQuizPoints } from "../reading-data";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { CompletionSaveError, type CompletionPayload, type CompletionSaveResult } from "../task-completion";
 import type {
@@ -52,6 +53,7 @@ type AssignmentRow = {
   task_counts: TaskCountMap | null;
   quiz_enabled: boolean | null;
   quiz_score: string | null;
+  quiz_points: number | null;
 };
 
 type TodayAssignmentRow = AssignmentRow & {
@@ -139,6 +141,7 @@ function mapAssignment(row: AssignmentRow): Assignment {
     taskCounts,
     quizEnabled: row.quiz_enabled ?? false,
     quizScore: toQuizResult(row.quiz_score),
+    quizPoints: row.quiz_points ?? null,
   };
 }
 
@@ -215,7 +218,7 @@ export async function fetchReadingData(
         .order("created_at", { ascending: true }),
       supabase
         .from("assignments")
-        .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_enabled, quiz_score")
+        .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_enabled, quiz_score, quiz_points")
         .eq("owner_user_id", ownerUserId)
         .order("date", { ascending: true }),
       supabase
@@ -270,7 +273,7 @@ export async function fetchParentActivityData(
       .order("created_at", { ascending: true }),
     supabase
       .from("assignments")
-      .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_enabled, quiz_score")
+      .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_enabled, quiz_score, quiz_points")
       .eq("owner_user_id", ownerUserId)
       .gte("date", range.startKey)
       .lte("date", range.endKey)
@@ -366,6 +369,7 @@ export async function fetchChildTodayData(
       task_counts,
       quiz_enabled,
       quiz_score,
+      quiz_points,
       book:books!assignments_book_owner_fkey(${bookSelectColumns}),
       completions:completions!completions_assignment_owner_fkey(assignment_id, task_type, completed_at, minutes, audio_opened_at, count),
       audioLaunches:audio_launches!audio_launches_assignment_owner_fkey(assignment_id, task_type, opened_at, returned_at)
@@ -412,6 +416,7 @@ export async function fetchUpcomingAssignmentData(
       task_counts,
       quiz_enabled,
       quiz_score,
+      quiz_points,
       book:books!assignments_book_owner_fkey(${bookSelectColumns})
     `)
     .eq("owner_user_id", ownerUserId)
@@ -632,11 +637,11 @@ export async function saveAssignments(
         tasks: assignment.tasks,
         task_counts: assignment.taskCounts,
         quiz_enabled: assignment.quizEnabled,
-        ...(!assignment.quizEnabled ? { quiz_score: null } : {}),
+        ...(!assignment.quizEnabled ? { quiz_score: null, quiz_points: null } : {}),
       })),
       { onConflict: "owner_user_id,child_id,date,book_id,activity_category" },
     )
-    .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_enabled, quiz_score");
+    .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_enabled, quiz_score, quiz_points");
 
   if (result.error) throw new Error(result.error.message);
 
@@ -648,13 +653,15 @@ export async function saveAssignmentQuizScore(
   ownerUserId: string,
   assignmentId: string,
   quizScore: QuizResult,
+  quizPoints: number | null = null,
 ) {
+  if (!isValidQuizPoints(quizPoints)) throw new Error("퀴즈 점수는 0~100 사이의 정수로 입력하세요.");
   const result = await supabase
     .from("assignments")
-    .update({ quiz_score: quizScore })
+    .update({ quiz_score: quizScore, quiz_points: quizPoints })
     .eq("owner_user_id", ownerUserId)
     .eq("id", assignmentId)
-    .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_enabled, quiz_score")
+    .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_enabled, quiz_score, quiz_points")
     .single();
 
   return mapAssignment(unwrap(result, "퀴즈 결과를 저장하지 못했습니다.") as AssignmentRow);
@@ -676,11 +683,11 @@ export async function saveAssignmentTaskCounts(
       tasks: payload.tasks,
       task_counts: payload.taskCounts,
       quiz_enabled: payload.quizEnabled,
-      ...(!payload.quizEnabled ? { quiz_score: null } : {}),
+      ...(!payload.quizEnabled ? { quiz_score: null, quiz_points: null } : {}),
     })
     .eq("owner_user_id", ownerUserId)
     .eq("id", assignmentId)
-    .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_enabled, quiz_score")
+    .select("id, owner_user_id, child_id, date, book_id, activity_category, tasks, task_counts, quiz_enabled, quiz_score, quiz_points")
     .single();
 
   return mapAssignment(unwrap(result, "할 일 횟수를 수정하지 못했습니다.") as AssignmentRow);

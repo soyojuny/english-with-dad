@@ -104,3 +104,5 @@ SQL Editor에서 아래 마이그레이션을 실행합니다.
 현재 구현은 `books.cover` 텍스트 컬럼에 URL 또는 data URL을 저장할 수 있습니다. 다만 사진 업로드를 계속 쓸 거면 `book-covers` 같은 Storage 버킷을 만들고 파일 URL만 DB에 저장하는 구조로 옮기는 편이 맞습니다.
 
 단어 읽기 자료는 표지 사진을 요구하지 않고, QR 스캔 또는 직접 입력한 URL을 `books.audio_listen`에 저장합니다.
+
+- 퀴즈 숫자 점수는 `supabase/migrations/20261101120000_assignment_quiz_points.sql` 적용이 필요합니다. 기존 `quiz_score`의 PASS/FAIL은 유지하고 `quiz_points`에 선택 입력한 0~100점 정수를 저장합니다. 점수를 입력한 뒤 PASS/FAIL을 누르면 함께 저장되며, 점수를 비워 저장하면 숫자 점수만 지워집니다. 부모 활동 기록은 `퀴즈 (PASS · 90점)`처럼 표시합니다.

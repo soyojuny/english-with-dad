@@ -23,7 +23,7 @@ async function addBook(page, title) {
 async function create(page) { await page.getByRole('button', { name: '날짜별 할 일 생성', exact: true }).click(); }
 function writes(f, method = 'POST') { return f.requests.filter((request) => request.path === '/rest/v1/assignments' && request.method === method); }
 function assignment(id = 'assignment-1', overrides = {}) {
-  return { id, child_id: 'child-1', date: today, book_id: 'book-regular', activity_category: 'focusListen', tasks: ['listen'], task_counts: { listen: 1 }, quiz_enabled: false, quiz_score: null, ...overrides };
+  return { id, child_id: 'child-1', date: today, book_id: 'book-regular', activity_category: 'focusListen', tasks: ['listen'], task_counts: { listen: 1 }, quiz_enabled: false, quiz_score: null, quiz_points: null, ...overrides };
 }
 test('U02-N01 정상: 여러 날짜와 여러 자료 배정은 날짜별 task/count payload와 오늘 아동 화면을 만든다', async ({ assignment: f }) => {
   // Given
@@ -43,10 +43,10 @@ test('U02-N01 정상: 여러 날짜와 여러 자료 배정은 날짜별 task/co
   // Then
   assert.equal(start, today);
   assert.deepEqual(writes(f)[0].body, [
-    { owner_user_id: 'owner-1', child_id: 'child-1', date: today, book_id: 'book-regular', activity_category: 'focusListen', tasks: ['listen'], task_counts: { listen: 2 }, quiz_enabled: false, quiz_score: null },
-    { owner_user_id: 'owner-1', child_id: 'child-1', date: today, book_id: 'book-word', activity_category: 'extraStudy', tasks: ['wordRead'], task_counts: { wordRead: 1 }, quiz_enabled: false, quiz_score: null },
-    { owner_user_id: 'owner-1', child_id: 'child-1', date: end, book_id: 'book-regular', activity_category: 'focusListen', tasks: ['listen'], task_counts: { listen: 2 }, quiz_enabled: false, quiz_score: null },
-    { owner_user_id: 'owner-1', child_id: 'child-1', date: end, book_id: 'book-word', activity_category: 'extraStudy', tasks: ['wordRead'], task_counts: { wordRead: 1 }, quiz_enabled: false, quiz_score: null },
+    { owner_user_id: 'owner-1', child_id: 'child-1', date: today, book_id: 'book-regular', activity_category: 'focusListen', tasks: ['listen'], task_counts: { listen: 2 }, quiz_enabled: false, quiz_score: null, quiz_points: null },
+    { owner_user_id: 'owner-1', child_id: 'child-1', date: today, book_id: 'book-word', activity_category: 'extraStudy', tasks: ['wordRead'], task_counts: { wordRead: 1 }, quiz_enabled: false, quiz_score: null, quiz_points: null },
+    { owner_user_id: 'owner-1', child_id: 'child-1', date: end, book_id: 'book-regular', activity_category: 'focusListen', tasks: ['listen'], task_counts: { listen: 2 }, quiz_enabled: false, quiz_score: null, quiz_points: null },
+    { owner_user_id: 'owner-1', child_id: 'child-1', date: end, book_id: 'book-word', activity_category: 'extraStudy', tasks: ['wordRead'], task_counts: { wordRead: 1 }, quiz_enabled: false, quiz_score: null, quiz_points: null },
   ]);
   const scheduled = f.page.locator('.assignment-manage-item');
   await expect(scheduled).toHaveCount(4);
@@ -85,8 +85,8 @@ test('U02-E01 경계: 같은 key 재배정은 정확한 upsert 계약으로 최�
   assert.equal(writes(f).length, 1);
   const query = new URLSearchParams(writes(f)[0].query);
   assert.equal(query.get('on_conflict'), 'owner_user_id,child_id,date,book_id,activity_category');
-  assert.equal(query.get('columns'), '"owner_user_id","child_id","date","book_id","activity_category","tasks","task_counts","quiz_enabled","quiz_score"');
-  assert.equal(query.get('select'), 'id,owner_user_id,child_id,date,book_id,activity_category,tasks,task_counts,quiz_enabled,quiz_score');
+  assert.equal(query.get('columns'), '"owner_user_id","child_id","date","book_id","activity_category","tasks","task_counts","quiz_enabled","quiz_score","quiz_points"');
+  assert.equal(query.get('select'), 'id,owner_user_id,child_id,date,book_id,activity_category,tasks,task_counts,quiz_enabled,quiz_score,quiz_points');
   assert.deepEqual(writes(f)[0].body[0].task_counts, { listen: 3 });
   await expect(f.page.locator('.assignment-manage-item')).toHaveCount(1);
   await expect(f.page.locator('.assignment-manage-item')).toContainText('읽기 3회');
@@ -230,7 +230,7 @@ test('U04-N03 정상: 예정 배정 편집에서 퀴즈를 N으로 바꾸면 sco
   await edit.getByRole('button', { name: '횟수 저장', exact: true }).click();
 
   // Then
-  assert.deepEqual(writes(f, 'PATCH')[0].body, { tasks: ['listen'], task_counts: { listen: 1 }, quiz_enabled: false, quiz_score: null });
+  assert.deepEqual(writes(f, 'PATCH')[0].body, { tasks: ['listen'], task_counts: { listen: 1 }, quiz_enabled: false, quiz_score: null, quiz_points: null });
   await expect(f.page.locator('.assignment-manage-item')).toContainText('읽기 1회');
   await expect(f.page.getByText('할 일을 수정했습니다.')).toBeVisible();
 });
@@ -322,7 +322,7 @@ test('U04-F03 실패: PATCH 실패는 existing count/quiz/list/edit form을 유�
   await edit.getByRole('button', { name: '횟수 저장', exact: true }).click();
 
   // Then
-  assert.deepEqual(writes(f, 'PATCH')[0].body, { tasks: ['listen'], task_counts: { listen: 1 }, quiz_enabled: false, quiz_score: null });
+  assert.deepEqual(writes(f, 'PATCH')[0].body, { tasks: ['listen'], task_counts: { listen: 1 }, quiz_enabled: false, quiz_score: null, quiz_points: null });
   await expect(f.page.locator('.assignment-manage-item')).toContainText('읽기 2회 · 퀴즈 Y');
   await expect(edit).toBeVisible();
   await expect(edit.getByRole('combobox', { name: '읽기', exact: true })).toHaveValue('1');

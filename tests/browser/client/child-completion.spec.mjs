@@ -52,7 +52,7 @@ for (const score of ['PASS', 'FAIL']) {
     await quiz.getByRole('button', { name: score, exact: true }).click();
     // Then
     const write = f.writes('assignments')[0];
-    assert.deepEqual(write.body, { quiz_score: score });
+    assert.deepEqual(write.body, { quiz_score: score, quiz_points: null });
     assert.equal(new URLSearchParams(write.query).get('owner_user_id'), 'eq.owner-1');
     assert.equal(new URLSearchParams(write.query).get('id'), 'eq.assignment-main');
     await expect(quiz.getByRole('button', { name: score, exact: true })).toHaveClass(/primary-button/);
@@ -199,4 +199,207 @@ test('H03-E01 경계: child를 왕복한 뒤 늦게 도착한 이전 완료 응�
   assert.equal(completionWrites(f)[0].assignment_id, 'assignment-main');
   await f.page.reload();
   await expect(f.page.locator('.status-row')).toContainText('스스로 읽기 1/1회');
+});
+
+for (const width of [390, 1280]) {
+  test(`퀴즈 점수는 ${width}px에서 저장·복원·수정·삭제된다`, async ({ childCompletion: f }) => {
+    // Given
+    await f.page.setViewportSize({ width, height: 900 });
+    await selectChild(f.page, '민준');
+    await selectAssignment(f.page, '다섯 활동 책');
+    let input = f.page.getByLabel('점수 (선택)');
+    // When
+    await input.fill('90');
+    await f.page.getByRole('button', { name: 'PASS', exact: true }).click();
+    await expect.poll(() => f.writes('assignments').length).toBe(1);
+    await f.page.reload();
+    input = f.page.getByLabel('점수 (선택)');
+    await expect(input).toHaveValue('90');
+    await input.fill('0');
+    await f.page.getByRole('button', { name: 'FAIL', exact: true }).click();
+    await expect.poll(() => f.writes('assignments').length).toBe(2);
+    await input.fill('');
+    await f.page.getByRole('button', { name: 'FAIL', exact: true }).click();
+    await expect.poll(() => f.writes('assignments').length).toBe(3);
+    // Then
+    assert.deepEqual(f.writes('assignments').map(write => write.body), [
+      { quiz_score: 'PASS', quiz_points: 90 },
+      { quiz_score: 'FAIL', quiz_points: 0 },
+      { quiz_score: 'FAIL', quiz_points: null },
+    ]);
+    const bounds = await input.boundingBox();
+    assert.ok(bounds.x >= 0 && bounds.x + bounds.width <= width);
+  });
+}
+
+for (const width of [390, 1280]) {
+  test(`퀴즈 점수 입력칸 Enter는 ${width}px에서 기존 FAIL과 저장 점수를 변경하지 않는다`, async ({ childCompletion: f }) => {
+    // Given
+    await f.page.setViewportSize({ width, height: 900 });
+    await selectChild(f.page, '민준');
+    await selectAssignment(f.page, '다섯 활동 책');
+    const input = f.page.getByLabel('점수 (선택)');
+    const fail = f.page.getByRole('button', { name: 'FAIL', exact: true });
+    await input.fill('50');
+    await fail.click();
+    await expect(fail).toHaveClass(/primary-button/);
+
+    // When
+    await input.fill('60');
+    await input.press('Enter');
+
+    // Then
+    await expect(fail).toHaveClass(/primary-button/);
+    assert.equal(f.writes('assignments').length, 1);
+    await expect(input).toHaveValue('60');
+    await f.page.reload();
+    await expect(f.page.getByLabel('점수 (선택)')).toHaveValue('50');
+    await expect(f.page.getByRole('button', { name: 'FAIL', exact: true })).toHaveClass(/primary-button/);
+    assert.equal(f.writes('assignments').length, 1);
+  });
+}
+
+for (const { result, key, points } of [
+  { result: 'PASS', key: 'Enter', points: '0' },
+  { result: 'FAIL', key: 'Space', points: '100' },
+]) {
+  test(`퀴즈 ${result} 버튼의 ${key} 키는 ${points}점과 결과를 명시적으로 저장한다`, async ({ childCompletion: f }) => {
+    // Given
+    await selectChild(f.page, '민준');
+    await selectAssignment(f.page, '다섯 활동 책');
+    await f.page.getByLabel('점수 (선택)').fill(points);
+    const button = f.page.getByRole('button', { name: result, exact: true });
+    await button.focus();
+
+    // When
+    await button.press(key);
+
+    // Then
+    await expect(button).toHaveClass(/primary-button/);
+    assert.deepEqual(f.writes('assignments').map(write => write.body), [
+      { quiz_score: result, quiz_points: Number(points) },
+    ]);
+    await f.page.reload();
+    await expect(f.page.getByLabel('점수 (선택)')).toHaveValue(points);
+    await expect(f.page.getByRole('button', { name: result, exact: true })).toHaveClass(/primary-button/);
+  });
+}
+
+test('퀴즈 점수 미입력 상태의 Enter는 결과를 새로 만들지 않는다', async ({ childCompletion: f }) => {
+  // Given
+  await selectChild(f.page, '민준');
+  await selectAssignment(f.page, '다섯 활동 책');
+  const input = f.page.getByLabel('점수 (선택)');
+
+  // When
+  await input.press('Enter');
+
+  // Then
+  await expect(f.page.getByRole('group', { name: '퀴즈 결과 선택' }).locator('.primary-button')).toHaveCount(0);
+  assert.equal(f.writes('assignments').length, 0);
+  await f.page.reload();
+  await expect(f.page.getByLabel('점수 (선택)')).toHaveValue('');
+  await expect(f.page.getByRole('group', { name: '퀴즈 결과 선택' }).locator('.primary-button')).toHaveCount(0);
+});
+
+test('잘못된 퀴즈 점수는 브라우저 검증을 우회해도 저장하지 않는다', async ({ childCompletion: f }) => {
+  // Given
+  await selectChild(f.page, '민준');
+  await selectAssignment(f.page, '다섯 활동 책');
+  const input = f.page.getByLabel('점수 (선택)');
+  const pass = f.page.getByRole('button', { name: 'PASS', exact: true });
+
+  // When
+  for (const value of ['-1', '101', '90.5']) {
+    await input.fill(value);
+    await pass.click();
+    // Then
+    assert.equal(await input.evaluate(element => element.validity.valid), false);
+    assert.equal(f.writes('assignments').length, 0);
+  }
+
+  // Given: remove browser restrictions to exercise the app's save-boundary validation.
+  await input.evaluate(element => {
+    element.removeAttribute('min');
+    element.removeAttribute('max');
+    element.step = 'any';
+  });
+  // When
+  await input.fill('101');
+  await pass.click();
+  // Then
+  await expect(f.page.getByText('퀴즈 점수는 0~100 사이의 정수로 입력하세요.')).toBeVisible();
+  assert.equal(f.writes('assignments').length, 0);
+});
+
+test('책과 프로필을 전환하면 퀴즈의 미저장 점수가 다른 배정에 섞이지 않는다', async ({ childCompletion: f }) => {
+  // Given
+  await selectChild(f.page, '민준');
+  await selectAssignment(f.page, '다섯 활동 책');
+  const input = f.page.getByLabel('점수 (선택)');
+  await input.fill('50');
+  await f.page.getByRole('button', { name: 'FAIL', exact: true }).click();
+  await expect(f.page.getByRole('button', { name: 'FAIL', exact: true })).toHaveClass(/primary-button/);
+
+  // When
+  await input.fill('99');
+  await selectAssignment(f.page, '선택 복원 책');
+  await selectAssignment(f.page, '다섯 활동 책');
+
+  // Then
+  await expect(input).toHaveValue('50');
+
+  // When
+  await input.fill('98');
+  await f.page.getByRole('button', { name: '프로필 관리', exact: true }).click();
+  await selectChild(f.page, '서준');
+  // Then
+  await expect(input).toHaveCount(0);
+
+  // When
+  await f.page.getByRole('button', { name: '프로필 관리', exact: true }).click();
+  await selectChild(f.page, '민준');
+  await selectAssignment(f.page, '다섯 활동 책');
+  // Then
+  await expect(input).toHaveValue('50');
+  assert.equal(f.writes('assignments').length, 1);
+});
+
+test('퀴즈 저장 실패는 기존 결과와 입력 점수를 유지하고 재시도로 저장할 수 있다', async ({ childCompletion: f }) => {
+  // Given
+  await selectChild(f.page, '민준');
+  await selectAssignment(f.page, '다섯 활동 책');
+  const input = f.page.getByLabel('점수 (선택)');
+  const fail = f.page.getByRole('button', { name: 'FAIL', exact: true });
+  await input.fill('50');
+  await fail.click();
+  await expect(fail).toHaveClass(/primary-button/);
+  let rejected = false;
+  const rejectSave = async route => {
+    if (route.request().method() !== 'PATCH') return route.fallback();
+    rejected = true;
+    await route.fulfill({ status: 400, contentType: 'application/json', body: JSON.stringify({ message: '퀴즈 저장 테스트 실패' }) });
+  };
+  await f.page.route('http://127.0.0.1:54321/rest/v1/assignments?**', rejectSave);
+
+  // When
+  await input.fill('80');
+  await f.page.getByRole('button', { name: 'PASS', exact: true }).click();
+
+  // Then
+  await expect(f.page.getByText('퀴즈 저장 테스트 실패')).toBeVisible();
+  assert.equal(rejected, true);
+  await expect(fail).toHaveClass(/primary-button/);
+  await expect(input).toHaveValue('80');
+  assert.equal(f.writes('assignments').length, 1);
+
+  // When
+  await f.page.unroute('http://127.0.0.1:54321/rest/v1/assignments?**', rejectSave);
+  await f.page.getByRole('button', { name: 'PASS', exact: true }).click();
+  // Then
+  await expect(f.page.getByRole('button', { name: 'PASS', exact: true })).toHaveClass(/primary-button/);
+  assert.deepEqual(f.writes('assignments')[1].body, { quiz_score: 'PASS', quiz_points: 80 });
+  await f.page.reload();
+  await expect(f.page.getByLabel('점수 (선택)')).toHaveValue('80');
+  await expect(f.page.getByRole('button', { name: 'PASS', exact: true })).toHaveClass(/primary-button/);
 });

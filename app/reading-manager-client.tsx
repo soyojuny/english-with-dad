@@ -1306,7 +1306,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     }
   };
 
-  const saveQuizScoreDb = async (quizScore: QuizResult) => {
+  const saveQuizScoreDb = async (quizScore: QuizResult, quizPoints: number | null) => {
     if (!selectedAssignment?.quizEnabled) return;
 
     if (quizScore !== "PASS" && quizScore !== "FAIL") {
@@ -1320,6 +1320,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
         ownerUserId,
         selectedAssignment.id,
         quizScore,
+        quizPoints,
       );
       setData((current) => ({
         ...current,
@@ -1839,7 +1840,9 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                       {selectedAssignment?.quizEnabled && (
                         <AssignmentQuizScore
                           assignmentId={selectedAssignment.id}
+                          key={selectedAssignment.id}
                           score={selectedAssignment.quizScore}
+                          points={selectedAssignment.quizPoints}
                           onSave={saveQuizScoreDb}
                         />
                       )}
@@ -1957,7 +1960,9 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                       {selectedAssignment?.quizEnabled && (
                         <AssignmentQuizScore
                           assignmentId={selectedAssignment.id}
+                          key={selectedAssignment.id}
                           score={selectedAssignment.quizScore}
+                          points={selectedAssignment.quizPoints}
                           onSave={saveQuizScoreDb}
                         />
                       )}
