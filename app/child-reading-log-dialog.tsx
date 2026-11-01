@@ -2,6 +2,7 @@
 
 import { useLayoutEffect, useRef } from "react";
 import type { FormEvent, RefObject } from "react";
+import { CHILD_RECORD_DEFAULT_MINUTES, CHILD_RECORD_MINUTE_OPTIONS } from "../lib/reading-data";
 
 type ChildReadingLogDialogProps = {
   error: string;
@@ -54,10 +55,13 @@ export function ChildReadingLogDialog({ error, returnFocusRef, onClose, onSubmit
       </button>
       <div>
         <p className="eyebrow">빠른 기록</p>
-        <h2 id="childReadingLogTitle">읽은 책 추가</h2>
+        <h2 id="childReadingLogTitle">읽기·DVD 기록</h2>
         <p className="task-meta">오늘 날짜로 저장됩니다.</p>
       </div>
-      <form className="book-form quick-log-form" onSubmit={onSubmit}>
+      <div role="tablist" aria-label="기록 종류">
+        <button type="button" role="tab" id="childBookTab" aria-selected="true" aria-controls="childBookPanel">책 읽기</button>
+      </div>
+      <form id="childBookPanel" role="tabpanel" aria-labelledby="childBookTab" className="book-form quick-log-form" onSubmit={onSubmit}>
         <label>
           구분
           <select name="childManualType" defaultValue="korean">
@@ -71,7 +75,9 @@ export function ChildReadingLogDialog({ error, returnFocusRef, onClose, onSubmit
         </label>
         <label>
           시간
-          <input name="childManualMinutes" type="number" min="0" step="5" defaultValue="10" />
+          <select name="childManualMinutes" defaultValue={CHILD_RECORD_DEFAULT_MINUTES}>
+            {CHILD_RECORD_MINUTE_OPTIONS.map((minutes) => <option key={minutes} value={minutes}>{minutes}분</option>)}
+          </select>
         </label>
         {error && <p className="inline-banner is-error wide" role="alert">{error}</p>}
         <div className="form-actions wide">

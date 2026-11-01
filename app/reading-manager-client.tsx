@@ -39,8 +39,10 @@ import {
 } from "../lib/reading-calculations";
 import {
   activityCategoryDefinitions,
+  CHILD_RECORD_DEFAULT_MINUTES,
   dateKey,
   emptyReadingData,
+  isValidChildRecordMinutes,
   removeAssignmentFromReadingData,
   taskDefinitions,
 } from "../lib/reading-data";
@@ -1380,9 +1382,14 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     const formData = new FormData(form);
     const title = String(formData.get("childManualTitle") ?? "").trim();
     const type = String(formData.get("childManualType") ?? "korean") as ChildManualLogType;
+    const minutes = Number(formData.get("childManualMinutes") ?? CHILD_RECORD_DEFAULT_MINUTES);
     if (!title) return;
     if (type !== "korean" && type !== "englishPicture") {
       setChildManualLogError("기록 구분을 다시 선택하세요.");
+      return;
+    }
+    if (!isValidChildRecordMinutes(minutes)) {
+      setChildManualLogError("기록 시간을 다시 선택하세요.");
       return;
     }
 
@@ -1392,7 +1399,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
         date: dateKey(),
         type,
         title,
-        minutes: Number(formData.get("childManualMinutes") ?? 10),
+        minutes,
         note: "",
       });
 
@@ -1683,7 +1690,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     setIsChildManualLogOpen(true);
                   }}
                 >
-                  읽은 책 기록
+                  읽기·DVD 기록
                 </button>
               </div>
             </div>
