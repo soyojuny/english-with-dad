@@ -60,6 +60,13 @@ export const logLabels = {
 export const taskCountOptions = [0, 1, 2, 3] as const;
 export const quizResultOptions: QuizResult[] = ["PASS", "FAIL"];
 
+export const CHILD_RECORD_DEFAULT_MINUTES = 30;
+export const CHILD_RECORD_MINUTE_OPTIONS: readonly number[] = [30, 40, 50, 60, 70, 80, 90];
+
+export function isValidChildRecordMinutes(minutes: number): boolean {
+  return CHILD_RECORD_MINUTE_OPTIONS.includes(minutes);
+}
+
 export function isValidQuizPoints(value: number | null): boolean {
   return value === null || (Number.isInteger(value) && value >= 0 && value <= 100);
 }
