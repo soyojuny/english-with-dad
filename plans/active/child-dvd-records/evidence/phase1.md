@@ -41,3 +41,23 @@
 - Red: 기존 컴포넌트 테스트 9건은 통과, 신규 2건은 상태 전환 버튼 부재로 실패했다.
 - Green: 부모 DVD 컴포넌트 테스트 11건과 `npm run typecheck` 통과. 양방향 전환과 실패 시 기존 상태 보존을 확인했다.
 - `npm run test:browser:client -- dvd-week.spec.mjs`는 샌드박스에서 Chromium 시작 권한 오류로 1회 실패했으며, 실행 권한을 확보한 뒤 재실행해 모바일 폭 1건이 통과했다. 테스트는 DB 대역을 사용한다.
+
+## Step 4d — 중단
+
+- Red: `npm run test:component -- tests/hooks/use-child-dvd-catalog.test.tsx --reporter=verbose`에서 아직 구현되지 않은 훅 모듈을 찾지 못했다.
+- 구현 후: `app/use-child-dvd-catalog.ts`를 작성했으나 테스트의 `import.meta.glob`이 파일을 찾지 못하는 오류가 발생했다. 캐시를 비활성화한 재실행에서도 동일 오류로 실패해, 사용자 요청의 동일 이슈 2회 실패 기준에 따라 중단했다.
+- 훅 구현과 테스트는 미커밋 상태이며 동작이 검증되지 않았다. typecheck와 Phase 1 최종 검증은 실행하지 않았다. 실제 DB RLS 검증도 여전히 미실행이다.
+
+## Step 4d — 테스트 수정과 최종 검증 중단
+
+- glob 로딩 실패 원인: Vitest의 모듈 캐시가 제네릭 `import.meta.glob<Module>`에 대해 파일 생성 전의 빈 결과를 재사용했다. 테스트를 정적 import로 변경했다.
+- 조회 오류 테스트 실패 원인: `beforeEach`가 `mockReset()`의 반환값인 mock 함수를 반환해 Vitest가 정리 함수로 다시 호출했다. 반환하지 않도록 수정했으며 `/tmp/ewd-rejection-diagnostic-IaHWJj/output.log`에 격리 진단 결과를 남겼다.
+- 훅 테스트 4건 통과: 두 아동의 활성 목록, 로딩·빈 목록, 실패, 소유자 변경과 지연 응답. `npm run verify` 통과(단위 테스트 19개 파일, 계약·PWA·타입·빌드 포함). 관련 부모 컴포넌트와 훅 테스트 총 15건 통과.
+- `npm run test:browser:client -- parent-report.spec.mjs --max-failures=1`은 Chromium 실행 시 `shutdown: Operation not permitted`로 테스트 본문 전에 실패했다. Step 4c에서도 같은 샌드박스 Chromium 권한 오류가 1회 있었으므로 사용자 지정 동일 이슈 2회 중단 기준에 따라 추가 실행과 커밋을 중단했다. 보고서: `verification-artifacts/browser-1793541431916-32/report.json`. 아동 기록 브라우저 테스트, 실제 DB 마이그레이션·RLS, 실기기 PWA는 미검증이다.
+- 아동 조회 훅과 테스트, 이 기록은 미커밋 상태다. Phase 1 전체 완료로 판단하지 않는다.
+
+## Step 4d — Chromium 제외 후 완료
+
+- 사용자 요청에 따라 Chromium을 사용하는 추가 브라우저 검사를 제외했다. 기존에 통과한 모바일 폭 주간 이동 테스트 1건은 저장소 대역을 사용했다.
+- 직전 `npm run verify`와 관련 컴포넌트·훅 테스트 15건 통과 결과를 유지한다. 부모 보고서·아동 기록 Chromium 회귀, 데스크톱 브라우저·실기기 PWA 및 실제 DB 마이그레이션·RLS는 검증되지 않았다.
+- 아동 선택 화면에서 훅을 사용하는 작업은 Phase 2에 남는다. 이번 단계는 공통 활성 목록의 조회 경계까지 제공한다.
