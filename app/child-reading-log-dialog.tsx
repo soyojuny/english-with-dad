@@ -1,7 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState } from "react";
-import type { FormEvent, RefObject } from "react";
+import type { FormEvent, KeyboardEvent, RefObject } from "react";
 import { CHILD_RECORD_DEFAULT_MINUTES, CHILD_RECORD_MINUTE_OPTIONS } from "../lib/reading-data";
 import type { Dvd } from "../lib/reading-types";
 import { useChildDvdCatalog } from "./use-child-dvd-catalog";
@@ -20,9 +20,19 @@ type ChildReadingLogDialogProps = {
 export function ChildReadingLogDialog({ error, supabase, ownerUserId, childId, saving, returnFocusRef, onClose, onSubmit }: ChildReadingLogDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
+  const bookTabRef = useRef<HTMLButtonElement>(null);
+  const dvdTabRef = useRef<HTMLButtonElement>(null);
   const [tab, setTab] = useState<"book" | "dvd">("book");
   const [dvdId, setDvdId] = useState("");
   const catalog = useChildDvdCatalog({ supabase, ownerUserId, childId });
+
+  const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    const nextTab = event.key === "Home" ? "book" : event.key === "End" ? "dvd" : tab === "book" ? "dvd" : "book";
+    setTab(nextTab);
+    (nextTab === "book" ? bookTabRef : dvdTabRef).current?.focus();
+  };
 
   useLayoutEffect(() => {
     const dialog = dialogRef.current;
@@ -68,9 +78,10 @@ export function ChildReadingLogDialog({ error, supabase, ownerUserId, childId, s
         <p className="task-meta">오늘 날짜로 저장됩니다.</p>
       </div>
       <div role="tablist" aria-label="기록 종류">
-        <button type="button" role="tab" id="childBookTab" aria-selected={tab === "book"} aria-controls="childBookPanel" disabled={saving} onClick={() => setTab("book")}>책 읽기</button>
-        <button type="button" role="tab" id="childDvdTab" aria-selected={tab === "dvd"} aria-controls="childDvdPanel" disabled={saving} onClick={() => setTab("dvd")}>DVD 시청</button>
+        <button ref={bookTabRef} type="button" role="tab" id="childBookTab" aria-selected={tab === "book"} aria-controls="childBookPanel" tabIndex={tab === "book" ? 0 : -1} disabled={saving} onKeyDown={handleTabKeyDown} onClick={() => setTab("book")}>책 읽기</button>
+        <button ref={dvdTabRef} type="button" role="tab" id="childDvdTab" aria-selected={tab === "dvd"} aria-controls="childDvdPanel" tabIndex={tab === "dvd" ? 0 : -1} disabled={saving} onKeyDown={handleTabKeyDown} onClick={() => setTab("dvd")}>DVD 시청</button>
       </div>
+      <div id={tab === "book" ? "childDvdPanel" : "childBookPanel"} role="tabpanel" aria-labelledby={tab === "book" ? "childDvdTab" : "childBookTab"} hidden />
       <form id={tab === "book" ? "childBookPanel" : "childDvdPanel"} role="tabpanel" aria-labelledby={tab === "book" ? "childBookTab" : "childDvdTab"} className="book-form quick-log-form" onSubmit={(event) => onSubmit(event, tab, tab === "dvd" ? catalog.dvds.find((dvd) => dvd.id === dvdId) : undefined)}>
         <fieldset disabled={saving} style={{ display: "contents" }}>
         <label hidden={tab !== "book"}>
@@ -86,11 +97,14 @@ export function ChildReadingLogDialog({ error, supabase, ownerUserId, childId, s
         </label>
         <label className="wide" hidden={tab !== "dvd"}>
           DVD
-          <select name="childDvd" value={dvdId} onChange={(event) => setDvdId(event.target.value)} required disabled={tab !== "dvd"}>
+          <select name="childDvd" value={dvdId} onChange={(event) => setDvdId(event.target.value)} required disabled={tab !== "dvd" || catalog.status !== "ready" || catalog.dvds.length === 0}>
             <option value="">DVD를 선택하세요</option>
             {catalog.dvds.map((dvd) => <option key={dvd.id} value={dvd.id}>{dvd.title}</option>)}
           </select>
         </label>
+        {tab === "dvd" && catalog.status === "loading" && <p className="wide" role="status">DVD 목록을 불러오는 중입니다.</p>}
+        {tab === "dvd" && catalog.status === "error" && <p className="inline-banner is-error wide" role="alert">DVD 목록을 불러오지 못했습니다. 팝업을 닫고 다시 열어 주세요.</p>}
+        {tab === "dvd" && catalog.status === "ready" && catalog.dvds.length === 0 && <p className="wide">보는 중인 DVD가 없습니다. 부모님께 DVD를 등록해 달라고 해 주세요.</p>}
         <label>
           시간
           <select name="childManualMinutes" defaultValue={CHILD_RECORD_DEFAULT_MINUTES}>
@@ -102,7 +116,7 @@ export function ChildReadingLogDialog({ error, supabase, ownerUserId, childId, s
           <button className="secondary-button" type="button" onClick={onClose}>
             취소
           </button>
-          <button className="primary-button" type="submit">
+          <button className="primary-button" type="submit" disabled={tab === "dvd" && (catalog.status !== "ready" || catalog.dvds.length === 0)}>
             기록 추가
           </button>
         </div>
