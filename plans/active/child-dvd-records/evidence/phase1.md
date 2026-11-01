@@ -6,3 +6,9 @@
 - 구현 후 첫 전체 단위 검사: 기존 `reading-drafts`의 초기 데이터 전체 비교가 새 `dvds` 필드 누락으로 실패 1회. 초기 데이터 계약에 맞춰 기대값에 `dvds: []`를 추가했다.
 - Green: 신규 DVD 테스트를 컴파일 후 직접 실행해 4개 사례 통과(초기 빈 목록, 빈 조회, 여러 항목 상태 매핑, 책 목록 분리). `npm run test:unit` 18개 테스트 파일 통과. `npm run check:contracts`, `npm run typecheck`, `npm run build` 통과.
 - 한계: 전용 테이블과 RLS는 Step 3에서 작업하며 실제 DB 검증은 아직 하지 않았다.
+
+## Step 2 — 추가와 상태 전환
+
+- Red: `tests/reading-store-dvd-write.test.ts` 개별 실행 시 5개 중 4개 실패. 추가·상태 변경 함수가 없어 실패했고 주간 조회 전후 저장 목록 유지 1개는 통과했다.
+- Green: `tsc -p tsconfig.test.json --outDir /tmp/ewd-dvd-step2-verify` 후 `env -u NODE_TEST_CONTEXT TZ=Asia/Seoul node /tmp/ewd-dvd-step2-verify/tests/reading-store-dvd-write.test.js` 실행, 5개 모두 통과. 제목 정리·활성 추가, 빈 제목·공백 제목 거부, 양방향 상태 전환과 기존 시청 기록 보존, 주간 조회 후 목록 유지를 확인했다. `npm run typecheck` 통과.
+- 한계: 저장소 대역으로 실행했다. 실제 DB·RLS와 부모 화면의 주 변경 상태는 아직 검증하지 않았다.

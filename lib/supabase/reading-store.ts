@@ -133,6 +133,10 @@ function mapBook(row: BookRow): Book {
   };
 }
 
+function mapDvd(row: DvdRow): Dvd {
+  return { id: row.id, title: row.title, active: row.active };
+}
+
 function mapAssignment(row: AssignmentRow): Assignment {
   const taskCounts = row.task_counts ?? {};
   const tasks = Object.keys(taskCounts).length
@@ -506,11 +510,42 @@ export async function fetchDvdCatalogData(
   if (result.error) throw new Error(result.error.message);
 
   return {
-    dvds: (result.data ?? []).map((row) => {
-      const dvd = row as DvdRow;
-      return { id: dvd.id, title: dvd.title, active: dvd.active };
-    }),
+    dvds: (result.data ?? []).map((row) => mapDvd(row as DvdRow)),
   };
+}
+
+export async function addDvd(
+  supabase: SupabaseLikeClient,
+  ownerUserId: string,
+  title: string,
+): Promise<Dvd> {
+  const trimmedTitle = title.trim();
+  if (!trimmedTitle) throw new Error("DVD 제목을 입력하세요.");
+
+  const result = await supabase
+    .from("dvds")
+    .insert({ owner_user_id: ownerUserId, title: trimmedTitle, active: true })
+    .select("id, title, active")
+    .single();
+
+  return mapDvd(unwrap(result, "DVD를 추가하지 못했습니다.") as DvdRow);
+}
+
+export async function setDvdActive(
+  supabase: SupabaseLikeClient,
+  ownerUserId: string,
+  id: string,
+  active: boolean,
+): Promise<Dvd> {
+  const result = await supabase
+    .from("dvds")
+    .update({ active })
+    .eq("owner_user_id", ownerUserId)
+    .eq("id", id)
+    .select("id, title, active")
+    .single();
+
+  return mapDvd(unwrap(result, "DVD 상태를 변경하지 못했습니다.") as DvdRow);
 }
 
 export async function fetchLibraryData(
