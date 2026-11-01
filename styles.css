@@ -874,6 +874,53 @@ main {
   padding: 16px;
 }
 
+.dvd-add-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.dvd-add-form .inline-banner {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.dvd-add-form input,
+.dvd-add-form button,
+.dvd-card button {
+  min-height: 44px;
+}
+
+.dvd-list {
+  display: grid;
+  gap: 10px;
+}
+
+.dvd-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-strong);
+}
+
+.dvd-card strong {
+  overflow-wrap: anywhere;
+}
+
+.activity-stats {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.activity-stats .stat strong {
+  overflow-wrap: anywhere;
+  font-size: clamp(20px, 2.2vw, 28px);
+}
+
 .table-wrap {
   overflow-x: auto;
 }
@@ -1387,8 +1434,29 @@ label > textarea {
   margin-top: 16px;
 }
 
+.quick-log-dialog > div:not([role="tablist"]) {
+  padding-right: 44px;
+}
+
+.quick-log-dialog [role="tablist"] {
+  display: flex;
+  margin-top: 16px;
+}
+
 .quick-log-dialog [role="tab"] {
+  flex: 1;
   min-height: 44px;
+}
+
+.quick-log-form input,
+.quick-log-form select,
+.quick-log-form .form-actions button,
+.quick-log-dialog .icon-button {
+  min-height: 44px;
+}
+
+.quick-log-dialog .icon-button {
+  width: 44px;
 }
 
 .icon-button {
@@ -1451,6 +1519,10 @@ label > textarea {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .activity-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .book-picker {
     min-inline-size: 0;
   }
@@ -1475,6 +1547,21 @@ label > textarea {
 }
 
 @media (max-width: 680px) {
+  .activity-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dvd-add-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dvd-card {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .dvd-card button {
+    grid-column: 1 / -1;
+  }
   main {
     padding-inline: 12px;
   }

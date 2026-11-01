@@ -2075,7 +2075,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                   </button>
                 </div>
 
-                <div className="stats-grid">
+                <div className="stats-grid activity-stats">
                   {[
                     ["선택 아동", childSummary.name],
                     ["기간 활동", `${periodLogs.length}건`],

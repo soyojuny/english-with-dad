@@ -85,15 +85,16 @@ export function ParentDvdCatalog({ supabase, ownerUserId }: Props) {
         </div>
       </div>
       {catalog.status === "loaded" && (
-        <form onSubmit={handleAdd}>
-          <label htmlFor="dvdTitle">DVD 제목</label>
-          <input id="dvdTitle" value={title} onChange={(event) => setTitle(event.target.value)} disabled={saving} />
-          <button type="submit" disabled={saving}>DVD 추가</button>
-          {saveError && <div role="alert">{saveError}</div>}
+        <form className="dvd-add-form parent-section" onSubmit={handleAdd}>
+          <label htmlFor="dvdTitle">DVD 제목
+            <input id="dvdTitle" value={title} onChange={(event) => setTitle(event.target.value)} disabled={saving} />
+          </label>
+          <button className="primary-button" type="submit" disabled={saving}>DVD 추가</button>
+          {saveError && <div className="inline-banner is-error" role="alert">{saveError}</div>}
         </form>
       )}
       <section className="parent-section" aria-label="DVD 목록">
-        {updateError && <div role="alert">{updateError}</div>}
+        {updateError && <div className="inline-banner is-error" role="alert">{updateError}</div>}
         {catalog.status === "loading" ? (
           <div className="empty-state" role="status">DVD 목록을 불러오는 중입니다.</div>
         ) : catalog.status === "error" ? (
@@ -101,12 +102,12 @@ export function ParentDvdCatalog({ supabase, ownerUserId }: Props) {
         ) : catalog.dvds.length === 0 ? (
           <div className="empty-state">DVD 목록이 비어 있습니다.</div>
         ) : (
-          <div className="book-list">
+          <div className="dvd-list">
             {catalog.dvds.map((dvd) => (
-              <article className="book-card" role="group" aria-label={dvd.title} key={dvd.id}>
+              <article className="dvd-card" role="group" aria-label={dvd.title} key={dvd.id}>
                 <strong>{dvd.title}</strong>
-                <span>{dvd.active ? "보는 중" : "안 보는 중"}</span>
-                <button type="button" disabled={updating} onClick={() => handleToggle(dvd)}>
+                <span className={`status-badge ${dvd.active ? "done" : ""}`}>{dvd.active ? "보는 중" : "안 보는 중"}</span>
+                <button className="secondary-button" type="button" disabled={updating} onClick={() => handleToggle(dvd)}>
                   {dvd.active ? "안 보는 중으로 변경" : "보는 중으로 변경"}
                 </button>
               </article>
