@@ -76,6 +76,7 @@ SQL Editor에서 아래 마이그레이션을 실행합니다.
 - `profiles`
 - `children`
 - `books`
+- `dvds` (가족 공통 DVD 목록, 책 및 기존 수기 기록과 별도)
 - `assignments`
 - `completions`
 - `audio_launches`

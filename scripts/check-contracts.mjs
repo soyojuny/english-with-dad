@@ -90,6 +90,7 @@ for (const relativePath of [
   "supabase/migrations/20260624093000_assignment_quiz_only_tasks.sql",
   "supabase/migrations/20260621210000_anonymous_local_test_profiles.sql",
   "supabase/migrations/20260711120000_copywork_extra_study.sql",
+  "supabase/migrations/20261101130000_dvd_catalog.sql",
 ]) {
   await requireFile(relativePath);
 }
@@ -242,7 +243,7 @@ for (const exportName of [
 }
 
 const readingStore = await read("lib/supabase/reading-store.ts");
-for (const tableName of ["children", "books", "assignments", "completions", "audio_launches", "manual_logs"]) {
+for (const tableName of ["children", "books", "dvds", "assignments", "completions", "audio_launches", "manual_logs"]) {
   requireIncludes(readingStore, `.from("${tableName}")`, "lib/supabase/reading-store.ts");
 }
 requireIncludes(readingStore, "owner_user_id", "lib/supabase/reading-store.ts");
@@ -269,6 +270,21 @@ requireIncludes(initMigration, "auth.uid() = id", "supabase/migrations/202606082
 requireIncludes(initMigration, "content_type text not null default 'book'", "supabase/migrations/20260608213000_init.sql");
 requireIncludes(initMigration, "activity_category text not null default 'focusListen'", "supabase/migrations/20260608213000_init.sql");
 requireIncludes(initMigration, "wordRead", "supabase/migrations/20260608213000_init.sql");
+
+const dvdMigrationPath = "supabase/migrations/20261101130000_dvd_catalog.sql";
+const dvdMigration = await read(dvdMigrationPath);
+for (const contract of [
+  "create table if not exists public.dvds",
+  "owner_user_id uuid not null references auth.users (id)",
+  "title text not null",
+  "active boolean not null default true",
+  "created_at timestamptz not null",
+  "alter table public.dvds enable row level security",
+  "using (auth.uid() = owner_user_id)",
+  "with check (auth.uid() = owner_user_id)",
+]) {
+  requireIncludes(dvdMigration, contract, dvdMigrationPath);
+}
 
 const activityMigration = await read("supabase/migrations/20260610183000_assignment_activity_category_model.sql");
 requireIncludes(activityMigration, "activity_category", "supabase/migrations/20260610183000_assignment_activity_category_model.sql");
