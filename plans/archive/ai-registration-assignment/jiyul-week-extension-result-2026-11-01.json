@@ -1,0 +1,227 @@
+{
+  "status": "db_verified",
+  "projectRef": "yocdammswepuwyvzydra",
+  "childId": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+  "startSunday": "2026-11-01",
+  "endDate": "2026-11-06",
+  "books": [
+    {
+      "id": "12981222-14e5-4152-959a-1546032e4824",
+      "title": "Kipper’s Laces",
+      "action": "reuse"
+    },
+    {
+      "id": "248aa983-1661-4d10-8da4-2e9ee77318cb",
+      "title": "Pete the Cat: Pete’s Big Lunch",
+      "action": "reuse"
+    },
+    {
+      "id": "c1cd90fd-17c0-49a7-9b1f-c47e1bbc45b9",
+      "title": "Pete the Cat: Play Ball!",
+      "action": "reuse"
+    },
+    {
+      "id": "8f819c8d-38ae-45cf-90e7-b1395230512e",
+      "title": "Maisy Goes Camping",
+      "action": "reuse"
+    },
+    {
+      "id": "ba344518-79dc-4498-af8a-50050b321643",
+      "title": "Maisy Goes to the Museum",
+      "action": "reuse"
+    },
+    {
+      "id": "759e7113-deaa-42c9-932b-4849e0b64be4",
+      "title": "A Bug, a Bear, and a Boy Go to School",
+      "action": "create"
+    },
+    {
+      "id": "a4e96b1a-eb7d-4be8-ad1b-16ae73ad2d82",
+      "title": "Tic-Tac-Toe: Three in a Row",
+      "action": "create"
+    }
+  ],
+  "assignments": [
+    {
+      "id": "3fda81b3-0b92-4661-88f9-c2605a8c8f41",
+      "date": "2026-11-01",
+      "book_id": "8f819c8d-38ae-45cf-90e7-b1395230512e",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "42d359f8-270e-40c3-af15-063cf1477fb1",
+      "date": "2026-11-01",
+      "book_id": "ba344518-79dc-4498-af8a-50050b321643",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "aad551e8-c158-41b8-a17a-316cb064e505",
+      "date": "2026-11-01",
+      "book_id": "248aa983-1661-4d10-8da4-2e9ee77318cb",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "ce38b611-77f0-4137-87f3-6dcab2b7a005",
+      "date": "2026-11-01",
+      "book_id": "c1cd90fd-17c0-49a7-9b1f-c47e1bbc45b9",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "57021fcc-d00f-472e-8758-9f829a9643a7",
+      "date": "2026-11-01",
+      "book_id": "12981222-14e5-4152-959a-1546032e4824",
+      "activity_category": "readAloud"
+    },
+    {
+      "id": "378b7a6e-ef6a-4ef8-a0b2-78f967310077",
+      "date": "2026-11-02",
+      "book_id": "8f819c8d-38ae-45cf-90e7-b1395230512e",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "0929b81b-feb1-4d0e-a104-3f57c969c0b6",
+      "date": "2026-11-02",
+      "book_id": "ba344518-79dc-4498-af8a-50050b321643",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "a99811df-053d-4130-b7a9-e0caaa671fc2",
+      "date": "2026-11-02",
+      "book_id": "248aa983-1661-4d10-8da4-2e9ee77318cb",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "c3756eda-335c-42ae-b603-77cc0086d6f6",
+      "date": "2026-11-02",
+      "book_id": "c1cd90fd-17c0-49a7-9b1f-c47e1bbc45b9",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "b730243e-02e3-46c9-9c42-a3b52dd0dca0",
+      "date": "2026-11-02",
+      "book_id": "12981222-14e5-4152-959a-1546032e4824",
+      "activity_category": "readAloud"
+    },
+    {
+      "id": "17c086a3-8203-4d5c-9982-37598601e964",
+      "date": "2026-11-03",
+      "book_id": "8f819c8d-38ae-45cf-90e7-b1395230512e",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "553cf9c1-b8b9-4738-8f10-e3c8a50f5be2",
+      "date": "2026-11-03",
+      "book_id": "ba344518-79dc-4498-af8a-50050b321643",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "0f5a3cc1-df03-4350-af0f-0636041e5277",
+      "date": "2026-11-03",
+      "book_id": "248aa983-1661-4d10-8da4-2e9ee77318cb",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "cfcc6fa0-eb8d-407c-a933-c85f187f3f46",
+      "date": "2026-11-03",
+      "book_id": "c1cd90fd-17c0-49a7-9b1f-c47e1bbc45b9",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "c6355e69-3b6f-464a-9a9e-4cdb7da753e1",
+      "date": "2026-11-03",
+      "book_id": "12981222-14e5-4152-959a-1546032e4824",
+      "activity_category": "readAloud"
+    },
+    {
+      "id": "2cb2a25c-eda9-4a70-b7c9-7e6c3577a4c5",
+      "date": "2026-11-04",
+      "book_id": "8f819c8d-38ae-45cf-90e7-b1395230512e",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "baeb9103-3d11-4d83-b76a-55af77ab6593",
+      "date": "2026-11-04",
+      "book_id": "ba344518-79dc-4498-af8a-50050b321643",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "3a4e499c-011d-4e02-9022-702769a23310",
+      "date": "2026-11-04",
+      "book_id": "759e7113-deaa-42c9-932b-4849e0b64be4",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "ac78933d-34f7-42d9-88f4-eb639dc99cda",
+      "date": "2026-11-04",
+      "book_id": "a4e96b1a-eb7d-4be8-ad1b-16ae73ad2d82",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "6999df74-9ef6-4188-9617-dd0656471f5a",
+      "date": "2026-11-04",
+      "book_id": "12981222-14e5-4152-959a-1546032e4824",
+      "activity_category": "readAloud"
+    },
+    {
+      "id": "447ea392-5a58-4342-b38c-44f1170dfc77",
+      "date": "2026-11-05",
+      "book_id": "8f819c8d-38ae-45cf-90e7-b1395230512e",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "1cff6cac-31a7-40e0-8ee6-f21e0d19ff56",
+      "date": "2026-11-05",
+      "book_id": "ba344518-79dc-4498-af8a-50050b321643",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "7533d658-8c42-4e5d-9b0f-b2b442f9ac95",
+      "date": "2026-11-05",
+      "book_id": "759e7113-deaa-42c9-932b-4849e0b64be4",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "f2f859c1-5d16-4717-8354-31d1f3fee121",
+      "date": "2026-11-05",
+      "book_id": "a4e96b1a-eb7d-4be8-ad1b-16ae73ad2d82",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "b39eed70-57bf-4632-952f-fee3a1ea711f",
+      "date": "2026-11-05",
+      "book_id": "12981222-14e5-4152-959a-1546032e4824",
+      "activity_category": "readAloud"
+    },
+    {
+      "id": "1cdd6a22-17dc-4a43-ae79-d091bc942b4b",
+      "date": "2026-11-06",
+      "book_id": "8f819c8d-38ae-45cf-90e7-b1395230512e",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "b0520660-691f-426b-a7e6-0485a7ead82a",
+      "date": "2026-11-06",
+      "book_id": "ba344518-79dc-4498-af8a-50050b321643",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "7959b0b3-b13c-460e-bd40-d9241938d346",
+      "date": "2026-11-06",
+      "book_id": "759e7113-deaa-42c9-932b-4849e0b64be4",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "a3c36620-2bf1-4a9a-aec0-03a53d26febb",
+      "date": "2026-11-06",
+      "book_id": "a4e96b1a-eb7d-4be8-ad1b-16ae73ad2d82",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "3ad43f54-d2a7-4b3d-a58f-ebf0b93dceab",
+      "date": "2026-11-06",
+      "book_id": "12981222-14e5-4152-959a-1546032e4824",
+      "activity_category": "readAloud"
+    }
+  ],
+  "appVerification": "pending"
+}

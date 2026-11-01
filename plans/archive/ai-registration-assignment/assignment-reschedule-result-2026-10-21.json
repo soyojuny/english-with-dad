@@ -1,0 +1,573 @@
+{
+  "recordedAt": "2026-10-21T11:59:36.089Z",
+  "state": "db_verified",
+  "projectId": "yocdammswepuwyvzydra",
+  "ownerUserId": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+  "reason": "2026-10-21 미실행으로 부모 요청에 따라 수~금 할 일을 하루씩 연기",
+  "sourceDateRange": [
+    "2026-10-21",
+    "2026-10-23"
+  ],
+  "targetDateRange": [
+    "2026-10-22",
+    "2026-10-24"
+  ],
+  "createdBooks": 0,
+  "createdAssignments": 0,
+  "updatedAssignments": 27,
+  "persistedDataVerified": true,
+  "authenticatedAppVerified": false,
+  "unaffectedAssignmentsUnchanged": true,
+  "unaffectedAssignmentsHash": "97bbf32c43bbf0ea7404740a3a87f216",
+  "completionsBefore": 0,
+  "completionsAfter": 0,
+  "audioLaunchesBefore": 0,
+  "audioLaunchesAfter": 0,
+  "children": [
+    {
+      "id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "name": "골든스피노",
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "updatedAssignments": 15
+    },
+    {
+      "id": "919b1219-6b55-479a-96cd-d00f362df9cb",
+      "name": "앤더 드래곤",
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "updatedAssignments": 12
+    }
+  ],
+  "assignments": [
+    {
+      "id": "0b640d87-6853-4dd4-afd2-dccc100f7365",
+      "date": "2026-10-24",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "99cdac00-5f5d-4753-8dfe-2644ce6ab339",
+      "child_id": "919b1219-6b55-479a-96cd-d00f362df9cb",
+      "created_at": "2026-10-18T00:05:24.478763+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "englishPicture",
+      "previousDate": "2026-10-23"
+    },
+    {
+      "id": "12218916-52a9-44bd-8651-f8ac21f61259",
+      "date": "2026-10-23",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "e44a8117-40d0-4907-80ee-707a577646f9",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "created_at": "2026-10-18T00:04:34.194463+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen",
+      "previousDate": "2026-10-22"
+    },
+    {
+      "id": "19e07cac-d8d3-4943-b6c9-3f192f943122",
+      "date": "2026-10-24",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "a854e949-9b17-4708-88da-0d0d751c974c",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "created_at": "2026-10-18T00:04:34.194463+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen",
+      "previousDate": "2026-10-23"
+    },
+    {
+      "id": "1afd3220-4686-4b9b-847f-958dc5c82423",
+      "date": "2026-10-23",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "ff558231-6f73-4e9b-8e90-c8626ed8fbd3",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "created_at": "2026-10-18T12:09:56.893589+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "englishPicture",
+      "previousDate": "2026-10-22"
+    },
+    {
+      "id": "279371b4-375a-4e50-a54e-a2877722636e",
+      "date": "2026-10-22",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "7d3e209f-8fe7-42b3-ad1d-9bff1100a427",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "created_at": "2026-10-18T12:09:56.893589+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "englishPicture",
+      "previousDate": "2026-10-21"
+    },
+    {
+      "id": "27c0023e-da58-4dea-af05-f7d5819abd7c",
+      "date": "2026-10-24",
+      "tasks": [
+        "shadow",
+        "self"
+      ],
+      "book_id": "8aeb5269-b92b-46da-b690-f78ad5234542",
+      "child_id": "919b1219-6b55-479a-96cd-d00f362df9cb",
+      "created_at": "2026-10-18T00:05:24.478763+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "self": 1,
+        "shadow": 1
+      },
+      "quiz_enabled": true,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "readAloud",
+      "previousDate": "2026-10-23"
+    },
+    {
+      "id": "3b676f32-496e-4caa-9860-46a8b3142514",
+      "date": "2026-10-22",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "e44a8117-40d0-4907-80ee-707a577646f9",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "created_at": "2026-10-18T00:04:34.194463+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen",
+      "previousDate": "2026-10-21"
+    },
+    {
+      "id": "3da96f05-36ab-41d4-9674-5d49e713773c",
+      "date": "2026-10-24",
+      "tasks": [
+        "listen",
+        "shadow",
+        "self"
+      ],
+      "book_id": "7546a69b-f77e-48e2-ba13-3961bef7a5d3",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "created_at": "2026-10-18T00:04:34.194463+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "self": 1,
+        "listen": 1,
+        "shadow": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "readAloud",
+      "previousDate": "2026-10-23"
+    },
+    {
+      "id": "47a9113e-7eb1-4d12-87ef-a95f5aab18a1",
+      "date": "2026-10-22",
+      "tasks": [
+        "listen",
+        "shadow",
+        "self"
+      ],
+      "book_id": "7546a69b-f77e-48e2-ba13-3961bef7a5d3",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "created_at": "2026-10-18T00:04:34.194463+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "self": 1,
+        "listen": 1,
+        "shadow": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "readAloud",
+      "previousDate": "2026-10-21"
+    },
+    {
+      "id": "5d5f2108-6bb6-4666-8bb9-ffdefc35bb5c",
+      "date": "2026-10-24",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "7d3e209f-8fe7-42b3-ad1d-9bff1100a427",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "created_at": "2026-10-18T12:09:56.893589+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "englishPicture",
+      "previousDate": "2026-10-23"
+    },
+    {
+      "id": "5dd22b6b-10dd-4042-aca1-43170e3fe7b8",
+      "date": "2026-10-24",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "3e9c5fe1-e13a-436d-bf66-b3f801d29753",
+      "child_id": "919b1219-6b55-479a-96cd-d00f362df9cb",
+      "created_at": "2026-10-18T00:05:24.478763+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "englishPicture",
+      "previousDate": "2026-10-23"
+    },
+    {
+      "id": "6327d8e9-0bd0-4f85-9a68-d13dd4879992",
+      "date": "2026-10-24",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "9020d788-5c31-416f-b953-99a0eae00e09",
+      "child_id": "919b1219-6b55-479a-96cd-d00f362df9cb",
+      "created_at": "2026-10-18T00:05:24.478763+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": true,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen",
+      "previousDate": "2026-10-23"
+    },
+    {
+      "id": "6753f383-881f-4441-b607-f496fd2ba030",
+      "date": "2026-10-23",
+      "tasks": [
+        "shadow",
+        "self"
+      ],
+      "book_id": "8aeb5269-b92b-46da-b690-f78ad5234542",
+      "child_id": "919b1219-6b55-479a-96cd-d00f362df9cb",
+      "created_at": "2026-10-18T00:05:24.478763+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "self": 1,
+        "shadow": 1
+      },
+      "quiz_enabled": true,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "readAloud",
+      "previousDate": "2026-10-22"
+    },
+    {
+      "id": "6ebd7fb6-50f4-43dd-911a-6d225a688f87",
+      "date": "2026-10-22",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "3e9c5fe1-e13a-436d-bf66-b3f801d29753",
+      "child_id": "919b1219-6b55-479a-96cd-d00f362df9cb",
+      "created_at": "2026-10-18T00:05:24.478763+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "englishPicture",
+      "previousDate": "2026-10-21"
+    },
+    {
+      "id": "6eeb89f2-e296-42ac-9f8f-ebfdac2c28f1",
+      "date": "2026-10-23",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "a854e949-9b17-4708-88da-0d0d751c974c",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "created_at": "2026-10-18T00:04:34.194463+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen",
+      "previousDate": "2026-10-22"
+    },
+    {
+      "id": "7fe3121b-05b1-4af4-87b0-27bea04b9ec9",
+      "date": "2026-10-24",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "e44a8117-40d0-4907-80ee-707a577646f9",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "created_at": "2026-10-18T00:04:34.194463+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen",
+      "previousDate": "2026-10-23"
+    },
+    {
+      "id": "8143f384-675f-423c-afea-1ff1739397ea",
+      "date": "2026-10-23",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "9020d788-5c31-416f-b953-99a0eae00e09",
+      "child_id": "919b1219-6b55-479a-96cd-d00f362df9cb",
+      "created_at": "2026-10-18T00:05:24.478763+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": true,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen",
+      "previousDate": "2026-10-22"
+    },
+    {
+      "id": "823ec1ca-1da2-42b3-b2c5-30c6d66e5d26",
+      "date": "2026-10-23",
+      "tasks": [
+        "listen",
+        "shadow",
+        "self"
+      ],
+      "book_id": "7546a69b-f77e-48e2-ba13-3961bef7a5d3",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "created_at": "2026-10-18T00:04:34.194463+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "self": 1,
+        "listen": 1,
+        "shadow": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "readAloud",
+      "previousDate": "2026-10-22"
+    },
+    {
+      "id": "87e3c97c-54ed-46d6-867a-e467eb054fb8",
+      "date": "2026-10-23",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "99cdac00-5f5d-4753-8dfe-2644ce6ab339",
+      "child_id": "919b1219-6b55-479a-96cd-d00f362df9cb",
+      "created_at": "2026-10-18T00:05:24.478763+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "englishPicture",
+      "previousDate": "2026-10-22"
+    },
+    {
+      "id": "a67a2a25-d072-4345-b1de-5193c37bef6f",
+      "date": "2026-10-23",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "7d3e209f-8fe7-42b3-ad1d-9bff1100a427",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "created_at": "2026-10-18T12:09:56.893589+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "englishPicture",
+      "previousDate": "2026-10-22"
+    },
+    {
+      "id": "a962afb1-c1fa-49dc-9286-2edd06c905d5",
+      "date": "2026-10-22",
+      "tasks": [
+        "shadow",
+        "self"
+      ],
+      "book_id": "8aeb5269-b92b-46da-b690-f78ad5234542",
+      "child_id": "919b1219-6b55-479a-96cd-d00f362df9cb",
+      "created_at": "2026-10-18T00:05:24.478763+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "self": 1,
+        "shadow": 1
+      },
+      "quiz_enabled": true,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "readAloud",
+      "previousDate": "2026-10-21"
+    },
+    {
+      "id": "aad4e913-a5f2-479f-9723-514787354673",
+      "date": "2026-10-23",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "3e9c5fe1-e13a-436d-bf66-b3f801d29753",
+      "child_id": "919b1219-6b55-479a-96cd-d00f362df9cb",
+      "created_at": "2026-10-18T00:05:24.478763+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "englishPicture",
+      "previousDate": "2026-10-22"
+    },
+    {
+      "id": "b5025950-80bb-476c-b16b-e4a62bb5182d",
+      "date": "2026-10-24",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "ff558231-6f73-4e9b-8e90-c8626ed8fbd3",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "created_at": "2026-10-18T12:09:56.893589+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "englishPicture",
+      "previousDate": "2026-10-23"
+    },
+    {
+      "id": "b8bdde70-c96d-4f58-bc29-51cd20016689",
+      "date": "2026-10-22",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "fb933abc-97c3-4225-95ed-d2c60d0bf694",
+      "child_id": "919b1219-6b55-479a-96cd-d00f362df9cb",
+      "created_at": "2026-10-18T00:05:24.478763+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": true,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen",
+      "previousDate": "2026-10-21"
+    },
+    {
+      "id": "b9486c44-bdb7-4f9c-b2c5-f6b9555fba2b",
+      "date": "2026-10-22",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "a854e949-9b17-4708-88da-0d0d751c974c",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "created_at": "2026-10-18T00:04:34.194463+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen",
+      "previousDate": "2026-10-21"
+    },
+    {
+      "id": "bcdb9f0b-b792-4ddb-9826-d698acb9f245",
+      "date": "2026-10-22",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "ff558231-6f73-4e9b-8e90-c8626ed8fbd3",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "created_at": "2026-10-18T12:09:56.893589+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "englishPicture",
+      "previousDate": "2026-10-21"
+    },
+    {
+      "id": "d6170e3b-52cc-43e1-896e-2c3764a77918",
+      "date": "2026-10-22",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "99cdac00-5f5d-4753-8dfe-2644ce6ab339",
+      "child_id": "919b1219-6b55-479a-96cd-d00f362df9cb",
+      "created_at": "2026-10-18T00:05:24.478763+00:00",
+      "quiz_score": null,
+      "updated_at": "2026-10-21T11:58:50.740538+00:00",
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "englishPicture",
+      "previousDate": "2026-10-21"
+    }
+  ]
+}

@@ -131,6 +131,8 @@ range and IDs. Preserve the batch order and summarize conflicts separately.
 Update the prepared `result.json` with actual IDs and the last confirmed state:
 `prepared`, `applied`, `db_verified`, or `app_verified`. Keep app verification pending
 without an actual logged-in check. Summarize image dimensions/bytes; never print full base64.
-Keep durable agreements and trial progress in the operating document and the
-active plan at `plans/active/ai-registration-assignment/` while that trial is open.
+Keep durable agreements and recurring batch progress in the operating document.
+The improvement plan is complete; its history is at
+`plans/archive/ai-registration-assignment/`. Weekly registration and assignment
+are recurring operations and do not reopen that plan.
 No API purchases, schema changes or Git publishing are implied by this skill.

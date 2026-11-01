@@ -25,6 +25,14 @@ Codex가 사진을 해석해 연결된 Supabase의 기존 자료·배정 테이�
 부모에게 책 제목·날짜·횟수를 매번 수동으로 작성하도록 요구하지 않는다.
 폴더 감시, 상시 자동 실행, 앱 UI 개발은 현재 범위에 포함하지 않는다.
 
+## 개선 과제 완료와 반복 운영
+
+2026-11-01 부모 확인으로 스킬·루틴·배정 생성기 개선 과제를 완료했다.
+이후 매주 자료 등록·할일 배정은 이 문서와 저장된 스킬·루틴을 사용하는 반복 운영이다.
+완료 계획과 과거 배치 결과는 [archive](../plans/archive/ai-registration-assignment/plan.md)에
+보존한다. 과거 배치의 앱 확인 미기록과 미실행 시험은 당시 이력이며, 개선 과제를
+활성 상태로 유지하는 조건이 아니다.
+
 ## 현재 루틴
 
 실행에 사용하는 규칙은
@@ -52,6 +60,8 @@ Codex가 사진을 해석해 연결된 Supabase의 기존 자료·배정 테이�
 
 2026-10-18 신규 배정에서 같은 아동 ID와 부모 소유를 재확인했으며, 현재 앱 표시 이름은
 `앤더 드래곤`이다. 이름 변경과 무관하게 확인된 동일 ID에 첫째 루틴을 적용했다.
+2026-11-01 부모가 확인한 지온이의 퀴즈 규칙은 읽기책과 정따책에 문제풀이를
+포함하고 그림책에는 포함하지 않는 것이다. 이는 첫째 루틴의 기존 설정과 같다.
 
 | 용도 | 첫째 | 둘째 |
 |---|---|---|
@@ -129,6 +139,12 @@ Codex가 사진을 해석해 연결된 Supabase의 기존 자료·배정 테이�
 
 ## 진행 상태
 
+- 완료: 2026-10-21 부모 요청으로 김지온·김지율의 10월 21~23일 배정 27행을
+  각각 하루 뒤인 10월 22~24일로 이동했다(지온 12행·지율 15행). 수정 전 완료·오디오
+  실행 기록과 토요일 기존 배정은 0건이었다. 기존 ID·책·활동·과제·횟수·퀴즈를 유지하고
+  날짜만 수정했으며, 재조회로 모든 필드와 범위 밖 배정의 해시 불변을 검증했다.
+  실제 로그인 앱 표시는 미확인이다.
+  [날짜 이동 결과와 ID](../plans/archive/ai-registration-assignment/assignment-reschedule-result-2026-10-21.json).
 - 완료: 김지온(현재 앱 이름 `앤더 드래곤`)과 김지율(`골든스피노`)의 2026-10-25
   시작 신규 배치 12권과 배정 42행을 저장했다. 표지 외곽을 원근 보정한 뒤 앱 압축
   규격을 적용했고, 신규 책 중복·10월 25~30일 배정 충돌이 없음을 확인했다. 부모가
@@ -139,7 +155,7 @@ Codex가 사진을 해석해 연결된 Supabase의 기존 자료·배정 테이�
   `Nate the Great and Me: The Case of the Fleeing Fang`으로 변경했다. 수정 전 진행
   기록 0건을 확인했고 수정 후 6행 전체 필드를 재검증했다. 지온 24행·지율 18행이며
   토요일 배정은 없다.
-  [등록·배정 결과와 ID](../plans/active/ai-registration-assignment/combined-registration-result-2026-10-25.json).
+  [등록·배정 결과와 ID](../plans/archive/ai-registration-assignment/combined-registration-result-2026-10-25.json).
 - 완료: 김지온(현재 앱 이름 `앤더 드래곤`)의 신규 책 6권 등록, 기존
   `Diary of a Spider` 1권 재사용 및 2026-10-18~23 신규 배정 24행 저장. 정따는
   일~화 `Henry and Mudge and the Tall Tree House`, 수~금
@@ -153,7 +169,7 @@ Codex가 사진을 해석해 연결된 Supabase의 기존 자료·배정 테이�
   교체했다. 이 책의 과거 배정 3행은 유지했고 완료·오디오 실행 기록은 0건이었다.
   표지·책 메타데이터와 배정 전체 필드를 재조회로 검증했다. 실제 로그인 앱 표시·오디오
   재생의 부모 확인은 남아 있다.
-  [저장 결과와 ID](../plans/active/ai-registration-assignment/jion-assignment-result-2026-10-18.json).
+  [저장 결과와 ID](../plans/archive/ai-registration-assignment/jion-assignment-result-2026-10-18.json).
 - 완료: 김지율(골든스피노)의 5권 신규 등록 및 2026-10-18~23 신규 배정 18행 저장.
   정따 `The Toys' Party`는 매일 읽기·정따·스스로 읽기 각 1회, 읽기는 일~화
   `Monkey See, Monkey Do`·`Teddy Bear for Sale`, 수~금 `We Love the Dirt`·
@@ -165,8 +181,8 @@ Codex가 사진을 해석해 연결된 Supabase의 기존 자료·배정 테이�
   배경을 제거하도록 원근 보정한 뒤 앱 규격으로 압축했으며, 두 책과 12행 전체 필드 및
   표지 길이·해시가 후보와 일치했다. 해당 주차 합계는 신규 책 7권·배정 30행이다.
   실제 로그인 앱 표시·오디오 재생의 부모 확인은 남아 있다.
-  [읽기·정따 저장 결과](../plans/active/ai-registration-assignment/jiyul-assignment-result-2026-10-18.json),
-  [그림책 저장 결과](../plans/active/ai-registration-assignment/jiyul-picture-assignment-result-2026-10-18.json).
+  [읽기·정따 저장 결과](../plans/archive/ai-registration-assignment/jiyul-assignment-result-2026-10-18.json),
+  [그림책 저장 결과](../plans/archive/ai-registration-assignment/jiyul-picture-assignment-result-2026-10-18.json).
 - 완료: 김지온(김지온 킹)의 신규 책 6권 등록, 기존 `Leo a ghost story` 1권 재사용 및
   2026-10-11~16 신규 배정 24행 저장. 읽기는 일~월 `The Minotaur`, 화~수
   `The Monster Gang`, 목~금 `The Sorcerer's Apprentice`를 매일 1회와 문제풀이로 배정했다.
@@ -178,7 +194,7 @@ Codex가 사진을 해석해 연결된 Supabase의 기존 자료·배정 테이�
   부모의 최종 정정에 따라 정따 6행에서 읽기를 제외하고 두 책의 잘못된 읽기 링크를
   비웠다. 수정 전 완료·오디오 실행 기록은 0건이었고 수정 후 배정 24행·책 7권을 재검증했다.
   실제 로그인 앱 표시·오디오 재생의 부모 확인은 남아 있다.
-  [저장 결과와 ID](../plans/active/ai-registration-assignment/jion-assignment-result-2026-10-11.json).
+  [저장 결과와 ID](../plans/archive/ai-registration-assignment/jion-assignment-result-2026-10-11.json).
 - 완료: 김지율(골든스피노)의 7권 신규 등록 및 2026-10-11~16 신규 배정 30행 저장.
   읽기는 일~화 `My Dog Talks`·`My Tooth Is About to Fall Out`, 수~금
   `Willie's Wonderful Pet`·`Monster Money`를 각 1회씩 배정했다.
@@ -187,16 +203,16 @@ Codex가 사진을 해석해 연결된 Supabase의 기존 자료·배정 테이�
   퀴즈는 모두 비활성이고 토요일 배정은 없다. 해당 기간 기존 배정은 0행이었다.
   표지·책 메타데이터·배정 30행의 모든 요청 필드를 재조회로 검증했다.
   실제 로그인 앱 표시·오디오 재생의 부모 확인은 남아 있다.
-  [저장 결과와 ID](../plans/active/ai-registration-assignment/jiyul-assignment-result-2026-10-11.json).
+  [저장 결과와 ID](../plans/archive/ai-registration-assignment/jiyul-assignment-result-2026-10-11.json).
 - 완료: 김지율(골든스피노)의 `books/` 사진 12장 검토. 7권의 표지와 QR 6개를
   인식했고 기존 자료와 제목·링크 일치가 없음을 확인했다. 그림책 2권의 QR·링크는
   미제공이다. 실제 등록·배정은 하지 않았다.
-  [등록 검토](../plans/active/ai-registration-assignment/jiyul-books-review-2026-10-04.md).
+  [등록 검토](../plans/archive/ai-registration-assignment/jiyul-books-review-2026-10-04.md).
 - 완료: Supabase `english-with-dad` 연결 및 부모 계정의 기존 자료 확인.
 - 완료: Leo a ghost story 사진 매칭·QR 주소 추출.
 - 완료: Leo 등록, 표지와 저장 정보 재조회, 부모가 앱에서 등록 결과 확인.
   책 ID: `dc479861-5201-4d28-bb03-c5092f8e4373`.
-- 진행: 김지온(앱 이름 김지온 킹)의 Leo 그림책 한 권을 2026-10-04~09 매일 읽기
+- 과거 미실행 시험: 김지온(앱 이름 김지온 킹)의 Leo 그림책 한 권을 2026-10-04~09 매일 읽기
   1회씩 배정하는 시험. 후보 6행을 검증했으며 기존 Chester·Pumpkin soup의
   그림책 배정 12행과 겹쳐 부모의 처리 선택을 기다린다. 아직 배정은 저장하지 않았다.
 - 완료: 재사용 스킬과 배정 생성기 작성, 배정 테스트 19개·스킬 형식·문서 참조 검증,

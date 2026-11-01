@@ -2,7 +2,9 @@
 
 ## Status
 
-Passed — 승인된 TDD 구현, step별 검증, Standards/Spec 리뷰를 완료했다. 실제 안드로이드 설치형 PWA와 외부 오디오 앱 전환은 실기기 미접근으로 미검증이다.
+Passed
+
+승인된 TDD 구현, step별 검증, Standards/Spec 리뷰를 완료했다. 실제 안드로이드 설치형 PWA와 외부 오디오 앱 전환은 실기기 미접근으로 미검증이다.
 
 ## Plan Conformance
 

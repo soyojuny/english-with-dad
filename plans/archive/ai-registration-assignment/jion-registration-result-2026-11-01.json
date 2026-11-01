@@ -1,0 +1,196 @@
+{
+  "status": "db_verified",
+  "projectRef": "yocdammswepuwyvzydra",
+  "childId": "919b1219-6b55-479a-96cd-d00f362df9cb",
+  "startSunday": "2026-11-01",
+  "books": [
+    {
+      "id": "4a2f25de-e19b-4d9f-912a-466424968417",
+      "title": "Henry and Mudge and Annie’s Perfect Pet"
+    },
+    {
+      "id": "8682378d-1ba5-4abe-8e8c-05d576ba5c37",
+      "title": "Henry and Mudge in the Green Time"
+    },
+    {
+      "id": "d5d97ce6-ad64-4a15-97d4-7448f25f21e7",
+      "title": "Nate the Great and the Crunchy Christmas"
+    },
+    {
+      "id": "8e7b94c5-0100-47ca-b102-63aa3199b4a0",
+      "title": "Nate the Great and the Big Sniff"
+    },
+    {
+      "id": "ce065186-0b89-4920-91fe-c72c4e58885f",
+      "title": "Nate the Great and the Boring Beach Bag"
+    },
+    {
+      "id": "4b83f2ab-cc84-41e1-b55c-8e1b5497d177",
+      "title": "Nate the Great and the Fishy Prize"
+    },
+    {
+      "id": "a2d9a53f-1961-4dc0-a68f-6dfde980dea9",
+      "title": "Nate the Great and the Halloween Hunt"
+    },
+    {
+      "id": "f3679961-8dec-46c8-a0af-289ff4a3a232",
+      "title": "Nate the Great and the Sticky Case"
+    },
+    {
+      "id": "0efd29ea-5727-4890-9bbd-dc0b55a48fa3",
+      "title": "Peter & Ernesto: The Lost Sloths"
+    },
+    {
+      "id": "4aa0f5b4-35a5-4697-a5f2-dbe1783be66b",
+      "title": "Peter & Ernesto: Sloths in the Night"
+    }
+  ],
+  "assignments": [
+    {
+      "id": "774744ed-0831-45d4-b1f6-a19f4116baa6",
+      "date": "2026-11-01",
+      "book_id": "0efd29ea-5727-4890-9bbd-dc0b55a48fa3",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "3c2803ed-3f83-44e8-82ad-a11d529c64c2",
+      "date": "2026-11-01",
+      "book_id": "4aa0f5b4-35a5-4697-a5f2-dbe1783be66b",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "b35c4ac4-95d3-491e-ac40-2c0bdeceeda3",
+      "date": "2026-11-01",
+      "book_id": "d5d97ce6-ad64-4a15-97d4-7448f25f21e7",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "576d7d28-0a83-4f50-ad73-2ec8524f721e",
+      "date": "2026-11-01",
+      "book_id": "4a2f25de-e19b-4d9f-912a-466424968417",
+      "activity_category": "readAloud"
+    },
+    {
+      "id": "2c52f3f8-e48f-4993-a570-f744c5326238",
+      "date": "2026-11-02",
+      "book_id": "0efd29ea-5727-4890-9bbd-dc0b55a48fa3",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "ba9ab0bd-34fa-4631-b2e8-14cc98eb4e88",
+      "date": "2026-11-02",
+      "book_id": "4aa0f5b4-35a5-4697-a5f2-dbe1783be66b",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "6f551cbf-22e8-4b0e-b5d5-0071c5c16e56",
+      "date": "2026-11-02",
+      "book_id": "8e7b94c5-0100-47ca-b102-63aa3199b4a0",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "415cc1dd-4631-42ed-a4b2-37c156611e3c",
+      "date": "2026-11-02",
+      "book_id": "4a2f25de-e19b-4d9f-912a-466424968417",
+      "activity_category": "readAloud"
+    },
+    {
+      "id": "29cb0f15-489d-4f7d-8bad-82518aca5905",
+      "date": "2026-11-03",
+      "book_id": "0efd29ea-5727-4890-9bbd-dc0b55a48fa3",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "4a20cf2f-05e9-4503-8dec-8eaecbf11ff0",
+      "date": "2026-11-03",
+      "book_id": "4aa0f5b4-35a5-4697-a5f2-dbe1783be66b",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "5f934057-e1d6-4d16-99dd-dff3af73dabb",
+      "date": "2026-11-03",
+      "book_id": "ce065186-0b89-4920-91fe-c72c4e58885f",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "68115d60-e6ae-45af-bf1d-90e432584631",
+      "date": "2026-11-03",
+      "book_id": "4a2f25de-e19b-4d9f-912a-466424968417",
+      "activity_category": "readAloud"
+    },
+    {
+      "id": "4df2aa31-de62-49e9-bf34-e18e83a02e19",
+      "date": "2026-11-04",
+      "book_id": "0efd29ea-5727-4890-9bbd-dc0b55a48fa3",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "84018d2e-6d3e-4d7d-aa61-943e6a4fc729",
+      "date": "2026-11-04",
+      "book_id": "4aa0f5b4-35a5-4697-a5f2-dbe1783be66b",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "cc383548-2811-47f7-93ab-8cd9b2702dac",
+      "date": "2026-11-04",
+      "book_id": "4b83f2ab-cc84-41e1-b55c-8e1b5497d177",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "ef841664-1438-45c6-8f8f-aec99869fe1c",
+      "date": "2026-11-04",
+      "book_id": "8682378d-1ba5-4abe-8e8c-05d576ba5c37",
+      "activity_category": "readAloud"
+    },
+    {
+      "id": "1f9b0ac6-50b7-46ca-8a79-c767bceb5ea7",
+      "date": "2026-11-05",
+      "book_id": "0efd29ea-5727-4890-9bbd-dc0b55a48fa3",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "b3b72d0e-53dd-45e6-866f-16fae8afa5f1",
+      "date": "2026-11-05",
+      "book_id": "4aa0f5b4-35a5-4697-a5f2-dbe1783be66b",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "c10ad1e9-51a3-46b9-9592-84ad38639f63",
+      "date": "2026-11-05",
+      "book_id": "a2d9a53f-1961-4dc0-a68f-6dfde980dea9",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "0506d12d-c4c3-4f23-aac0-4347d486b850",
+      "date": "2026-11-05",
+      "book_id": "8682378d-1ba5-4abe-8e8c-05d576ba5c37",
+      "activity_category": "readAloud"
+    },
+    {
+      "id": "e677fc59-a732-4ed8-970e-26dfc847d2ec",
+      "date": "2026-11-06",
+      "book_id": "0efd29ea-5727-4890-9bbd-dc0b55a48fa3",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "4d6299cd-9729-41d8-8ae5-b2a7ebcb4b51",
+      "date": "2026-11-06",
+      "book_id": "4aa0f5b4-35a5-4697-a5f2-dbe1783be66b",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "8c691f0e-27e0-4c6b-8c0b-f86e02d2f78a",
+      "date": "2026-11-06",
+      "book_id": "f3679961-8dec-46c8-a0af-289ff4a3a232",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "02577c30-4c15-4114-bdb8-ac4e7d0df146",
+      "date": "2026-11-06",
+      "book_id": "8682378d-1ba5-4abe-8e8c-05d576ba5c37",
+      "activity_category": "readAloud"
+    }
+  ],
+  "appVerification": "pending",
+  "note": "이번 배치에만 읽기 하루 한 권 적용; 표지 원본 전체 압축."
+}
