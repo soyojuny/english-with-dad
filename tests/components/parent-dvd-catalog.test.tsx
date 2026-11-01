@@ -5,7 +5,7 @@ import ReadingManagerClient from "../../app/reading-manager-client";
 import type { Dvd } from "../../lib/reading-types";
 
 const boundary = vi.hoisted(() => ({
-  fetchProfile: vi.fn(), fetchParent: vi.fn(), fetchCatalog: vi.fn(),
+  fetchProfile: vi.fn(), fetchParent: vi.fn(), fetchCatalog: vi.fn(), addDvd: vi.fn(),
 }));
 
 vi.mock("../../lib/supabase/client", () => ({ createClient: () => ({}) }));
@@ -14,6 +14,7 @@ vi.mock("../../lib/supabase/reading-store", async (original) => ({
   fetchReadingProfileData: boundary.fetchProfile,
   fetchParentActivityData: boundary.fetchParent,
   fetchDvdCatalogData: boundary.fetchCatalog,
+  addDvd: boundary.addDvd,
 }));
 
 const children = [{ id: "child-1", name: "민준", level: "1", goal: "" }];
@@ -23,6 +24,7 @@ beforeEach(() => {
   boundary.fetchProfile.mockReset().mockResolvedValue({ children });
   boundary.fetchParent.mockReset().mockResolvedValue(parentData);
   boundary.fetchCatalog.mockReset().mockResolvedValue({ dvds: [] });
+  boundary.addDvd.mockReset().mockResolvedValue({ id: "dvd-new", title: "새 DVD", active: true });
 });
 
 async function enterParent() {
@@ -113,4 +115,73 @@ test("정상: 목록은 활성과 비활성 DVD의 제목과 상태를 표시한
   const second = within(list).getByRole("group", { name: "둘째 DVD" });
   expect(within(first).getByText("보는 중")).toBeTruthy();
   expect(within(second).getByText("안 보는 중")).toBeTruthy();
+});
+
+test("정상: 제목을 추가하면 새 DVD가 보는 중으로 표시된다", async () => {
+  // Given
+  const user = userEvent.setup();
+  await enterDvdManagement();
+  await screen.findByText(/DVD 목록이 비어/);
+
+  // When
+  await user.type(screen.getByRole("textbox", { name: "DVD 제목" }), "새 DVD");
+  await user.click(screen.getByRole("button", { name: "DVD 추가" }));
+
+  // Then
+  const item = await screen.findByRole("group", { name: "새 DVD" });
+  expect(within(item).getByText("보는 중")).toBeTruthy();
+  expect(boundary.addDvd).toHaveBeenCalledExactlyOnceWith(expect.anything(), "owner-1", "새 DVD");
+});
+
+test("잘못된 입력: 공백 제목은 오류를 표시하고 저장하지 않는다", async () => {
+  // Given
+  const user = userEvent.setup();
+  await enterDvdManagement();
+  await screen.findByText(/DVD 목록이 비어/);
+  await user.type(screen.getByRole("textbox", { name: "DVD 제목" }), "   ");
+
+  // When
+  await user.click(screen.getByRole("button", { name: "DVD 추가" }));
+
+  // Then
+  expect(screen.getByRole("alert").textContent).toMatch(/제목/);
+  expect(boundary.addDvd).not.toHaveBeenCalled();
+});
+
+test("경계: 저장 중에는 추가 버튼을 다시 눌러도 중복 저장하지 않는다", async () => {
+  // Given
+  const user = userEvent.setup();
+  let resolve!: (dvd: Dvd) => void;
+  boundary.addDvd.mockReturnValue(new Promise((done) => { resolve = done; }));
+  await enterDvdManagement();
+  await screen.findByText(/DVD 목록이 비어/);
+  await user.type(screen.getByRole("textbox", { name: "DVD 제목" }), "새 DVD");
+  const submit = screen.getByRole<HTMLButtonElement>("button", { name: "DVD 추가" });
+
+  // When
+  await user.click(submit);
+  await user.click(submit);
+
+  // Then
+  expect(submit.disabled).toBe(true);
+  expect(boundary.addDvd).toHaveBeenCalledOnce();
+  await act(async () => resolve({ id: "dvd-new", title: "새 DVD", active: true }));
+});
+
+test("실패: 저장 오류는 입력을 보존하고 오류를 표시한다", async () => {
+  // Given
+  const user = userEvent.setup();
+  boundary.addDvd.mockRejectedValue(new Error("저장 실패"));
+  await enterDvdManagement();
+  await screen.findByText(/DVD 목록이 비어/);
+  const title = screen.getByRole<HTMLInputElement>("textbox", { name: "DVD 제목" });
+  await user.type(title, "새 DVD");
+
+  // When
+  await user.click(screen.getByRole("button", { name: "DVD 추가" }));
+
+  // Then
+  expect((await screen.findByRole("alert")).textContent).toMatch(/실패/);
+  expect(title.value).toBe("새 DVD");
+  expect(screen.queryByRole("group", { name: "새 DVD" })).toBeNull();
 });

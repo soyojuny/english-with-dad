@@ -30,3 +30,8 @@
 - 기존 Step 4는 커밋 전이었으므로 잘못된 미추적 테스트만 작업 트리에서 제거하고 `/tmp/ewd-dvd-catalog-flow-step4-stopped.test.tsx`에 보관했다. Step 1~3 커밋은 그대로 유지했다.
 - 4a Red: `DEBUG_PRINT_LIMIT=0 npm run test:component -- tests/components/parent-dvd-catalog.test.tsx --reporter=verbose`에서 기존 부모 화면 진입 후 DVD 관리 버튼 부재로 5개 사례가 실패했다. 나머지 상태 assertion에는 도달하지 못했다.
 - Green: 위 컴포넌트 테스트 5개, `npm run typecheck`, `npm run check:pwa` 통과. 실제 DB와 모바일 실기기는 미검증이다.
+
+## Step 4b — DVD 추가
+
+- Red: `npm run test:component -- tests/components/parent-dvd-catalog.test.tsx --reporter=verbose`에서 기존 5건 통과, 추가된 4건은 DVD 제목 입력란 부재로 실패했다.
+- Green: 같은 컴포넌트 테스트 9건과 `npm run typecheck` 통과. 추가, 빈 제목 거부, 저장 중 중복 방지 및 저장 실패 시 입력 유지·오류 표시를 검증했다.
