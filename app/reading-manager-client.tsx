@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, FormEvent } from "react";
 import { ActivityLogCell } from "./activity-log-cell";
+import { ParentDvdCatalog } from "./parent-dvd-catalog";
 import { AssignmentBookPicker } from "./assignment-book-picker";
 import { AssignmentEditForm } from "./assignment-edit-form";
 import { AssignmentQuizScore } from "./assignment-quiz-score";
@@ -93,7 +94,7 @@ import {
   setBookActive,
 } from "../lib/supabase/reading-store";
 
-type ViewName = "child" | "parent" | "books" | "assign";
+type ViewName = "child" | "parent" | "books" | "assign" | "dvds";
 type ParentPanel = "activity" | "manual";
 type AudioLinkField = "listen" | "shadow";
 type BookListFilter = "active" | "attention" | "ready" | "inactive";
@@ -1463,6 +1464,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
             {[
               ["parent", "부모"],
               ["books", "자료 관리"],
+              ["dvds", "DVD 관리"],
               ["assign", "할 일 배정"],
             ].map(([target, label]) => (
               <button
@@ -1974,6 +1976,10 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
               </section>
             </div>
           </section>
+        )}
+
+        {isParentProfile && view === "dvds" && (
+          <ParentDvdCatalog supabase={supabase} ownerUserId={ownerUserId} />
         )}
 
         {isParentProfile && view === "parent" && (

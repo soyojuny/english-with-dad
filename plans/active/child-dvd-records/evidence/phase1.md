@@ -18,3 +18,15 @@
 - Red: `node --test tests/harness/dvd-rls-contract.test.mjs`에서 DVD 테이블, RLS 활성화, 소유자 정책이 없어 정적 계약이 실패했다.
 - Green: 위 정적 계약 테스트와 `npm run check:contracts`, `npm run build`, `npm run typecheck` 통과. 최초 typecheck는 빌드와 동시에 실행해 `.next/types` 생성 파일 충돌로 1회 실패했고 빌드 종료 후 순차 재실행해 통과했다.
 - 실제 DB용 소유자·타인·소유자 위조 테스트는 `tests/db/dvd-rls.sql`로 준비했으나 실행하지 않았다. 이 환경에서 로컬 Supabase CLI, psql, Docker를 찾지 못했다. 정적 검사 통과는 실제 마이그레이션 적용이나 RLS 동작 검증을 뜻하지 않는다. 운영 DB는 변경하지 않았다.
+
+## Step 4 — 중단
+
+- 최초 Red: `npm run test:component -- tests/components/dvd-catalog-flow.test.tsx --reporter=verbose` 실행에서 7개 사례가 실패했다. 부모 화면 사례는 아직 DVD 관리 진입점이 없어 실패했다.
+- 중단 사유: 아동 관련 여러 사례에서 테스트의 프로필 선택자가 프로필 카드와 아동 관리 버튼을 모두 찾아 모호해지는 동일한 테스트 오류가 발생했다. 한 번의 테스트 실행에서 같은 원인이 여러 사례에 나타났으며, 사용자 요청의 동일 이슈 2회 이상 실패 기준에 따라 수정·재실행과 Step 4 구현을 중단했다.
+- 아동 로딩·실패·빈 목록과 두 아동 공유는 유효한 Red를 확인하지 못했다. Step 4는 미완료이고 `tests/components/dvd-catalog-flow.test.tsx`는 실패 상태의 미커밋 테스트다. 재개 시 테스트 선택자의 의도를 검토해야 한다. 모바일·주간 화면 브라우저 검증과 Phase 1 최종 검증도 미실행이다.
+
+## Step 4 재구성 및 4a — 부모 목록 조회
+
+- 기존 Step 4는 커밋 전이었으므로 잘못된 미추적 테스트만 작업 트리에서 제거하고 `/tmp/ewd-dvd-catalog-flow-step4-stopped.test.tsx`에 보관했다. Step 1~3 커밋은 그대로 유지했다.
+- 4a Red: `DEBUG_PRINT_LIMIT=0 npm run test:component -- tests/components/parent-dvd-catalog.test.tsx --reporter=verbose`에서 기존 부모 화면 진입 후 DVD 관리 버튼 부재로 5개 사례가 실패했다. 나머지 상태 assertion에는 도달하지 못했다.
+- Green: 위 컴포넌트 테스트 5개, `npm run typecheck`, `npm run check:pwa` 통과. 실제 DB와 모바일 실기기는 미검증이다.
