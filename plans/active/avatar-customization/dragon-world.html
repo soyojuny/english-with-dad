@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f5ef">
+  <title>작은 드래곤의 숲 · 체험형 시안</title>
+  <link rel="stylesheet" href="dragon-world.css">
+  <script src="dragon-world.js" defer></script>
+</head>
+<body>
+  <header class="masthead">
+    <a class="brand" href="dragon-world.html"><span class="brand-mark">✦</span><span>ENGLISH WITH DAD<small>작은 드래곤의 숲</small></span></a>
+    <span class="prototype-label">DESIGN PLAYGROUND <b>시안 v1</b></span>
+  </header>
+  <main>
+    <section class="intro">
+      <div><span class="eyebrow">A LITTLE READING, A LITTLE MAGIC</span><h1>매일의 읽기가,<br class="mobile-only"> 너의 드래곤으로.</h1><p>알을 만나고, 함께 자라고, 우리만의 작은 숲을 꾸며요.</p></div>
+      <button class="quiet" id="review-open">추천안 살펴보기 ↗</button>
+    </section>
+    <section class="lab" aria-label="시안 검토 도구">
+      <div class="lab-heading"><b><span class="dot"></span> 시간 여행</b><span>성장 장면 바로 보기</span></div>
+      <div class="time-buttons" id="time-buttons"></div>
+      <p>검토 전용 · 장면을 고르면 체험이 새로 시작해요. 실제 학습 기록과 연결되지 않아요.</p>
+    </section>
+    <div class="workspace">
+      <section class="world-card" aria-label="드래곤의 공간">
+        <div class="world-top"><div><span class="eyebrow" id="dragon-index">OUR FIRST CHAPTER</span><h2 id="dragon-title">작은 만남의 시작</h2></div><span class="stage-pill" id="stage-pill">알 선택</span></div>
+        <div class="scene meadow" id="scene">
+          <div class="sun"></div><div class="cloud cloud-one"></div><div class="cloud cloud-two"></div>
+          <svg class="mountains" viewBox="0 0 800 300" preserveAspectRatio="none" aria-hidden="true"><path d="M0 260 130 95 220 170 380 30 560 180 680 100 800 210V300H0Z" fill="currentColor"/><path d="m250 300 170-140 110 70 90-50 180 110v10Z" fill="currentColor" opacity=".5"/></svg>
+          <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+          <div class="island"><div class="island-top"></div></div>
+          <div class="nest moss" id="nest"></div>
+          <div class="placed prop-left" id="prop-left"></div><div class="placed prop-right" id="prop-right"></div>
+          <div class="dragon-position"><div id="main-dragon" class="sprite breathing" role="img" aria-label="드래곤 알"></div></div>
+          <span class="scene-spark spark-one">✧</span><span class="scene-spark spark-two">✦</span>
+          <div class="scene-caption" id="scene-caption">어떤 알과 첫 이야기를 시작할까요?</div>
+          <span class="scene-preview" id="scene-preview" hidden>소품 미리보기</span>
+        </div>
+        <div class="world-bottom"><div class="progress-copy"><span id="growth-label">첫 알을 골라 주세요</span><b id="growth-number">0 / 30일</b></div><div class="progress-track"><div id="growth-fill"></div></div><div class="milestones"><span>1일 · 부화</span><span>6일 · 속성</span><span class="proposed">18일 · 성장안</span><span>30일 · 성체</span></div></div>
+      </section>
+      <aside class="companion-panel">
+        <section class="story-card" id="story-card"></section>
+        <section class="reward-card"><span class="eyebrow">LITTLE TREASURES</span><div class="reward-heading"><h3>읽고 모은 선물</h3><span class="gift-icon">✧</span></div><p id="reward-message"></p><div class="reward-dots" id="reward-dots"></div><div class="reward-summary"><span id="total-label"></span><strong id="credits-label"></strong></div><button class="wide secondary" id="reward-open">소품 구경하기 →</button></section>
+        <div class="simulation"><span class="eyebrow">체험용 조작</span><button class="primary wide" id="advance">✦ 하루 목표 달성해 보기</button><button class="quiet wide" id="rest">배정 없는 날 보기</button><p>달성 버튼은 다음 학습일 전체 완료를 가정해요.<br>실제 앱에서는 저장된 학습으로 자동 인정해요.</p></div>
+      </aside>
+    </div>
+    <section class="explore-card">
+      <nav class="tabs" aria-label="시안 화면"><button data-tab="decorate" aria-pressed="true">공간 꾸미기</button><button data-tab="growth" aria-pressed="false">성장 도감</button><button data-tab="collection" aria-pressed="false">나의 드래곤</button><button data-tab="today" aria-pressed="false">오늘의 학습</button></nav>
+      <div id="panel"></div>
+    </section>
+    <details class="review-notes" id="review-notes"><summary>함께 검토할 추천안 <span>아직 확정하지 않았어요</span></summary><div class="review-grid"><article><span>01 / LOOK & GROWTH</span><h3>아기는 다정하게, 성체는 멋있게</h3><p>알은 무늬만 다른 3종. 모두 진주빛 아기로 부화하며, 알 선택 전에 아기 모습을 공개해요. 6일 속성 선택, 18일 날개·체형 변화, 30일 성체를 제안해요.</p><b>볼 것: 귀여움과 강인함의 균형, 18일 변화</b></article><article><span>02 / MY LITTLE WORLD</span><h3>네 자리면 충분한 작은 숲</h3><p>배경 1 · 둥지 1 · 주변 장식 2. 기본은 숲·이끼 둥지·들꽃이며, 8개 보상 소품을 제안해요. 잠긴 소품도 공간에 미리 놓아볼 수 있어요.</p><b>볼 것: 원화 크기, 소품 수와 위치, 고르는 재미</b></article><article><span>03 / ANOTHER CHAPTER</span><h3>함께한 친구는 계속 여기에</h3><p>성체 완성 후 다음 알을 선택해요. 쉬는 날은 성장 없이 누적 유지, 소품을 다 모아도 선택 기회는 보관하는 안이에요. 부모 표시 범위는 후속 논의로 남겨요.</p><b>볼 것: 성체를 다시 꾸미기, 다음 알로 이어지는 흐름</b></article></div><p class="review-footnote">2.5D 고정 시점 원화 + 가벼운 숨쉬기 연출 시안입니다. 날개·눈의 개별 애니메이션, 실제 저장·오류 처리, 앱 연동은 후속 단계입니다. 새로고침하면 체험이 초기화됩니다.</p></details>
+    <footer>작은 드래곤의 숲 <span>·</span> 화면을 보며 함께 정하는 첫 번째 버전</footer>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

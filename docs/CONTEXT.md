@@ -23,3 +23,43 @@ _Avoid_: Miscellaneous log, manual-only activity
 **English Picture Book Reading**:
 An activity category for assigning an English book as one reading-audio completion. It uses the same reading task as other book assignments, but reports under the English picture book column.
 _Avoid_: English picture book task, separate material type
+
+**Dragon**:
+A child's dragon companion, hatched, raised, and customized through learning. The child starts by choosing an egg and earns the next egg when the dragon reaches adulthood, keeping previously raised dragons.
+_Avoid_: Human avatar, parent profile
+
+**Dragon Egg**:
+The initial form a child chooses when starting to raise their dragon, before it hatches. In the first version, egg patterns are visual choices within the same species and do not determine the dragon's element.
+_Avoid_: Reward chest, avatar item
+
+**Growth Stage**:
+A phase in a dragon's development that changes its appearance from egg to hatchling, juvenile, and adult as daily goal achievements accumulate, independently of element selection.
+_Avoid_: Item tier, consecutive-day streak
+
+**Dragon Element**:
+A dragon's single permanent elemental identity—fire, lightning, or ice—chosen by the child as a growth reward separate from item rewards; until chosen, the dragon grows in a neutral form, and a later choice applies to its current growth stage. Other elements are experienced by raising other dragons.
+_Avoid_: Switchable element, multiple elements per dragon, dragon item
+
+**Dragon Species (드래곤 종류)**:
+A kind of dragon distinguished by its body shape, face, wings, and overall silhouette rather than its elemental color or effects. Species and element describe different aspects of a dragon.
+_Avoid_: Element, color variant, growth stage
+
+**Adult Dragon**:
+A dragon whose growth is complete and which remains in the child's collection, available to view and customize with owned items. Subsequent learning advances the next dragon being raised.
+_Avoid_: Discarded dragon, endless growth
+
+**Dragon Item**:
+A decoration in a child's collection, such as a background, nest, or surrounding ornament, available initially or unlocked through learning completion. Owned items are reusable across that child's dragons, each of which keeps its own decoration choices.
+_Avoid_: Point, currency
+
+**Item Choice**:
+An opportunity earned every three eligible daily goal achievements to select one unowned dragon item, which is acquired when chosen. Unused choices accumulate without expiration while learning and automatic dragon growth continue, independently of element selection.
+_Avoid_: Point, currency, expiring claim
+
+**Daily Goal Achievement**:
+A day automatically recognized when a child's saved learning reaches every assigned task's target count and includes a result for every assigned quiz, with both PASS and FAIL accepted. Once recognized, achieved days accumulate toward dragon rewards and persist through breaks and later assignment or learning-record edits.
+_Avoid_: Completion count, consecutive-day streak
+
+**Daily Completion Check**:
+A child's on-demand review of today's saved learning, remaining requirements, and achievement status. This check does not gate automatic daily achievement, dragon growth, or reward eligibility.
+_Avoid_: Reward claim, manual daily achievement, task completion
