@@ -1,7 +1,8 @@
-const cacheName = "ewd-reading-v1";
+const cacheName = "ewd-reading-v2";
 const appShell = [
   "/",
   "/manifest.webmanifest",
+  "/assets/dragons/dragons-v2.png",
   "/assets/app-icon.svg",
   "/assets/app-icon-192.png",
   "/assets/app-icon-512.png",

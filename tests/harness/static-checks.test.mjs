@@ -17,7 +17,7 @@ function pwa(t) {
   for (const path of ['public/sw.js', 'public/manifest.webmanifest', 'public/assets/app-icon.svg',
     'public/assets/app-icon-192.png', 'public/assets/app-icon-512.png',
     'public/assets/covers/berenstain-doctor.jpg', 'public/assets/covers/bones.jpg',
-    'public/assets/covers/monthly-filled.jpg']) f.copy(path);
+    'public/assets/covers/monthly-filled.jpg', 'public/assets/dragons/dragons-v2.png']) f.copy(path);
   return f;
 }
 

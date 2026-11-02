@@ -107,3 +107,7 @@ SQL Editor에서 아래 마이그레이션을 실행합니다.
 단어 읽기 자료는 표지 사진을 요구하지 않고, QR 스캔 또는 직접 입력한 URL을 `books.audio_listen`에 저장합니다.
 
 - 퀴즈 숫자 점수는 `supabase/migrations/20261101120000_assignment_quiz_points.sql` 적용이 필요합니다. 기존 `quiz_score`의 PASS/FAIL은 유지하고 `quiz_points`에 선택 입력한 0~100점 정수를 저장합니다. 점수를 입력한 뒤 PASS/FAIL을 누르면 함께 저장되며, 점수를 비워 저장하면 숫자 점수만 지워집니다. 부모 활동 기록은 `퀴즈 (PASS · 90점)`처럼 표시합니다.
+
+## 드래곤 보상
+
+앱 배포 전에 `supabase/migrations/20261103120000_dragon_world.sql`을 적용합니다. 소유자별 달성 원장·드래곤·보유 소품과 읽기 전용 카탈로그, 검증 RPC 및 학습 저장 트리거를 추가합니다. 실제 권한과 테스트 절차는 [드래곤 저장 계약](dragon-rewards.md)을 참고하세요.

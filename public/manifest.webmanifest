@@ -1,7 +1,7 @@
 {
   "name": "English with Dad Reading Manager",
   "short_name": "EwD Reading",
-  "description": "아동별 책 읽기 할 일과 부모 활동 기록을 관리하는 PWA",
+  "description": "아동별 책 읽기와 드래곤 성장 보상, 부모 활동 기록을 관리하는 PWA",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

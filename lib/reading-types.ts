@@ -97,3 +97,6 @@ export type ReadingData = {
   audioLaunches: Record<string, AudioLaunch>;
   manualLogs: ManualLog[];
 };
+
+// Dragon rewards are loaded separately from the daily reading snapshot.
+export type { Dragon, DragonWorld, DragonDecor, DragonItem } from "./dragon-types";

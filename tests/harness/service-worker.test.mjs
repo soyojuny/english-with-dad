@@ -4,11 +4,11 @@ import { readFile } from 'node:fs/promises';
 import { runInNewContext } from 'node:vm';
 
 const source = await readFile(new URL('../../public/sw.js', import.meta.url), 'utf8');
-const shell = ['/', '/manifest.webmanifest', '/assets/app-icon.svg', '/assets/app-icon-192.png',
+const shell = ['/', '/manifest.webmanifest', '/assets/dragons/dragons-v2.png', '/assets/app-icon.svg', '/assets/app-icon-192.png',
   '/assets/app-icon-512.png', '/assets/covers/berenstain-doctor.jpg', '/assets/covers/bones.jpg',
   '/assets/covers/monthly-filled.jpg'];
 
-function worker({ entries = [], keys = ['ewd-reading-v1'], failure, installFailure, openFailure } = {}) {
+function worker({ entries = [], keys = ['ewd-reading-v2'], failure, installFailure, openFailure } = {}) {
   const listeners = new Map();
   const cached = new Map(entries);
   const calls = { deleted: [], network: [], matches: [], added: [], opened: [], skipped: 0, claimed: 0 };
@@ -59,7 +59,7 @@ test('P01-N01: install은 현재 app shell 전체를 준비하고 새 worker를 
   await sw.dispatch('install');
   const response = await sw.dispatch('fetch', get('/assets/app-icon.svg'));
   // Then
-  assert.deepEqual(sw.calls.opened, ['ewd-reading-v1']);
+  assert.deepEqual(sw.calls.opened, ['ewd-reading-v2']);
   assert.deepEqual(sw.calls.added, shell);
   assert.equal(sw.calls.skipped, 1);
   assert.equal(response, 'shell:/assets/app-icon.svg');
@@ -68,7 +68,7 @@ test('P01-N01: install은 현재 app shell 전체를 준비하고 새 worker를 
 
 test('P01-E01: activate는 이전 cache만 삭제하고 client를 인계한다', async () => {
   // Given
-  const sw = worker({ keys: ['ewd-reading-v0', 'ewd-reading-v1', 'ewd-reading-older'] });
+  const sw = worker({ keys: ['ewd-reading-v0', 'ewd-reading-v2', 'ewd-reading-older'] });
   // When
   await sw.dispatch('activate');
   // Then

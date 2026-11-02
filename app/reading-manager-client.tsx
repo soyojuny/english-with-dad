@@ -6,6 +6,9 @@ import { ActivityLogCell } from "./activity-log-cell";
 import { ParentDvdCatalog } from "./parent-dvd-catalog";
 import { AssignmentBookPicker } from "./assignment-book-picker";
 import { AssignmentEditForm } from "./assignment-edit-form";
+import { DragonCompanion } from "./dragon-companion";
+import { DragonCompletionCheck } from "./dragon-completion-check";
+import { useDragonWorld } from "./use-dragon-world";
 import { AssignmentQuizScore } from "./assignment-quiz-score";
 import { ChildReadingLogDialog } from "./child-reading-log-dialog";
 import { MaterialThumb, formatMaterialMeta } from "./material-thumb";
@@ -162,6 +165,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const [bookDraftMode, setBookDraftMode] = useState<"new" | "edit">("new");
   const [childDraft, setChildDraft] = useState<ChildDraft>(emptyChildDraft);
   const [childDraftMode, setChildDraftMode] = useState<"new" | "edit">("new");
+  const [quizPending, setQuizPending] = useState(false);
   const [toast, setToast] = useState("");
   const [activeProfile, setActiveProfile] = useState<ActiveProfile>(null);
   const todayDateKey = dateKey();
@@ -241,6 +245,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
     scopeKey: childSelectionKey, dataStatus: childDataStatus, ownerUserId, supabase,
     assignments: todayAssignments, data, setData,
   });
+  const dragonRevision = JSON.stringify([todayAssignments, data.completions]);
+  const dragonController = useDragonWorld(supabase, childSelectionKey, childId, dragonRevision, childDataStatus === "ready");
   const selectedAssignment = activeProfile?.kind === "child"
     ? childDataStatus === "ready" ? todayAssignments.find((assignment) => assignment.id === selectedAssignmentId) : undefined
     : selectedAssignmentId ? getAssignment(selectedAssignmentId) : undefined;
@@ -1321,6 +1327,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       return;
     }
 
+    setQuizPending(true);
     try {
       const savedAssignment = await saveAssignmentQuizScore(
         supabase,
@@ -1338,6 +1345,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
       showToast(`퀴즈 ${quizScore} 저장했습니다.`);
     } catch (error) {
       showToast(error instanceof Error ? error.message : "퀴즈 결과를 저장하지 못했습니다.");
+    } finally {
+      setQuizPending(false);
     }
   };
 
@@ -1705,6 +1714,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
               </div>
             </div>
 
+            <DragonCompanion key={childSelectionKey} controller={dragonController} />
             <div className="child-grid">
               <section aria-label="오늘 해야 할 학습">
                 <div className="assignment-list">
@@ -1758,6 +1768,18 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                     <div className="empty-state">오늘 등록된 할 일이 없습니다.</div>
                   )}
                 </div>
+                <DragonCompletionCheck key={childSelectionKey} controller={dragonController} data={data} assignments={todayAssignments}
+                  ready={childDataStatus === "ready"} completionStates={taskRequests.completionStates} quizPending={quizPending}
+                  supabase={supabase} ownerUserId={ownerUserId} childId={childId} date={todayDateKey}
+                  onSnapshot={(snapshot) => setData((current) => ({ ...current, ...snapshot }))}
+                  onNavigate={(id, task) => {
+                    selectChildAssignment(id); setSelectedBookId("");
+                    requestAnimationFrame(() => {
+                      const panel = document.querySelector<HTMLElement>('[aria-label="선택한 학습 활동"]');
+                      const target = panel?.querySelector<HTMLElement>(task === "quiz" ? ".quiz-score-row button" : `[data-task-type="${task}"] button`);
+                      (target ?? panel)?.scrollIntoView({ block: "center" }); target?.focus({ preventScroll: true });
+                    });
+                  }} />
               </section>
 
               <section className="task-panel" aria-label="선택한 학습 활동">
@@ -1811,7 +1833,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                         const audioUrl = getTaskAudioUrl(selectedBook, taskType);
                         const launchLabel = taskType === "wordRead" ? "링크" : "오디오";
                         return (
-                          <div key={taskType}>
+                          <div key={taskType} data-task-type={taskType}>
                             <div className={`task-row ${done ? "is-done" : ""}`}>
                               <div>
                                 <h4>{task.label}</h4>

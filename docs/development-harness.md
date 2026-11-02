@@ -376,3 +376,10 @@ finally에서 정리한다. 실패 artifact와 버전별 브라우저 cache만 �
 - Playwright 기반 모바일 smoke test
 - QR 스캔 지원 여부를 브라우저별로 기록하는 실기기 체크리스트
 - 월간표 출력/PDF 기능 추가 후 snapshot 또는 artifact 검증
+
+## 드래곤 보상 검증
+
+- `npm run test:server -- tests/server/dragon-db.test.ts`: 개발 의존성 PGlite로 실제 마이그레이션·트리거·RPC·RLS 실행. 외부 DB나 서비스 키 불필요. auth 대역 및 단일 연결 한계는 [드래곤 저장 계약](dragon-rewards.md)에 기록한다.
+- `npm run test:component -- tests/hooks/use-dragon-world.test.tsx`: 자동 재조회, 응답 유실 재시도, 프로필 전환, 로딩/오류 경계.
+- `npm run test:browser:client -- dragon-world.spec.mjs`: 실제 320·390·1280px 화면과 자유 배치. 테스트 결과 폴더에 장면 캡처를 보관한다.
+- `npm run verify`는 기존 단위·계약·타입·빌드 검사이며 DB/hook/browser 검사는 위 명령 또는 `verify:all`로 별도 실행한다.

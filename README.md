@@ -32,6 +32,9 @@ Mumbai에서 Seoul 리전으로 프로젝트를 이전하는 절차는
 로컬 실행에서는 로그인 화면의 `로컬 테스트로 시작` 버튼으로 Google OAuth 없이 실제 Supabase CRUD를 검증할 수
 있습니다. Supabase 프로젝트에서 Anonymous Sign-Ins를 활성화하고 최신 migration을 적용해야 합니다.
 
+드래곤 기능 배포 전에는 `20261103120000_dragon_world.sql` 마이그레이션을 적용하세요.
+보상 규칙·카탈로그 확장·검증은 [드래곤 저장 계약](docs/dragon-rewards.md)에 정리되어 있습니다.
+
 ## 검증
 
 ```powershell
@@ -57,6 +60,7 @@ AI 개발 하네스와 repo skill 구성은 [docs/development-harness.md](/D:/wo
 - 날짜별 과제 생성
 - 아동별 완료 기록, 수기 기록 저장
 - 오디오 실행 시간 기록
+- 학습 달성으로 드래곤 성장·소품 획득 및 자유 배치 꾸미기
 - PWA manifest 및 service worker 포함
 
 ## 데이터 저장 구조

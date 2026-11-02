@@ -76,3 +76,6 @@ const pad = (value: number) => String(value).padStart(2, "0");
 export function dateKey(date = new Date()) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
+
+// Dragon rewards use the separate dragon-data catalog/placement contract;
+// emptyReadingData deliberately contains no optimistic reward progress.

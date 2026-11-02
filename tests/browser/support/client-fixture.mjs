@@ -35,6 +35,8 @@ export const test = base.extend({
             res.setHeader('Content-Type', 'application/javascript'); res.end(await readFile(join(directory, 'app.js')));
           } else if (req.url === '/styles.css') {
             res.setHeader('Content-Type', 'text/css'); res.end(await readFile(join(root, 'styles.css')));
+          } else if (req.url === '/assets/dragons/dragons-v2.png') {
+            res.setHeader('Content-Type', 'image/png'); res.end(await readFile(join(root, 'public/assets/dragons/dragons-v2.png')));
           } else if (req.url === '/assets/app-icon.svg') {
             res.setHeader('Content-Type', 'image/svg+xml'); res.end(await readFile(join(root, 'public/assets/app-icon.svg')));
           } else if (req.url === '/') {
@@ -171,6 +173,7 @@ async function audioFixture(context, page, origin, guard) {
     });
   }
   await page.route('http://127.0.0.1:54321/**', async route => {
+    if (await handleDragonSync(route)) return;
     const request = route.request();
     const url = new URL(request.url());
     const table = url.pathname.split('/').at(-1);
@@ -311,6 +314,7 @@ async function childCompletionFixture(context, page, origin, guard) {
     return value === 'is.null' && row[key] == null;
   });
   await page.route('http://127.0.0.1:54321/**', async route => {
+    if (await handleDragonSync(route)) return;
     const request = route.request();
     const url = new URL(request.url());
     const table = url.pathname.replace('/rest/v1/', '');
@@ -449,6 +453,7 @@ async function parentReportFixture(context, page, origin, guard) {
     });
   };
   await page.route('http://127.0.0.1:54321/**', async route => {
+    if (await handleDragonSync(route)) return;
     const request = route.request();
     const url = new URL(request.url());
     const table = url.pathname.replace('/rest/v1/', '');
@@ -570,6 +575,7 @@ async function profileMaterialFixture(context, page, origin, guard) {
     id: `book-${nextBookId++}`, owner_user_id: 'owner-1', active: true, content_type: 'book', series: '', title: '', volume: '', level: '', cover: '', audio_listen: '', audio_shadow: '', note: '', ...body,
   });
   await page.route('http://127.0.0.1:54321/**', async route => {
+    if (await handleDragonSync(route)) return;
     const request = route.request();
     const url = new URL(request.url());
     const path = url.pathname.replace('/rest/v1/', '');
@@ -641,4 +647,16 @@ async function profileMaterialFixture(context, page, origin, guard) {
     },
     writes(table) { return requests.filter(request => request.path === `/rest/v1/${table}` && request.method !== 'GET'); },
   };
+}
+
+async function handleDragonSync(route) {
+  const request = route.request();
+  if (new URL(request.url()).pathname !== '/rest/v1/rpc/dragon_world' || request.method() !== 'POST') return false;
+  const body = request.postDataJSON();
+  if (body.p_action !== 'sync' || !body.p_child) return false;
+  await route.fulfill({ contentType: 'application/json', body: JSON.stringify({
+    today: '2026-10-18', credited: false, eligible: false, totalDays: 0, credits: 0,
+    owned: ['meadow', 'moss', 'flowers'], dragons: [], catalog: [],
+  }) });
+  return true;
 }

@@ -41,6 +41,7 @@ const appShellMatch = sw.match(/const appShell = \[([\s\S]*?)\];/);
 if (!appShellMatch) fail("service worker appShell array not found");
 
 const cachedUrls = [...(appShellMatch?.[1] ?? "").matchAll(/"([^"]+)"/g)].map((match) => match[1]);
+if (!cachedUrls.includes("/assets/dragons/dragons-v2.png")) fail("dragon scene artwork must be cached");
 for (const url of cachedUrls) {
   if (url === "/") continue;
   if (!existsSync(publicPath(url))) {
