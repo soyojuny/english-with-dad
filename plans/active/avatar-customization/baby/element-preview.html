@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>속성별 아기 동작 검토</title>
+<style>
+  body { margin: 0; padding: 16px; font-family: sans-serif; background: #202329; color: white; }
+  main { max-width: 1100px; margin: auto; }
+  .scene { position: relative; aspect-ratio: 16/9; background: center/cover url('../dragon-assets/backgrounds/lava-open-foreground.png'); }
+  .dragon { position: absolute; width: 54%; left: 15%; bottom: 4%; }
+  .layer { opacity: 0; pointer-events: none; }
+  .playing .breath { animation: breathe 4s ease-in-out infinite; }
+  .playing .blink { mask-image: radial-gradient(ellipse 2.8% 2.2% at 74% 34%, black 65%, transparent 100%); animation: blink 6s linear infinite; }
+  @keyframes breathe { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+  @keyframes blink { 0%, 45%, 49%, 100% { opacity: 0; } 46.2%, 47.8% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .playing .layer { animation: none; } }
+  .controls { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+  button { padding: 10px; }
+</style>
+<main>
+  <h1>속성별 아기 동작 검토</h1>
+  <p>제공 원화의 실제 색과 눈 상태에 따라 짝을 맞춘 시험입니다. 숨쉬기 자연스러움은 승인 전 검토가 필요합니다.</p>
+  <div class="controls">
+    <button data-element="fire">불</button><button data-element="lightning">번개</button><button data-element="ice">얼음</button>
+    <button id="play">재생</button><button id="stop">정지</button>
+  </div>
+  <div class="scene playing"><img class="dragon base" src="original-cutouts/fire.png" alt="아기 드래곤"><img class="dragon layer breath" src="element-cutouts/fire-breathe.png" alt=""><img class="dragon layer blink" src="element-cutouts/fire-blink.png" alt=""></div>
+</main>
+<script>
+  const scene = document.querySelector('.scene');
+  const base = document.querySelector('.base');
+  const breath = document.querySelector('.breath');
+  const blink = document.querySelector('.blink');
+  document.querySelectorAll('[data-element]').forEach(button => button.addEventListener('click', () => {
+    const element = button.dataset.element;
+    base.src = `original-cutouts/${element}.png`;
+    breath.src = `element-cutouts/${element}-breathe.png`;
+    blink.src = `element-cutouts/${element}-blink.png`;
+  }));
+  document.querySelector('#play').addEventListener('click', () => scene.classList.add('playing'));
+  document.querySelector('#stop').addEventListener('click', () => scene.classList.remove('playing'));
+</script>
+</html>

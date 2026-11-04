@@ -50,7 +50,7 @@ test('P01-B02: 앱 등록 worker가 shell 자산을 준비하고 온라인 navig
   // When
   const state = await page.evaluate(async () => {
     const registration = await navigator.serviceWorker.getRegistration();
-    const cache = await caches.open('ewd-reading-v6');
+    const cache = await caches.open('ewd-reading-v7');
     return { script: registration.active.scriptURL, scope: registration.scope,
       paths: (await cache.keys()).map(request => new URL(request.url).pathname).sort() };
   });
@@ -74,6 +74,12 @@ test('P01-B02: 앱 등록 worker가 shell 자산을 준비하고 온라인 navig
     '/assets/dragons/baby/neutral.webp',
     '/assets/dragons/baby/breathe.webp',
     '/assets/dragons/baby/blink.webp',
+  '/assets/dragons/baby/fire-breathe.webp',
+  '/assets/dragons/baby/fire-blink.webp',
+  '/assets/dragons/baby/thunder-breathe.webp',
+  '/assets/dragons/baby/thunder-blink.webp',
+  '/assets/dragons/baby/ice-breathe.webp',
+  '/assets/dragons/baby/ice-blink.webp',
     '/assets/dragons/baby/fire.webp',
     '/assets/dragons/baby/thunder.webp',
     '/assets/dragons/baby/ice.webp',].sort());

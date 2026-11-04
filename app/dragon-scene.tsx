@@ -6,10 +6,11 @@ import { dragonArtwork, dragonBackgroundArt, dragonPropArt } from "../lib/dragon
 
 export function DragonSprite({ dragon }: { dragon: Pick<Dragon, "egg" | "days" | "element"> }) {
   const artwork = dragonArtwork(dragon);
-  const animatedBaby = dragon.days > 0 && dragon.days < 18 && dragon.element === null;
+  const animatedBaby = dragon.days > 0 && dragon.days < 18;
+  const motionPrefix = dragon.element ? `${dragon.element}-` : "";
   if (artwork) return <span className={`dragon-sprite dragon-artwork ${dragon.days >= 30 ? "is-adult-fire" : ""}`} role="img" aria-label={dragonStage(dragon.days)}>
     <img src={artwork} alt="" draggable={false} />
-    {animatedBaby && <><img className="dragon-motion-layer dragon-breath" src="/assets/dragons/baby/breathe.webp" alt="" draggable={false} /><img className="dragon-motion-layer dragon-blink" src="/assets/dragons/baby/blink.webp" alt="" draggable={false} /></>}
+    {animatedBaby && <><img className="dragon-motion-layer dragon-breath" src={`/assets/dragons/baby/${motionPrefix}breathe.webp`} alt="" draggable={false} /><img className="dragon-motion-layer dragon-blink" src={`/assets/dragons/baby/${motionPrefix}blink.webp`} alt="" draggable={false} /></>}
   </span>;
   return <span className="dragon-sprite" role="img" aria-label={dragonStage(dragon.days)} style={dragonSprite(dragon)} />;
 }

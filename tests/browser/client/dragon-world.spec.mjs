@@ -160,7 +160,7 @@ test('프로필을 바꾸면 학습 화면으로 돌아가고 다른 아이의 �
   await expect(screen.getByText('무속성 아기 드래곤 · 6/30일')).toHaveCount(0);
 });
 
-test('무속성 아기 동작과 움직임 줄이기', async ({ childCompletion: f }) => {
+test('속성별 아기 동작과 움직임 줄이기', async ({ childCompletion: f }) => {
   // Given: a neutral baby and normal motion preferences.
   const { page } = f;
   const fixture = await dragonFixture(page);
@@ -176,11 +176,21 @@ test('무속성 아기 동작과 움직임 줄이기', async ({ childCompletion:
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await expect(breath).toHaveCSS('animation-name', 'none');
   await expect(blink).toHaveCSS('opacity', '0');
-  // Given / When: an elemental baby is loaded instead.
-  fixture.state.dragons[0].element = 'fire';
+  // Given / When: each elemental baby is loaded instead.
+  for (const element of ['fire', 'thunder', 'ice']) {
+    fixture.state.dragons[0].element = element;
+    await page.reload();
+    if (await page.locator('.profile-grid').isVisible()) await openChild(page);
+    await page.getByRole('button', { name: '드래곤', exact: true }).click();
+    // Then: its own approved layers load and motion reduction remains respected.
+    await expect(page.locator('.dragon-resident .dragon-breath')).toHaveAttribute('src', `/assets/dragons/baby/${element}-breathe.webp`);
+    await expect(page.locator('.dragon-resident .dragon-blink')).toHaveAttribute('src', `/assets/dragons/baby/${element}-blink.webp`);
+    await expect.poll(() => page.locator('.dragon-resident img').evaluateAll(images => images.every(image => image.complete && image.naturalWidth > 0))).toBe(true);
+    await expect(page.locator('.dragon-resident .dragon-breath')).toHaveCSS('animation-name', 'none');
+  }
+  fixture.state.dragons[0].days = 18;
   await page.reload();
   if (await page.locator('.profile-grid').isVisible()) await openChild(page);
   await page.getByRole('button', { name: '드래곤', exact: true }).click();
-  // Then: neutral motion layers are absent.
   await expect(page.locator('.dragon-resident .dragon-motion-layer')).toHaveCount(0);
 });

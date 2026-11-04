@@ -13,6 +13,8 @@ const images = [
   ...["ancient-dragon-relic", "lava-crystal"].map((name) => [`props/${name}`, `props/${name}`, 640]),
   ...["neutral", "fire", "ice", "blink", "breathe"].map((name) => [`baby/${name}`, `baby/${name}`, 1024]),
   ["baby/lightning", "baby/thunder", 1024],
+  ...["fire", "lightning", "ice"].flatMap((element) => ["blink", "breathe"].map((motion) =>
+    [`baby/${element}-${motion}`, `baby/${element === "lightning" ? "thunder" : element}-${motion}`, 1024])),
   ["adult-fire/adult", "adult-fire", 1200],
   ...["blink-closed", "breathe-in", "01-mouth-opening", "02-forward", "03-head-rising", "04-head-raised", "charge"]
     .map((name) => [`adult-fire/${name}`, `adult-fire/${name}`, 1200]),

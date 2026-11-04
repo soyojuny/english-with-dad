@@ -32,7 +32,7 @@
 
 신규 카탈로그 migration은 용암 계곡·넓은 바위 터·중앙 화산·용암 폭포와 고대 드래곤 석비·용암 수정을 기본 무료로 추가한다. 새 알의 기본 배치는 용암 계곡·석비·수정이다. 화면과 RPC가 제공하는 목록 및 저장 가능한 ID는 이 6종으로 제한한다. 배치 계약은 background/left/right 세 자리이며 nest 입력은 거절한다. 기존 저장 행을 일괄 초기화하거나 삭제하지 않고 조회에서는 지원하는 원화만 투영하며, 명시적인 꾸미기 저장 때 현재 세 자리를 기록한다.
 
-`dragon_items`에는 `name`, `kind`, `art` 식별자와 무료 여부가 들어 있다. 이미지 바이트·base64·원본 PNG는 DB에 저장하지 않는다. 원본은 `assets/dragons/source/`, 배포 파일은 `public/assets/dragons/`다. `npm run build`가 prebuild에서 `npm run assets:dragons`를 실행해 정식 원본으로 WebP 24개를 재생성한다. 계획 폴더나 로컬 다운로드 경로에 의존하지 않는다.
+`dragon_items`에는 `name`, `kind`, `art` 식별자와 무료 여부가 들어 있다. 이미지 바이트·base64·원본 PNG는 DB에 저장하지 않는다. 원본은 `assets/dragons/source/`, 배포 파일은 `public/assets/dragons/`다. `npm run build`가 prebuild에서 `npm run assets:dragons`를 실행해 정식 원본으로 WebP 30개를 재생성한다. 계획 폴더나 로컬 다운로드 경로에 의존하지 않는다.
 
 새 원화를 추가하려면 `lib/dragon-art.ts`와 빌드 목록, 카탈로그 허용 목록(앱 `availableDragonItems`와 RPC)을 함께 갱신한다. 미지원 소품은 목록·장면·저장 모두 허용하지 않는다. 원본·출력 대응과 후속 동작 프레임 상태는 `assets/dragons/README.md`를 따른다.
 

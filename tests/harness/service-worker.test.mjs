@@ -21,12 +21,18 @@ shell.splice(3, 0,
   '/assets/dragons/baby/neutral.webp',
   '/assets/dragons/baby/breathe.webp',
   '/assets/dragons/baby/blink.webp',
+  '/assets/dragons/baby/fire-breathe.webp',
+  '/assets/dragons/baby/fire-blink.webp',
+  '/assets/dragons/baby/thunder-breathe.webp',
+  '/assets/dragons/baby/thunder-blink.webp',
+  '/assets/dragons/baby/ice-breathe.webp',
+  '/assets/dragons/baby/ice-blink.webp',
   '/assets/dragons/baby/fire.webp',
   '/assets/dragons/baby/thunder.webp',
   '/assets/dragons/baby/ice.webp',
 );
 
-function worker({ entries = [], keys = ['ewd-reading-v6'], failure, installFailure, openFailure } = {}) {
+function worker({ entries = [], keys = ['ewd-reading-v7'], failure, installFailure, openFailure } = {}) {
   const listeners = new Map();
   const cached = new Map(entries);
   const calls = { deleted: [], network: [], matches: [], added: [], opened: [], skipped: 0, claimed: 0 };
@@ -77,7 +83,7 @@ test('P01-N01: install은 현재 app shell 전체를 준비하고 새 worker를 
   await sw.dispatch('install');
   const response = await sw.dispatch('fetch', get('/assets/app-icon.svg'));
   // Then
-  assert.deepEqual(sw.calls.opened, ['ewd-reading-v6']);
+  assert.deepEqual(sw.calls.opened, ['ewd-reading-v7']);
   assert.deepEqual(sw.calls.added, shell);
   assert.equal(sw.calls.skipped, 1);
   assert.equal(response, 'shell:/assets/app-icon.svg');
@@ -86,11 +92,11 @@ test('P01-N01: install은 현재 app shell 전체를 준비하고 새 worker를 
 
 test('P01-E01: activate는 이전 cache만 삭제하고 client를 인계한다', async () => {
   // Given
-  const sw = worker({ keys: ['ewd-reading-v0', 'ewd-reading-v4', 'ewd-reading-v5', 'ewd-reading-v6', 'ewd-reading-older'] });
+  const sw = worker({ keys: ['ewd-reading-v0', 'ewd-reading-v4', 'ewd-reading-v5', 'ewd-reading-v6', 'ewd-reading-v7', 'ewd-reading-older'] });
   // When
   await sw.dispatch('activate');
   // Then
-  assert.deepEqual(sw.calls.deleted, ['ewd-reading-v0', 'ewd-reading-v4', 'ewd-reading-v5', 'ewd-reading-older']);
+  assert.deepEqual(sw.calls.deleted, ['ewd-reading-v0', 'ewd-reading-v4', 'ewd-reading-v5', 'ewd-reading-v6', 'ewd-reading-older']);
   assert.equal(sw.calls.claimed, 1);
 });
 
