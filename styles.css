@@ -1806,6 +1806,12 @@ label > textarea {
 .dragon-artwork { background: none; position: relative; }
 .dragon-artwork.is-adult-fire { aspect-ratio: 1451 / 1084; }
 .dragon-artwork img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.dragon-artwork .dragon-motion-layer { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
+.dragon-breath { animation: dragon-breathe 4s ease-in-out infinite; }
+.dragon-blink { mask-image: radial-gradient(ellipse 2.8% 2.2% at 74% 34%, black 65%, transparent 100%); animation: dragon-blink 6s linear infinite; }
+@keyframes dragon-breathe { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+@keyframes dragon-blink { 0%, 45%, 49%, 100% { opacity: 0; } 46.2%, 47.8% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .dragon-artwork .dragon-motion-layer { animation: none; } }
 .dragon-prop-art { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 .dragon-ground-shadow { position: absolute; bottom: 4%; left: 16%; width: 68%; height: 8%; background: #140b08a0; border-radius: 50%; filter: blur(4px); }
 @media (min-width: 1000px) { .dragon-decorator { grid-template-columns: minmax(0, 1fr) 300px; align-items: start; } .dragon-scene-panel { position: sticky; top: 112px; } }

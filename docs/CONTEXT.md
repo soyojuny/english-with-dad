@@ -60,9 +60,13 @@ _Avoid_: Discarded dragon, endless growth
 A decoration in a child's collection, such as a background or surrounding ornament, available initially or unlocked through learning completion. Owned items are reusable across that child's dragons, each of which keeps its own decoration choices.
 _Avoid_: Point, currency
 
-**Item Choice**:
-An opportunity earned every three eligible daily goal achievements to select one unowned dragon item, which is acquired when chosen. Unused choices accumulate without expiration while learning and automatic dragon growth continue, independently of element selection.
+**Reward Choice**:
+An opportunity earned by a child every three eligible daily goal achievements to acquire either one unowned dragon item for that child or one unowned skill for a selected dragon. A selection is acquired only when confirmed. Unused choices accumulate without expiration while learning and automatic dragon growth continue, independently of element selection.
 _Avoid_: Point, currency, expiring claim
+
+**Dragon Skill**:
+An ability acquired for an individual dragon, such as roar or breath. Breath takes the dragon's element and becomes usable from the juvenile stage after an element is chosen; roar can be used from the hatchling stage.
+_Avoid_: Shared item, dragon element
 
 **Daily Goal Achievement**:
 A day automatically recognized when a child's saved learning reaches every assigned task's target count and includes a result for every assigned quiz, with both PASS and FAIL accepted. Once recognized, achieved days accumulate toward dragon rewards and persist through breaks and later assignment or learning-record edits.

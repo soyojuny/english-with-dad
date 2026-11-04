@@ -159,3 +159,28 @@ test('프로필을 바꾸면 학습 화면으로 돌아가고 다른 아이의 �
   await expect(screen.getByText(/오늘 배정된 학습을 모두 마치면/)).toBeVisible();
   await expect(screen.getByText('무속성 아기 드래곤 · 6/30일')).toHaveCount(0);
 });
+
+test('무속성 아기 동작과 움직임 줄이기', async ({ childCompletion: f }) => {
+  // Given: a neutral baby and normal motion preferences.
+  const { page } = f;
+  const fixture = await dragonFixture(page);
+  await openChild(page);
+  await page.getByRole('button', { name: '드래곤', exact: true }).click();
+  const resident = page.locator('.dragon-resident');
+  const breath = resident.locator('.dragon-breath');
+  const blink = resident.locator('.dragon-blink');
+  // When / Then: approved layers load and animate with the intended timings.
+  await expect(breath).toHaveCSS('animation-duration', '4s');
+  await expect(blink).toHaveCSS('animation-duration', '6s');
+  await expect.poll(() => resident.locator('img').evaluateAll(images => images.every(image => image.complete && image.naturalWidth > 0))).toBe(true);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(breath).toHaveCSS('animation-name', 'none');
+  await expect(blink).toHaveCSS('opacity', '0');
+  // Given / When: an elemental baby is loaded instead.
+  fixture.state.dragons[0].element = 'fire';
+  await page.reload();
+  if (await page.locator('.profile-grid').isVisible()) await openChild(page);
+  await page.getByRole('button', { name: '드래곤', exact: true }).click();
+  // Then: neutral motion layers are absent.
+  await expect(page.locator('.dragon-resident .dragon-motion-layer')).toHaveCount(0);
+});
