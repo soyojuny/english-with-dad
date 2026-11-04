@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>불 드래곤 눈 깜빡임 미리보기</title>
+<style>
+body { margin: 0; background: #202126; color: #f5f5f5; font-family: sans-serif; text-align: center; }
+main { max-width: 1100px; margin: auto; padding: 20px; }
+h1 { font-size: 1.3rem; }
+.scene { position: relative; line-height: 0; }
+.scene img { width: 100%; height: auto; }
+.closed { position: absolute; inset: 0; opacity: 0; animation: blink 5s infinite; }
+.paused .closed { animation: none; }
+button { font: inherit; padding: .6rem 1rem; cursor: pointer; }
+@keyframes blink { 0%, 93%, 98%, 100% { opacity: 0; } 94%, 97% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .closed { animation: none; } }
+</style>
+</head>
+<body><main>
+<h1>성체 불 드래곤 · 눈 깜빡임 시험</h1>
+<p>약 5초마다 눈을 깜빡입니다. 이미지 전체의 색이 변하는지도 살펴보세요.</p>
+<button type="button" id="toggle">눈 감은 모습 보기</button>
+<div class="scene" id="scene">
+<img src="concepts/adult.png" alt="눈을 뜬 불 드래곤">
+<img class="closed" src="motions/idle/blink-closed.png" alt="" aria-hidden="true">
+</div>
+</main>
+<script>
+const scene = document.querySelector('#scene');
+const button = document.querySelector('#toggle');
+button.addEventListener('click', () => {
+  const showing = scene.classList.toggle('paused');
+  scene.querySelector('.closed').style.opacity = showing ? '1' : '';
+  button.textContent = showing ? '자동 재생으로 돌아가기' : '눈 감은 모습 보기';
+});
+</script>
+</body>
+</html>

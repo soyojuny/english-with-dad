@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>불 드래곤 포효 시험</title><style>
+body{margin:0;background:#202126;color:#f5f5f5;font-family:sans-serif;text-align:center}main{max-width:1100px;margin:auto;padding:20px}h1{font-size:1.3rem}img{width:100%;height:auto}button{font:inherit;padding:.6rem 1rem;cursor:pointer}
+</style></head><body><main><h1>성체 불 드래곤 · 포효 시험</h1><p>버튼을 누르면 대기 자세에서 고개를 들어 포효한 뒤 다시 돌아옵니다.</p><button id="roar" type="button">포효하기</button><div><img id="dragon" src="concepts/adult.png" alt="성체 불 드래곤"></div></main><script>
+const dragon=document.querySelector('#dragon');const button=document.querySelector('#roar');
+const base='concepts/adult.png';
+const frames=['motions/roar/01-mouth-opening.png','motions/roar/02-forward.png','motions/roar/03-head-rising.png','motions/roar/04-head-raised.png'];
+for(const src of frames){const image=new Image();image.src=src}
+button.addEventListener('click',()=>{button.disabled=true;const sequence=[...frames,...frames.slice(0,-1).reverse(),base];const delays=[0,180,360,540,1440,1620,1800,1980];sequence.forEach((src,index)=>setTimeout(()=>{dragon.src=src;if(index===sequence.length-1)button.disabled=false},delays[index]));});
+</script></body></html>

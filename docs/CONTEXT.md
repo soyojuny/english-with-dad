@@ -24,6 +24,14 @@ _Avoid_: Miscellaneous log, manual-only activity
 An activity category for assigning an English book as one reading-audio completion. It uses the same reading task as other book assignments, but reports under the English picture book column.
 _Avoid_: English picture book task, separate material type
 
+**DVD Catalog (공통 DVD 목록)**:
+A family's shared list of DVDs they own or watch, managed independently of the book catalog, from which DVDs can be included in or excluded from current viewing choices. The list is shared across that family's children.
+_Avoid_: Book catalog entry, child-specific DVD assignment, service-wide shared catalog
+
+**DVD Viewing Record (DVD 시청 기록)**:
+A record of a particular child's viewing of a DVD and the time spent watching it. Viewing records belong to each child; repeated viewings of the same DVD on the same day remain separate records whose durations add to that child's viewing time.
+_Avoid_: DVD ownership, book reading record
+
 **Dragon**:
 A child's dragon companion, hatched, raised, and customized through learning. The child starts by choosing an egg and earns the next egg when the dragon reaches adulthood, keeping previously raised dragons.
 _Avoid_: Human avatar, parent profile

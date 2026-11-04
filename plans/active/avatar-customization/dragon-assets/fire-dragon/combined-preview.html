@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>불 드래곤의 공간</title>
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; background: #191b21; color: #f6eee4; font-family: sans-serif; }
+main { max-width: 1600px; margin: auto; }
+header { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 20px 28px; }
+h1 { font-size: 1.4rem; margin: 0; }
+header p { margin: 6px 0 0; color: #bdb7b0; }
+.scene { position: relative; background: #e9e7e7; overflow: hidden; line-height: 0; }
+.resident { position: relative; width: 70%; }
+.resident img { display: block; width: 100%; height: auto; }
+.layer { position: absolute; inset: 0; opacity: 0; }
+.blink { clip-path: inset(24% 20% 71% 75%); }
+.flame { position: absolute; left: 54%; top: 33%; width: 44%; transform: translateY(-50%) scaleX(0); transform-origin: 0% 50%; opacity: 0; pointer-events: none; }
+.flame.active { opacity: 1; transform: translateY(-50%) scaleX(1); transition: transform .25s ease-out, opacity .1s; }
+.controls { display: flex; justify-content: center; flex-wrap: wrap; gap: 14px; padding: 22px; }
+button { min-height: 52px; padding: 12px 26px; border: 1px solid #926748; border-radius: 12px; background: #3d2b24; color: #fff1df; font: inherit; cursor: pointer; }
+button:disabled { opacity: .45; cursor: wait; }
+button:focus-visible { outline: 3px solid #ffc26b; outline-offset: 4px; }
+#status { margin: 0; text-align: center; padding-bottom: 20px; color: #d3b79c; }
+@media(max-width:600px) { header { padding: 14px; } h1 { font-size: 1.1rem; } .controls { gap: 8px; padding: 14px; } button { padding: 10px 16px; } }
+</style>
+</head>
+<body>
+<main>
+<header><div><h1>불 드래곤의 공간</h1><p>성체 · 불 속성</p></div><button id="pause" disabled>대기 멈추기</button></header>
+<div class="scene">
+<div class="resident"><img id="dragon" src="concepts/adult.png" alt="성체 불 드래곤"><img id="breath" class="layer" src="motions/idle/breathe-in.png" alt=""><img id="blink" class="layer blink" src="motions/idle/blink-closed.png" alt=""></div>
+<img id="flame" class="flame" src="effects/fire-stream-transparent.png" alt="">
+</div>
+<div class="controls"><button id="roar" disabled>포효하기</button><button id="fire" disabled>불 뿜기</button></div>
+<p id="status" role="status">드래곤을 불러오고 있어요…</p>
+</main>
+<script src="combined-preview.js"></script>
+</body>
+</html>
