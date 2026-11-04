@@ -6,7 +6,8 @@ import { ActivityLogCell } from "./activity-log-cell";
 import { ParentDvdCatalog } from "./parent-dvd-catalog";
 import { AssignmentBookPicker } from "./assignment-book-picker";
 import { AssignmentEditForm } from "./assignment-edit-form";
-import { DragonCompanion } from "./dragon-companion";
+import { DragonScreen } from "./dragon-companion";
+import { ChildActivityHeader } from "./child-activity-header";
 import { DragonCompletionCheck } from "./dragon-completion-check";
 import { useDragonWorld } from "./use-dragon-world";
 import { AssignmentQuizScore } from "./assignment-quiz-score";
@@ -133,6 +134,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   const [syncError, setSyncError] = useState("");
   const [loadedChildScopeKey, setLoadedChildScopeKey] = useState("");
   const [view, setView] = useState<ViewName>("child");
+  const [childScreen, setChildScreen] = useState<"learning" | "dragon">("learning");
   const [childId, setChildId] = useState("");
   const [period, setPeriod] = useState<Period>("week");
   const [parentPanel, setParentPanel] = useState<ParentPanel>("activity");
@@ -488,6 +490,8 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
   useEffect(() => {
     setAssignSelectedBookIds([]);
   }, [childId]);
+
+  useEffect(() => { setChildScreen("learning"); }, [activeProfile]);
 
   useEffect(() => {
     if (isLoadingData || profileLoadedRef.current) return;
@@ -1685,37 +1689,10 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
 
         {isChildProfile && view === "child" && (
           <section className="view is-active" aria-labelledby="childTitle">
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow">오늘의 학습</p>
-                <h2 id="childTitle">해야 할 활동을 바로 확인</h2>
-              </div>
-              <div className="summary-strip">
-                <span className="summary-pill">
-                  <strong>{child.name}</strong> · {child.goal}
-                </span>
-                <span className="summary-pill">
-                  <strong>{doneTaskCount}</strong>/{totalTaskCount} 완료
-                </span>
-                <span className="summary-pill">
-                  <strong>{todayAssignments.length}</strong>건 예정
-                </span>
-                <button
-                  ref={childManualLogTriggerRef}
-                  className="secondary-button child-quick-log-button"
-                  type="button"
-                  onClick={() => {
-                    setChildManualLogError("");
-                    setIsChildManualLogOpen(true);
-                  }}
-                >
-                  읽기·DVD 기록
-                </button>
-              </div>
-            </div>
-
-            <DragonCompanion key={childSelectionKey} controller={dragonController} />
-            <div className="child-grid">
+            <ChildActivityHeader name={child.name} goal={child.goal} done={doneTaskCount} total={totalTaskCount}
+              count={todayAssignments.length} dragon={childScreen === "dragon"} onDragon={(open) => setChildScreen(open ? "dragon" : "learning")}
+              logTrigger={childManualLogTriggerRef} onLog={() => { setChildManualLogError(""); setIsChildManualLogOpen(true); }} />
+            {childScreen === "dragon" ? <DragonScreen key={childSelectionKey} controller={dragonController} /> : <div className="child-grid">
               <section aria-label="오늘 해야 할 학습">
                 <div className="assignment-list">
                   {childDataStatus !== "ready" ? (
@@ -1893,7 +1870,7 @@ export default function HomePage({ ownerUserId, onSignOut, isSigningOut }: Readi
                   <div className="empty-state">{childDataStatus === "error" ? "학습 기록을 불러오지 못했습니다." : childDataStatus === "loading" ? "학습 기록을 불러오는 중입니다." : "학습 항목을 선택하세요."}</div>
                 )}
               </section>
-            </div>
+            </div>}
 
           </section>
         )}

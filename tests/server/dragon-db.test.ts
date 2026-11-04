@@ -120,37 +120,37 @@ test("성체 후 선택을 미뤄도 보상은 누적하고 다음 알은 0일�
   expect(next.totalDays).toBe(31);
 });
 
-test("소품 중복 획득은 한 번만 차감하고 자유 좌표와 아이 공용 소품을 저장한다", async () => {
+test("기본 소품은 중복 요청해도 무료이며 자유 좌표와 아이 공용 소품을 저장한다", async () => {
   // Given
   await seedGrowing(29);
-  await world("claim", { itemId: "gem" });
-  const owned = await world("claim", { itemId: "gem" });
-  const decor = defaultDragonDecor(); decor.left = { itemId: 'gem', x: 15, y: 85 };
+  const owned = await world("claim", { itemId: "lava-crystal" });
+  const decor = defaultDragonDecor(); decor.left = { itemId: 'lava-crystal', x: 15, y: 85 };
   // When
   const saved = await world("decorate", { id: dragon, version: 0, decor });
   const retried = await world("decorate", { id: dragon, version: 0, decor });
   const next = await world("egg", { id: nextDragon, egg: 0 });
   const both = await world("decorate", { id: nextDragon, version: 0, decor });
   // Then
-  expect(owned.credits).toBe(9);
-  expect(saved.dragons[0].decor.left).toEqual({ itemId: 'gem', x: 15, y: 85 });
+  expect(owned.credits).toBe(10);
+  expect(saved.dragons[0].decor.left).toEqual({ itemId: 'lava-crystal', x: 15, y: 85 });
   expect(retried.dragons[0].version).toBe(1);
-  expect(next.dragons[1].decor.left.itemId).toBe('flowers');
-  expect(both.dragons.every((entry) => entry.decor.left.itemId === 'gem')).toBe(true);
+  expect(next.dragons[1].decor.left.itemId).toBe('ancient-dragon-relic');
+  expect(both.dragons.every((entry) => entry.decor.left.itemId === 'lava-crystal')).toBe(true);
 });
 
-test("미보유·잘못된 자리·범위 밖 좌표와 다른 화면의 배치 덮어쓰기를 거절한다", async () => {
+test("제공하지 않는 소품·잘못된 자리·범위 밖 좌표와 다른 화면의 배치 덮어쓰기를 거절한다", async () => {
   // Given
   await seedGrowing(0);
   const decor = defaultDragonDecor();
   // When / Then: external JSON inputs must be rejected by the server.
-  await expect(world("decorate", { id: dragon, version: 0, decor: { ...decor, left: { itemId: 'gem', x: 50, y: 50 } } })).rejects.toThrow('먼저 소품');
-  await expect(world("decorate", { id: dragon, version: 0, decor: { ...decor, left: { itemId: 'moss', x: 50, y: 50 } } })).rejects.toThrow('없는 소품');
-  await expect(world("decorate", { id: dragon, version: 0, decor: { ...decor, left: { itemId: 'flowers', x: 101, y: 50 } } })).rejects.toThrow('장면 안');
+  await expect(world("decorate", { id: dragon, version: 0, decor: { ...decor, left: { itemId: 'gem', x: 50, y: 50 } } })).rejects.toThrow('현재 제공');
+  await expect(world("decorate", { id: dragon, version: 0, decor: { ...decor, left: { itemId: 'lava-open-foreground', x: 50, y: 50 } } })).rejects.toThrow('없는 소품');
+  await expect(world("decorate", { id: dragon, version: 0, decor: { ...decor, left: { itemId: 'lava-crystal', x: 101, y: 50 } } })).rejects.toThrow('장면 안');
   await expect(world("decorate", { id: dragon, version: 0, decor: {} })).rejects.toThrow('배치 자리');
-  await world("decorate", { id: dragon, version: 0, decor: { ...decor, left: { itemId: 'flowers', x: 50, y: 50 } } });
+  await expect(world("decorate", { id: dragon, version: 0, decor: { ...decor, nest: { itemId: null, x: 50, y: 78 } } })).rejects.toThrow('배치 자리');
+  await world("decorate", { id: dragon, version: 0, decor: { ...decor, left: { itemId: 'lava-crystal', x: 50, y: 50 } } });
   await expect(world("decorate", { id: dragon, version: 0, decor })).rejects.toThrow('다른 화면');
-  await expect(world('claim', { itemId: 'gem' })).rejects.toThrow('기회');
+  await expect(world('claim', { itemId: 'gem' })).rejects.toThrow('현재 제공');
 });
 
 test("인증된 소유자만 조회·RPC를 쓰고 원장 직접 변경과 내부 함수 호출은 금지한다", async () => {
@@ -202,19 +202,18 @@ test("비활성 책의 미완료와 FAIL은 달성을 막지 않으며 추가 �
   expect((await db.query('select * from public.dragon_days')).rows).toHaveLength(1);
 });
 
-test("모든 소품 획득 후 기회가 남으며 새 카탈로그 소품에 사용할 수 있다", async () => {
+test("현재 원화만 제공하며 새 미지원 소품도 숨기고 기회는 보존한다", async () => {
   // Given
   await seedGrowing(29);
-  let snapshot = await world();
-  for (const item of snapshot.catalog.filter((item) => !item.free)) snapshot = await world('claim', { itemId: item.id });
-  expect(snapshot.credits).toBe(2);
   // When
   await db.exec("insert into public.dragon_items values ('new-star','새 별','prop','star',false,20)");
-  const updated = await world('claim', { itemId: 'new-star' });
+  const updated = await world();
   // Then
-  expect(updated.credits).toBe(1);
-  expect(updated.owned).toContain('new-star');
-  expect(updated.catalog.find((item) => item.id === 'new-star')?.name).toBe('새 별');
+  expect(updated.credits).toBe(10);
+  expect(updated.catalog).toHaveLength(6);
+  expect(updated.catalog.every((item) => item.free)).toBe(true);
+  expect(updated.catalog.some((item) => ['new-star','moss','flowers','gem'].includes(item.id))).toBe(false);
+  await expect(world('claim', { itemId: 'new-star' })).rejects.toThrow('현재 제공');
 });
 
 test("학습 트랜잭션이 롤백되면 달성과 보상도 함께 롤백된다", async () => {
@@ -227,4 +226,46 @@ test("학습 트랜잭션이 롤백되면 달성과 보상도 함께 롤백된�
   // Then
   expect(result).toMatchObject({ credited: false, eligible: false, totalDays: 0 });
   expect((await db.query('select * from public.dragon_days')).rows).toHaveLength(0);
+});
+
+test("첫 알은 제공 원화로 시작하며 무료 배경과 장식을 기회 차감 없이 저장한다", async () => {
+  // Given: a first-release egg with the supplied default artwork and no reward credits.
+  await complete();
+  const before = await world("egg", { id: dragon, egg: 0 });
+  const freeIds = ["lava-open-foreground", "lava-stone-platform", "lava-central-volcano", "lava-waterfall", "ancient-dragon-relic", "lava-crystal"];
+  expect(before.dragons[0].decor).toEqual(defaultDragonDecor());
+  expect(before.owned).toEqual(expect.arrayContaining(freeIds));
+  expect(before.catalog.filter((item) => freeIds.includes(item.id)).every((item) => item.free)).toBe(true);
+  const decor = { ...defaultDragonDecor(), background: { itemId: "lava-open-foreground", x: 50, y: 50 },
+    left: { itemId: "ancient-dragon-relic", x: 78, y: 60 }, right: { itemId: "lava-crystal", x: 22, y: 76 } };
+  // When
+  await db.exec('set role authenticated');
+  const saved = await world("decorate", { id: dragon, version: 0, decor });
+  const claimed = await world("claim", { itemId: "lava-crystal" });
+  // Then: free items never spend a reward opportunity or add an ownership charge.
+  expect(saved.dragons[0].decor).toEqual(decor);
+  expect(claimed.credits).toBe(0);
+  expect((await db.query('select * from public.dragon_owned_items')).rows).toHaveLength(0);
+  await expect(world("decorate", { id: dragon, version: 1, decor: { ...decor, background: { itemId: "lava-crystal", x: 50, y: 70 } } })).rejects.toThrow('없는 소품');
+});
+
+test("화면 규칙 적용은 저장 행을 일괄 변경하지 않고 명시적인 저장만 새 배치를 기록한다", async () => {
+  // Given: a pre-release fixture verifies the migration never resets stored rows.
+  await complete(); await world("egg", { id: dragon, egg: 0 });
+  const draft = { background: { itemId: "meadow", x: 50, y: 50 }, nest: { itemId: "moss", x: 50, y: 78 },
+    left: { itemId: "flowers", x: 22, y: 76 }, right: { itemId: null, x: 78, y: 76 } };
+  await db.query("update public.dragons set decor=$1::jsonb, version=4 where id=$2", [JSON.stringify(draft), dragon]);
+  const sql = await readFile(resolve("supabase/migrations/20261104130000_dragon_decor_without_nest.sql"), "utf8");
+  // When
+  await db.exec(sql);
+  const visible = (await world()).dragons[0];
+  const untouched = (await db.query<{ decor: unknown; version: number }>("select decor,version from public.dragons where id=$1", [dragon])).rows[0];
+  // Then: rendering rules do not rewrite any existing data or optimistic version.
+  expect(untouched).toEqual({ decor: draft, version: 4 });
+  expect(Object.keys(visible.decor)).toEqual(expect.arrayContaining(["background", "left", "right"]));
+  expect(visible.decor).not.toHaveProperty("nest");
+  expect(visible.decor.background.itemId).toBe("lava-open-foreground");
+  expect(visible.decor.left.itemId).toBe("ancient-dragon-relic");
+  const saved = await world("decorate", { id: dragon, version: 4, decor: visible.decor });
+  expect(saved.dragons[0].version).toBe(5);
 });

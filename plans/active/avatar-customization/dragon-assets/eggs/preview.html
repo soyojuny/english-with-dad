@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>드래곤 알 3종 · 공간 미리보기</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#160f10;color:#fff0da;font-family:system-ui,sans-serif}main{max-width:1280px;margin:auto}header{padding:16px}h1{font-size:1.3rem;margin:0}p{color:#c6ad9b}.scene{position:relative;aspect-ratio:16/9;overflow:hidden;isolation:isolate}.background{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.egg{position:absolute;width:32%;left:29%;bottom:7%;z-index:2}.shadow{position:absolute;left:34%;bottom:10%;width:22%;height:4%;background:#140b08c0;border-radius:50%;filter:blur(5px);z-index:1}.relic{position:absolute;right:4%;bottom:15%;width:19%;height:51%;object-fit:contain}.crystal{position:absolute;left:2%;bottom:1%;width:17%;height:32%;object-fit:contain;z-index:3}.controls{display:flex;flex-wrap:wrap;gap:12px;padding:16px;align-items:center}label{display:flex;gap:8px;align-items:center}select{max-width:100%;min-height:48px;padding:8px;background:#35221c;border:1px solid #8c6144;border-radius:8px;color:inherit;font:inherit}.samples{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:16px}.samples figure{margin:0;text-align:center;background:#352c2a;border-radius:12px;padding:8px}.samples img{display:block;width:100%}figcaption{font-size:.9rem}.note{padding:0 16px 16px}
+</style>
+<main>
+<header><h1>드래곤 알 3종</h1><p>반점 · 띠무늬 · 마름모 — 무늬와 속성은 관계없어요.</p></header>
+<div class="scene" aria-label="기존 용암 배경과 장식 위의 드래곤 알">
+<img id="background" class="background" src="../backgrounds/lava-open-foreground.png" alt="용암 계곡">
+<img class="relic" src="../props/ancient-dragon-relic.png" alt="고대 드래곤 석비">
+<div class="shadow"></div>
+<img id="egg" class="egg" src="spotted.png" alt="반점 알">
+<img class="crystal" src="../props/lava-crystal.png" alt="용암 수정">
+</div>
+<div class="controls">
+<label>알 <select id="egg-choice"><option value="spotted">반점</option><option value="striped">띠무늬</option><option value="diamond">마름모</option></select></label>
+<label>배경 <select id="background-choice"><option value="lava-open-foreground">용암 계곡</option><option value="lava-stone-platform">넓은 바위 터</option><option value="lava-central-volcano">중앙 화산</option><option value="lava-waterfall">용암 폭포</option></select></label>
+</div>
+<div class="samples">
+<figure><img src="spotted.png" alt="반점 알 비교"><figcaption>반점</figcaption></figure>
+<figure><img src="striped.png" alt="띠무늬 알 비교"><figcaption>띠무늬</figcaption></figure>
+<figure><img src="diamond.png" alt="마름모 알 비교"><figcaption>마름모</figcaption></figure>
+</div>
+<p class="note">알 원화 확인용 독립 미리보기</p>
+</main>
+<script>
+document.querySelector('#egg-choice').addEventListener('change', event => {
+  const egg = document.querySelector('#egg');
+  egg.src = `${event.target.value}.png`;
+  egg.alt = `${event.target.selectedOptions[0].textContent} 알`;
+});
+document.querySelector('#background-choice').addEventListener('change', event => {
+  const background = document.querySelector('#background');
+  background.src = `../backgrounds/${event.target.value}.png`;
+  background.alt = event.target.selectedOptions[0].textContent;
+});
+</script>
+</html>

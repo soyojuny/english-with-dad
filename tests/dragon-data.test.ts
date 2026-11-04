@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { clampDragonPosition, defaultDragonDecor, dragonSprite, dragonStage, missingDragonLearning } from "../lib/dragon-data";
+import { availableDragonItems, clampDragonPosition, defaultDragonDecor, dragonSprite, dragonStage, missingDragonLearning } from "../lib/dragon-data";
+import type { DragonItem } from "../lib/dragon-types";
 import { emptyReadingData } from "../lib/reading-data";
 import type { Assignment } from "../lib/reading-types";
 
@@ -39,7 +40,28 @@ test("각 드래곤의 기본 배치는 서로 독립적이다", () => {
   // When
   first.left.x = 70;
   // Then
-  assert.equal(second.left.x, 22);
+  assert.equal(second.left.x, 82);
+});
+test("첫 배치는 둥지 없이 제공 배경과 장식으로 구성한다", () => {
+  // Given
+  const expectedSlots = ["background", "left", "right"];
+  // When
+  const decor = defaultDragonDecor();
+  // Then
+  assert.deepEqual(Object.keys(decor), expectedSlots);
+  assert.equal(decor.background.itemId, "lava-open-foreground");
+  assert.equal(decor.left.itemId, "ancient-dragon-relic");
+  assert.equal(decor.right.itemId, "lava-crystal");
+});
+test("제공하지 않는 ID·잘못된 원화·유료 항목은 꾸미기 목록에 노출하지 않는다", () => {
+  // Given
+  const crystal: DragonItem = { id: "lava-crystal", name: "용암 수정", kind: "prop", art: "lava-crystal", free: true };
+  const catalog: DragonItem[] = [crystal, { ...crystal, id: "flowers" }, { ...crystal, art: "gem" }, { ...crystal, free: false }, { ...crystal, kind: "background" }];
+  // When
+  const result = availableDragonItems(catalog);
+  // Then
+  assert.deepEqual(result, [crystal]);
+  assert.deepEqual(availableDragonItems([]), []);
 });
 const assignment: Assignment = { id: "a", childId: "c", bookId: "b", date: "2026-11-03", activityCategory: "focusListen", tasks: ["self"], taskCounts: { self: 2 }, quizEnabled: true, quizScore: null };
 test("남은 학습은 목표 횟수와 미입력 퀴즈를 각각 안내한다", () => {

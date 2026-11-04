@@ -2,8 +2,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { DragonController } from "./use-dragon-world";
 import { DragonScene, DragonSprite } from "./dragon-scene";
-import { clampDragonPosition, defaultDragonDecor, dragonEggs, dragonElements, dragonSlotLabels, dragonSlots, dragonStage } from "../lib/dragon-data";
+import { availableDragonItems, clampDragonPosition, defaultDragonDecor, dragonEggs, dragonElements, dragonSlotLabels, dragonSlots, dragonStage } from "../lib/dragon-data";
 import type { Dragon, DragonDecor, DragonElement, DragonSlot } from "../lib/dragon-types";
+import { dragonBackgroundArt, dragonPropArt } from "../lib/dragon-art";
 
 export function DragonFeedback({ controller }: { controller: DragonController }) {
   return <div aria-live="polite">
@@ -12,24 +13,15 @@ export function DragonFeedback({ controller }: { controller: DragonController })
       <button type="button" disabled={controller.pending} onClick={() => void controller.run(controller.retry ?? { action: "sync" })}>반영 다시 확인</button><button type="button" disabled={controller.pending} onClick={() => void controller.run({ action: "sync" })}>최신 상태 불러오기</button></div>}
   </div>;
 }
-export function DragonCompanion({ controller }: { controller: DragonController }) {
-  const [open, setOpen] = useState(false);
-  const trigger = useRef<HTMLButtonElement>(null);
-  const world = controller.world;
-  const growing = world?.dragons.at(-1);
-  return <section className="dragon-companion" aria-label="나의 드래곤">
-    <button ref={trigger} type="button" className="dragon-summary" disabled={!world} onClick={() => setOpen(true)}>
-      <DragonSprite dragon={growing ?? { egg: 0, days: 0, element: null }} />
-      <span><strong>{growing ? `${dragonStage(growing.days)} · ${growing.days}/30일` : world?.eligible ? "첫 알을 고를 수 있어요!" : "오늘의 학습을 마치면 알을 만나요"}</strong>
-        <span>{world?.dragons.length ? `다음 소품 선택 기회까지 ${3 - world.totalDays % 3}일 · 모아 둔 기회 ${world.credits}개` : "알을 고른 다음 달성일부터 자라요"}</span>
-        <span className="dragon-open-label">드래곤 보기 · 꾸미기 →</span></span>
-    </button>
+export function DragonScreen({ controller }: { controller: DragonController }) {
+  if (!controller.world) return <section className="dragon-screen" aria-label="드래곤 키우기">
     <DragonFeedback controller={controller} />
-    {open && world && <DragonDialog controller={controller} onClose={() => { setOpen(false); trigger.current?.focus(); }} />}
+    {!controller.pending && !controller.error && <p>드래곤을 불러오는 중이에요.</p>}
   </section>;
+  return <DragonWorldScreen controller={controller} />;
 }
-function DragonDialog({ controller, onClose }: { controller: DragonController; onClose: () => void }) {
-  const dialog = useRef<HTMLDialogElement>(null);
+function DragonWorldScreen({ controller }: { controller: DragonController }) {
+  const heading = useRef<HTMLHeadingElement>(null);
   const world = controller.world!;
   const [selectedId, setSelectedId] = useState(world.dragons.at(-1)?.id ?? "");
   const [choosing, setChoosing] = useState(!world.dragons.length);
@@ -37,17 +29,12 @@ function DragonDialog({ controller, onClose }: { controller: DragonController; o
   const [eggRequest, setEggRequest] = useState(() => crypto.randomUUID());
   const dragon = world.dragons.find((entry) => entry.id === selectedId) ?? world.dragons.at(-1);
   const canChooseEgg = world.eligible && !world.dragons.some((entry) => entry.days < 30);
-  useEffect(() => {
-    const target = dialog.current!; target.showModal();
-    const previous = document.documentElement.style.overflow;
-    document.documentElement.style.overflow = "hidden";
-    return () => { target.close(); document.documentElement.style.overflow = previous; };
-  }, []);
-  return <dialog ref={dialog} className="dragon-dialog" aria-labelledby="dragon-dialog-title" onCancel={(event) => { event.preventDefault(); onClose(); }}>
-    <header><div><p className="eyebrow">함께 읽고 함께 자라요</p><h2 id="dragon-dialog-title">작은 드래곤의 숲</h2></div><button type="button" aria-label="드래곤 닫기" onClick={onClose}>닫기</button></header>
+  useEffect(() => { heading.current?.focus({ preventScroll: true }); }, []);
+  return <section className="dragon-screen" aria-label="드래곤 키우기">
+    <h3 ref={heading} tabIndex={-1}>드래곤의 공간</h3>
     <DragonFeedback controller={controller} />
     <p className="dragon-rewards">전체 보상 달성 {world.totalDays}일 · 소품 선택 기회 <strong>{world.credits}개</strong></p>
-    {world.catalog.every((item) => world.owned.includes(item.id)) && <p>소품을 모두 모았어요! 새 소품을 위한 선택 기회는 계속 보관해요.</p>}
+    <p>배경과 장식은 모두 기본 제공이에요. 새로운 소품을 위한 선택 기회는 계속 보관해요.</p>
     {choosing && canChooseEgg ? <section className="dragon-egg-picker">
       <h3>{world.dragons.length ? "다음 친구를 만나볼까요?" : "첫 알을 골라 주세요"}</h3>
       <div className="dragon-baby-preview"><DragonSprite dragon={{ egg: 0, days: 1, element: null }} /><p>어떤 알이든 이런 아기로 만나요.<br />무늬와 속성은 관계없어요.</p></div>
@@ -71,29 +58,33 @@ function DragonDialog({ controller, onClose }: { controller: DragonController; o
       </section>}
       <DragonDecorator key={`${dragon.id}:${dragon.version}`} dragon={dragon} controller={controller} />
     </> : <p>오늘 배정된 학습을 모두 마치면 첫 알을 고를 수 있어요. 쉬는 날에도 기존 누적은 유지돼요.</p>}
-  </dialog>;
+  </section>;
 }
 function DragonDecorator({ dragon, controller }: { dragon: Dragon; controller: DragonController }) {
   const world = controller.world!;
   const [decor, setDecor] = useState<DragonDecor>(dragon.decor);
-  const [slot, setSlot] = useState<DragonSlot>("left");
+  const [slot, setSlot] = useState<DragonSlot>("background");
   const [message, setMessage] = useState("");
-  const preview = dragonSlots.some((key) => decor[key].itemId && !world.owned.includes(decor[key].itemId!));
+  const catalog = availableDragonItems(world.catalog);
   const dirty = JSON.stringify(decor) !== JSON.stringify(dragon.decor);
   const move = (target: DragonSlot, x: number, y: number) => { setMessage(""); setDecor((current) => ({ ...current, [target]: { ...current[target], ...clampDragonPosition(x, y) } })); };
-  const selectedItem = world.catalog.find((entry) => entry.id === decor[slot].itemId);
   return <section className="dragon-decorator" aria-label="공간 꾸미기">
-    <DragonScene dragon={dragon} decor={decor} catalog={world.catalog} selected={slot} onSelect={setSlot} onMove={controller.pending ? undefined : move} />
-    <p>{preview ? "미리보기 중이에요. 소품을 받은 뒤 저장할 수 있어요." : "둥지와 장식을 끌어 옮겨 보세요. 배치를 마치면 저장해 주세요."}</p>
+    <div className="dragon-scene-panel"><DragonScene dragon={dragon} decor={decor} catalog={catalog} selected={slot} onSelect={setSlot} onMove={controller.pending ? undefined : move} />
+      <p className="dragon-scene-caption">{dragonStage(dragon.days)} · {dragon.days}/30일</p>
+    </div>
+    <div className="dragon-tools"><h4>공간 꾸미기</h4>
+    <p>배경을 고르고 장식을 끌어 옮겨 보세요. 배치를 마치면 저장해 주세요.</p>
     <div className="dragon-slot-options">{dragonSlots.map((key) => <button type="button" key={key} aria-pressed={slot === key} onClick={() => setSlot(key)}>{dragonSlotLabels[key]}</button>)}</div>
-    <div className="dragon-item-options">{world.catalog.filter((item) => item.kind === (slot === "left" || slot === "right" ? "prop" : slot)).map((item) => <button key={item.id} type="button" aria-pressed={decor[slot].itemId === item.id} disabled={controller.pending} onClick={() => { setMessage(""); setDecor((current) => ({ ...current, [slot]: { ...current[slot], itemId: item.id } })); }}>{item.name}<small>{world.owned.includes(item.id) ? "보유" : "미리보기"}</small></button>)}
+    <div className="dragon-item-options">{catalog.filter((item) => item.kind === (slot === "background" ? "background" : "prop")).map((item) => {
+      return <button key={item.id} type="button" aria-label={`${item.name} 기본 제공`} aria-pressed={decor[slot].itemId === item.id} disabled={controller.pending} onClick={() => { setMessage(""); setDecor((current) => ({ ...current, [slot]: { ...current[slot], itemId: item.id } })); }}><img className="dragon-item-thumb" src={item.kind === "background" ? dragonBackgroundArt[item.art] : dragonPropArt[item.art]} alt="" />{item.name}<small>기본 제공</small></button>;
+    })}
       {(slot === "left" || slot === "right") && <button type="button" disabled={controller.pending} onClick={() => setDecor((current) => ({ ...current, [slot]: { ...current[slot], itemId: null } }))}>비우기</button>}
     </div>
-    {selectedItem && !world.owned.includes(selectedItem.id) && <button type="button" disabled={controller.pending || world.credits < 1} onClick={() => void controller.run({ action: "claim", itemId: selectedItem.id })}>{selectedItem.name} 받기 · 기회 1개</button>}
     {slot !== "background" && <div className="dragon-move-controls" aria-label="소품 위치 조정">{[["왼쪽", -3, 0], ["오른쪽", 3, 0], ["위", 0, -3], ["아래", 0, 3]].map(([label, dx, dy]) => <button type="button" key={label} disabled={controller.pending || !decor[slot].itemId} onClick={() => move(slot, decor[slot].x + Number(dx), decor[slot].y + Number(dy))}>{label}</button>)}
       <button type="button" disabled={controller.pending} onClick={() => { const original = defaultDragonDecor()[slot]; move(slot, original.x, original.y); }}>기본 위치</button></div>}
-    <div className="dragon-save-controls"><button type="button" className="primary-button" disabled={controller.pending || preview || !dirty} onClick={async () => { if (await controller.run({ action: "decorate", id: dragon.id, version: dragon.version, decor })) setMessage("꾸미기를 저장했어요."); }}>꾸미기 저장</button>
+    <div className="dragon-save-controls"><button type="button" className="primary-button" disabled={controller.pending || !dirty} onClick={async () => { if (await controller.run({ action: "decorate", id: dragon.id, version: dragon.version, decor })) setMessage("꾸미기를 저장했어요."); }}>꾸미기 저장</button>
       <button type="button" disabled={controller.pending || !dirty} onClick={() => { setDecor(dragon.decor); setMessage("저장 전 변경을 취소했어요."); }}>변경 취소</button></div>
-    <p aria-live="polite">{message || (dirty ? "아직 저장하지 않은 배치예요. 다른 드래곤을 보거나 닫으면 저장되지 않아요." : "저장된 배치예요.")}</p>
+    <p aria-live="polite">{message || (dirty ? "아직 저장하지 않은 배치예요. 다른 드래곤이나 오늘의 학습으로 이동하면 저장되지 않아요." : "저장된 배치예요.")}</p>
+    </div>
   </section>;
 }

@@ -1,16 +1,21 @@
-import type { Dragon, DragonDecor, DragonSlot } from "./dragon-types";
+import type { Dragon, DragonDecor, DragonItem, DragonSlot } from "./dragon-types";
 import type { Assignment, ReadingData, TaskType } from "./reading-types";
 import { getAssignmentTaskCount, getCompletionCount } from "./reading-calculations";
 import { taskDefinitions } from "./reading-data";
 
-export const dragonSlots: DragonSlot[] = ["background", "nest", "left", "right"];
-export const dragonSlotLabels: Record<DragonSlot, string> = { background: "배경", nest: "둥지", left: "장식 1", right: "장식 2" };
+export const dragonSlots: DragonSlot[] = ["background", "left", "right"];
+export const dragonSlotLabels: Record<DragonSlot, string> = { background: "배경", left: "장식 1", right: "장식 2" };
+export const dragonDecorationIds = ["lava-open-foreground", "lava-stone-platform", "lava-central-volcano", "lava-waterfall", "ancient-dragon-relic", "lava-crystal"];
+export function availableDragonItems(catalog: DragonItem[]) {
+  return catalog.filter((item) => dragonDecorationIds.includes(item.id) && item.art === item.id && item.free
+    && item.kind === (dragonDecorationIds.indexOf(item.id) < 4 ? "background" : "prop"));
+}
 export const dragonElements = { fire: "불", thunder: "번개", ice: "얼음" } as const;
-export const dragonEggs = ["반짝 무늬 알", "물결 무늬 알", "마름모 무늬 알"];
+export const dragonEggs = ["반점 무늬 알", "물결 무늬 알", "마름모 무늬 알"];
 export function defaultDragonDecor(): DragonDecor {
   return {
-    background: { itemId: "meadow", x: 50, y: 50 }, nest: { itemId: "moss", x: 50, y: 78 },
-    left: { itemId: "flowers", x: 22, y: 76 }, right: { itemId: null, x: 78, y: 76 },
+    background: { itemId: "lava-open-foreground", x: 50, y: 50 },
+    left: { itemId: "ancient-dragon-relic", x: 82, y: 60 }, right: { itemId: "lava-crystal", x: 15, y: 82 },
   };
 }
 export function dragonStage(days: number) {

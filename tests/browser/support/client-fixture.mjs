@@ -35,8 +35,8 @@ export const test = base.extend({
             res.setHeader('Content-Type', 'application/javascript'); res.end(await readFile(join(directory, 'app.js')));
           } else if (req.url === '/styles.css') {
             res.setHeader('Content-Type', 'text/css'); res.end(await readFile(join(root, 'styles.css')));
-          } else if (req.url === '/assets/dragons/dragons-v2.png') {
-            res.setHeader('Content-Type', 'image/png'); res.end(await readFile(join(root, 'public/assets/dragons/dragons-v2.png')));
+          } else if (/^\/assets\/dragons\/(?:[a-z0-9-]+\/)*[a-z0-9-]+\.(?:png|webp)$/.test(req.url)) {
+            res.setHeader('Content-Type', req.url.endsWith('.webp') ? 'image/webp' : 'image/png'); res.end(await readFile(join(root, 'public', req.url)));
           } else if (req.url === '/assets/app-icon.svg') {
             res.setHeader('Content-Type', 'image/svg+xml'); res.end(await readFile(join(root, 'public/assets/app-icon.svg')));
           } else if (req.url === '/') {

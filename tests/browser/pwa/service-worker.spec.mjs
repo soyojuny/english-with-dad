@@ -50,7 +50,7 @@ test('P01-B02: 앱 등록 worker가 shell 자산을 준비하고 온라인 navig
   // When
   const state = await page.evaluate(async () => {
     const registration = await navigator.serviceWorker.getRegistration();
-    const cache = await caches.open('ewd-reading-v2');
+    const cache = await caches.open('ewd-reading-v5');
     return { script: registration.active.scriptURL, scope: registration.scope,
       paths: (await cache.keys()).map(request => new URL(request.url).pathname).sort() };
   });
@@ -60,7 +60,21 @@ test('P01-B02: 앱 등록 worker가 shell 자산을 준비하고 온라인 navig
   expect(state.scope).toBe(`${nextApp.origin}/`);
   expect(state.paths).toEqual(['/', '/assets/app-icon-192.png', '/assets/app-icon-512.png',
     '/assets/app-icon.svg', '/assets/covers/berenstain-doctor.jpg', '/assets/covers/bones.jpg',
-    '/assets/covers/monthly-filled.jpg', '/assets/dragons/dragons-v2.png', '/manifest.webmanifest']);
+    '/assets/covers/monthly-filled.jpg', '/assets/dragons/dragons-v2.png', '/manifest.webmanifest',
+    '/assets/dragons/eggs/spotted.webp',
+    '/assets/dragons/eggs/striped.webp',
+    '/assets/dragons/eggs/diamond.webp',
+    '/assets/dragons/habitats/lava-open-foreground.webp',
+    '/assets/dragons/habitats/lava-stone-platform.webp',
+    '/assets/dragons/habitats/lava-central-volcano.webp',
+    '/assets/dragons/habitats/lava-waterfall.webp',
+    '/assets/dragons/props/ancient-dragon-relic.webp',
+    '/assets/dragons/props/lava-crystal.webp',
+    '/assets/dragons/adult-fire.webp',
+    '/assets/dragons/baby/neutral.webp',
+    '/assets/dragons/baby/fire.webp',
+    '/assets/dragons/baby/thunder.webp',
+    '/assets/dragons/baby/ice.webp',].sort());
   expect(response.fromServiceWorker()).toBe(true);
   expect(response.status()).toBe(200);
   await expect(page.getByRole('heading', { name: '인증 링크를 다시 확인해 주세요' })).toBeVisible();

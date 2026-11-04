@@ -1,5 +1,5 @@
 export type DragonElement = "fire" | "thunder" | "ice";
-export type DragonSlot = "background" | "nest" | "left" | "right";
+export type DragonSlot = "background" | "left" | "right";
 export type DragonPlacement = { itemId: string | null; x: number; y: number };
 export type DragonDecor = Record<DragonSlot, DragonPlacement>;
 export type Dragon = {
@@ -14,7 +14,7 @@ export type Dragon = {
 export type DragonItem = {
   id: string;
   name: string;
-  kind: "background" | "nest" | "prop";
+  kind: "background" | "prop";
   art: string;
   free: boolean;
 };

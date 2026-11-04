@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>아기 드래곤 에셋 미리보기</title>
+<style>
+  body { margin: 0; padding: 16px; font-family: sans-serif; background: #202329; color: white; }
+  main { max-width: 1100px; margin: auto; }
+  .scene { position: relative; aspect-ratio: 16/9; background: center/cover url('../dragon-assets/backgrounds/lava-open-foreground.png'); }
+  .dragon { position: absolute; width: 54%; left: 15%; bottom: 4%; }
+  .dragon.layer { opacity: 0; pointer-events: none; }
+  .dragon.breathing { animation: breathe 4s ease-in-out infinite; }
+  .dragon.blinking { mask-image: radial-gradient(ellipse 2.8% 2.2% at 74% 34%, black 65%, transparent 100%); animation: blink 6s linear infinite; }
+  @keyframes breathe { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+  @keyframes blink { 0%, 45%, 49%, 100% { opacity: 0; } 46.2%, 47.8% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .dragon.layer { animation: none; } }
+  .controls { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+  button { padding: 10px; }
+</style>
+<main>
+  <h1>아기 드래곤 에셋 미리보기</h1>
+  <p>기본 모습과 동작 프레임을 비교합니다. 앱 적용 전 검토용입니다.</p>
+  <div class="controls">
+    <button data-image="neutral">무속성</button><button data-image="blink">눈 감기</button><button data-image="breathe">들숨</button>
+    <button data-image="fire">불</button><button data-image="lightning">번개</button><button data-image="ice">얼음</button>
+    <button id="play">눈 깜빡임·호흡 재생</button><button id="stop">정지</button>
+  </div>
+  <div class="scene"><img class="dragon base" src="original-cutouts/neutral.png" alt="아기 드래곤"><img class="dragon layer breath" src="original-cutouts/breathe.png" alt=""><img class="dragon layer blink" src="original-cutouts/blink.png" alt=""></div>
+</main>
+<script>
+  const dragon = document.querySelector('.dragon.base');
+  const breath = document.querySelector('.dragon.breath');
+  const blink = document.querySelector('.dragon.blink');
+  const show = name => { dragon.src = `original-cutouts/${name}.png`; };
+  function stop() { breath.classList.remove('breathing'); blink.classList.remove('blinking'); }
+  document.querySelectorAll('[data-image]').forEach(button => button.addEventListener('click', () => {
+    stop(); show(button.dataset.image);
+  }));
+  document.querySelector('#play').addEventListener('click', () => {
+    stop(); show('neutral');
+    requestAnimationFrame(() => { breath.classList.add('breathing'); blink.classList.add('blinking'); });
+  });
+  document.querySelector('#stop').addEventListener('click', () => { stop(); show('neutral'); });
+</script>
+</html>

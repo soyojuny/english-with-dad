@@ -1,8 +1,22 @@
-const cacheName = "ewd-reading-v2";
+const cacheName = "ewd-reading-v5";
 const appShell = [
   "/",
   "/manifest.webmanifest",
   "/assets/dragons/dragons-v2.png",
+  "/assets/dragons/eggs/spotted.webp",
+  "/assets/dragons/eggs/striped.webp",
+  "/assets/dragons/eggs/diamond.webp",
+  "/assets/dragons/habitats/lava-open-foreground.webp",
+  "/assets/dragons/habitats/lava-stone-platform.webp",
+  "/assets/dragons/habitats/lava-central-volcano.webp",
+  "/assets/dragons/habitats/lava-waterfall.webp",
+  "/assets/dragons/props/ancient-dragon-relic.webp",
+  "/assets/dragons/props/lava-crystal.webp",
+  "/assets/dragons/adult-fire.webp",
+  "/assets/dragons/baby/neutral.webp",
+  "/assets/dragons/baby/fire.webp",
+  "/assets/dragons/baby/thunder.webp",
+  "/assets/dragons/baby/ice.webp",
   "/assets/app-icon.svg",
   "/assets/app-icon-192.png",
   "/assets/app-icon-512.png",

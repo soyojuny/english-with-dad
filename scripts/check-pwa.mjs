@@ -37,11 +37,31 @@ for (const icon of manifest.icons ?? []) {
 }
 
 const sw = await readFile(serviceWorkerPath, "utf8");
+if (!sw.includes('const cacheName = "ewd-reading-v5";')) fail("approved baby artwork requires the v5 cache");
 const appShellMatch = sw.match(/const appShell = \[([\s\S]*?)\];/);
 if (!appShellMatch) fail("service worker appShell array not found");
 
 const cachedUrls = [...(appShellMatch?.[1] ?? "").matchAll(/"([^"]+)"/g)].map((match) => match[1]);
 if (!cachedUrls.includes("/assets/dragons/dragons-v2.png")) fail("dragon scene artwork must be cached");
+const dragonArtwork = [
+  "/assets/dragons/eggs/spotted.webp",
+  "/assets/dragons/eggs/striped.webp",
+  "/assets/dragons/eggs/diamond.webp",
+  "/assets/dragons/habitats/lava-open-foreground.webp",
+  "/assets/dragons/habitats/lava-stone-platform.webp",
+  "/assets/dragons/habitats/lava-central-volcano.webp",
+  "/assets/dragons/habitats/lava-waterfall.webp",
+  "/assets/dragons/props/ancient-dragon-relic.webp",
+  "/assets/dragons/props/lava-crystal.webp",
+  "/assets/dragons/adult-fire.webp",
+  "/assets/dragons/baby/neutral.webp",
+  "/assets/dragons/baby/fire.webp",
+  "/assets/dragons/baby/thunder.webp",
+  "/assets/dragons/baby/ice.webp",
+];
+for (const url of dragonArtwork) {
+  if (!cachedUrls.includes(url)) fail(`dragon artwork must be cached: ${url}`);
+}
 for (const url of cachedUrls) {
   if (url === "/") continue;
   if (!existsSync(publicPath(url))) {

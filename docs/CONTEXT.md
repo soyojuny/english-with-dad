@@ -57,7 +57,7 @@ A dragon whose growth is complete and which remains in the child's collection, a
 _Avoid_: Discarded dragon, endless growth
 
 **Dragon Item**:
-A decoration in a child's collection, such as a background, nest, or surrounding ornament, available initially or unlocked through learning completion. Owned items are reusable across that child's dragons, each of which keeps its own decoration choices.
+A decoration in a child's collection, such as a background or surrounding ornament, available initially or unlocked through learning completion. Owned items are reusable across that child's dragons, each of which keeps its own decoration choices.
 _Avoid_: Point, currency
 
 **Item Choice**:

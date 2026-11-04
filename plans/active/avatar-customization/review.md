@@ -150,3 +150,54 @@
 - 실제 Next/PWA 브라우저 4개, 관련 정적 검사/서비스워커 하네스 34개 통과. 브라우저와 하위 프로세스 제한은 승인된 샌드박스 외 로컬 실행으로 검증했다.
 - 정상·경계·잘못된 입력을 검토하고 Given–When–Then 테스트를 추가했다. 내부 타입 강제 위조 대신 JSON RPC의 미보유 소품·잘못된 자리·좌표·권한 거절을 검증했다.
 - 원격 DB 마이그레이션 적용·실서비스 배포·푸시는 수행하지 않았다. 배포 전 마이그레이션 적용과 실제 Supabase 동작 확인이 필요하다.
+## 드래곤 전용 화면 통합 · 2026-11-04
+
+사용자가 전용 화면 구성과 무료 꾸미기 추가를 승인했다. 최신 계약은 `tasks/06-dragon-screen.md`다.
+
+- `읽기·DVD 기록` 옆 드래곤 버튼으로 진입하고 `오늘의 학습으로` 복귀한다. 상단 드래곤 요약 바와 작은 dialog를 제거하고, 16:9 장면과 1000px 이상에서 옆으로 배치되는 꾸미기 도구를 제공한다.
+- 헤더를 `ChildActivityHeader`로 분리해 주 클라이언트 셸은 118,918 bytes로 예산 이내다. 프로필 전환 시 학습 화면으로 돌아가고 기존 hook의 아동별 조회 격리를 유지한다.
+- 알 3종·불 성체·용암 배경 4종·석비·용암 수정의 WebP 10개를 연결했다(합계 1,131,504 bytes). 나머지 단계/속성은 기존 원화다. 새 스킬·자동 액션은 추가하지 않았다.
+- 무료 항목 6개를 추가하는 migration은 기존 ID·무료 여부·보유 내역·배치를 바꾸지 않는다. authenticated RPC로 기회 0개 상태에서 새 항목을 저장하고 무료 획득을 재시도해도 기회 차감·유료 소유 행이 생기지 않음을 확인했다. 기존 RLS와 소유자 격리 경로를 유지한다.
+- 학습 화면의 반영 확인/오류/재시도 안내를 완료 확인 영역으로 옮겼다. 작은 드래곤 바 제거 후에도 기존 저장 결과 안내를 보존한다.
+- PWA manifest 설명과 `ewd-reading-v3` 캐시, 정적 검사 및 fixture를 함께 갱신했다. 실제 Next/PWA에서 새 10개 에셋을 포함한 캐시와 offline shell 동작을 확인했다.
+
+검증 결과:
+
+- 최종 `npm run verify` 통과: 계약·SW·PWA·단위 309개·타입·프로덕션 빌드.
+- 관련 component/hook 12개, 실제 migration을 적용하는 로컬 PGlite DB 19개 통과.
+- client HTTP 브라우저: 기존 학습 완료 27개 통과, 최종 드래곤 7개+기록 팝업 12개 통과. 320·390·800·1280px의 저장·취소·획득·드래그·복귀·프로필 격리와 기존 기록 흐름을 검증했다.
+- 기존 기록 팝업 테스트의 `getByLabel('시간', exact)`가 옵션 텍스트까지 포함해 실패하는 것을 DOM/접근성 snapshot으로 확인했다. 앱 동작은 바꾸지 않고 실제 combobox 접근성 이름으로 선택하도록 테스트만 수정했다.
+- 실제 Next/PWA 4개, 서비스워커 하네스 15개와 정적 검사 하네스 19개 통과. 브라우저/빌드와 하위 프로세스 검사는 승인된 로컬 샌드박스 외 실행을 사용했다.
+- 정상·경계·잘못된 입력 관점에서 무료 저장·초기 조회 실패·알 자격 없음·저장 실패/대기·기존 서버 입력 거절을 확인했다. 타입으로 불가능한 값을 강제 생성하지 않았다.
+- 최종 캡처 `dragon-screen-egg-1280.png`, `dragon-screen-adult-1280.png`, `dragon-screen-390.png`를 보존했다. 태블릿/모바일 캡처를 직접 열어 배치를 확인했다. 기존 둥지 원화는 유지한다.
+
+실제 기기 터치·성능과 원격 Supabase 적용은 별도다. 원격 DB에 `20261104120000_dragon_habitat_items.sql` 적용 후 무료 카탈로그가 실제 서비스에 나타난다(기존 dragon_world migration 선행). 원격 DB 변경·커밋·푸시·배포는 하지 않았다. 스킬 보상 조건과 아이가 누르는 액션 버튼은 후속 작업이다.
+
+## 첫 출시 원화·꾸미기 수정 · 2026-11-04
+
+최신 범위는 `tasks/07-release-assets-and-decor.md`다. 첫 출시이므로 과거 데이터 호환을 위한 확장은 하지 않는다는 사용자 지침을 반영했다.
+
+- 둥지 UI·장면·타입·새 저장 계약을 제거했다. 배경 4종을 썸네일로 고르며 석비·용암 수정만 장식한다. 예전 숲·이모지·보상 소품은 목록과 장면에 나오지 않고 RPC도 저장을 거절한다. 초기 배경 선택 탭과 기본 장식을 바로 제공한다.
+- 승인 PNG 24개를 `assets/dragons/source/`로 승격했다. Sharp를 직접 개발 의존성으로 고정하고 `assets:dragons`와 `prebuild`를 추가했다. 빌드에서 계획·다운로드 폴더 없이 WebP 24개를 생성한다. 아기 4모습도 실제 앱 원화에 연결했다. 새 이미지 바이트는 DB에 저장하지 않는다.
+- 연결 DB의 기존 함수 본문 해시가 저장소 기준과 같고 새 habitat migration이 없음을 읽기 전용으로 확인했다. 카탈로그 추가와 최종 `dragon_decor_without_nest` migration을 원격 적용했다. 배경/장식 6개가 무료이고 새 기본 배치가 3자리이며 익명 RPC 실행은 금지됨을 확인했다.
+- 최초 일괄 배치 초기화·옛 카탈로그 삭제안은 자동 승인 검토에서 실제 드래곤 행이 있어 거절됐다. 그 작업은 수행하지 않았다. UPDATE/DELETE와 기존 제약 변경을 제거한 안전한 migration으로 대체했다. 기존 행·버전은 그대로이며 조회에는 지원하는 원화만 투영한다. 명시적 꾸미기 저장 시에만 새 배치를 기록한다. 이 동작을 실제 migration 재적용 테스트로 확인했다.
+- Supabase security advisor를 전후 확인했고 경고 구성은 동일했다. 기존 함수 search_path·rls_auto_enable 권한·비밀번호 유출 보호 경고는 이번 변경 범위 밖이다. dragon_world의 authenticated definer 실행은 기존 소유자 검증·원장 보호 계약에 필요한 권한이며 anon 실행은 금지다. 참고: [search_path](https://supabase.com/docs/guides/database/database-linter?lint=0011_function_search_path_mutable), [definer 권한](https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable), [비밀번호 보호](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection).
+
+최종 검증:
+
+- `npm run verify` 통과: 계약·SW·PWA·단위 311개·타입·에셋 생성·프로덕션 빌드.
+- 관련 component/hook 13개, 실제 로컬 PostgreSQL migration/RPC/RLS 20개 통과.
+- 드래곤 브라우저 7개 통과: 320·390·800·1280px에서 배경 4종 전환·기본 장식 드래그·저장·복원·취소·학습/기록 복귀·프로필 분리. 배경 탭이 기본이므로 복원 테스트에서도 장식 탭을 선택한 후 위치 복원을 검사한다.
+- 실제 Next/PWA 4개, SW/정적 검사 하네스 34개 통과. v4 캐시에 아기 4종을 포함해 정적 원화를 제공한다. 후속 액션 프레임은 배포 경로에만 준비했고 자동 재생하지 않는다.
+- 1280px 알/아기와 390px 화면을 직접 검토하고 `dragon-screen-egg-1280.png`, `dragon-screen-baby-1280.png`, `dragon-screen-adult-1280.png`, `dragon-screen-390.png`를 갱신했다.
+
+웹 서버 배포·커밋·푸시는 하지 않았다. 실제 기기의 터치·성능은 별도 확인 범위다. 이전 절의 둥지 유지·기존 아기 원화·원격 DB 미적용 상태는 이 후속 기록으로 대체한다.
+
+## 승인된 아기 원화 확정 이관 · 2026-11-04
+
+- 사용자가 알 부화 후 아기와 속성 모습을 확정했다. `tasks/08-approved-baby-assets.md`에 따라 original-cutouts의 6장을 정식 source/baby로 승격했다. 이전 transparent/aligned 버전은 앱 원본으로 사용하지 않는다.
+- 정식 PNG 6장 모두 승인본과 바이트가 같고 2048×2048·알파 포함임을 확인했다. WebP 6장은 원본 캔버스 비율을 유지하는 1024×1024·알파 포함 파일이다. 번개는 기존 lightning → thunder 경로를 유지한다.
+- 기존 앱 연결로 부화 직후 무속성 아기와 속성별 아기를 표시한다. 성장·DB·동작 재생 설정은 변경하지 않았다. 눈 감기·들숨은 정식 파일로 준비했지만 앱 재생은 후속이다.
+- PWA 캐시를 v5로 올리고 manifest 설명·정적 검사·하네스·실제 PWA 기대값을 맞췄다. v4 캐시 삭제를 검증했다.
+- 전체 verify(단위 311개·타입·에셋 생성·프로덕션 빌드), 드래곤 브라우저 7개, 실제 Next/PWA 4개, SW/정적 하네스 34개 통과. 1280px 앱에서 투명 배경과 원본 구도를 직접 확인하고 desktop/390px 캡처를 갱신했다.
+- 원본 제작 이력은 보존하며 앱 빌드는 assets/dragons/source만 사용한다. 서버 배포·커밋·푸시는 하지 않았다.

@@ -1785,48 +1785,53 @@ label > textarea {
 }
 
 /* Dragon reward scenes: normalized positions keep decorations consistent on phones. */
-.dragon-companion { margin: 16px 0; padding: 12px 18px; border: 1px solid #cddcc9; border-radius: 20px; background: #f2f7ed; }
-.dragon-summary { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; border: 0; background: transparent; color: #2e493b; padding: 0; }
-.dragon-summary > .dragon-sprite { width: 90px; flex: 0 0 90px; }
+.dragon-sprite { width: 90px; flex: 0 0 90px; }
 .dragon-summary > span:last-child { display: grid; gap: 6px; min-width: 0; }
 .dragon-open-label { color: #426e52; font-size: .85rem; }
 .dragon-sprite { display: block; aspect-ratio: 1; width: 100%; background: url('/assets/dragons/dragons-v2.png') no-repeat; background-size: 400% 400%; }
-.dragon-dialog { width: min(740px, calc(100vw - 24px)); max-height: calc(100dvh - 32px); padding: 24px; border: 1px solid #cbd9c3; border-radius: 24px; background: #fafbf6; color: #304335; overflow: auto; }
-.dragon-dialog::backdrop { background: #172a25b3; }
-.dragon-dialog header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.dragon-dialog h2 { margin: 0; }
-.dragon-dialog h3 { margin: 16px 0 8px; }
-.dragon-dialog p { line-height: 1.6; }
-.dragon-dialog button, .dragon-completion-check li button, .dragon-companion > div button { min-height: 44px; border: 1px solid #c1d1bb; border-radius: 12px; padding: 10px 14px; background: #fff; color: #334e3b; cursor: pointer; font: inherit; }
-.dragon-dialog button:disabled { cursor: default; opacity: .5; }
-.dragon-dialog button[aria-pressed="true"] { background: #e2eed9; border-color: #527d4e; box-shadow: inset 0 0 0 1px #527d4e; }
-.dragon-dialog button:focus-visible, .dragon-summary:focus-visible { outline: 3px solid #6c8750; outline-offset: 3px; }
-.dragon-dialog progress { width: 100%; accent-color: #658954; height: 12px; }
+.dragon-screen { padding: 20px; border: 1px solid #d8d3c6; border-radius: 24px; background: #faf9f5; color: #304335; }
+.dragon-screen h3 { margin: 0 0 12px; }
+.dragon-screen h4 { margin: 0; }
+.dragon-screen p { line-height: 1.6; }
+.dragon-screen button, .dragon-completion-check li button { min-height: 44px; border: 1px solid #c1d1bb; border-radius: 12px; padding: 10px 14px; background: #fff; color: #334e3b; cursor: pointer; font: inherit; }
+.dragon-screen button:disabled { cursor: default; opacity: .5; }
+.dragon-screen button[aria-pressed="true"] { background: #e2eed9; border-color: #527d4e; box-shadow: inset 0 0 0 1px #527d4e; }
+.dragon-screen button:focus-visible { outline: 3px solid #6c8750; outline-offset: 3px; }
+.dragon-screen progress { width: 100%; accent-color: #658954; height: 12px; }
+.dragon-decorator { display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); margin-top: 18px; }
+.dragon-scene-panel, .dragon-tools { min-width: 0; }
+.dragon-tools { padding: 16px; border: 1px solid #ddd8cb; border-radius: 18px; background: #f3f1e9; }
+.dragon-scene-caption { margin: 8px 0 0; text-align: center; }
+.dragon-background-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.dragon-artwork { background: none; position: relative; }
+.dragon-artwork.is-adult-fire { aspect-ratio: 1451 / 1084; }
+.dragon-artwork img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.dragon-prop-art { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+.dragon-ground-shadow { position: absolute; bottom: 4%; left: 16%; width: 68%; height: 8%; background: #140b08a0; border-radius: 50%; filter: blur(4px); }
+@media (min-width: 1000px) { .dragon-decorator { grid-template-columns: minmax(0, 1fr) 300px; align-items: start; } .dragon-scene-panel { position: sticky; top: 112px; } }
 .dragon-rewards { padding: 10px 14px; border-radius: 12px; background: #f1e9d3; }
 .dragon-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .dragon-options button { padding: 4px 4px 12px; }
 .dragon-baby-preview { display: flex; gap: 16px; align-items: center; }
 .dragon-baby-preview .dragon-sprite { width: 100px; flex-shrink: 0; }
 .dragon-collection, .dragon-slot-options, .dragon-item-options, .dragon-move-controls, .dragon-save-controls { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+.dragon-item-thumb { display: block; width: 100%; height: 64px; object-fit: contain; margin-bottom: 8px; }
+.dragon-item-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.dragon-item-options button { min-width: 0; }
 .dragon-item-options small { display: block; margin-top: 4px; color: #68735f; }
-.dragon-scene { position: relative; isolation: isolate; aspect-ratio: 1.45; overflow: hidden; border-radius: 20px; margin-top: 18px; background: radial-gradient(ellipse at 50% 90%, #a3ba84 0 30%, transparent 31%), linear-gradient(#dbe9ca, #eff3d8 60%, #c6d3a4); }
-.dragon-bg-sunset { background: radial-gradient(ellipse at 50% 90%, #b5a580 0 30%, transparent 31%), linear-gradient(#f2cbb0, #f7e7c4 60%, #d5c4a0); }
-.dragon-bg-moon { background: radial-gradient(ellipse at 50% 90%, #72858a 0 30%, transparent 31%), linear-gradient(#34455f, #7f92ae 60%, #aab7ae); }
-.dragon-scenery { position: absolute; color: #fff9d5; top: 8%; left: 12%; font-size: 3rem; }
+.dragon-scene { position: relative; isolation: isolate; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 20px; background: #251917; }
 .dragon-resident { position: absolute; width: 78%; left: 11%; bottom: 4%; z-index: 2; pointer-events: none; }
-.dragon-resident.is-egg { width: 50%; left: 25%; bottom: 10%; }
-.dragon-dialog .dragon-prop { position: absolute; transform: translate(-50%, -50%); width: 16%; aspect-ratio: 1; padding: 0; border: 2px solid transparent; background: transparent; min-height: 0; border-radius: 12px; user-select: none; z-index: 3; font-size: clamp(24px, 7vw, 52px); }
-.dragon-dialog .dragon-prop:disabled { opacity: 1; }
-.dragon-dialog .dragon-prop-nest { width: 28%; z-index: 1; }
-.dragon-dialog .dragon-prop.is-selected { border: 2px dashed #5f7551; }
-.dragon-nest { position: absolute; width: 100%; height: 42%; left: 0; top: 30%; border-radius: 50%; background: #7c9564; border: 8px ridge #a1b082; box-shadow: 0 8px 10px #34442130; }
-.dragon-nest-crystal { background: #b6d9df; border-color: #91bbc6; }
-.dragon-nest-ancient { background: #a59b85; border-color: #b4a789; }
+.dragon-resident.is-baby { width: 60%; left: 12%; bottom: 6%; }
+.dragon-resident.is-egg { width: 32%; left: 29%; bottom: 7%; }
+.dragon-resident.is-adult-fire { width: 68%; left: 5%; bottom: 4%; }
+.dragon-screen .dragon-prop { position: absolute; transform: translate(-50%, -50%); width: 16%; aspect-ratio: 1; padding: 0; border: 2px solid transparent; background: transparent; min-height: 0; border-radius: 12px; user-select: none; z-index: 3; font-size: clamp(24px, 7vw, 52px); }
+.dragon-screen .dragon-prop:disabled { opacity: 1; }
+.dragon-screen .dragon-prop.is-selected { border: 2px dashed #5f7551; }
 .dragon-celebration { padding: 12px; background: #f7edc9; border-radius: 12px; animation: dragon-arrive .7s ease-out; }
 .dragon-completion-check { margin-top: 16px; padding: 16px; background: #f4f7ef; border-radius: 16px; line-height: 1.6; }
 .dragon-completion-check ul { padding-left: 0; list-style: none; display: grid; gap: 8px; }
 .dragon-completion-check li button { text-align: left; width: 100%; }
 @keyframes dragon-arrive { from { opacity: .3; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) { .dragon-celebration { animation: none; } }
-@media (max-width: 480px) { .dragon-dialog { padding: 16px; } .dragon-dialog h2 { font-size: 1.3rem; } .dragon-options { gap: 4px; } .dragon-options button { font-size: .8rem; } .dragon-summary > .dragon-sprite { width: 64px; flex-basis: 64px; } .dragon-summary { gap: 4px; font-size: .85rem; } .dragon-companion { padding: 10px; } }
+@media (max-width: 480px) { .dragon-screen { padding: 10px; } .dragon-tools { padding: 10px; } .dragon-options { gap: 4px; } .dragon-options button { font-size: .8rem; } }
 .dragon-options .dragon-sprite { max-width: 120px; margin-inline: auto; }

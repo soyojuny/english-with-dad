@@ -1,10 +1,14 @@
 "use client";
 import { useRef } from "react";
 import type { Dragon, DragonDecor, DragonItem, DragonSlot } from "../lib/dragon-types";
-import { clampDragonPosition, dragonSlotLabels, dragonSprite, dragonStage } from "../lib/dragon-data";
+import { availableDragonItems, clampDragonPosition, dragonSlotLabels, dragonSprite, dragonStage } from "../lib/dragon-data";
+import { dragonArtwork, dragonBackgroundArt, dragonPropArt } from "../lib/dragon-art";
 
-const propSymbols: Record<string, string> = { flowers: "🌼", gem: "💎", lantern: "🏮", flag: "🚩", mushroom: "🍄" };
 export function DragonSprite({ dragon }: { dragon: Pick<Dragon, "egg" | "days" | "element"> }) {
+  const artwork = dragonArtwork(dragon);
+  if (artwork) return <span className={`dragon-sprite dragon-artwork ${dragon.days >= 30 ? "is-adult-fire" : ""}`} role="img" aria-label={dragonStage(dragon.days)}>
+    <img src={artwork} alt="" draggable={false} />
+  </span>;
   return <span className="dragon-sprite" role="img" aria-label={dragonStage(dragon.days)} style={dragonSprite(dragon)} />;
 }
 export function DragonScene({ dragon, decor, catalog, selected, onSelect, onMove }: {
@@ -13,12 +17,16 @@ export function DragonScene({ dragon, decor, catalog, selected, onSelect, onMove
 }) {
   const scene = useRef<HTMLDivElement>(null);
   const drag = useRef<{ slot: DragonSlot; pointer: number; x: number; y: number; startX: number; startY: number } | null>(null);
-  const item = (slot: DragonSlot) => catalog.find((entry) => entry.id === decor[slot].itemId);
-  const background = item("background")?.art ?? "meadow";
+  const items = availableDragonItems(catalog);
+  const item = (slot: DragonSlot) => items.find((entry) => entry.id === decor[slot].itemId);
+  const background = item("background")?.art ?? "lava-open-foreground";
+  const backgroundArt = dragonBackgroundArt[background];
   return <div ref={scene} className={`dragon-scene dragon-bg-${background}`} aria-label="드래곤의 공간">
-    <div className="dragon-scenery" aria-hidden="true">✦</div>
-    <div className={`dragon-resident ${dragon.days === 0 ? "is-egg" : ""}`}><DragonSprite dragon={dragon} /></div>
-    {(["nest", "left", "right"] as const).map((slot) => {
+    <img className="dragon-background-art" src={backgroundArt} alt="" draggable={false} />
+    <div className={`dragon-resident ${dragon.days === 0 ? "is-egg" : dragon.days < 18 ? "is-baby" : dragon.days >= 30 && dragon.element === "fire" ? "is-adult-fire" : ""}`}>
+      {dragon.days === 0 && <span className="dragon-ground-shadow" aria-hidden="true" />}<DragonSprite dragon={dragon} />
+    </div>
+    {(["left", "right"] as const).map((slot) => {
       const entry = item(slot);
       if (!entry) return null;
       return <button key={slot} type="button" className={`dragon-prop dragon-prop-${slot} ${selected === slot ? "is-selected" : ""}`}
@@ -45,7 +53,7 @@ export function DragonScene({ dragon, decor, catalog, selected, onSelect, onMove
           const [dx, dy] = delta[event.key]; const pos = clampDragonPosition(decor[slot].x + dx, decor[slot].y + dy);
           onMove?.(slot, pos.x, pos.y);
         }}>
-        {slot === "nest" ? <span className={`dragon-nest dragon-nest-${entry.art}`} /> : <span aria-hidden="true">{propSymbols[entry.art] ?? "✦"}</span>}
+        <img className="dragon-prop-art" src={dragonPropArt[entry.art]} alt="" draggable={false} />
       </button>;
     })}
   </div>;

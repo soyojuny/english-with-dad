@@ -185,7 +185,7 @@ test('경계: 짧은 360px 화면은 팝업 내부를 스크롤해 입력과 하
   await title.fill('짧은 화면 동화');
   await title.scrollIntoViewIfNeeded();
   await expectReachable(title);
-  const minutes = dialog.getByLabel('시간', { exact: true });
+  const minutes = dialog.getByRole('combobox', { name: '시간', exact: true });
   await minutes.selectOption('40');
   await minutes.scrollIntoViewIfNeeded();
   await expectReachable(minutes);
@@ -210,7 +210,7 @@ test('잘못된 입력: 빈 제목은 모달과 다른 입력을 유지하고 �
   await (await openChild(f)).click();
   const dialog = f.page.getByRole('dialog', { name: '읽기·DVD 기록', exact: true });
   await dialog.getByLabel('구분').selectOption('englishPicture');
-  await dialog.getByLabel('시간', { exact: true }).selectOption('40');
+  await dialog.getByRole('combobox', { name: '시간', exact: true }).selectOption('40');
 
   // When
   await dialog.getByRole('button', { name: '기록 추가', exact: true }).click();
@@ -219,7 +219,7 @@ test('잘못된 입력: 빈 제목은 모달과 다른 입력을 유지하고 �
   await expect(dialog).toBeVisible();
   await expect(dialog.getByLabel('제목', { exact: true })).toBeFocused();
   await expect(dialog.getByLabel('구분')).toHaveValue('englishPicture');
-  await expect(dialog.getByLabel('시간', { exact: true })).toHaveValue('40');
+  await expect(dialog.getByRole('combobox', { name: '시간', exact: true })).toHaveValue('40');
   expect(f.writes('manual_logs')).toHaveLength(0);
 });
 
@@ -230,7 +230,7 @@ test('실패: 저장 오류는 모달 안에서 읽을 수 있고 입력을 유�
   const dialog = f.page.getByRole('dialog', { name: '읽기·DVD 기록', exact: true });
   await dialog.getByLabel('제목', { exact: true }).fill('저장 실패 동화');
   await dialog.getByLabel('구분').selectOption('englishPicture');
-  await dialog.getByLabel('시간', { exact: true }).selectOption('40');
+  await dialog.getByRole('combobox', { name: '시간', exact: true }).selectOption('40');
   f.fail('manual_logs:POST');
 
   // When
@@ -240,7 +240,7 @@ test('실패: 저장 오류는 모달 안에서 읽을 수 있고 입력을 유�
   await expect(dialog.getByText('manual_logs 테스트 실패', { exact: true })).toBeVisible();
   await expect(dialog.getByLabel('제목', { exact: true })).toHaveValue('저장 실패 동화');
   await expect(dialog.getByLabel('구분')).toHaveValue('englishPicture');
-  await expect(dialog.getByLabel('시간', { exact: true })).toHaveValue('40');
+  await expect(dialog.getByRole('combobox', { name: '시간', exact: true })).toHaveValue('40');
   expect(f.state.manual_logs).toHaveLength(0);
   expect(f.writes('manual_logs')).toHaveLength(1);
   f.recover('manual_logs:POST');
