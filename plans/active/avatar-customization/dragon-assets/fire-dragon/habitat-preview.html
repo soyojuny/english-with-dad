@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>불 드래곤 · 용암의 성역</title>
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; background: #160f10; color: #fff0da; font-family: system-ui, sans-serif; }
+main { max-width: 1600px; margin: auto; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 24px; }
+h1 { margin: 0; font-size: clamp(1.1rem, 2vw, 1.6rem); }
+header p { margin: 5px 0 0; color: #c6ad9b; font-size: .9rem; }
+.scene { position: relative; aspect-ratio: 16 / 9; overflow: hidden; isolation: isolate; background: #3a2525; }
+.background { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.ground-shadow { position: absolute; left: 25%; bottom: 8%; width: 40%; height: 7%; border-radius: 50%; background: #140b08a0; filter: blur(8px); }
+.resident { position: absolute; left: 5%; bottom: 4%; width: 68%; aspect-ratio: 1824 / 1361; filter: drop-shadow(0 0 3px #ffb87966); }
+.frame { position: absolute; inset: 0; }
+.frame img { position: absolute; width: 100%; height: 100%; }
+.layer { opacity: 0; }
+.blink { mask-image: radial-gradient(ellipse 1.6% 1.1% at 76.8% 26.3%, #000 75%, transparent 100%); }
+.flame { position: absolute; z-index: 4; left: 57.5%; top: 35.5%; width: 41.5%; transform: translateY(-50%) scaleX(0); transform-origin: 0% 50%; opacity: 0; pointer-events: none; }
+.flame.active { opacity: 1; transform: translateY(-50%) scaleX(1); transition: transform .25s ease-out, opacity .1s; }
+.prop { position: absolute; width: 19%; height: 51%; object-fit: contain; pointer-events: none; }
+.relic { right: 4%; bottom: 15%; z-index: 1; }
+.crystal { left: 2%; bottom: 1%; width: 17%; height: 32%; z-index: 3; }
+.resident, .ground-shadow { z-index: 2; }
+.controls { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 12px; padding: 16px 20px; }
+button, select { min-height: 48px; padding: 10px 18px; border: 1px solid #8c6144; border-radius: 10px; background: #35221c; color: #fff0da; font: inherit; cursor: pointer; }
+button:disabled, select:disabled { opacity: .45; cursor: wait; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid #ffc477; outline-offset: 3px; }
+label { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; }
+input { width: 20px; height: 20px; accent-color: #f7a54a; }
+#status { margin: 0; min-height: 44px; padding: 0 16px 16px; color: #dec2a8; text-align: center; }
+.note { margin: 0; padding: 0 16px 18px; color: #b69c8d; text-align: center; font-size: .85rem; }
+@media(max-width:600px) { header { padding: 12px; } .controls { padding: 12px; gap: 8px; } button, select { padding: 10px 12px; } }
+@media(prefers-reduced-motion:reduce) { .flame.active { transition: none; } }
+</style>
+</head>
+<body>
+<main>
+<header><div><h1>용암의 성역</h1><p>성체 불 드래곤 · 공간 합성 미리보기</p></div><button id="pause" disabled>대기 멈추기</button></header>
+<div class="scene" aria-label="용암 계곡 속 불 드래곤과 고대 유물, 용암 수정">
+<img id="background" class="background" src="../backgrounds/lava-open-foreground.png" alt="용암 계곡">
+<img id="relic" class="prop relic" src="../props/ancient-dragon-relic.png" alt="고대 드래곤 석비">
+<div class="ground-shadow"></div>
+<div class="resident"><div id="dragon-frame" class="frame"><img id="dragon" src="transparent/adult.png" alt="성체 불 드래곤"></div><div id="breath" class="frame layer"><img src="transparent/breathe-in.png" alt=""></div><div id="blink" class="frame layer blink"><img src="transparent/blink-closed.png" alt=""></div></div>
+<img id="crystal" class="prop crystal" src="../props/lava-crystal.png" alt="용암 수정">
+<img id="flame" class="flame" src="effects/fire-stream-transparent.png" alt="">
+</div>
+<div class="controls"><button id="roar" disabled>포효하기</button><button id="fire" disabled>불 뿜기</button><label>배경 <select id="background-choice" disabled><option value="lava-open-foreground">용암 계곡</option><option value="lava-stone-platform">넓은 바위 터</option><option value="lava-central-volcano">중앙 화산</option><option value="lava-waterfall">용암 폭포</option></select></label></div>
+<div class="controls"><label><input id="show-relic" type="checkbox" checked disabled>고대 유물</label><label><input id="show-crystal" type="checkbox" checked disabled>용암 수정</label><button id="placement" disabled>소품 위치 바꾸기</button></div>
+<p id="status" role="status">드래곤의 공간을 불러오고 있어요…</p>
+<p class="note">독립 시안 · 새로고침하면 기본 배치로 돌아갑니다.</p>
+</main>
+<script src="habitat-preview.js"></script>
+</body>
+</html>
