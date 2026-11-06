@@ -1828,6 +1828,19 @@ label > textarea {
 .dragon-scene { position: relative; isolation: isolate; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 20px; background: #251917; }
 .dragon-resident { position: absolute; width: 78%; left: 11%; bottom: 4%; z-index: 2; pointer-events: none; }
 .dragon-resident.is-baby { width: 60%; left: 12%; bottom: 6%; }
+.dragon-resident.is-walking { width: 38%; left: 0; animation: dragon-travel 12s linear infinite; }
+.dragon-walk { display: block; position: relative; animation: dragon-face 12s step-end infinite; }
+.dragon-walk-filter { position: absolute; }
+.dragon-walk-frame { display: block; width: 100%; aspect-ratio: 728 / 720; background: url('/assets/dragons/baby/walk-3.webp') center / 100% 100% no-repeat; filter: url(#dragon-walk-clean-alpha); clip-path: inset(0 1% 0 0); animation: dragon-step .5s steps(1) infinite; }
+.is-walking .dragon-idle { display: none; }
+@keyframes dragon-travel { 0%, 100% { left: 0; } 50% { left: 62%; } }
+@keyframes dragon-face { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(-1); } }
+@keyframes dragon-step { 0% { background-image: url('/assets/dragons/baby/walk-3.webp'); } 50% { background-image: url('/assets/dragons/baby/walk-4.webp'); } }
+@media (prefers-reduced-motion: reduce) {
+  .dragon-resident.is-walking { width: 60%; left: 12%; animation: none; }
+  .is-walking .dragon-idle { display: block; }
+  .dragon-walk { display: none; }
+}
 .dragon-resident.is-egg { width: 32%; left: 29%; bottom: 7%; }
 .dragon-resident.is-adult-fire { width: 68%; left: 5%; bottom: 4%; }
 .dragon-screen .dragon-prop { position: absolute; transform: translate(-50%, -50%); width: 16%; aspect-ratio: 1; padding: 0; border: 2px solid transparent; background: transparent; min-height: 0; border-radius: 12px; user-select: none; z-index: 3; font-size: clamp(24px, 7vw, 52px); }

@@ -12,6 +12,7 @@ const images = [
     .map((name) => [`backgrounds/${name}`, `habitats/${name}`, 1600]),
   ...["ancient-dragon-relic", "lava-crystal"].map((name) => [`props/${name}`, `props/${name}`, 640]),
   ...["neutral", "fire", "ice", "blink", "breathe"].map((name) => [`baby/${name}`, `baby/${name}`, 1024]),
+  ...["walk-3", "walk-4"].map((name) => [`baby/${name}`, `baby/${name}`, 1024]),
   ["baby/lightning", "baby/thunder", 1024],
   ...["fire", "lightning", "ice"].flatMap((element) => ["blink", "breathe"].map((motion) =>
     [`baby/${element}-${motion}`, `baby/${element === "lightning" ? "thunder" : element}-${motion}`, 1024])),

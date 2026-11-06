@@ -24,10 +24,13 @@ export function DragonScene({ dragon, decor, catalog, selected, onSelect, onMove
   const item = (slot: DragonSlot) => items.find((entry) => entry.id === decor[slot].itemId);
   const background = item("background")?.art ?? "lava-open-foreground";
   const backgroundArt = dragonBackgroundArt[background];
+  const walking = dragon.days > 0 && dragon.days < 18 && !dragon.element;
   return <div ref={scene} className={`dragon-scene dragon-bg-${background}`} aria-label="드래곤의 공간">
     <img className="dragon-background-art" src={backgroundArt} alt="" draggable={false} />
-    <div className={`dragon-resident ${dragon.days === 0 ? "is-egg" : dragon.days < 18 ? "is-baby" : dragon.days >= 30 && dragon.element === "fire" ? "is-adult-fire" : ""}`}>
-      {dragon.days === 0 && <span className="dragon-ground-shadow" aria-hidden="true" />}<DragonSprite dragon={dragon} />
+    <div className={`dragon-resident ${dragon.days === 0 ? "is-egg" : dragon.days < 18 ? "is-baby" : dragon.days >= 30 && dragon.element === "fire" ? "is-adult-fire" : ""} ${walking ? "is-walking" : ""}`}>
+      {dragon.days === 0 && <span className="dragon-ground-shadow" aria-hidden="true" />}
+      <div className="dragon-idle"><DragonSprite dragon={dragon} /></div>
+      {walking && <span className="dragon-walk" role="img" aria-label="걷는 아기 드래곤"><svg aria-hidden="true" width="0" height="0" className="dragon-walk-filter"><filter id="dragon-walk-clean-alpha" colorInterpolationFilters="sRGB"><feComponentTransfer><feFuncA type="linear" slope="12" intercept="-10" /></feComponentTransfer></filter></svg><span className="dragon-walk-frame" /></span>}
     </div>
     {(["left", "right"] as const).map((slot) => {
       const entry = item(slot);
