@@ -1827,8 +1827,8 @@ label > textarea {
 .dragon-item-options small { display: block; margin-top: 4px; color: #68735f; }
 .dragon-scene { position: relative; isolation: isolate; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 20px; background: #251917; }
 .dragon-resident { position: absolute; width: 78%; left: 11%; bottom: 4%; z-index: 2; pointer-events: none; }
-.dragon-resident.is-baby { width: 60%; left: 12%; bottom: 6%; }
-.dragon-resident.is-controlled { width: 38%; bottom: auto; }
+.dragon-resident.is-baby { width: 38%; left: 12%; bottom: 6%; }
+.dragon-resident.is-controlled { bottom: auto; }
 .dragon-scene.is-controllable { touch-action: none; }
 .dragon-scene.is-controllable .dragon-prop:disabled { pointer-events: none; }
 .dragon-stick { position: absolute; z-index: 5; width: 72px; height: 72px; border: 2px solid #ffffffb0; border-radius: 50%; background: #1a252b66; transform: translate(-50%, -50%); pointer-events: none; }
