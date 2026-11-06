@@ -25,6 +25,71 @@ async function openChild(page) {
   await page.locator('.profile-grid').getByRole('button', { name: /민준/ }).click();
   await expect(page.getByRole('button', { name: '드래곤' })).toBeEnabled();
 }
+for (const width of [390, 1280]) {
+  test(`무속성 아기 ${width}px: 스틱 이동과 정지`, async ({ childCompletion: f }, info) => {
+    // Given
+    const { page } = f; await page.setViewportSize({ width, height: 950 });
+    await dragonFixture(page); await openChild(page);
+    await page.getByRole('button', { name: '드래곤', exact: true }).click();
+    const scene = page.getByLabel('드래곤의 공간');
+    await scene.scrollIntoViewIfNeeded();
+    const box = await scene.boundingBox();
+    const resident = scene.locator('.dragon-resident');
+    const before = await resident.evaluate(el => parseFloat(el.style.left));
+    // When
+    const x = box.x + box.width * .5, y = box.y + box.height * .5;
+    const cdp = width === 390 ? await page.context().newCDPSession(page) : null;
+    if (cdp) {
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x + 50, y }] });
+    } else {
+      await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + 50, y);
+    }
+    await expect(scene.locator('.dragon-stick')).toBeVisible();
+    await page.clock.runFor(300);
+    await expect.poll(() => resident.evaluate(el => parseFloat(el.style.left))).toBeGreaterThan(before);
+    // Then: the approved B→D→E sheet advances at 5fps, with no standing frame or blending.
+    const walk = scene.locator('.dragon-walk-frame');
+    await expect(walk).toHaveCSS('animation-duration', '0.6s');
+    await expect(walk).toHaveCSS('filter', 'none');
+    const animation = await walk.evaluate(async element => {
+      const image = new Image(); image.src = '/assets/dragons/baby/walk-bde.webp'; await image.decode();
+      const motion = element.getAnimations()[0]; motion.pause();
+      const positions = [];
+      for (const time of [0, 199, 200, 399, 401, 599, 600]) {
+        motion.currentTime = time;
+        positions.push(getComputedStyle(element).backgroundPositionX);
+      }
+      motion.play();
+      return { width: image.naturalWidth, height: image.naturalHeight, positions };
+    });
+    expect(animation).toEqual({ width: 2400, height: 620,
+      positions: ['0%', '0%', '50%', '50%', '100%', '100%', '0%'] });
+    await scene.screenshot({ path: info.outputPath(`dragon-walking-bde-${width}.png`) });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await expect(scene.locator('.dragon-walk')).toBeHidden();
+    await expect(scene.locator('.dragon-idle')).toBeVisible();
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    const during = await resident.evaluate(el => parseFloat(el.style.left));
+    for (let step = 1; step <= 20; step++) {
+      if (cdp) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x + 50 + step, y }] });
+      else await page.mouse.move(x + 50 + step, y);
+      await page.clock.runFor(8);
+    }
+    expect(await resident.evaluate(el => parseFloat(el.style.left))).toBeGreaterThan(during + 1);
+    if (cdp) await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    else await page.mouse.up();
+    // Then
+    await expect(scene.locator('.dragon-stick')).toHaveCount(0);
+    await expect(scene.locator('.dragon-walk')).toHaveCount(0);
+    await page.clock.runFor(5000);
+    await expect(scene.getByLabel('쉬는 아기 드래곤')).toBeVisible();
+    await page.clock.runFor(700);
+    await scene.screenshot({ path: info.outputPath(`dragon-seated-${width}.png`) });
+    await scene.click({ position: { x: 10, y: 10 } });
+    await expect(scene.locator('.dragon-sit')).toHaveClass(/is-rising/);
+  });
+}
 for (const width of [320, 390, 800, 1280]) {
   test(`드래곤 ${width}px: 배경 선택·기본 장식·자유 배치·저장과 복원`, async ({ childCompletion: f }, info) => {
     // Given

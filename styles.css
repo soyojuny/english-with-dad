@@ -1828,18 +1828,23 @@ label > textarea {
 .dragon-scene { position: relative; isolation: isolate; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 20px; background: #251917; }
 .dragon-resident { position: absolute; width: 78%; left: 11%; bottom: 4%; z-index: 2; pointer-events: none; }
 .dragon-resident.is-baby { width: 60%; left: 12%; bottom: 6%; }
-.dragon-resident.is-walking { width: 38%; left: 0; animation: dragon-travel 12s linear infinite; }
-.dragon-walk { display: block; position: relative; animation: dragon-face 12s step-end infinite; }
-.dragon-walk-filter { position: absolute; }
-.dragon-walk-frame { display: block; width: 100%; aspect-ratio: 728 / 720; background: url('/assets/dragons/baby/walk-3.webp') center / 100% 100% no-repeat; filter: url(#dragon-walk-clean-alpha); clip-path: inset(0 1% 0 0); animation: dragon-step .5s steps(1) infinite; }
+.dragon-resident.is-controlled { width: 38%; bottom: auto; }
+.dragon-scene.is-controllable { touch-action: none; }
+.dragon-scene.is-controllable .dragon-prop:disabled { pointer-events: none; }
+.dragon-stick { position: absolute; z-index: 5; width: 72px; height: 72px; border: 2px solid #ffffffb0; border-radius: 50%; background: #1a252b66; transform: translate(-50%, -50%); pointer-events: none; }
+.dragon-stick span { position: absolute; left: 50%; top: 50%; width: 30px; height: 30px; margin: -15px; border-radius: 50%; background: #ffffffc9; }
+.dragon-walk { display: block; position: relative; aspect-ratio: 1; }
+.dragon-sit { display: block; aspect-ratio: 1; background: url('/assets/dragons/baby/sit-3.webp') center 44% / 68% no-repeat; }
+.dragon-sit.is-sitting { animation: dragon-sit-down .7s steps(1) forwards; }
+.dragon-sit.is-rising { animation: dragon-sit-down .7s steps(1) reverse forwards; }
+@keyframes dragon-sit-down { 0% { background-image: url('/assets/dragons/baby/neutral.webp'); background-size: 100%; } 50% { background-image: url('/assets/dragons/baby/sit-2.webp'); background-size: 68%; } 100% { background-image: url('/assets/dragons/baby/sit-3.webp'); background-size: 68%; } }
+.dragon-walk-frame { display: block; position: absolute; left: 8.5%; top: 18%; width: 83%; aspect-ratio: 800 / 620; background: url('/assets/dragons/baby/walk-bde.webp') 0% 0% / 300% 100% no-repeat; animation: dragon-step .6s steps(1) infinite; }
 .is-walking .dragon-idle { display: none; }
-@keyframes dragon-travel { 0%, 100% { left: 0; } 50% { left: 62%; } }
-@keyframes dragon-face { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(-1); } }
-@keyframes dragon-step { 0% { background-image: url('/assets/dragons/baby/walk-3.webp'); } 50% { background-image: url('/assets/dragons/baby/walk-4.webp'); } }
+@keyframes dragon-step { 0% { background-position: 0% 0%; } 33.333333% { background-position: 50% 0%; } 66.666667% { background-position: 100% 0%; } }
 @media (prefers-reduced-motion: reduce) {
-  .dragon-resident.is-walking { width: 60%; left: 12%; animation: none; }
   .is-walking .dragon-idle { display: block; }
   .dragon-walk { display: none; }
+  .dragon-sit { animation: none !important; }
 }
 .dragon-resident.is-egg { width: 32%; left: 29%; bottom: 7%; }
 .dragon-resident.is-adult-fire { width: 68%; left: 5%; bottom: 4%; }

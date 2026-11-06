@@ -70,7 +70,7 @@ function DragonDecorator({ dragon, controller }: { dragon: Dragon; controller: D
   const dirty = JSON.stringify(decor) !== JSON.stringify(dragon.decor);
   const move = (target: DragonSlot, x: number, y: number) => { setMessage(""); setDecor((current) => ({ ...current, [target]: { ...current[target], ...clampDragonPosition(x, y) } })); };
   return <section className={`dragon-decorator${editing ? " is-editing" : ""}`} aria-label="드래곤 공간">
-    <div className="dragon-scene-panel"><DragonScene dragon={dragon} decor={decor} catalog={catalog} selected={editing ? slot : undefined} onSelect={editing ? setSlot : undefined} onMove={editing && !controller.pending ? move : undefined} />
+    <div className="dragon-scene-panel"><DragonScene dragon={dragon} decor={decor} catalog={catalog} editing={editing} selected={editing ? slot : undefined} onSelect={editing ? setSlot : undefined} onMove={editing && !controller.pending ? move : undefined} />
       <p className="dragon-scene-caption">{dragonStage(dragon.days)} · {dragon.days}/30일</p>
       {!editing && <button type="button" onClick={() => setEditing(true)}>공간 꾸미기</button>}
     </div>

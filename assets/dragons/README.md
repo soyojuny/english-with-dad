@@ -1,6 +1,6 @@
 # 드래곤 정식 에셋
 
-`source/`의 PNG 32개가 승인된 원화의 정식 원본이다. 앱 배포와 이미지 재생성은 `plans/`를 읽지 않는다. 기획 폴더의 이미지와 독립 미리보기는 제작 이력이다.
+`source/`의 PNG가 앱 원화의 정식 원본이다. 앉기 두 프레임은 1차 시험 연결본이다. 앱 배포와 이미지 재생성은 `plans/`를 읽지 않는다. 기획 폴더의 이미지와 독립 미리보기는 제작 이력이다.
 
 | 정식 원본 | 제작 당시 위치 | 용도 |
 | --- | --- | --- |
@@ -11,9 +11,9 @@
 | `source/adult-fire/*.png` | dragon-assets의 `fire-dragon/transparent/` | 성체 기본·동작 7장 |
 | `source/effects/fire-stream.png` | dragon-assets의 `fire-dragon/effects/fire-stream-transparent.png` | 불길 |
 
-`npm run assets:dragons`는 Sharp 0.34.5로 `public/assets/dragons/`에 WebP 32개를 생성한다. `npm run build`도 prebuild에서 같은 작업을 실행한다. PNG 원본과 배포 WebP를 함께 저장소에 포함한다. 변환은 리사이즈와 WebP 인코딩뿐이며 디자인을 재생성하지 않는다.
+`npm run assets:dragons`는 Sharp 0.34.5로 `public/assets/dragons/`에 WebP 34개를 생성한다. `npm run build`도 prebuild에서 같은 작업을 실행한다. PNG 원본과 배포 WebP를 함께 저장소에 포함한다. 변환은 리사이즈와 WebP 인코딩뿐이며 디자인을 재생성하지 않는다.
 
-무속성 아기의 `walk-3.png`, `walk-4.png`는 제공된 걷기 시트의 윗줄 3·4번 칸을 728×720으로 잘라 바깥 흰 배경을 투명하게 처리한 이미지다. 원본 칸 경계에서 잘린 부분은 복원하지 않았다. 장면에서 두 프레임을 반복하며 좌우로 왕복하고, 표시할 때 밝은 반투명 테두리와 인접 프레임 조각을 줄인다. 움직임 줄이기 설정에서는 기존 정지 원화를 표시한다.
+무속성 아기의 `walk-bde.png`는 사용자가 독립 미리보기에서 선택한 B→D→E 순서의 2400×620 투명 시트다. B는 `Gemini_Generated_Image_7y11al7y11al7y11.png` 2번, D는 `Gemini_Generated_Image_l8aeoml8aeoml8ae.png` 4번, E는 `Gemini_Generated_Image_flyrscflyrscflyr.png` 3번이다(왼쪽 위부터 가로 순서). 연결 성분으로 온전한 실루엣을 분리하고 흰 배경 경계를 정리했다. 각 자세는 800×620 캔버스에서 높이 550px, 발끝 y=580으로 맞췄다. 승인된 `tmp_image/walk-candidates-20261106/frame-{2,4,5}.png`를 그대로 이어 붙였으며 WebP는 무손실로 생성한다. 드래그 이동 중 5fps(주기 0.6초)로 즉시 교체하며 서기 자세나 교차 페이드는 넣지 않는다. 이전 `walk-3.png`, `walk-4.png`는 보존하지만 앱과 새 캐시에서는 사용하지 않는다. `sit-2.png`, `sit-3.png`은 `tmp_image/앉기/sit-transition-preview.html`의 마지막 두 시험 자세에서 흰 배경과 인접 조각을 제거한 1차 연결본이다. 움직임 줄이기 설정에서는 걷기 대신 정지 원화를 표시한다.
 
 - 알·아기는 너비 1024px, 배경은 1600px, 소품은 640px, 성체·불길은 1200px 이하.
 - `withoutEnlargement: true`, `quality: 90`, `alphaQuality: 100`으로 알파를 보존한다.

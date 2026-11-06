@@ -33,7 +33,7 @@ function Panel({ title, background }: { title: string; background: string }) {
       <button type="button" onClick={() => setPaused(!paused)}>{paused ? "동작 재생" : "동작 일시정지"}</button>
     </div>
     <div className={paused ? "showcase-paused" : ""}><DragonScene dragon={dragon} decor={decor} catalog={catalog} /></div>
-    <p>{days > 0 && days < 18 ? element === "neutral" ? "앱의 걷기와 좌우 이동 재생" : "앱의 깜빡임과 숨쉬기 재생" : "현재 앱에 연결된 동작 없음"}{days >= 18 && !(days >= 30 && element === "fire") ? " · 기존 대체 원화" : ""}</p>
+    <p>{days > 0 && days < 18 ? element === "neutral" ? "장면을 드래그해 이동 · 5초 후 앉기" : "앱의 깜빡임과 숨쉬기 재생" : "현재 앱에 연결된 동작 없음"}{days >= 18 && !(days >= 30 && element === "fire") ? " · 기존 대체 원화" : ""}</p>
   </section>;
 }
 

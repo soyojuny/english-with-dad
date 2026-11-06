@@ -1,7 +1,7 @@
 {
   "name": "English with Dad Reading Manager",
   "short_name": "EwD Reading",
-  "description": "아동별 책 읽기와 알 부화·속성별 아기 드래곤의 움직임·성장·배경·장식 꾸미기, 부모 활동 기록을 관리하는 PWA",
+  "description": "아동별 책 읽기와 드래곤 걷기·이동·성장·배경·장식 꾸미기, 부모 활동 기록을 관리하는 PWA",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
