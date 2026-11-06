@@ -14,6 +14,8 @@ const images = [
   ...["neutral", "fire", "ice", "blink", "breathe"].map((name) => [`baby/${name}`, `baby/${name}`, 1024]),
   ["baby/walk-bde", "baby/walk-bde", 2400],
   ["baby/fire-walk-bde", "baby/fire-walk-bde", 2400],
+  ["baby/thunder-walk-bde", "baby/thunder-walk-bde", 2400],
+  ["baby/ice-walk-bde", "baby/ice-walk-bde", 2400],
   ["baby/sit-sequence", "baby/sit-sequence", 5120],
   ["baby/fire-sit-sequence", "baby/fire-sit-sequence", 5120],
   ["baby/lightning", "baby/thunder", 1024],

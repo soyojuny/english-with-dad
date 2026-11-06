@@ -1,0 +1,104 @@
+{
+  "width": 2400,
+  "height": 620,
+  "frameWidth": 800,
+  "fps": 5,
+  "baseline": 580,
+  "scale": 0.593311758360302,
+  "extraction": "Deterministic white mask and largest connected silhouette; source RGB preserved before resizing; no generation.",
+  "frames": [
+    {
+      "pose": "B",
+      "source": "Gemini_Generated_Image_vvt69ivvt69ivvt6.png",
+      "left": 0,
+      "width": 1300,
+      "position": "왼쪽",
+      "crop": {
+        "left": 0,
+        "top": 0,
+        "width": 1300,
+        "height": 1056
+      },
+      "box": {
+        "left": 35,
+        "top": 56,
+        "width": 1191,
+        "height": 927
+      },
+      "rgbChanges": 0,
+      "sha256": "2dfe0d5163fbac5421e66e87a2765968ffb352cfc237f58c2a946c74fa78fbcf",
+      "placement": {
+        "left": 47,
+        "top": 30,
+        "width": 707,
+        "height": 550
+      }
+    },
+    {
+      "pose": "D",
+      "source": "Gemini_Generated_Image_h92gdth92gdth92g.png",
+      "left": 1362,
+      "width": 1363,
+      "position": "가운데",
+      "crop": {
+        "left": 1362,
+        "top": 0,
+        "width": 1363,
+        "height": 1056
+      },
+      "box": {
+        "left": 49,
+        "top": 56,
+        "width": 1172,
+        "height": 924
+      },
+      "rgbChanges": 0,
+      "sha256": "9ca18280f576647bb2fae5170ab1ef90c9aba183b937240b0ed082cd16f69698",
+      "placement": {
+        "left": 53,
+        "top": 32,
+        "width": 695,
+        "height": 548
+      }
+    },
+    {
+      "pose": "E",
+      "source": "Gemini_Generated_Image_h92gdth92gdth92g.png",
+      "left": 2725,
+      "width": 1363,
+      "position": "오른쪽",
+      "crop": {
+        "left": 2725,
+        "top": 0,
+        "width": 1363,
+        "height": 1056
+      },
+      "box": {
+        "left": 51,
+        "top": 59,
+        "width": 1252,
+        "height": 922
+      },
+      "rgbChanges": 0,
+      "sha256": "9ca18280f576647bb2fae5170ab1ef90c9aba183b937240b0ed082cd16f69698",
+      "placement": {
+        "left": 29,
+        "top": 33,
+        "width": 743,
+        "height": 547
+      }
+    }
+  ],
+  "alpha": [
+    0,
+    255
+  ],
+  "animation": {
+    "pages": 3,
+    "delay": [
+      200,
+      200,
+      200
+    ]
+  }
+}

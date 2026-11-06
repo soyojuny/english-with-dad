@@ -124,8 +124,16 @@ test.each([
   { name: "불 알", days: 0, element: "fire" as const, editing: false, enabled: false },
   { name: "불 아기 마지막 날", days: 17, element: "fire" as const, editing: false, enabled: true },
   { name: "불 청소년 첫날", days: 18, element: "fire" as const, editing: false, enabled: false },
-  { name: "번개 아기", days: 6, element: "thunder" as const, editing: false, enabled: false },
-  { name: "얼음 아기", days: 6, element: "ice" as const, editing: false, enabled: false },
+  { name: "번개 알", days: 0, element: "thunder" as const, editing: false, enabled: false },
+  { name: "번개 아기", days: 6, element: "thunder" as const, editing: false, enabled: true },
+  { name: "번개 아기 마지막 날", days: 17, element: "thunder" as const, editing: false, enabled: true },
+  { name: "번개 청소년 첫날", days: 18, element: "thunder" as const, editing: false, enabled: false },
+  { name: "꾸미는 중인 번개 아기", days: 6, element: "thunder" as const, editing: true, enabled: false },
+  { name: "얼음 알", days: 0, element: "ice" as const, editing: false, enabled: false },
+  { name: "얼음 아기", days: 6, element: "ice" as const, editing: false, enabled: true },
+  { name: "얼음 아기 마지막 날", days: 17, element: "ice" as const, editing: false, enabled: true },
+  { name: "얼음 청소년 첫날", days: 18, element: "ice" as const, editing: false, enabled: false },
+  { name: "꾸미는 중인 얼음 아기", days: 6, element: "ice" as const, editing: true, enabled: false },
   { name: "꾸미는 중인 불 아기", days: 6, element: "fire" as const, editing: true, enabled: false },
 ])("$name 조작 허용 여부를 지킨다", ({ days, element, editing, enabled }) => {
   // Given
@@ -135,5 +143,26 @@ test.each([
   act(() => vi.advanceTimersByTime(10000));
   // Then
   expect(screen.getByLabelText("드래곤의 공간").className.includes("is-controllable")).toBe(enabled);
-  expect(!!screen.queryByLabelText("쉬는 아기 드래곤")).toBe(enabled);
+  expect(!!screen.queryByLabelText("쉬는 아기 드래곤")).toBe(enabled && element === "fire");
 });
+
+for (const element of ["thunder", "ice"] as const) {
+test(`${element} 아기는 드래그 중 전용 시트로 걷고 손을 떼면 서서 쉰다`, () => {
+  // Given
+  vi.useFakeTimers();
+  const view = render(<DragonScene dragon={{ ...dragon, element }} decor={decor} catalog={[]} />);
+  const scene = screen.getByLabelText("드래곤의 공간");
+  scene.setPointerCapture = vi.fn();
+  // When
+  fireEvent.pointerDown(scene, { pointerId: 1, pointerType: "touch", clientX: 20, clientY: 20 });
+  fireEvent.pointerMove(scene, { pointerId: 1, pointerType: "touch", clientX: 60, clientY: 20 });
+  // Then
+  expect(screen.getByLabelText("걷는 아기 드래곤").firstElementChild?.getAttribute("style")).toContain(`${element}-walk-bde.webp`);
+  fireEvent.pointerUp(scene, { pointerId: 1 });
+  expect(screen.queryByLabelText("걷는 아기 드래곤")).toBeNull();
+  act(() => vi.advanceTimersByTime(10000));
+  expect(screen.queryByLabelText("쉬는 아기 드래곤")).toBeNull();
+  expect(view.container.querySelector('.dragon-idle img')?.getAttribute('src')).toBe(`/assets/dragons/baby/${element}.webp`);
+  expect(view.container.querySelector(`link[href*="${element}-sit"]`)).toBeNull();
+});
+}

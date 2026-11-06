@@ -27,17 +27,18 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
   const [facing, setFacing] = useState(1);
   const pointer = useRef<number | null>(null);
   const direction = useRef({ dx: 0, dy: 0 });
-  const enabled = dragon.days > 0 && dragon.days < 18 && (!dragon.element || dragon.element === "fire") && !editing;
-  const motionPrefix = dragon.element === "fire" ? "fire-" : "";
+  const enabled = dragon.days > 0 && dragon.days < 18 && !editing;
+  const canSit = enabled && (!dragon.element || dragon.element === "fire");
+  const motionPrefix = dragon.element ? `${dragon.element}-` : "";
   const walkArtwork = `/assets/dragons/baby/${motionPrefix}walk-bde.webp`;
   const sitArtwork = `/assets/dragons/baby/${motionPrefix}sit-sequence.webp`;
   const moving = !!stick && Math.hypot(stick.dx, stick.dy) > 6;
   useEffect(() => { setPosition({ x: 31, y: 65 }); setPose("standing"); setSitFrame(0); setStick(null); pointer.current = null; }, [dragon.id, dragon.days, dragon.element, editing]);
   useEffect(() => {
-    if (!enabled || stick || pose !== "standing") return;
+    if (!canSit || stick || pose !== "standing") return;
     const timer = window.setTimeout(() => setPose("sitting"), 5000);
     return () => window.clearTimeout(timer);
-  }, [enabled, stick, pose]);
+  }, [canSit, stick, pose]);
   useEffect(() => {
     if (pose !== "sitting" && pose !== "rising") return;
     if (pose === "sitting" && sitFrame === 4) { setPose("seated"); return; }
@@ -91,7 +92,7 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
     onPointerCancel={(event) => { if (event.pointerId === pointer.current) { pointer.current = null; setStick(null); } }}
     onLostPointerCapture={(event) => { if (event.pointerId === pointer.current) { pointer.current = null; setStick(null); } }}>
     {enabled && <link rel="preload" as="image" href={walkArtwork} />}
-    {enabled && <link rel="preload" as="image" href={sitArtwork} />}
+    {canSit && <link rel="preload" as="image" href={sitArtwork} />}
     <img className="dragon-background-art" src={backgroundArt} alt="" draggable={false} />
     <div className={`dragon-resident ${dragon.days === 0 ? "is-egg" : dragon.days < 18 ? "is-baby" : dragon.days >= 30 && dragon.element === "fire" ? "is-adult-fire" : ""} ${enabled ? "is-controlled" : ""} ${walking ? "is-walking" : ""}`} style={enabled ? { left: `${position.x}%`, top: `${position.y}%`, transform: `translate(-50%, -50%) scaleX(${facing})` } : undefined}>
       {dragon.days === 0 && <span className="dragon-ground-shadow" aria-hidden="true" />}

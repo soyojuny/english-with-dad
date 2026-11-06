@@ -76,9 +76,9 @@ test('불 아기 정지 원화와 호흡·깜빡임은 밝은 배경 테두리�
   }
 });
 
-for (const element of [null, 'fire']) {
+for (const element of [null, 'fire', 'ice']) {
 for (const width of [390, 1280]) {
-  test(`${element === 'fire' ? '불' : '무속성'} 아기 ${width}px: 스틱 이동과 정지`, async ({ childCompletion: f }, info) => {
+  test(`${element === 'ice' ? '얼음' : element === 'fire' ? '불' : '무속성'} 아기 ${width}px: 스틱 이동과 정지`, async ({ childCompletion: f }, info) => {
     // Given
     const { page } = f; await page.setViewportSize({ width, height: 950 });
     await dragonFixture(page, { dragons: [{ id: 'dragon-1', egg: 0, days: 6, selectedDate: '2026-10-01', element, decor: decor(), version: 0 }] }); await openChild(page);
@@ -104,7 +104,7 @@ for (const width of [390, 1280]) {
     const walk = scene.locator('.dragon-walk-frame');
     await expect(walk).toHaveCSS('animation-duration', '0.6s');
     await expect(walk).toHaveCSS('filter', 'none');
-    const walkPath = `/assets/dragons/baby/${element === 'fire' ? 'fire-' : ''}walk-bde.webp`;
+    const walkPath = `/assets/dragons/baby/${element ? `${element}-` : ''}walk-bde.webp`;
     await expect(walk).toHaveCSS('background-image', new RegExp(walkPath.replaceAll('.', '\\.')));
     const animation = await walk.evaluate(async (element, path) => {
       const image = new Image(); image.src = path; await image.decode();
@@ -137,6 +137,15 @@ for (const width of [390, 1280]) {
     await expect(scene.locator('.dragon-stick')).toHaveCount(0);
     await expect(scene.locator('.dragon-walk')).toHaveCount(0);
     await page.clock.runFor(5000);
+    if (element === 'ice') {
+      await expect(scene.getByLabel('쉬는 아기 드래곤')).toHaveCount(0);
+      await expect(scene.locator('.dragon-idle img').first()).toHaveAttribute('src', '/assets/dragons/baby/ice.webp');
+      await expect(scene.locator('.dragon-breath')).toHaveAttribute('src', '/assets/dragons/baby/ice-breathe.webp');
+      await expect(scene.locator('.dragon-blink')).toHaveAttribute('src', '/assets/dragons/baby/ice-blink.webp');
+      await page.getByRole('button', { name: '공간 꾸미기', exact: true }).click();
+      await expect(scene).not.toHaveClass(/is-controllable/);
+      return;
+    }
     await expect(scene.getByLabel('쉬는 아기 드래곤')).toBeVisible();
     const sitting = scene.locator('.dragon-sit');
     await expect(sitting).toHaveCSS('background-position-x', '0%');
