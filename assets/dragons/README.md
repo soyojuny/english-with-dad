@@ -41,3 +41,7 @@
 | ice-breathe | `번개_눈.png` |
 
 속성별 움직임도 기존 무속성 아기와 동일한 4초 호흡·6초 눈 깜빡임과 움직임 줄이기 설정을 따른다. lightning 파일은 앱 경로에서 thunder로 출력한다.
+# 개발용 쇼케이스
+
+`npm run dev` 실행 후 `http://localhost:3000/dev/dragon-showcase`에서 실제 앱 장면 두 개를 비교할 수 있다. 개발 서버 전용이며 운영 빌드에서는 사용할 수 없다. 성장 단계·속성·동작을 추가하면 `app/dev/dragon-showcase/showcase.tsx`의 선택지와 동작 안내도 함께 갱신한다. 이전 버전의 자동 보관 기능은 없다.
+

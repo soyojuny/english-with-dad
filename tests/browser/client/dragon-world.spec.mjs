@@ -33,6 +33,8 @@ for (const width of [320, 390, 800, 1280]) {
     await page.getByRole('button', { name: '드래곤' }).click();
     const dialog = page.getByRole('region', { name: '드래곤 키우기' });
     // When
+    await expect(dialog.locator('.dragon-tools')).toHaveCount(0);
+    await dialog.getByRole('button', { name: '공간 꾸미기', exact: true }).click();
     await expect(dialog.getByRole('button', { name: '둥지', exact: true })).toHaveCount(0);
     await expect(dialog.getByRole('button', { name: '초록 숲 기본 제공' })).toHaveCount(0);
     for (const name of ['용암 계곡', '넓은 바위 터', '중앙 화산', '용암 폭포']) {
@@ -62,9 +64,10 @@ for (const width of [320, 390, 800, 1280]) {
     expect(bounds.scroll).toBeLessThanOrEqual(bounds.width + 1);
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({ path: info.outputPath(`dragon-${width}.png`), fullPage: true });
+    await dialog.getByRole('button', { name: '공간 꾸미기', exact: true }).click();
     await dialog.getByRole('button', { name: '장식 1', exact: true }).click();
     await dialog.getByRole('button', { name: '기본 위치' }).click();
-    await dialog.getByRole('button', { name: '변경 취소' }).click();
+    await dialog.getByRole('button', { name: '변경 취소', exact: true }).click();
     await expect(dialog.getByRole('button', { name: '꾸미기 저장' })).toBeDisabled();
   });
 }
@@ -81,6 +84,7 @@ test('무료 원화 선택·저장과 학습 복귀, 기록 팝업 및 성체 �
   const screen = page.getByRole('region', { name: '드래곤 키우기' });
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page.getByRole('region', { name: '오늘 해야 할 학습' })).toHaveCount(0);
+  await screen.getByRole('button', { name: '공간 꾸미기', exact: true }).click();
   await screen.getByRole('button', { name: '배경', exact: true }).click();
   await screen.getByRole('button', { name: '넓은 바위 터 기본 제공', exact: true }).click();
   await screen.getByRole('button', { name: '장식 1', exact: true }).click();

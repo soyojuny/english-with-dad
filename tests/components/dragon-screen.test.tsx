@@ -46,6 +46,8 @@ test("배경을 먼저 고를 수 있고 둥지와 미제공 장식은 표시하
   data.catalog.push({ id: "flowers", name: "들꽃", kind: "prop", art: "flowers", free: true });
   render(<DragonScreen controller={controller(data)} />);
   // When
+  expect(screen.queryByRole("button", { name: "용암 계곡 기본 제공" })).toBeNull();
+  await userEvent.click(screen.getByRole("button", { name: "공간 꾸미기" }));
   expect(screen.getByRole("button", { name: "용암 계곡 기본 제공" })).toBeTruthy();
   await userEvent.click(screen.getByRole("button", { name: "장식 1" }));
   // Then
@@ -59,6 +61,7 @@ test("무료 소품은 기회 없이 선택하고 저장 실패 후 배치를 �
   // Given
   const state = controller(world()); render(<DragonScreen controller={state} />);
   // When
+  await userEvent.click(screen.getByRole("button", { name: "공간 꾸미기" }));
   await userEvent.click(screen.getByRole("button", { name: "장식 1" }));
   await userEvent.click(screen.getByRole("button", { name: "용암 수정 기본 제공" }));
   await userEvent.click(screen.getByRole("button", { name: "꾸미기 저장" }));
@@ -78,8 +81,25 @@ test("저장 대기 중에는 소품 선택과 이동을 막는다", async () =>
   // When
   render(<DragonScreen controller={state} />);
   // Then
+  await userEvent.click(screen.getByRole("button", { name: "공간 꾸미기" }));
   await userEvent.click(screen.getByRole("button", { name: "장식 1" }));
   for (const name of ["용암 수정 기본 제공", "오른쪽", "꾸미기 저장"]) {
     expect(screen.getByRole("button", { name }).hasAttribute("disabled")).toBe(true);
   }
+});
+
+test("보기에서는 소품을 편집할 수 없고 닫으면 저장하지 않은 배치를 버린다", async () => {
+  // Given
+  render(<DragonScreen controller={controller(world())} />);
+  expect(screen.getByRole("button", { name: /장식 1: 고대 드래곤 석비/ }).hasAttribute("disabled")).toBe(true);
+  // When
+  await userEvent.click(screen.getByRole("button", { name: "공간 꾸미기" }));
+  await userEvent.click(screen.getByRole("button", { name: "장식 1" }));
+  await userEvent.click(screen.getByRole("button", { name: "용암 수정 기본 제공" }));
+  await userEvent.click(screen.getByRole("button", { name: "변경 취소하고 닫기" }));
+  // Then
+  expect(screen.queryByRole("button", { name: "꾸미기 저장" })).toBeNull();
+  expect(screen.getByRole("button", { name: /장식 1: 고대 드래곤 석비/ }).hasAttribute("disabled")).toBe(true);
+  await userEvent.click(screen.getByRole("button", { name: "공간 꾸미기" }));
+  expect(screen.getByRole("button", { name: "꾸미기 저장" }).hasAttribute("disabled")).toBe(true);
 });

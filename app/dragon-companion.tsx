@@ -65,14 +65,16 @@ function DragonDecorator({ dragon, controller }: { dragon: Dragon; controller: D
   const [decor, setDecor] = useState<DragonDecor>(dragon.decor);
   const [slot, setSlot] = useState<DragonSlot>("background");
   const [message, setMessage] = useState("");
+  const [editing, setEditing] = useState(false);
   const catalog = availableDragonItems(world.catalog);
   const dirty = JSON.stringify(decor) !== JSON.stringify(dragon.decor);
   const move = (target: DragonSlot, x: number, y: number) => { setMessage(""); setDecor((current) => ({ ...current, [target]: { ...current[target], ...clampDragonPosition(x, y) } })); };
-  return <section className="dragon-decorator" aria-label="공간 꾸미기">
-    <div className="dragon-scene-panel"><DragonScene dragon={dragon} decor={decor} catalog={catalog} selected={slot} onSelect={setSlot} onMove={controller.pending ? undefined : move} />
+  return <section className={`dragon-decorator${editing ? " is-editing" : ""}`} aria-label="드래곤 공간">
+    <div className="dragon-scene-panel"><DragonScene dragon={dragon} decor={decor} catalog={catalog} selected={editing ? slot : undefined} onSelect={editing ? setSlot : undefined} onMove={editing && !controller.pending ? move : undefined} />
       <p className="dragon-scene-caption">{dragonStage(dragon.days)} · {dragon.days}/30일</p>
+      {!editing && <button type="button" onClick={() => setEditing(true)}>공간 꾸미기</button>}
     </div>
-    <div className="dragon-tools"><h4>공간 꾸미기</h4>
+    {editing && <div className="dragon-tools"><h4>공간 꾸미기</h4>
     <p>배경을 고르고 장식을 끌어 옮겨 보세요. 배치를 마치면 저장해 주세요.</p>
     <div className="dragon-slot-options">{dragonSlots.map((key) => <button type="button" key={key} aria-pressed={slot === key} onClick={() => setSlot(key)}>{dragonSlotLabels[key]}</button>)}</div>
     <div className="dragon-item-options">{catalog.filter((item) => item.kind === (slot === "background" ? "background" : "prop")).map((item) => {
@@ -83,8 +85,9 @@ function DragonDecorator({ dragon, controller }: { dragon: Dragon; controller: D
     {slot !== "background" && <div className="dragon-move-controls" aria-label="소품 위치 조정">{[["왼쪽", -3, 0], ["오른쪽", 3, 0], ["위", 0, -3], ["아래", 0, 3]].map(([label, dx, dy]) => <button type="button" key={label} disabled={controller.pending || !decor[slot].itemId} onClick={() => move(slot, decor[slot].x + Number(dx), decor[slot].y + Number(dy))}>{label}</button>)}
       <button type="button" disabled={controller.pending} onClick={() => { const original = defaultDragonDecor()[slot]; move(slot, original.x, original.y); }}>기본 위치</button></div>}
     <div className="dragon-save-controls"><button type="button" className="primary-button" disabled={controller.pending || !dirty} onClick={async () => { if (await controller.run({ action: "decorate", id: dragon.id, version: dragon.version, decor })) setMessage("꾸미기를 저장했어요."); }}>꾸미기 저장</button>
-      <button type="button" disabled={controller.pending || !dirty} onClick={() => { setDecor(dragon.decor); setMessage("저장 전 변경을 취소했어요."); }}>변경 취소</button></div>
+      <button type="button" disabled={controller.pending || !dirty} onClick={() => { setDecor(dragon.decor); setMessage("저장 전 변경을 취소했어요."); }}>변경 취소</button>
+      <button type="button" disabled={controller.pending} onClick={() => { setDecor(dragon.decor); setMessage(""); setEditing(false); }}>{dirty ? "변경 취소하고 닫기" : "꾸미기 닫기"}</button></div>
     <p aria-live="polite">{message || (dirty ? "아직 저장하지 않은 배치예요. 다른 드래곤이나 오늘의 학습으로 이동하면 저장되지 않아요." : "저장된 배치예요.")}</p>
-    </div>
+    </div>}
   </section>;
 }
