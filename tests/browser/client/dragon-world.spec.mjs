@@ -45,11 +45,43 @@ test('무속성 아기: 서기·호흡·깜빡임·걷기·앉기 시작의 날�
   expect(alpha).toEqual(samples.map(() => 0));
 });
 
+test('불 아기 정지 원화와 호흡·깜빡임은 밝은 배경 테두리와 날개 틈을 표시하지 않는다', async ({ childCompletion: f }, info) => {
+  // Given: the actual deployed idle assets, including the breathing peak layer.
+  const names = ['fire', 'fire-breathe', 'fire-blink'];
+  // When: sampling the formerly opaque pale neck/horn edge and enclosed wing opening.
+  const samples = await f.page.evaluate(async names => Promise.all(names.map(async name => {
+    const image = new Image(); image.src = `/assets/dragons/baby/${name}.webp`; await image.decode();
+    const canvas = document.createElement('canvas'); canvas.width = image.naturalWidth; canvas.height = image.naturalHeight;
+    const context = canvas.getContext('2d'); context.drawImage(image, 0, 0);
+    return { edge: [[637, 297], [705, 215]].map(([x, y]) => context.getImageData(x, y, 1, 1).data[3]),
+      gap: context.getImageData(443, 498, 1, 1).data[3] };
+  })), names);
+  // Then: resizing may leave faint antialiasing, but the white matte is transparent.
+  for (const sample of samples) {
+    expect(sample.gap).toBe(0);
+    for (const alpha of sample.edge) expect(alpha).toBeLessThan(32);
+  }
+  await dragonFixture(f.page, { dragons: [{ id: 'dragon-1', egg: 0, days: 6, selectedDate: '2026-10-01', element: 'fire', decor: decor(), version: 0 }] });
+  await openChild(f.page);
+  await f.page.getByRole('button', { name: '드래곤', exact: true }).click();
+  const scene = f.page.getByLabel('드래곤의 공간');
+  await scene.locator('.dragon-breath').evaluate(element => {
+    const animation = element.getAnimations()[0]; animation.pause(); animation.currentTime = 2000;
+  });
+  for (const width of [390, 1280]) {
+    await f.page.setViewportSize({ width, height: 950 });
+    await scene.scrollIntoViewIfNeeded();
+    await expect(scene.locator('.dragon-breath')).toHaveCSS('opacity', '1');
+    await scene.screenshot({ path: info.outputPath(`dragon-fire-idle-breath-peak-${width}.png`) });
+  }
+});
+
+for (const element of [null, 'fire']) {
 for (const width of [390, 1280]) {
-  test(`무속성 아기 ${width}px: 스틱 이동과 정지`, async ({ childCompletion: f }, info) => {
+  test(`${element === 'fire' ? '불' : '무속성'} 아기 ${width}px: 스틱 이동과 정지`, async ({ childCompletion: f }, info) => {
     // Given
     const { page } = f; await page.setViewportSize({ width, height: 950 });
-    await dragonFixture(page); await openChild(page);
+    await dragonFixture(page, { dragons: [{ id: 'dragon-1', egg: 0, days: 6, selectedDate: '2026-10-01', element, decor: decor(), version: 0 }] }); await openChild(page);
     await page.getByRole('button', { name: '드래곤', exact: true }).click();
     const scene = page.getByLabel('드래곤의 공간');
     await scene.scrollIntoViewIfNeeded();
@@ -72,8 +104,10 @@ for (const width of [390, 1280]) {
     const walk = scene.locator('.dragon-walk-frame');
     await expect(walk).toHaveCSS('animation-duration', '0.6s');
     await expect(walk).toHaveCSS('filter', 'none');
-    const animation = await walk.evaluate(async element => {
-      const image = new Image(); image.src = '/assets/dragons/baby/walk-bde.webp'; await image.decode();
+    const walkPath = `/assets/dragons/baby/${element === 'fire' ? 'fire-' : ''}walk-bde.webp`;
+    await expect(walk).toHaveCSS('background-image', new RegExp(walkPath.replaceAll('.', '\\.')));
+    const animation = await walk.evaluate(async (element, path) => {
+      const image = new Image(); image.src = path; await image.decode();
       const motion = element.getAnimations()[0]; motion.pause();
       const positions = [];
       for (const time of [0, 199, 200, 399, 401, 599, 600]) {
@@ -82,10 +116,10 @@ for (const width of [390, 1280]) {
       }
       motion.play();
       return { width: image.naturalWidth, height: image.naturalHeight, positions };
-    });
+    }, walkPath);
     expect(animation).toEqual({ width: 2400, height: 620,
       positions: ['0%', '0%', '50%', '50%', '100%', '100%', '0%'] });
-    await scene.screenshot({ path: info.outputPath(`dragon-walking-bde-${width}.png`) });
+    await scene.screenshot({ path: info.outputPath(`dragon-${element ?? 'neutral'}-walking-bde-${width}.png`) });
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await expect(scene.locator('.dragon-walk')).toBeHidden();
     await expect(scene.locator('.dragon-idle')).toBeVisible();
@@ -110,12 +144,13 @@ for (const width of [390, 1280]) {
     await expect(sitting).toHaveCSS('background-position-x', '100%');
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await expect(sitting).toHaveCSS('background-position-x', '0%');
-    const sitSheet = await sitting.evaluate(async element => {
-      const image = new Image(); image.src = '/assets/dragons/baby/sit-sequence.webp'; await image.decode();
+    const sitPath = `/assets/dragons/baby/${element === 'fire' ? 'fire-' : ''}sit-sequence.webp`;
+    const sitSheet = await sitting.evaluate(async (element, path) => {
+      const image = new Image(); image.src = path; await image.decode();
       return { width: image.naturalWidth, height: image.naturalHeight, background: getComputedStyle(element).backgroundImage };
-    });
+    }, sitPath);
     expect(sitSheet.width).toBe(5120); expect(sitSheet.height).toBe(1024);
-    expect(sitSheet.background).toContain('/assets/dragons/baby/sit-sequence.webp');
+    expect(sitSheet.background).toContain(sitPath);
     await page.clock.runFor(299); await expect(sitting).toHaveCSS('background-position-x', '0%');
     await page.clock.runFor(1); await expect(sitting).toHaveCSS('background-position-x', '25%');
     for (const position of ['50%', '75%', '100%']) {
@@ -125,7 +160,7 @@ for (const width of [390, 1280]) {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await expect(sitting).toHaveCSS('background-position-x', '100%');
     await page.emulateMedia({ reducedMotion: 'no-preference' });
-    await scene.screenshot({ path: info.outputPath(`dragon-seated-${width}.png`) });
+    await scene.screenshot({ path: info.outputPath(`dragon-${element ?? 'neutral'}-seated-${width}.png`) });
     await scene.click({ position: { x: 10, y: 10 } });
     await expect(sitting).toHaveClass(/is-rising/);
     await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -137,8 +172,16 @@ for (const width of [390, 1280]) {
     await page.clock.runFor(300);
     await expect(sitting).toHaveCount(0);
     await expect(scene.locator('.dragon-idle')).toBeVisible();
+    if (element === 'fire') {
+      await expect(scene.locator('.dragon-idle img').first()).toHaveAttribute('src', '/assets/dragons/baby/fire.webp');
+      await expect(scene.locator('.dragon-breath')).toHaveAttribute('src', '/assets/dragons/baby/fire-breathe.webp');
+      await expect(scene.locator('.dragon-blink')).toHaveAttribute('src', '/assets/dragons/baby/fire-blink.webp');
+      await page.getByRole('button', { name: '공간 꾸미기', exact: true }).click();
+      await expect(scene).not.toHaveClass(/is-controllable/);
+    }
     expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
   });
+}
 }
 for (const width of [320, 390, 800, 1280]) {
   test(`드래곤 ${width}px: 배경 선택·기본 장식·자유 배치·저장과 복원`, async ({ childCompletion: f }, info) => {

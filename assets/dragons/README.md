@@ -1,5 +1,27 @@
 # 드래곤 정식 에셋
 
+## 불 정지 원화 테두리 정리 · 2026-11-06
+
+불 서기·호흡·깜빡임 PNG에 남은 밝은 배경 경계가 호흡 레이어에서 도드라지는 문제를 수정했다. 생성형 편집 없이 기존 투명 영역에 닿은 밝은 중성색 경계와 날개 안쪽 배경 틈의 알파만 정리했다. 세 PNG의 RGB 변경은 모두 0개이며 좌표·크기·몸 안의 색은 유지했다. 불 앉기 첫 칸도 현재 서기 PNG와 픽셀이 같도록 갱신했으며 나머지 앉기 자세와 걷기는 유지한다. 수정 전 원본·전후 비교·스크립트·SHA-256은 `tmp_image/fire-idle-edge-20261106/`에 보관한다. WebP를 재생성하고 PWA 캐시는 v16으로 올렸다. 아래 픽셀 보존·캐시 버전 설명은 각 제작 당시의 이력이다.
+
+## 불 앉기 원본 색 복구 · 2026-11-06
+
+붉게 바뀐 생성형 편집 시트를 사용자 요청으로 교체했다. 현재 `source/baby/fire-sit-sequence.png`는 제공한 `Gemini_Generated_Image_ylxu5fylxu5fylxu.png`에서 체크 배경을 픽셀 마스크로 직접 분리한 결과다. 생성형 편집·색 보정 없이 알파만 변경했으며, 원본 크기의 분리 PNG를 다시 디코드해 RGB 채널 차이가 0개임을 확인했다. 기존 불 서기를 사용하는 첫 칸의 RGBA 일치도 확인했다. 네 자세에는 같은 배율로 크기와 앞발 접지만 맞췄다. PNG 10240×2048·WebP 5120×1024 무손실과 동작 규칙은 유지한다.
+
+현재 출처·원본 SHA-256·RGB 검증·배치 기록은 `source/baby/fire-sit-sequence.json`에 있다. 제작 스크립트와 이전/현재 비교는 `tmp_image/fire-sit-original-20261106/`에 보관하며 이전 생성형 편집본은 그 아래 `previous-generated/`에 남겼다. 앱·빌드는 정식 원본만 읽는다. 현재 PWA 캐시는 v15다. 아래 생성형 편집 설명은 교체 전 제작 이력이다.
+
+## 불 아기 앉기 적용 · 2026-11-06
+
+제공 `Gemini_Generated_Image_ylxu5fylxu5fylxu.png`의 5자세를 사용한다. 회색 체크 배경과 별 모양을 image_gen으로 제거하고 네 전환/앉기 자세를 같은 배율로 맞췄다. 첫 칸은 기존 `fire.png`의 RGBA 픽셀을 그대로 사용하며 나머지는 가까운 앞발 끝을 (1330,1608)에 정렬했다. 생성형 배경 편집으로 세부 표현은 원본과 일부 다를 수 있다. 정식 입력은 `source/baby/fire-sit-sequence.png`(10240×2048), 배치·출처는 같은 이름 JSON이다. 제작 스크립트·프롬프트·검토 자료는 `tmp_image/fire-sit-review-20261106/`에 보관한다.
+
+불 아기도 5초 대기 후 300ms씩 5자세로 앉고, 터치하면 현재 자세부터 역순으로 일어선다. 기존 불 걷기·호흡·눈 깜빡임과 움직임 줄이기 규칙을 유지한다. 5120×1024 무손실 WebP를 빌드하고 PWA v14 캐시에 포함한다. 번개·얼음 앉기는 추가하지 않는다.
+
+## 불 아기 걷기 적용 · 2026-11-06
+
+사용자가 승인한 `tmp_image/walk-element-review-20261106/fire-walk-bde-candidate.png`를 바이트 그대로 `source/baby/fire-walk-bde.png`에 등록했다. 제공 불 시안의 흰 배경을 image_gen으로 제거한 뒤 3자세를 같은 배율로 정렬한 2400×620 투명 시트다. 각 칸은 800×620이며 최대 높이 550px, 발끝 y=580 기준이다. 생성형 배경 편집으로 원본 세부가 일부 달라진 결과를 사용자가 승인했다. 제작 프롬프트·출처·배치 기록은 해당 검토 폴더에 남기지만 앱과 빌드는 정식 PNG만 읽는다.
+
+불 아기도 스틱 이동 중 B→D→E를 5fps로 반복하고, 손을 떼면 기존 불 서기·호흡·깜빡임으로 돌아간다. 불 앉기 시트는 없으므로 대기 후 앉기는 무속성에만 적용한다. 번개·얼음 걷기 시안은 사용하지 않는다. 움직임 줄이기에서는 걷기 시트 대신 정지 원화를 표시한다. 배포 WebP는 무손실이며 PWA 캐시는 v13이다.
+
 ## 날개 안쪽 배경 정리 · 2026-11-06
 
 무속성 아기의 날개와 엉덩이 사이에 남아 있던 흰 배경을 투명 처리했다. `neutral`, `blink`, `breathe`, `walk-bde`의 세 자세와 `sit-sequence`의 첫 서기 자세에 각각 적용했다. 그 외 자세·크기·좌표는 유지하며 WebP를 재생성했다. 생성형 편집으로 투명한 틈을 확인한 뒤, 정식 원본에는 해당 밝은 연결 영역과 경계만 정리하여 주변 원화가 재생성되지 않도록 했다. 제작 기록과 수정 전후 원본은 `tmp_image/wing-gap-cleanup-20261106/`에 보관한다. 앉기 JSON의 SHA-256은 최초 제작 입력의 이력이며 이번 정리 이후 시트의 해시가 아니다. PWA 캐시는 v12로 갱신했다.
@@ -14,11 +36,13 @@
 | `source/baby/{neutral,fire,lightning,ice,blink,breathe}.png` | `plans/archive/avatar-customization/baby/original-cutouts/` | 아기 기본·무속성 동작 |
 | `source/baby/{fire,lightning,ice}-{blink,breathe}.png` | `plans/archive/avatar-customization/baby/element-cutouts/` | 속성별 아기 동작 |
 | `source/baby/walk-bde.png` | 승인된 B·D·E 미리보기 프레임 | 걷기 시트 |
+| `source/baby/fire-walk-bde.png` | 승인된 속성 걷기 검토의 불 투명 배경·정렬 후보 | 불 아기 걷기 시트 |
 | `source/baby/sit-sequence.png` | 승인된 서기·2rus-2·생성 A/B·4ier-1 | 앉기·일어서기 5자세 시트 |
+| `source/baby/fire-sit-sequence.png` | 기존 불 서기 + 제공한 불 앉기 원본의 RGB 보존·알파 분리·정렬본 | 불 앉기·일어서기 5자세 시트 |
 | `source/adult-fire/*.png` | dragon-assets의 `fire-dragon/transparent/` | 성체 기본·동작 7장 |
 | `source/effects/fire-stream.png` | dragon-assets의 `fire-dragon/effects/fire-stream-transparent.png` | 불길 |
 
-`npm run assets:dragons`는 Sharp 0.34.5로 `public/assets/dragons/`에 WebP 32개를 생성한다. `npm run build`도 prebuild에서 같은 작업을 실행한다. PNG 원본과 배포 WebP를 함께 저장소에 포함한다. 변환은 리사이즈와 WebP 인코딩뿐이며 디자인을 재생성하지 않는다.
+`npm run assets:dragons`는 Sharp 0.34.5로 `public/assets/dragons/`에 WebP 34개를 생성한다. `npm run build`도 prebuild에서 같은 작업을 실행한다. PNG 원본과 배포 WebP를 함께 저장소에 포함한다. 변환은 리사이즈와 WebP 인코딩뿐이며 디자인을 재생성하지 않는다.
 
 무속성 아기의 `walk-bde.png`는 사용자가 독립 미리보기에서 선택한 B→D→E 순서의 2400×620 투명 시트다. B는 `Gemini_Generated_Image_7y11al7y11al7y11.png` 2번, D는 `Gemini_Generated_Image_l8aeoml8aeoml8ae.png` 4번, E는 `Gemini_Generated_Image_flyrscflyrscflyr.png` 3번이다(왼쪽 위부터 가로 순서). 연결 성분으로 온전한 실루엣을 분리하고 흰 배경 경계를 정리했다. 각 자세는 800×620 캔버스에서 높이 550px, 발끝 y=580으로 맞췄다. 승인된 `tmp_image/walk-candidates-20261106/frame-{2,4,5}.png`를 그대로 이어 붙였으며 WebP는 무손실로 생성한다. 드래그 이동 중 5fps(주기 0.6초)로 즉시 교체하며 서기 자세나 교차 페이드는 넣지 않는다. 이전 `walk-3/4` PNG·WebP는 `archive/baby-walk-v1/`에 원본 바이트 그대로 보관하며 앱·빌드·새 캐시에서는 사용하지 않는다. `sit-2.png`, `sit-3.png`은 이전 시험본으로 보존하되 현재 앱·빌드·새 캐시에서 사용하지 않는다. 움직임 줄이기 설정에서는 걷기 대신 정지 원화를 표시한다.
 
@@ -32,8 +56,8 @@
 
 ## 보관 경계
 
-- `source/`: 현재 빌드 입력 PNG 32개와 이전 앉기 시험본 2개. 준비된 성체 액션과 불길도 포함한다.
-- `public/assets/dragons/`: 재생성한 WebP 32개, 이전 앉기 시험본 2개와 성장·속성 대체용 `dragons-v2.png`.
+- `source/`: 현재 빌드 입력 PNG 34개와 이전 앉기 시험본 2개. 준비된 성체 액션과 불길도 포함한다.
+- `public/assets/dragons/`: 재생성한 WebP 34개, 이전 앉기 시험본 2개와 성장·속성 대체용 `dragons-v2.png`.
 - `archive/baby-walk-v1/`: 교체된 걷기 원본·출력 4개. 빌드·배포하지 않는다.
 - `tmp_image/`: 사용자 제공 시트와 독립 검토물. 로컬 제작 자료이며 파일 이동·삭제나 자동 정리 대상이 아니다. 앱 빌드는 이 폴더에 의존하지 않는다.
 - `plans/archive/`의 기존 제작 이력은 정식 원본으로 다시 사용하지 않는다.

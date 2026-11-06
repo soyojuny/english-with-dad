@@ -27,9 +27,12 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
   const [facing, setFacing] = useState(1);
   const pointer = useRef<number | null>(null);
   const direction = useRef({ dx: 0, dy: 0 });
-  const enabled = dragon.days > 0 && dragon.days < 18 && !dragon.element && !editing;
+  const enabled = dragon.days > 0 && dragon.days < 18 && (!dragon.element || dragon.element === "fire") && !editing;
+  const motionPrefix = dragon.element === "fire" ? "fire-" : "";
+  const walkArtwork = `/assets/dragons/baby/${motionPrefix}walk-bde.webp`;
+  const sitArtwork = `/assets/dragons/baby/${motionPrefix}sit-sequence.webp`;
   const moving = !!stick && Math.hypot(stick.dx, stick.dy) > 6;
-  useEffect(() => { setPosition({ x: 31, y: 65 }); setPose("standing"); setSitFrame(0); setStick(null); pointer.current = null; }, [dragon.id, editing]);
+  useEffect(() => { setPosition({ x: 31, y: 65 }); setPose("standing"); setSitFrame(0); setStick(null); pointer.current = null; }, [dragon.id, dragon.days, dragon.element, editing]);
   useEffect(() => {
     if (!enabled || stick || pose !== "standing") return;
     const timer = window.setTimeout(() => setPose("sitting"), 5000);
@@ -87,12 +90,13 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
     onPointerUp={(event) => { if (event.pointerId === pointer.current) { pointer.current = null; setStick(null); } }}
     onPointerCancel={(event) => { if (event.pointerId === pointer.current) { pointer.current = null; setStick(null); } }}
     onLostPointerCapture={(event) => { if (event.pointerId === pointer.current) { pointer.current = null; setStick(null); } }}>
-    {enabled && <link rel="preload" as="image" href="/assets/dragons/baby/sit-sequence.webp" />}
+    {enabled && <link rel="preload" as="image" href={walkArtwork} />}
+    {enabled && <link rel="preload" as="image" href={sitArtwork} />}
     <img className="dragon-background-art" src={backgroundArt} alt="" draggable={false} />
     <div className={`dragon-resident ${dragon.days === 0 ? "is-egg" : dragon.days < 18 ? "is-baby" : dragon.days >= 30 && dragon.element === "fire" ? "is-adult-fire" : ""} ${enabled ? "is-controlled" : ""} ${walking ? "is-walking" : ""}`} style={enabled ? { left: `${position.x}%`, top: `${position.y}%`, transform: `translate(-50%, -50%) scaleX(${facing})` } : undefined}>
       {dragon.days === 0 && <span className="dragon-ground-shadow" aria-hidden="true" />}
-      {enabled && pose !== "standing" ? <span className={`dragon-sit is-${pose}`} style={{ backgroundPositionX: `${sitFrame * 25}%` }} role="img" aria-label="쉬는 아기 드래곤" /> : <div className="dragon-idle"><DragonSprite dragon={dragon} /></div>}
-      {walking && <span className="dragon-walk" role="img" aria-label="걷는 아기 드래곤"><span className="dragon-walk-frame" /></span>}
+      {enabled && pose !== "standing" ? <span className={`dragon-sit is-${pose}`} style={{ backgroundImage: `url('${sitArtwork}')`, backgroundPositionX: `${sitFrame * 25}%` }} role="img" aria-label="쉬는 아기 드래곤" /> : <div className="dragon-idle"><DragonSprite dragon={dragon} /></div>}
+      {walking && <span className="dragon-walk" role="img" aria-label="걷는 아기 드래곤"><span className="dragon-walk-frame" style={{ backgroundImage: `url('${walkArtwork}')` }} /></span>}
     </div>
     {stick && <span className="dragon-stick" aria-hidden="true" style={{ left: stick.x, top: stick.y }}><span style={{ transform: `translate(${Math.max(-35, Math.min(35, stick.dx))}px, ${Math.max(-35, Math.min(35, stick.dy))}px)` }} /></span>}
     {(["left", "right"] as const).map((slot) => {

@@ -7,10 +7,11 @@ const decor = defaultDragonDecor();
 const dragon = { id: "baby", egg: 0, selectedDate: "2026-11-04", days: 1, element: null, decor, version: 0 };
 afterEach(() => vi.useRealTimers());
 
-test("무속성 아기는 5초 후 승인된 다섯 자세로 앉고 터치하면 역순으로 일어선다", () => {
+for (const element of [null, "fire"] as const) {
+test(`${element ?? "무속성"} 아기는 5초 후 다섯 자세로 앉고 터치하면 역순으로 일어선다`, () => {
   // Given
   vi.useFakeTimers();
-  render(<DragonScene dragon={dragon} decor={decor} catalog={[]} />);
+  render(<DragonScene dragon={{ ...dragon, element }} decor={decor} catalog={[]} />);
   const scene = screen.getByLabelText("드래곤의 공간");
   scene.setPointerCapture = vi.fn();
   // When
@@ -19,6 +20,7 @@ test("무속성 아기는 5초 후 승인된 다섯 자세로 앉고 터치하�
   act(() => vi.advanceTimersByTime(1));
   // Then: stand → 2rus-2 → A → B → final, each exactly 300ms.
   expect(screen.getByLabelText("쉬는 아기 드래곤").style.backgroundPositionX).toBe("0%");
+  expect(screen.getByLabelText("쉬는 아기 드래곤").style.backgroundImage).toContain(`/assets/dragons/baby/${element === "fire" ? "fire-" : ""}sit-sequence.webp`);
   act(() => vi.advanceTimersByTime(299));
   expect(screen.getByLabelText("쉬는 아기 드래곤").style.backgroundPositionX).toBe("0%");
   act(() => vi.advanceTimersByTime(1));
@@ -43,7 +45,7 @@ test("무속성 아기는 5초 후 승인된 다섯 자세로 앉고 터치하�
 test("앉는 도중 터치하면 현재 자세에서 되돌아가며 마지막 자세로 뛰지 않는다", () => {
   // Given
   vi.useFakeTimers();
-  render(<DragonScene dragon={dragon} decor={decor} catalog={[]} />);
+  render(<DragonScene dragon={{ ...dragon, element }} decor={decor} catalog={[]} />);
   const scene = screen.getByLabelText("드래곤의 공간");
   scene.setPointerCapture = vi.fn();
   act(() => vi.advanceTimersByTime(5000));
@@ -58,6 +60,7 @@ test("앉는 도중 터치하면 현재 자세에서 되돌아가며 마지막 �
   act(() => vi.advanceTimersByTime(300));
   expect(screen.queryByLabelText("쉬는 아기 드래곤")).toBeNull();
 });
+}
 
 test("첫 서기 프레임에서 터치하면 중간 자세 없이 서기로 돌아간다", () => {
   // Given
@@ -96,4 +99,41 @@ test("다른 드래곤으로 바꾸면 진행 중인 앉기와 프레임을 초�
   expect(screen.queryByLabelText("쉬는 아기 드래곤")).toBeNull();
   act(() => vi.advanceTimersByTime(5000));
   expect(screen.getByLabelText("쉬는 아기 드래곤").style.backgroundPositionX).toBe("0%");
+});
+
+test("앉은 무속성 아기가 불 속성을 선택하면 서기로 초기화한 뒤 불 시트로 앉는다", () => {
+  // Given
+  vi.useFakeTimers();
+  const view = render(<DragonScene dragon={dragon} decor={decor} catalog={[]} />);
+  act(() => vi.advanceTimersByTime(5000));
+  for (let frame = 0; frame < 4; frame++) act(() => vi.advanceTimersByTime(300));
+  expect(screen.getByLabelText("쉬는 아기 드래곤")).toBeTruthy();
+  // When
+  view.rerender(<DragonScene dragon={{ ...dragon, days: 6, element: "fire" }} decor={decor} catalog={[]} />);
+  act(() => vi.advanceTimersByTime(4999));
+  // Then
+  expect(screen.queryByLabelText("쉬는 아기 드래곤")).toBeNull();
+  expect(screen.getByLabelText("드래곤의 공간").className).toContain("is-controllable");
+  expect(view.container.querySelector('.dragon-idle img')?.getAttribute('src')).toBe('/assets/dragons/baby/fire.webp');
+  act(() => vi.advanceTimersByTime(1));
+  expect(screen.getByLabelText("쉬는 아기 드래곤").style.backgroundPositionX).toBe("0%");
+  expect(screen.getByLabelText("쉬는 아기 드래곤").style.backgroundImage).toContain("fire-sit-sequence.webp");
+});
+
+test.each([
+  { name: "불 알", days: 0, element: "fire" as const, editing: false, enabled: false },
+  { name: "불 아기 마지막 날", days: 17, element: "fire" as const, editing: false, enabled: true },
+  { name: "불 청소년 첫날", days: 18, element: "fire" as const, editing: false, enabled: false },
+  { name: "번개 아기", days: 6, element: "thunder" as const, editing: false, enabled: false },
+  { name: "얼음 아기", days: 6, element: "ice" as const, editing: false, enabled: false },
+  { name: "꾸미는 중인 불 아기", days: 6, element: "fire" as const, editing: true, enabled: false },
+])("$name 조작 허용 여부를 지킨다", ({ days, element, editing, enabled }) => {
+  // Given
+  vi.useFakeTimers();
+  render(<DragonScene dragon={{ ...dragon, days, element }} decor={decor} catalog={[]} editing={editing} />);
+  // When
+  act(() => vi.advanceTimersByTime(10000));
+  // Then
+  expect(screen.getByLabelText("드래곤의 공간").className.includes("is-controllable")).toBe(enabled);
+  expect(!!screen.queryByLabelText("쉬는 아기 드래곤")).toBe(enabled);
 });

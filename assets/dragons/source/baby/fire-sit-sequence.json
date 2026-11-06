@@ -1,0 +1,95 @@
+{
+  "providedSource": "Gemini_Generated_Image_ylxu5fylxu5fylxu.png",
+  "sourceSha256": "7e88c60a5d1569962bb10f23f07455782e662db58c903ef11397fd9c2189cd1f",
+  "method": "Deterministic alpha-only checker mask and connected-component extraction; no generative editing or RGB correction.",
+  "extractionRgbChanges": 0,
+  "standingPixelsUnchanged": true,
+  "frameSize": 2048,
+  "frameDurationMs": 300,
+  "frontToe": [
+    1330,
+    1608
+  ],
+  "scale": 1.8338509316770186,
+  "frames": [
+    {
+      "id": "standing",
+      "source": "fire.png",
+      "sha256": "5ee8360e64096b864af447921090ffbff6e69f479297df241742598b5c85ef84",
+      "left": 0,
+      "top": 0
+    },
+    {
+      "id": "early",
+      "box": {
+        "left": 1037,
+        "top": 157,
+        "width": 796,
+        "height": 637,
+        "area": 209371
+      },
+      "toe": [
+        620,
+        635
+      ],
+      "left": 193,
+      "top": 444,
+      "width": 1460,
+      "height": 1168
+    },
+    {
+      "id": "middle",
+      "box": {
+        "left": 1995,
+        "top": 209,
+        "width": 709,
+        "height": 642,
+        "area": 218581
+      },
+      "toe": [
+        548,
+        565
+      ],
+      "left": 325,
+      "top": 572,
+      "width": 1300,
+      "height": 1177
+    },
+    {
+      "id": "late",
+      "box": {
+        "left": 2909,
+        "top": 220,
+        "width": 708,
+        "height": 633,
+        "area": 217636
+      },
+      "toe": [
+        553,
+        559
+      ],
+      "left": 316,
+      "top": 583,
+      "width": 1298,
+      "height": 1161
+    },
+    {
+      "id": "seated",
+      "box": {
+        "left": 3815,
+        "top": 225,
+        "width": 704,
+        "height": 631,
+        "area": 218190
+      },
+      "toe": [
+        584,
+        550
+      ],
+      "left": 259,
+      "top": 599,
+      "width": 1291,
+      "height": 1157
+    }
+  ]
+}
