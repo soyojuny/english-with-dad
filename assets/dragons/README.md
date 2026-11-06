@@ -1,27 +1,38 @@
 # 드래곤 정식 에셋
 
-`source/`의 PNG가 앱 원화의 정식 원본이다. 앉기 두 프레임은 1차 시험 연결본이다. 앱 배포와 이미지 재생성은 `plans/`를 읽지 않는다. 기획 폴더의 이미지와 독립 미리보기는 제작 이력이다.
+`source/`의 PNG가 앱 원화의 정식 원본이다. 앉기는 승인된 5자세 시트를 사용한다. 앱 배포와 이미지 재생성은 `plans/`를 읽지 않는다. 기획 폴더의 이미지와 독립 미리보기는 제작 이력이다.
 
 | 정식 원본 | 제작 당시 위치 | 용도 |
 | --- | --- | --- |
 | `source/eggs/*.png` | `plans/archive/avatar-customization/dragon-assets/eggs/` | 알 3종 |
 | `source/backgrounds/*.png` | 같은 dragon-assets의 `backgrounds/` | 배경 4종 |
 | `source/props/*.png` | 같은 dragon-assets의 `props/` | 석비·용암 수정 |
-| `source/baby/*.png` | `plans/archive/avatar-customization/baby/original-cutouts/` | 무속성·불·번개·얼음, 눈 감기·들숨 |
+| `source/baby/{neutral,fire,lightning,ice,blink,breathe}.png` | `plans/archive/avatar-customization/baby/original-cutouts/` | 아기 기본·무속성 동작 |
+| `source/baby/{fire,lightning,ice}-{blink,breathe}.png` | `plans/archive/avatar-customization/baby/element-cutouts/` | 속성별 아기 동작 |
+| `source/baby/walk-bde.png` | 승인된 B·D·E 미리보기 프레임 | 걷기 시트 |
+| `source/baby/sit-sequence.png` | 승인된 서기·2rus-2·생성 A/B·4ier-1 | 앉기·일어서기 5자세 시트 |
 | `source/adult-fire/*.png` | dragon-assets의 `fire-dragon/transparent/` | 성체 기본·동작 7장 |
 | `source/effects/fire-stream.png` | dragon-assets의 `fire-dragon/effects/fire-stream-transparent.png` | 불길 |
 
-`npm run assets:dragons`는 Sharp 0.34.5로 `public/assets/dragons/`에 WebP 34개를 생성한다. `npm run build`도 prebuild에서 같은 작업을 실행한다. PNG 원본과 배포 WebP를 함께 저장소에 포함한다. 변환은 리사이즈와 WebP 인코딩뿐이며 디자인을 재생성하지 않는다.
+`npm run assets:dragons`는 Sharp 0.34.5로 `public/assets/dragons/`에 WebP 32개를 생성한다. `npm run build`도 prebuild에서 같은 작업을 실행한다. PNG 원본과 배포 WebP를 함께 저장소에 포함한다. 변환은 리사이즈와 WebP 인코딩뿐이며 디자인을 재생성하지 않는다.
 
-무속성 아기의 `walk-bde.png`는 사용자가 독립 미리보기에서 선택한 B→D→E 순서의 2400×620 투명 시트다. B는 `Gemini_Generated_Image_7y11al7y11al7y11.png` 2번, D는 `Gemini_Generated_Image_l8aeoml8aeoml8ae.png` 4번, E는 `Gemini_Generated_Image_flyrscflyrscflyr.png` 3번이다(왼쪽 위부터 가로 순서). 연결 성분으로 온전한 실루엣을 분리하고 흰 배경 경계를 정리했다. 각 자세는 800×620 캔버스에서 높이 550px, 발끝 y=580으로 맞췄다. 승인된 `tmp_image/walk-candidates-20261106/frame-{2,4,5}.png`를 그대로 이어 붙였으며 WebP는 무손실로 생성한다. 드래그 이동 중 5fps(주기 0.6초)로 즉시 교체하며 서기 자세나 교차 페이드는 넣지 않는다. 이전 `walk-3.png`, `walk-4.png`는 보존하지만 앱과 새 캐시에서는 사용하지 않는다. `sit-2.png`, `sit-3.png`은 `tmp_image/앉기/sit-transition-preview.html`의 마지막 두 시험 자세에서 흰 배경과 인접 조각을 제거한 1차 연결본이다. 움직임 줄이기 설정에서는 걷기 대신 정지 원화를 표시한다.
+무속성 아기의 `walk-bde.png`는 사용자가 독립 미리보기에서 선택한 B→D→E 순서의 2400×620 투명 시트다. B는 `Gemini_Generated_Image_7y11al7y11al7y11.png` 2번, D는 `Gemini_Generated_Image_l8aeoml8aeoml8ae.png` 4번, E는 `Gemini_Generated_Image_flyrscflyrscflyr.png` 3번이다(왼쪽 위부터 가로 순서). 연결 성분으로 온전한 실루엣을 분리하고 흰 배경 경계를 정리했다. 각 자세는 800×620 캔버스에서 높이 550px, 발끝 y=580으로 맞췄다. 승인된 `tmp_image/walk-candidates-20261106/frame-{2,4,5}.png`를 그대로 이어 붙였으며 WebP는 무손실로 생성한다. 드래그 이동 중 5fps(주기 0.6초)로 즉시 교체하며 서기 자세나 교차 페이드는 넣지 않는다. 이전 `walk-3/4` PNG·WebP는 `archive/baby-walk-v1/`에 원본 바이트 그대로 보관하며 앱·빌드·새 캐시에서는 사용하지 않는다. `sit-2.png`, `sit-3.png`은 이전 시험본으로 보존하되 현재 앱·빌드·새 캐시에서 사용하지 않는다. 움직임 줄이기 설정에서는 걷기 대신 정지 원화를 표시한다.
 
-- 알·아기는 너비 1024px, 배경은 1600px, 소품은 640px, 성체·불길은 1200px 이하.
-- `withoutEnlargement: true`, `quality: 90`, `alphaQuality: 100`으로 알파를 보존한다.
+- 앉기 시트는 10240×2048 PNG에서 5120×1024 WebP로 변환한다. 걷기 시트는 너비 2400px·높이 620px를 유지한다. 나머지 알·아기는 너비 1024px, 배경은 1600px, 소품은 640px, 성체·불길은 1200px 이하.
+- `withoutEnlargement: true`로 확대를 막는다. 걷기·앉기 시트는 `lossless: true`, 나머지는 `quality: 90`, `alphaQuality: 100`으로 출력한다.
 - 아기의 `lightning.png`는 앱 속성명에 맞춰 `baby/thunder.webp`로 출력한다.
 - 아기 눈 깜빡임·호흡은 앱에서 자동 재생한다. 성체 액션 프레임·효과는 준비되어 있으나 스킬 버튼은 후속 작업이다.
 - 청소년과 불 이외 성체는 아직 전용 원화가 없어 기존 `public/assets/dragons/dragons-v2.png`를 사용한다.
 
 이미지는 Next가 정적 파일로 제공한다. DB에는 이미지 바이트·base64·원본 PNG를 저장하지 않으며 카탈로그의 ID·이름·kind·art 식별자와 드래곤의 선택 ID·배치 좌표만 저장한다.
+
+## 보관 경계
+
+- `source/`: 현재 빌드 입력 PNG 32개와 이전 앉기 시험본 2개. 준비된 성체 액션과 불길도 포함한다.
+- `public/assets/dragons/`: 재생성한 WebP 32개, 이전 앉기 시험본 2개와 성장·속성 대체용 `dragons-v2.png`.
+- `archive/baby-walk-v1/`: 교체된 걷기 원본·출력 4개. 빌드·배포하지 않는다.
+- `tmp_image/`: 사용자 제공 시트와 독립 검토물. 로컬 제작 자료이며 파일 이동·삭제나 자동 정리 대상이 아니다. 앱 빌드는 이 폴더에 의존하지 않는다.
+- `plans/archive/`의 기존 제작 이력은 정식 원본으로 다시 사용하지 않는다.
 
 ## 아기 원화 확정 · 2026-11-04
 
@@ -47,3 +58,14 @@
 
 `npm run dev` 실행 후 `http://localhost:3000/dev/dragon-showcase`에서 실제 앱 장면 두 개를 비교할 수 있다. 개발 서버 전용이며 운영 빌드에서는 사용할 수 없다. 성장 단계·속성·동작을 추가하면 `app/dev/dragon-showcase/showcase.tsx`의 선택지와 동작 안내도 함께 갱신한다. 이전 버전의 자동 보관 기능은 없다.
 
+
+
+## 승인된 앉기 · 2026-11-06
+
+확정 순서는 **서기 → 2rus-2 → 새 A → 새 B → 최종 4ier-1**이다. 2rus-2는 제공한 `Gemini_Generated_Image_2rusm22rusm22rus.png` 2번, A/B는 4ier-1을 기준으로 생성한 초기/후기 하강 자세, 최종은 제공한 `Gemini_Generated_Image_4ierbu4ierbu4ier.png` 단독 원본이다. 독립 미리보기에서 사용자가 1번 조합을 선택한 뒤 아동 화면 적용을 요청했다.
+
+정식 입력 `source/baby/sit-sequence.png`는 2048×2048 프레임 5개를 가로로 연결했다. 모든 자세의 머리 폭은 520px, 가까운 앞발 끝은 (1330,1608)로 맞췄다. 첫 자세는 neutral 원화의 기존 구도와 좌표를 유지하므로 서기에서 시트로 넘어갈 때 크기·접지가 바뀌지 않는다. 원본 치수·선택 파일 SHA-256·개별 배치·출처는 `source/baby/sit-sequence.json`에 기록했다. 다른 자세는 크기와 위치만 정렬하며 RGB 보정·선명화·형태 합성은 하지 않았다. 기존 시험본을 덮어쓰지 않았다.
+
+아동 화면은 5초간 조작하지 않으면 300ms 간격으로 시트의 0→1→2→3→4번을 표시한다. 1.2초 뒤 최종 자세에서 쉬며 터치할 때까지 유지한다. 터치하면 현재 프레임부터 역순으로 돌아가므로 하강 중에도 마지막 자세로 뛰지 않는다. 서기로 돌아온 후 기존 스틱 이동과 승인된 B→D→E 걷기를 사용한다. 움직임 줄이기에서는 중간 프레임 없이 최종 앉기/서기 정지 자세를 표시한다. 교차 페이드는 없다.
+
+현재 생성 A/B의 얼굴·뿔·꼬리 형태는 원본과 완전히 같지는 않고 B의 뒷발이 겹쳐 보이는 부분도 남아 있어 두 자세는 전환에만 쓴다. 앉은 상태는 승인된 4ier-1을 유지한다. 앱 빌드는 정식 PNG만 읽으며 `tmp_image/`의 미리보기나 생성 파일에 의존하지 않는다. 제작 시 정렬 스크립트는 `tmp_image/sit-review-v2-20261106/generated-v1/build-app-sheet.mjs`다.

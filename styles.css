@@ -1834,17 +1834,15 @@ label > textarea {
 .dragon-stick { position: absolute; z-index: 5; width: 72px; height: 72px; border: 2px solid #ffffffb0; border-radius: 50%; background: #1a252b66; transform: translate(-50%, -50%); pointer-events: none; }
 .dragon-stick span { position: absolute; left: 50%; top: 50%; width: 30px; height: 30px; margin: -15px; border-radius: 50%; background: #ffffffc9; }
 .dragon-walk { display: block; position: relative; aspect-ratio: 1; }
-.dragon-sit { display: block; aspect-ratio: 1; background: url('/assets/dragons/baby/sit-3.webp') center 44% / 68% no-repeat; }
-.dragon-sit.is-sitting { animation: dragon-sit-down .7s steps(1) forwards; }
-.dragon-sit.is-rising { animation: dragon-sit-down .7s steps(1) reverse forwards; }
-@keyframes dragon-sit-down { 0% { background-image: url('/assets/dragons/baby/neutral.webp'); background-size: 100%; } 50% { background-image: url('/assets/dragons/baby/sit-2.webp'); background-size: 68%; } 100% { background-image: url('/assets/dragons/baby/sit-3.webp'); background-size: 68%; } }
+.dragon-sit { display: block; aspect-ratio: 1; background: url('/assets/dragons/baby/sit-sequence.webp') 0% 0% / 500% 100% no-repeat; }
 .dragon-walk-frame { display: block; position: absolute; left: 8.5%; top: 18%; width: 83%; aspect-ratio: 800 / 620; background: url('/assets/dragons/baby/walk-bde.webp') 0% 0% / 300% 100% no-repeat; animation: dragon-step .6s steps(1) infinite; }
 .is-walking .dragon-idle { display: none; }
 @keyframes dragon-step { 0% { background-position: 0% 0%; } 33.333333% { background-position: 50% 0%; } 66.666667% { background-position: 100% 0%; } }
 @media (prefers-reduced-motion: reduce) {
   .is-walking .dragon-idle { display: block; }
   .dragon-walk { display: none; }
-  .dragon-sit { animation: none !important; }
+  .dragon-sit.is-sitting, .dragon-sit.is-seated { background-position-x: 100% !important; }
+  .dragon-sit.is-rising { background-position-x: 0% !important; }
 }
 .dragon-resident.is-egg { width: 32%; left: 29%; bottom: 7%; }
 .dragon-resident.is-adult-fire { width: 68%; left: 5%; bottom: 4%; }

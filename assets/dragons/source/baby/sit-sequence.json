@@ -1,0 +1,105 @@
+{
+  "sequence": [
+    "standing",
+    "old2",
+    "a",
+    "b",
+    "final"
+  ],
+  "frameSize": 2048,
+  "headWidth": 520,
+  "frontToe": [
+    1330,
+    1608
+  ],
+  "frameDurationMs": 300,
+  "frames": [
+    {
+      "index": 0,
+      "id": "standing",
+      "source": "../standing.png",
+      "sha256": "0c6df6fcb46ff1729fa5949de71c858fa0f82a5bbc1fba18ada42d0610eeb7a8",
+      "headWidth": 520,
+      "frontToe": [
+        1120,
+        1175
+      ],
+      "placement": {
+        "left": 210,
+        "top": 433,
+        "width": 1524,
+        "height": 1181
+      }
+    },
+    {
+      "index": 1,
+      "id": "old2",
+      "source": "../2rus-2-edge.png",
+      "sha256": "ddb6298025b0bfae0cba122bf337e9b9baf850624c2ca4e528c0481be7abe90d",
+      "headWidth": 375,
+      "frontToe": [
+        770,
+        835
+      ],
+      "placement": {
+        "left": 262,
+        "top": 450,
+        "width": 1475,
+        "height": 1166
+      }
+    },
+    {
+      "index": 2,
+      "id": "a",
+      "source": "descent-40-original.png",
+      "sha256": "2b383f3d2af988067ade02ed06576b6ed9dc4e5c2890a61e1c5612409f9cc3c8",
+      "headWidth": 517,
+      "frontToe": [
+        970,
+        1023
+      ],
+      "placement": {
+        "left": 354,
+        "top": 579,
+        "width": 1349,
+        "height": 1180
+      }
+    },
+    {
+      "index": 3,
+      "id": "b",
+      "source": "descent-75-original.png",
+      "sha256": "baf6c082af0d24a8c75aaf490edf06abed1bc074402df05e3a3bbbc4df5af59c",
+      "headWidth": 495,
+      "frontToe": [
+        980,
+        1010
+      ],
+      "placement": {
+        "left": 301,
+        "top": 547,
+        "width": 1409,
+        "height": 1232
+      }
+    },
+    {
+      "index": 4,
+      "id": "final",
+      "source": "../4ier-1-edge.png",
+      "sha256": "a91869042dd4a59284fbc6a098251621a77dccab8026e45f8659a7a250b506b0",
+      "headWidth": 530,
+      "frontToe": [
+        1080,
+        1056
+      ],
+      "placement": {
+        "left": 270,
+        "top": 572,
+        "width": 1360,
+        "height": 1190
+      }
+    }
+  ],
+  "approval": "1번으로 해도 좋을거 같아.",
+  "origin": "tmp_image/sit-review-v2-20261106/generated-v1/selected.json"
+}

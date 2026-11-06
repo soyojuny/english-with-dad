@@ -50,7 +50,7 @@ test('P01-B02: 앱 등록 worker가 shell 자산을 준비하고 온라인 navig
   // When
   const state = await page.evaluate(async () => {
     const registration = await navigator.serviceWorker.getRegistration();
-    const cache = await caches.open('ewd-reading-v10');
+    const cache = await caches.open('ewd-reading-v11');
     return { script: registration.active.scriptURL, scope: registration.scope,
       paths: (await cache.keys()).map(request => new URL(request.url).pathname).sort() };
   });
@@ -73,8 +73,7 @@ test('P01-B02: 앱 등록 worker가 shell 자산을 준비하고 온라인 navig
     '/assets/dragons/adult-fire.webp',
     '/assets/dragons/baby/neutral.webp',
     '/assets/dragons/baby/walk-bde.webp',
-    '/assets/dragons/baby/sit-2.webp',
-    '/assets/dragons/baby/sit-3.webp',
+    '/assets/dragons/baby/sit-sequence.webp',
     '/assets/dragons/baby/breathe.webp',
     '/assets/dragons/baby/blink.webp',
   '/assets/dragons/baby/fire-breathe.webp',
@@ -104,6 +103,10 @@ test('P01-B03: offline navigation은 cached root 문서를 반환하고 캐시 i
     const response = await fetch('/assets/app-icon.svg');
     return { status: response.status, text: await response.text() };
   });
+  const sitting = await page.evaluate(async () => {
+    const response = await fetch('/assets/dragons/baby/sit-sequence.webp');
+    return { status: response.status, type: response.headers.get('content-type'), bytes: (await response.arrayBuffer()).byteLength };
+  });
   // Then
   expect(response.fromServiceWorker()).toBe(true);
   expect(response.status()).toBe(200);
@@ -112,6 +115,9 @@ test('P01-B03: offline navigation은 cached root 문서를 반환하고 캐시 i
   expect(html).not.toContain('인증 링크를 다시 확인해 주세요');
   expect(icon.status).toBe(200);
   expect(icon.text).toContain('<svg');
+  expect(sitting.status).toBe(200);
+  expect(sitting.type).toContain('image/webp');
+  expect(sitting.bytes).toBeGreaterThan(0);
 });
 
 test('P01-B04: SW 등록 거절은 안내를 표시하며 온라인 앱 shell은 사용할 수 있다', async ({ context, page, nextApp }) => {

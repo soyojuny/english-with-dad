@@ -84,10 +84,40 @@ for (const width of [390, 1280]) {
     await expect(scene.locator('.dragon-walk')).toHaveCount(0);
     await page.clock.runFor(5000);
     await expect(scene.getByLabel('쉬는 아기 드래곤')).toBeVisible();
-    await page.clock.runFor(700);
+    const sitting = scene.locator('.dragon-sit');
+    await expect(sitting).toHaveCSS('background-position-x', '0%');
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await expect(sitting).toHaveCSS('background-position-x', '100%');
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await expect(sitting).toHaveCSS('background-position-x', '0%');
+    const sitSheet = await sitting.evaluate(async element => {
+      const image = new Image(); image.src = '/assets/dragons/baby/sit-sequence.webp'; await image.decode();
+      return { width: image.naturalWidth, height: image.naturalHeight, background: getComputedStyle(element).backgroundImage };
+    });
+    expect(sitSheet.width).toBe(5120); expect(sitSheet.height).toBe(1024);
+    expect(sitSheet.background).toContain('/assets/dragons/baby/sit-sequence.webp');
+    await page.clock.runFor(299); await expect(sitting).toHaveCSS('background-position-x', '0%');
+    await page.clock.runFor(1); await expect(sitting).toHaveCSS('background-position-x', '25%');
+    for (const position of ['50%', '75%', '100%']) {
+      await page.clock.runFor(300); await expect(sitting).toHaveCSS('background-position-x', position);
+    }
+    await expect(sitting).toHaveClass(/is-seated/);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await expect(sitting).toHaveCSS('background-position-x', '100%');
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
     await scene.screenshot({ path: info.outputPath(`dragon-seated-${width}.png`) });
     await scene.click({ position: { x: 10, y: 10 } });
-    await expect(scene.locator('.dragon-sit')).toHaveClass(/is-rising/);
+    await expect(sitting).toHaveClass(/is-rising/);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await expect(sitting).toHaveCSS('background-position-x', '0%');
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    for (const position of ['75%', '50%', '25%']) {
+      await page.clock.runFor(300); await expect(sitting).toHaveCSS('background-position-x', position);
+    }
+    await page.clock.runFor(300);
+    await expect(sitting).toHaveCount(0);
+    await expect(scene.locator('.dragon-idle')).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
   });
 }
 for (const width of [320, 390, 800, 1280]) {

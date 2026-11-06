@@ -23,12 +23,13 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
   const [position, setPosition] = useState({ x: 31, y: 65 });
   const [stick, setStick] = useState<{ x: number; y: number; dx: number; dy: number } | null>(null);
   const [pose, setPose] = useState<"standing" | "sitting" | "seated" | "rising">("standing");
+  const [sitFrame, setSitFrame] = useState(0);
   const [facing, setFacing] = useState(1);
   const pointer = useRef<number | null>(null);
   const direction = useRef({ dx: 0, dy: 0 });
   const enabled = dragon.days > 0 && dragon.days < 18 && !dragon.element && !editing;
   const moving = !!stick && Math.hypot(stick.dx, stick.dy) > 6;
-  useEffect(() => { setPosition({ x: 31, y: 65 }); setPose("standing"); setStick(null); pointer.current = null; }, [dragon.id, editing]);
+  useEffect(() => { setPosition({ x: 31, y: 65 }); setPose("standing"); setSitFrame(0); setStick(null); pointer.current = null; }, [dragon.id, editing]);
   useEffect(() => {
     if (!enabled || stick || pose !== "standing") return;
     const timer = window.setTimeout(() => setPose("sitting"), 5000);
@@ -36,9 +37,11 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
   }, [enabled, stick, pose]);
   useEffect(() => {
     if (pose !== "sitting" && pose !== "rising") return;
-    const timer = window.setTimeout(() => setPose(pose === "sitting" ? "seated" : "standing"), 700);
+    if (pose === "sitting" && sitFrame === 4) { setPose("seated"); return; }
+    if (pose === "rising" && sitFrame === 0) { setPose("standing"); return; }
+    const timer = window.setTimeout(() => setSitFrame((frame) => frame + (pose === "sitting" ? 1 : -1)), 300);
     return () => window.clearTimeout(timer);
-  }, [pose]);
+  }, [pose, sitFrame]);
   useEffect(() => {
     if (!enabled || !moving || pose !== "standing") return;
     let frame = 0;
@@ -84,10 +87,11 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
     onPointerUp={(event) => { if (event.pointerId === pointer.current) { pointer.current = null; setStick(null); } }}
     onPointerCancel={(event) => { if (event.pointerId === pointer.current) { pointer.current = null; setStick(null); } }}
     onLostPointerCapture={(event) => { if (event.pointerId === pointer.current) { pointer.current = null; setStick(null); } }}>
+    {enabled && <link rel="preload" as="image" href="/assets/dragons/baby/sit-sequence.webp" />}
     <img className="dragon-background-art" src={backgroundArt} alt="" draggable={false} />
     <div className={`dragon-resident ${dragon.days === 0 ? "is-egg" : dragon.days < 18 ? "is-baby" : dragon.days >= 30 && dragon.element === "fire" ? "is-adult-fire" : ""} ${enabled ? "is-controlled" : ""} ${walking ? "is-walking" : ""}`} style={enabled ? { left: `${position.x}%`, top: `${position.y}%`, transform: `translate(-50%, -50%) scaleX(${facing})` } : undefined}>
       {dragon.days === 0 && <span className="dragon-ground-shadow" aria-hidden="true" />}
-      {enabled && pose !== "standing" ? <span className={`dragon-sit is-${pose}`} role="img" aria-label="쉬는 아기 드래곤" /> : <div className="dragon-idle"><DragonSprite dragon={dragon} /></div>}
+      {enabled && pose !== "standing" ? <span className={`dragon-sit is-${pose}`} style={{ backgroundPositionX: `${sitFrame * 25}%` }} role="img" aria-label="쉬는 아기 드래곤" /> : <div className="dragon-idle"><DragonSprite dragon={dragon} /></div>}
       {walking && <span className="dragon-walk" role="img" aria-label="걷는 아기 드래곤"><span className="dragon-walk-frame" /></span>}
     </div>
     {stick && <span className="dragon-stick" aria-hidden="true" style={{ left: stick.x, top: stick.y }}><span style={{ transform: `translate(${Math.max(-35, Math.min(35, stick.dx))}px, ${Math.max(-35, Math.min(35, stick.dy))}px)` }} /></span>}

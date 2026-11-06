@@ -32,7 +32,7 @@
 
 신규 카탈로그 migration은 용암 계곡·넓은 바위 터·중앙 화산·용암 폭포와 고대 드래곤 석비·용암 수정을 기본 무료로 추가한다. 새 알의 기본 배치는 용암 계곡·석비·수정이다. 화면과 RPC가 제공하는 목록 및 저장 가능한 ID는 이 6종으로 제한한다. 배치 계약은 background/left/right 세 자리이며 nest 입력은 거절한다. 기존 저장 행을 일괄 초기화하거나 삭제하지 않고 조회에서는 지원하는 원화만 투영하며, 명시적인 꾸미기 저장 때 현재 세 자리를 기록한다.
 
-`dragon_items`에는 `name`, `kind`, `art` 식별자와 무료 여부가 들어 있다. 이미지 바이트·base64·원본 PNG는 DB에 저장하지 않는다. 원본은 `assets/dragons/source/`, 배포 파일은 `public/assets/dragons/`다. `npm run build`가 prebuild에서 `npm run assets:dragons`를 실행해 정식 원본으로 WebP 34개를 재생성한다. 계획 폴더나 로컬 다운로드 경로에 의존하지 않는다.
+`dragon_items`에는 `name`, `kind`, `art` 식별자와 무료 여부가 들어 있다. 이미지 바이트·base64·원본 PNG는 DB에 저장하지 않는다. 원본은 `assets/dragons/source/`, 배포 파일은 `public/assets/dragons/`다. `npm run build`가 prebuild에서 `npm run assets:dragons`를 실행해 정식 원본으로 WebP 33개를 재생성한다. 계획 폴더나 로컬 다운로드 경로에 의존하지 않는다.
 
 새 원화를 추가하려면 `lib/dragon-art.ts`와 빌드 목록, 카탈로그 허용 목록(앱 `availableDragonItems`와 RPC)을 함께 갱신한다. 미지원 소품은 목록·장면·저장 모두 허용하지 않는다. 원본·출력 대응과 후속 동작 프레임 상태는 `assets/dragons/README.md`를 따른다.
 
@@ -47,3 +47,5 @@
 `npm run test:browser:client -- dragon-world.spec.mjs`는 로컬 HTTP 대역으로 320·390·800·1280px 화면의 배경 선택·무료 장식·드래그·저장·재조회와 완료 확인을 검증한다. 원화·DOM·포인터는 실제 브라우저를 사용하고 보상 DB 규칙은 위 DB 테스트에서 따로 검증한다.
 
 무속성 아기의 이동 중 걷기는 승인된 B→D→E 세 자세를 5fps로 반복한다. 정지 자세는 반복에서 제외하며, 교차 페이드 없이 무손실 걷기 시트의 프레임을 교체한다. 원본 출처와 정렬 기준은 `assets/dragons/README.md`에 기록한다.
+
+아동 화면의 무속성 아기 앉기는 승인된 서기→2rus-2→새 A→새 B→4ier-1 순서로 300ms씩 표시한다. 5초 대기 후 하강을 시작해 1.2초 뒤 최종 자세에서 쉬며, 터치하면 현재 자세부터 역순으로 일어선다. 하강 도중 터치해도 마지막 자세로 뛰지 않는다. 크기·접지는 기존 서기와 맞춘 5칸 무손실 시트를 사용한다. 움직임 줄이기에서는 중간 자세를 생략한다. 승인된 B→D→E 걷기와 스틱 이동 규칙은 유지한다.

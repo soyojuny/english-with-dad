@@ -13,7 +13,7 @@ const images = [
   ...["ancient-dragon-relic", "lava-crystal"].map((name) => [`props/${name}`, `props/${name}`, 640]),
   ...["neutral", "fire", "ice", "blink", "breathe"].map((name) => [`baby/${name}`, `baby/${name}`, 1024]),
   ["baby/walk-bde", "baby/walk-bde", 2400],
-  ...["sit-2", "sit-3"].map((name) => [`baby/${name}`, `baby/${name}`, 1024]),
+  ["baby/sit-sequence", "baby/sit-sequence", 5120],
   ["baby/lightning", "baby/thunder", 1024],
   ...["fire", "lightning", "ice"].flatMap((element) => ["blink", "breathe"].map((motion) =>
     [`baby/${element}-${motion}`, `baby/${element === "lightning" ? "thunder" : element}-${motion}`, 1024])),
@@ -27,6 +27,6 @@ for (const [input, name, width] of images) {
   const file = resolve(output, `${name}.webp`);
   await mkdir(dirname(file), { recursive: true });
   await sharp(resolve(source, `${input}.png`)).resize({ width, withoutEnlargement: true })
-    .webp(name === "baby/walk-bde" ? { lossless: true } : { quality: 90, alphaQuality: 100 }).toFile(file);
+    .webp((name === "baby/walk-bde" || name === "baby/sit-sequence") ? { lossless: true } : { quality: 90, alphaQuality: 100 }).toFile(file);
 }
 console.log(`Dragon assets: ${images.length} WebP files built from assets/dragons/source`);
