@@ -1,0 +1,1114 @@
+{
+  "purpose": "Historical production notes retained before user-authorized tmp_image cleanup. Script paths and instructions are historical; image inputs are not included. Current build inputs live in assets/dragons/source/.",
+  "records": [
+    {
+      "path": "tmp_image/Gemini_Generated_Image_16cmj916cmj916cm.png",
+      "bytes": 5761209,
+      "sha256": "464cf39e0278ce4d9373d9b663189fbb8293ad1667c881e31a1fbd6f9a178623"
+    },
+    {
+      "path": "tmp_image/Gemini_Generated_Image_16cmj916cmj916cm.png:Zone.Identifier",
+      "bytes": 25,
+      "sha256": "b952d24cf701bc4e7a7d21e1ae85c611824e80579a89836c0cb49b193446ccfe"
+    },
+    {
+      "path": "tmp_image/Gemini_Generated_Image_8vgtcn8vgtcn8vgt.png",
+      "bytes": 4945558,
+      "sha256": "211a84652962482f56e61bb540c02a0d03cadbbe1771992aed624d5171dcadad"
+    },
+    {
+      "path": "tmp_image/Gemini_Generated_Image_8vgtcn8vgtcn8vgt.png:Zone.Identifier",
+      "bytes": 25,
+      "sha256": "b952d24cf701bc4e7a7d21e1ae85c611824e80579a89836c0cb49b193446ccfe"
+    },
+    {
+      "path": "tmp_image/Gemini_Generated_Image_ylxu5fylxu5fylxu.png",
+      "bytes": 6355537,
+      "sha256": "7e88c60a5d1569962bb10f23f07455782e662db58c903ef11397fd9c2189cd1f"
+    },
+    {
+      "path": "tmp_image/Gemini_Generated_Image_ylxu5fylxu5fylxu.png:Zone.Identifier",
+      "bytes": 25,
+      "sha256": "b952d24cf701bc4e7a7d21e1ae85c611824e80579a89836c0cb49b193446ccfe"
+    },
+    {
+      "path": "tmp_image/Gemini_Generated_Image_zaoe3gzaoe3gzaoe.png",
+      "bytes": 4512310,
+      "sha256": "7a489a73bc02e0603253e1455c51bbc18092a8bc510e00e0c23d9de39866ad53"
+    },
+    {
+      "path": "tmp_image/Gemini_Generated_Image_zaoe3gzaoe3gzaoe.png:Zone.Identifier",
+      "bytes": 25,
+      "sha256": "b952d24cf701bc4e7a7d21e1ae85c611824e80579a89836c0cb49b193446ccfe"
+    },
+    {
+      "path": "tmp_image/fire-idle-edge-20261106/README.md",
+      "bytes": 2534,
+      "sha256": "6698ca9bef6cec5355b5806e058281e73d0a5eb66550ee5ce54a67e1a570d72e",
+      "text": "# 불 정지 이미지의 밝은 테두리 수정 · 2026-11-06\n\n사용자 캡처에서 호흡 중 뿔·날개·목·꼬리에 밝은 가장자리가 보였다. CSS의 호흡은 기본 이미지 위에 호흡 PNG를 0~1 불투명도로 겹쳐 표시한다. 각 PNG를 어두운 바탕에 따로 표시한 결과, 기본·깜빡임에도 일부 있고 특히 호흡 PNG 자체의 가장자리 잔여 배경이 밝았다. 수정 전 정식 fire·fire-breathe PNG의 SHA-256은 각각 기존 original-cutouts·element-cutouts와 같았다. 렌더링 필터는 원인이 아니며 CSS는 변경하지 않는다.\n\n## 수정 범위\n\n`before/`에 수정 전 정식 PNG 3개와 불 앉기 PNG·JSON을 보존했다. `clean.mjs`는 기존 투명 영역과 맞닿은 밝은 중성색(채널 최솟값 95 이상, 채널 차이 55 이하)만 연결 영역으로 추적해 알파를 0으로 바꾼다. 날개와 엉덩이 사이의 닫힌 배경 틈은 알려진 (886,996)을 시작점으로 같은 방식으로 정리한다. RGB는 전혀 수정하지 않고 이미지 생성 도구도 사용하지 않는다. 좌표·크기·몸 안의 색과 무늬·호흡 재생 방식은 유지한다.\n\n- fire: 5,915개 경계/배경 픽셀 알파 정리\n- fire-breathe: 10,134개 경계/배경 픽셀 알파 정리\n- fire-blink: 7,441개 경계/배경 픽셀 알파 정리\n- PNG 저장 후 다시 읽어 세 이미지 모두 RGB 채널 변경 0개 확인\n\n정식 PNG 3개를 교체하고 불 앉기 시트 첫 칸도 정리한 fire.png와 일치하도록 다시 구성했다. 앉기의 나머지 네 자세와 걷기는 유지한다. `results.json`에 전후 SHA-256과 알파 변경 수를 기록한다. 앱 빌드는 정식 PNG만 읽으며 제작 폴더에는 의존하지 않는다. 배포 WebP를 재생성하고 캐시 버전을 v16으로 갱신한다.\n\n## 검증\n\n수정 전 1024px 출력의 목 테두리 (637,297)는 fire/호흡/깜빡임 알파가 각각 180/245/63이고, 날개 틈 (443,498)은 모두 255였다. 수정 후 목 경계는 32 미만의 약한 리샘플링 경계만 남고 날개 틈은 0이다. 실제 배포 WebP에 같은 검사를 추가했다. 브라우저는 호흡 레이어가 완전히 보이는 2초 지점을 고정해 390px·1280px 화면을 캡처한다. 기존 불 걷기·앉기·일어서기와 PWA 오프라인 에셋 응답도 확인한다.\n\n`breathing-before-after.png`는 왼쪽 수정 전, 오른쪽 수정 후다. `*-before.png`·`*-after.png`는 알파를 어두운 배경에 합성한 검토 이미지다.\n"
+    },
+    {
+      "path": "tmp_image/fire-idle-edge-20261106/before/fire-blink.png",
+      "bytes": 3720975,
+      "sha256": "b1d69447bde194020d4f947f43323b892b9e9846a54c3753dec44bae4367d739"
+    },
+    {
+      "path": "tmp_image/fire-idle-edge-20261106/before/fire-breathe.png",
+      "bytes": 3689411,
+      "sha256": "161b27ede9d91692bf3f08c65c0e4390d426792fb0635dffe1ef831e1e5e7846"
+    },
+    {
+      "path": "tmp_image/fire-idle-edge-20261106/before/fire-sit-sequence.json",
+      "bytes": 1852,
+      "sha256": "d249942f1cedcbe6530bce6f28fe6c1d0339720a3745409c2e92e6298cc0c9fe",
+      "text": "{\n  \"providedSource\": \"Gemini_Generated_Image_ylxu5fylxu5fylxu.png\",\n  \"sourceSha256\": \"7e88c60a5d1569962bb10f23f07455782e662db58c903ef11397fd9c2189cd1f\",\n  \"method\": \"Deterministic alpha-only checker mask and connected-component extraction; no generative editing or RGB correction.\",\n  \"extractionRgbChanges\": 0,\n  \"standingPixelsUnchanged\": true,\n  \"frameSize\": 2048,\n  \"frameDurationMs\": 300,\n  \"frontToe\": [\n    1330,\n    1608\n  ],\n  \"scale\": 1.8338509316770186,\n  \"frames\": [\n    {\n      \"id\": \"standing\",\n      \"source\": \"fire.png\",\n      \"sha256\": \"b24327f71865c57ac8152121f8ab0aecfad5a99501ac887b49006749dea244ab\",\n      \"left\": 0,\n      \"top\": 0\n    },\n    {\n      \"id\": \"early\",\n      \"box\": {\n        \"left\": 1037,\n        \"top\": 157,\n        \"width\": 796,\n        \"height\": 637,\n        \"area\": 209371\n      },\n      \"toe\": [\n        620,\n        635\n      ],\n      \"left\": 193,\n      \"top\": 444,\n      \"width\": 1460,\n      \"height\": 1168\n    },\n    {\n      \"id\": \"middle\",\n      \"box\": {\n        \"left\": 1995,\n        \"top\": 209,\n        \"width\": 709,\n        \"height\": 642,\n        \"area\": 218581\n      },\n      \"toe\": [\n        548,\n        565\n      ],\n      \"left\": 325,\n      \"top\": 572,\n      \"width\": 1300,\n      \"height\": 1177\n    },\n    {\n      \"id\": \"late\",\n      \"box\": {\n        \"left\": 2909,\n        \"top\": 220,\n        \"width\": 708,\n        \"height\": 633,\n        \"area\": 217636\n      },\n      \"toe\": [\n        553,\n        559\n      ],\n      \"left\": 316,\n      \"top\": 583,\n      \"width\": 1298,\n      \"height\": 1161\n    },\n    {\n      \"id\": \"seated\",\n      \"box\": {\n        \"left\": 3815,\n        \"top\": 225,\n        \"width\": 704,\n        \"height\": 631,\n        \"area\": 218190\n      },\n      \"toe\": [\n        584,\n        550\n      ],\n      \"left\": 259,\n      \"top\": 599,\n      \"width\": 1291,\n      \"height\": 1157\n    }\n  ]\n}\n"
+    },
+    {
+      "path": "tmp_image/fire-idle-edge-20261106/before/fire-sit-sequence.png",
+      "bytes": 12616208,
+      "sha256": "84069ea12a301c171e0bc716b417685e3f65d7eacde52894d20d338a110ecb40"
+    },
+    {
+      "path": "tmp_image/fire-idle-edge-20261106/before/fire.png",
+      "bytes": 3927045,
+      "sha256": "b24327f71865c57ac8152121f8ab0aecfad5a99501ac887b49006749dea244ab"
+    },
+    {
+      "path": "tmp_image/fire-idle-edge-20261106/breathing-before-after.png",
+      "bytes": 465411,
+      "sha256": "1aa993b5bc3a9b79d91609e9e9cad29a4b07ae1b4287f129cdad29be7bddc0bc"
+    },
+    {
+      "path": "tmp_image/fire-idle-edge-20261106/clean.mjs",
+      "bytes": 2737,
+      "sha256": "752a778726c8715fe3283a4c3ca35985417a6079072a64ad32c6cc13cc761093",
+      "text": "import sharp from 'sharp';\nimport { readFile, writeFile } from 'node:fs/promises';\nimport { createHash } from 'node:crypto';\nimport { fileURLToPath } from 'node:url';\n\nconst dir = new URL('./', import.meta.url);\nconst results = [];\nfor (const name of ['fire', 'fire-breathe', 'fire-blink']) {\n  const path = fileURLToPath(new URL(`before/${name}.png`, dir));\n  const { data, info } = await sharp(path).ensureAlpha().raw().toBuffer({ resolveWithObject: true });\n  const original = Buffer.from(data);\n  const { width, height } = info;\n  const count = width * height;\n  const queue = new Int32Array(count);\n  const visited = new Uint8Array(count);\n  let head = 0, tail = 0;\n  const pale = (i) => {\n    const r = original[i * 4], g = original[i * 4 + 1], b = original[i * 4 + 2];\n    return Math.min(r, g, b) >= 95 && Math.max(r, g, b) - Math.min(r, g, b) <= 55;\n  };\n  const add = (i) => {\n    if (i < 0 || i >= count || visited[i] || original[i * 4 + 3] === 0 || !pale(i)) return;\n    visited[i] = 1;\n    queue[tail++] = i;\n  };\n  // Only pale pixels touching existing transparency can start a removal region.\n  for (let y = 1; y < height - 1; y++) for (let x = 1; x < width - 1; x++) {\n    const i = y * width + x;\n    if (original[i * 4 + 3] === 0) continue;\n    if ([i - 1, i + 1, i - width, i + width].some((n) => original[n * 4 + 3] === 0)) add(i);\n  }\n  // Known enclosed backdrop opening between the near wing and the hip.\n  add(996 * width + 886);\n  while (head < tail) {\n    const i = queue[head++], x = i % width, y = Math.floor(i / width);\n    data[i * 4 + 3] = 0;\n    if (x > 0) add(i - 1);\n    if (x < width - 1) add(i + 1);\n    if (y > 0) add(i - width);\n    if (y < height - 1) add(i + width);\n  }\n  const outputPath = fileURLToPath(new URL(`cleaned/${name}.png`, dir));\n  await sharp(data, { raw: { width, height, channels: 4 } }).png().toFile(outputPath);\n  const decoded = await sharp(outputPath).ensureAlpha().raw().toBuffer();\n  let rgbChanges = 0, alphaChanges = 0;\n  for (let i = 0; i < original.length; i++) {\n    if (original[i] === decoded[i]) continue;\n    if (i % 4 !== 3) rgbChanges++; else alphaChanges++;\n  }\n  if (rgbChanges !== 0 || alphaChanges !== tail) throw new Error('Unexpected pixel changes');\n  await sharp(outputPath).flatten({ background: '#251917' }).resize(900).png().toFile(fileURLToPath(new URL(`${name}-after.png`, dir)));\n  results.push({ name, width, height, removedEdgePixels: tail, rgbChanges, beforeSha256: createHash('sha256').update(await readFile(path)).digest('hex'), afterSha256: createHash('sha256').update(await readFile(outputPath)).digest('hex') });\n}\nawait writeFile(new URL('results.json', dir), JSON.stringify(results, null, 2) + '\\n');\nconsole.log(JSON.stringify(results));\n"
+    },
+    {
+      "path": "tmp_image/fire-idle-edge-20261106/cleaned/fire-blink.png",
+      "bytes": 3723018,
+      "sha256": "f7013adc789a5e6c8e5a5966aac02405dfb8b758f62e8f295301c39c5b046860"
+    },
+    {
+      "path": "tmp_image/fire-idle-edge-20261106/cleaned/fire-breathe.png",
+      "bytes": 3692081,
+      "sha256": "5f137d7bb3a782e0dd9ac6e95b4fb7b22207eab5019b17362c24f3af3e80d1e4"
+    },
+    {
+      "path": "tmp_image/fire-idle-edge-20261106/cleaned/fire.png",
+      "bytes": 3928466,
+      "sha256": "5ee8360e64096b864af447921090ffbff6e69f479297df241742598b5c85ef84"
+    },
+    {
+      "path": "tmp_image/fire-idle-edge-20261106/fire-after.png",
+      "bytes": 378394,
+      "sha256": "066bc8e78921849c6a66067c49fb51ad732375fd035f8588b2f09cecc95f8636"
+    },
+    {
+      "path": "tmp_image/fire-idle-edge-20261106/fire-before.png",
+      "bytes": 386003,
+      "sha256": "ae2ffdccb6f478cd160695308ee2447c57852e979d856283a3690e527c95680a"
+    },
+    {
+      "path": "tmp_image/fire-idle-edge-20261106/fire-blink-after.png",
+      "bytes": 377657,
+      "sha256": "a1b49c1613534a4d32285cabdf5bdb4a63443a14eb075e8e0dd41a0b7381a8cf"
+    },
+    {
+      "path": "tmp_image/fire-idle-edge-20261106/fire-blink-before.png",
+      "bytes": 387956,
+      "sha256": "535e39cf80d6e7c04cfc0cff1d4ad1946200ac45a826233e198ecad292cc3a1d"
+    },
+    {
+      "path": "tmp_image/fire-idle-edge-20261106/fire-breathe-after.png",
+      "bytes": 377195,
+      "sha256": "a26f4f5f1182ef6bc971115b5190ec92ef50940b97f081a4cef80dc88e8ebeed"
+    },
+    {
+      "path": "tmp_image/fire-idle-edge-20261106/fire-breathe-before.png",
+      "bytes": 390317,
+      "sha256": "c62f4a9f2720a5163e715defe28fdb7f2ad5e0e23fc43f7d30cd112264a9773c"
+    },
+    {
+      "path": "tmp_image/fire-idle-edge-20261106/results.json",
+      "bytes": 900,
+      "sha256": "1daba07a175da8a258910af7b1bf6540f62c678e5b11a4ec33f58d16446c9aed",
+      "text": "[\n  {\n    \"name\": \"fire\",\n    \"width\": 2048,\n    \"height\": 2048,\n    \"removedEdgePixels\": 5915,\n    \"rgbChanges\": 0,\n    \"beforeSha256\": \"b24327f71865c57ac8152121f8ab0aecfad5a99501ac887b49006749dea244ab\",\n    \"afterSha256\": \"5ee8360e64096b864af447921090ffbff6e69f479297df241742598b5c85ef84\"\n  },\n  {\n    \"name\": \"fire-breathe\",\n    \"width\": 2048,\n    \"height\": 2048,\n    \"removedEdgePixels\": 10134,\n    \"rgbChanges\": 0,\n    \"beforeSha256\": \"161b27ede9d91692bf3f08c65c0e4390d426792fb0635dffe1ef831e1e5e7846\",\n    \"afterSha256\": \"5f137d7bb3a782e0dd9ac6e95b4fb7b22207eab5019b17362c24f3af3e80d1e4\"\n  },\n  {\n    \"name\": \"fire-blink\",\n    \"width\": 2048,\n    \"height\": 2048,\n    \"removedEdgePixels\": 7441,\n    \"rgbChanges\": 0,\n    \"beforeSha256\": \"b1d69447bde194020d4f947f43323b892b9e9846a54c3753dec44bae4367d739\",\n    \"afterSha256\": \"f7013adc789a5e6c8e5a5966aac02405dfb8b758f62e8f295301c39c5b046860\"\n  }\n]\n"
+    },
+    {
+      "path": "tmp_image/fire-sit-original-20261106/README.md",
+      "bytes": 2185,
+      "sha256": "c185b0d488f8e95786fc2ac387e90920543ce22214ec8440bddc22d81e42612d",
+      "text": "# 불 앉기 원본 색 복구 · 2026-11-06\n\n사용자가 생성형 배경 제거 후 앉기의 색이 붉어진 것을 지적하고 원본에서 다시 구성하도록 요청했다. 이번 정식 시트는 제공 `../Gemini_Generated_Image_ylxu5fylxu5fylxu.png`만 사용하며 생성형 도구·색 보정·선명화를 사용하지 않는다. 이전 생성형 편집 시트와 배치 JSON·배포 WebP는 `previous-generated/`에 보존한다.\n\n## 분리와 색 검증\n\n`extract.mjs`는 회색 체크 배경의 색 범위(채널 차이 8 이하, 각 채널 65~125)를 마스크로 분리한다. 남은 큰 연결 성분 다섯 개만 드래곤으로 사용하여 배경의 별과 잡점을 제외한다. 몸 안의 작은 중성색 하이라이트는 닫힌 빈 영역 120픽셀 이하를 복원하여 보존한다. 큰 날개 틈과 다리·꼬리 사이 빈 공간은 투명하게 둔다. RGB 바이트는 원본에서 그대로 복사하고 알파만 바꾼다.\n\n`build-sheet.mjs`는 저장한 분리 PNG와 제공 PNG를 다시 디코드해 전체 RGB 채널의 차이가 **0개**인지 검사한다. 이 검증은 확대·정렬 전 원본 크기에서 수행한다. 확대·축소 과정에는 일반적인 보간이 적용되며 별도 색 보정은 없다. `extraction.json`에는 다섯 실루엣의 원본 좌표와 RGB 검증 결과가 있다.\n\n## 정렬과 등록\n\n첫 칸은 기존 정식 `fire.png`의 RGBA 픽셀을 그대로 복사하고 픽셀 일치를 확인한다. 나머지 네 자세는 같은 배율(1181/644)을 적용하고 측정한 가까운 앞발 끝을 (1330,1608)에 맞춘다. 출력 PNG는 10240×2048, 배포 WebP는 5120×1024 무손실이다.\n\n정식 PNG·JSON은 `assets/dragons/source/baby/fire-sit-sequence.*`로 복사한다. 앱은 기존 파일 경로·5초 대기·300ms 전환·역순 일어서기 규칙을 유지한다. PWA 캐시는 v15로 바꾸어 이전 색의 시트가 남지 않게 한다. 빌드는 이 제작 폴더에 의존하지 않는다.\n\n`before-after.png`는 **왼쪽: 이전 생성형 편집본, 오른쪽: 원본에서 다시 분리한 현재 시트**의 같은 최종 앉기 자세를 회색 바탕에 표시한다.\n"
+    },
+    {
+      "path": "tmp_image/fire-sit-original-20261106/before-after.png",
+      "bytes": 559224,
+      "sha256": "f7b7471ddc7a82c91cd47a4fade76e7fdd85eb3394f3ad6a04f726216451f280"
+    },
+    {
+      "path": "tmp_image/fire-sit-original-20261106/build-sheet.mjs",
+      "bytes": 3330,
+      "sha256": "a6193dce742ead7cdfbda11864cf7dae9c8056af1c03080d82e45629d172141f",
+      "text": "import sharp from 'sharp';\nimport { createHash } from 'node:crypto';\nimport { readFile, writeFile } from 'node:fs/promises';\nimport { fileURLToPath } from 'node:url';\n\nconst dir = new URL('./', import.meta.url);\nconst standing = fileURLToPath(new URL('../../assets/dragons/source/baby/fire.png', dir));\nconst source = new URL('../Gemini_Generated_Image_ylxu5fylxu5fylxu.png', dir);\nconst extraction = JSON.parse(await readFile(new URL('extraction.json', dir), 'utf8'));\nconst scale = 1181 / extraction.boxes[0].height;\nconst toes = [[620, 635], [548, 565], [553, 559], [584, 550]];\nconst ids = ['early', 'middle', 'late', 'seated'];\nconst original = await sharp(standing).ensureAlpha().raw().toBuffer();\nconst layers = [];\nconst layout = [{ id: 'standing', source: 'fire.png', sha256: createHash('sha256').update(await readFile(standing)).digest('hex'), left: 0, top: 0 }];\nfor (let index = 1; index < 5; index++) {\n  const framePath = fileURLToPath(new URL(`frame-${index}.png`, dir));\n  const box = extraction.boxes[index];\n  const width = Math.round(box.width * scale), height = Math.round(box.height * scale);\n  const toe = toes[index - 1];\n  const left = Math.round(1330 - toe[0] * scale), top = Math.round(1608 - toe[1] * scale);\n  if (left < 0 || top < 0 || left + width > 2048 || top + height > 2048) throw new Error('Frame exceeds canvas');\n  const input = await sharp(framePath).resize(width, height).png().toBuffer();\n  layers.push({ input, left: index * 2048 + left, top });\n  layout.push({ id: ids[index - 1], box, toe, left, top, width, height });\n}\nconst pixels = await sharp({ create: { width: 10240, height: 2048, channels: 4, background: '#00000000' } }).composite(layers).raw().toBuffer();\nfor (let y = 0; y < 2048; y++) original.copy(pixels, y * 10240 * 4, y * 2048 * 4, (y + 1) * 2048 * 4);\nconst sheet = await sharp(pixels, { raw: { width: 10240, height: 2048, channels: 4 } }).png().toBuffer();\nawait writeFile(new URL('fire-sit-sequence.png', dir), sheet);\nawait sharp(sheet).resize({ width: 5120 }).webp({ lossless: true }).toFile(fileURLToPath(new URL('fire-sit-sequence.webp', dir)));\nconst first = await sharp(sheet).extract({ left: 0, top: 0, width: 2048, height: 2048 }).ensureAlpha().raw().toBuffer();\nif (!first.equals(original)) throw new Error('Standing frame changed');\nconst provided = await sharp(fileURLToPath(source)).ensureAlpha().raw().toBuffer();\nconst cutout = await sharp(fileURLToPath(new URL('original-cutout.png', dir))).ensureAlpha().raw().toBuffer();\nlet rgbChanges = 0;\nfor (let i = 0; i < provided.length; i++) if (i % 4 !== 3 && provided[i] !== cutout[i]) rgbChanges++;\nif (rgbChanges !== 0) throw new Error('Cutout RGB differs from source');\nawait writeFile(new URL('fire-sit-sequence.json', dir), JSON.stringify({\n  providedSource: 'Gemini_Generated_Image_ylxu5fylxu5fylxu.png',\n  sourceSha256: createHash('sha256').update(await readFile(source)).digest('hex'),\n  method: 'Deterministic alpha-only checker mask and connected-component extraction; no generative editing or RGB correction.',\n  extractionRgbChanges: rgbChanges, standingPixelsUnchanged: true,\n  frameSize: 2048, frameDurationMs: 300, frontToe: [1330, 1608], scale, frames: layout,\n}, null, 2) + '\\n');\nconsole.log('Original cutout RGB: 0 changed channels. Standing pixels unchanged. Five-frame sheet rebuilt.');\n"
+    },
+    {
+      "path": "tmp_image/fire-sit-original-20261106/extract.mjs",
+      "bytes": 3723,
+      "sha256": "2672729b7ac42ec8cb0df1d935927f9e4526fc52e45411dd6c9a7dcca24a25b4",
+      "text": "import sharp from 'sharp';\nimport { writeFile } from 'node:fs/promises';\nimport { fileURLToPath } from 'node:url';\n\nconst dir = new URL('./', import.meta.url);\nconst input = fileURLToPath(new URL('../Gemini_Generated_Image_ylxu5fylxu5fylxu.png', dir));\nconst { data, info } = await sharp(input).ensureAlpha().raw().toBuffer({ resolveWithObject: true });\nconst { width, height } = info;\nconst count = width * height;\nconst background = new Uint8Array(count);\nconst queue = new Int32Array(count);\nlet head = 0, tail = 0;\nfunction isBackdrop(i) {\n  const r = data[i * 4], g = data[i * 4 + 1], b = data[i * 4 + 2];\n  return Math.max(r, g, b) - Math.min(r, g, b) <= 8 && Math.min(r, g, b) >= 65 && Math.max(r, g, b) <= 125;\n}\n// Enclosed checker holes have the same neutral gray colors. Mark these first;\n// enclosed dragon highlights are retained by filling small holes below.\nfor (let i = 0; i < count; i++) if (isBackdrop(i)) background[i] = 1;\nconst seen = new Uint8Array(count);\nconst components = [];\nfor (let i = 0; i < count; i++) {\n  if (background[i] || seen[i]) continue;\n  head = 0; tail = 1; queue[0] = i; seen[i] = 1;\n  let left = width, top = height, right = 0, bottom = 0;\n  const pixels = [];\n  while (head < tail) {\n    const k = queue[head++], x = k % width, y = Math.floor(k / width);\n    pixels.push(k); left = Math.min(left, x); right = Math.max(right, x); top = Math.min(top, y); bottom = Math.max(bottom, y);\n    for (const n of [x > 0 ? k - 1 : -1, x < width - 1 ? k + 1 : -1, y > 0 ? k - width : -1, y < height - 1 ? k + width : -1]) {\n      if (n >= 0 && !background[n] && !seen[n]) { seen[n] = 1; queue[tail++] = n; }\n    }\n  }\n  if (pixels.length > 10000) components.push({ left, top, width: right - left + 1, height: bottom - top + 1, pixels });\n}\ncomponents.sort((a, b) => a.left - b.left);\nif (components.length !== 5) throw new Error(`Expected five dragons, found ${components.length}`);\nconst mask = new Uint8Array(count);\nfor (const component of components) for (const i of component.pixels) mask[i] = 255;\n// Restore small enclosed neutral highlights without filling the large checker openings.\nseen.fill(0);\nfor (let i = 0; i < count; i++) {\n  if (mask[i] || seen[i]) continue;\n  head = 0; tail = 1; queue[0] = i; seen[i] = 1;\n  let touchesEdge = false;\n  while (head < tail) {\n    const k = queue[head++], x = k % width, y = Math.floor(k / width);\n    if (x === 0 || y === 0 || x === width - 1 || y === height - 1) touchesEdge = true;\n    for (const n of [x > 0 ? k - 1 : -1, x < width - 1 ? k + 1 : -1, y > 0 ? k - width : -1, y < height - 1 ? k + width : -1]) {\n      if (n >= 0 && !mask[n] && !seen[n]) { seen[n] = 1; queue[tail++] = n; }\n    }\n  }\n  if (!touchesEdge && tail <= 120) for (let p = 0; p < tail; p++) mask[queue[p]] = 255;\n}\nconst output = Buffer.from(data);\nfor (let i = 0; i < count; i++) output[i * 4 + 3] = mask[i];\nlet rgbChanges = 0;\nfor (let i = 0; i < count; i++) for (let channel = 0; channel < 3; channel++) if (output[i * 4 + channel] !== data[i * 4 + channel]) rgbChanges++;\nif (rgbChanges !== 0) throw new Error('RGB changed');\nawait sharp(output, { raw: { width, height, channels: 4 } }).png().toFile(fileURLToPath(new URL('original-cutout.png', dir)));\nconst boxes = components.map(({ pixels, ...box }) => ({ ...box, area: pixels.length }));\nawait writeFile(new URL('extraction.json', dir), JSON.stringify({ input, width, height, rgbChanges, boxes }, null, 2) + '\\n');\nfor (let index = 0; index < boxes.length; index++) {\n  const { area, ...box } = boxes[index];\n  await sharp(output, { raw: { width, height, channels: 4 } }).extract(box).png().toFile(fileURLToPath(new URL(`frame-${index}.png`, dir)));\n}\nconsole.log(JSON.stringify({ rgbChanges, boxes }));\n"
+    },
+    {
+      "path": "tmp_image/fire-sit-original-20261106/extraction.json",
+      "bytes": 743,
+      "sha256": "edce68777abe7652cc7873627f5933d50b40c67364db5da62298ef5eaf3b0c00",
+      "text": "{\n  \"input\": \"/home/joon/workspace/english-with-dad/tmp_image/Gemini_Generated_Image_ylxu5fylxu5fylxu.png\",\n  \"width\": 4640,\n  \"height\": 928,\n  \"rgbChanges\": 0,\n  \"boxes\": [\n    {\n      \"left\": 130,\n      \"top\": 143,\n      \"width\": 806,\n      \"height\": 644,\n      \"area\": 215421\n    },\n    {\n      \"left\": 1037,\n      \"top\": 157,\n      \"width\": 796,\n      \"height\": 637,\n      \"area\": 209371\n    },\n    {\n      \"left\": 1995,\n      \"top\": 209,\n      \"width\": 709,\n      \"height\": 642,\n      \"area\": 218581\n    },\n    {\n      \"left\": 2909,\n      \"top\": 220,\n      \"width\": 708,\n      \"height\": 633,\n      \"area\": 217636\n    },\n    {\n      \"left\": 3815,\n      \"top\": 225,\n      \"width\": 704,\n      \"height\": 631,\n      \"area\": 218190\n    }\n  ]\n}\n"
+    },
+    {
+      "path": "tmp_image/fire-sit-original-20261106/fire-sit-sequence.json",
+      "bytes": 1852,
+      "sha256": "db979bca7a8bc8a36ee66908b11ddcb89b2cf45500ae233795e73ba60b87ae90",
+      "text": "{\n  \"providedSource\": \"Gemini_Generated_Image_ylxu5fylxu5fylxu.png\",\n  \"sourceSha256\": \"7e88c60a5d1569962bb10f23f07455782e662db58c903ef11397fd9c2189cd1f\",\n  \"method\": \"Deterministic alpha-only checker mask and connected-component extraction; no generative editing or RGB correction.\",\n  \"extractionRgbChanges\": 0,\n  \"standingPixelsUnchanged\": true,\n  \"frameSize\": 2048,\n  \"frameDurationMs\": 300,\n  \"frontToe\": [\n    1330,\n    1608\n  ],\n  \"scale\": 1.8338509316770186,\n  \"frames\": [\n    {\n      \"id\": \"standing\",\n      \"source\": \"fire.png\",\n      \"sha256\": \"5ee8360e64096b864af447921090ffbff6e69f479297df241742598b5c85ef84\",\n      \"left\": 0,\n      \"top\": 0\n    },\n    {\n      \"id\": \"early\",\n      \"box\": {\n        \"left\": 1037,\n        \"top\": 157,\n        \"width\": 796,\n        \"height\": 637,\n        \"area\": 209371\n      },\n      \"toe\": [\n        620,\n        635\n      ],\n      \"left\": 193,\n      \"top\": 444,\n      \"width\": 1460,\n      \"height\": 1168\n    },\n    {\n      \"id\": \"middle\",\n      \"box\": {\n        \"left\": 1995,\n        \"top\": 209,\n        \"width\": 709,\n        \"height\": 642,\n        \"area\": 218581\n      },\n      \"toe\": [\n        548,\n        565\n      ],\n      \"left\": 325,\n      \"top\": 572,\n      \"width\": 1300,\n      \"height\": 1177\n    },\n    {\n      \"id\": \"late\",\n      \"box\": {\n        \"left\": 2909,\n        \"top\": 220,\n        \"width\": 708,\n        \"height\": 633,\n        \"area\": 217636\n      },\n      \"toe\": [\n        553,\n        559\n      ],\n      \"left\": 316,\n      \"top\": 583,\n      \"width\": 1298,\n      \"height\": 1161\n    },\n    {\n      \"id\": \"seated\",\n      \"box\": {\n        \"left\": 3815,\n        \"top\": 225,\n        \"width\": 704,\n        \"height\": 631,\n        \"area\": 218190\n      },\n      \"toe\": [\n        584,\n        550\n      ],\n      \"left\": 259,\n      \"top\": 599,\n      \"width\": 1291,\n      \"height\": 1157\n    }\n  ]\n}\n"
+    },
+    {
+      "path": "tmp_image/fire-sit-original-20261106/fire-sit-sequence.png",
+      "bytes": 12618990,
+      "sha256": "092247344575a69aa98a01ba08086342e29fb0d0e01bbb8ebba680bff782e736"
+    },
+    {
+      "path": "tmp_image/fire-sit-original-20261106/fire-sit-sequence.webp",
+      "bytes": 1410146,
+      "sha256": "be799faf5892d258a2613551d8c98e47e7ec2d324e9e4fea25733c9af86fd7f8"
+    },
+    {
+      "path": "tmp_image/fire-sit-original-20261106/frame-0.png",
+      "bytes": 774114,
+      "sha256": "7ea519a986b1948177dabfc059d170b9c677d15b35d417a1e963f7251e3d32aa"
+    },
+    {
+      "path": "tmp_image/fire-sit-original-20261106/frame-1.png",
+      "bytes": 763778,
+      "sha256": "29b48ced7b15281a8370b4d6c4604ebcb42349dee546c98756ee0b9ce354d1fc"
+    },
+    {
+      "path": "tmp_image/fire-sit-original-20261106/frame-2.png",
+      "bytes": 730538,
+      "sha256": "11116a060f78126c45d9995061c605f39ce63a25f823c589018bc229330ff9b3"
+    },
+    {
+      "path": "tmp_image/fire-sit-original-20261106/frame-3.png",
+      "bytes": 718199,
+      "sha256": "015f739e346daa6c433ac98acfb9fe9f63de8d351a79ee4e8c0e7a838795458d"
+    },
+    {
+      "path": "tmp_image/fire-sit-original-20261106/frame-4.png",
+      "bytes": 725179,
+      "sha256": "47c6bfee1774993075069ff0f619958893a1333476794e932da78601d0ba7a91"
+    },
+    {
+      "path": "tmp_image/fire-sit-original-20261106/original-cutout.png",
+      "bytes": 5410617,
+      "sha256": "60da2d7bb3750da1b552d58fed8b6443b4d0737a7fb83e8f14f3617518ddd06a"
+    },
+    {
+      "path": "tmp_image/fire-sit-original-20261106/previous-generated/fire-sit-sequence.json",
+      "bytes": 1835,
+      "sha256": "de7a46c559859b180e3cdf7d65452ca84c5a7eaed8220199cf4ddf8eb3479d5f",
+      "text": "{\n  \"providedSource\": \"Gemini_Generated_Image_ylxu5fylxu5fylxu.png\",\n  \"generatedSource\": \"fire-sit-transparent-generated.png\",\n  \"sourceSha256\": \"d4b3916699e986f252d9c8e2fdc9d969f1bbd974997864d96b6dfb26d8515fd2\",\n  \"frameSize\": 2048,\n  \"frameDurationMs\": 300,\n  \"frontToe\": [\n    1330,\n    1608\n  ],\n  \"scale\": 3.9235880398671097,\n  \"note\": \"First frame uses existing fire.png unchanged. Other frames use one scale and manually measured near-front-toe anchors. Generated cutout changes source details.\",\n  \"frames\": [\n    {\n      \"id\": \"standing\",\n      \"source\": \"fire.png\",\n      \"sha256\": \"b24327f71865c57ac8152121f8ab0aecfad5a99501ac887b49006749dea244ab\",\n      \"left\": 0,\n      \"top\": 0,\n      \"width\": 2048,\n      \"height\": 2048\n    },\n    {\n      \"id\": \"early\",\n      \"box\": {\n        \"left\": 483,\n        \"top\": 216,\n        \"width\": 379,\n        \"height\": 302\n      },\n      \"toe\": [\n        288,\n        299\n      ],\n      \"left\": 200,\n      \"top\": 435,\n      \"width\": 1487,\n      \"height\": 1185\n    },\n    {\n      \"id\": \"middle\",\n      \"box\": {\n        \"left\": 931,\n        \"top\": 240,\n        \"width\": 339,\n        \"height\": 305\n      },\n      \"toe\": [\n        259,\n        267\n      ],\n      \"left\": 314,\n      \"top\": 560,\n      \"width\": 1330,\n      \"height\": 1197\n    },\n    {\n      \"id\": \"late\",\n      \"box\": {\n        \"left\": 1357,\n        \"top\": 245,\n        \"width\": 336,\n        \"height\": 302\n      },\n      \"toe\": [\n        262,\n        263\n      ],\n      \"left\": 302,\n      \"top\": 576,\n      \"width\": 1318,\n      \"height\": 1185\n    },\n    {\n      \"id\": \"seated\",\n      \"box\": {\n        \"left\": 1782,\n        \"top\": 247,\n        \"width\": 333,\n        \"height\": 300\n      },\n      \"toe\": [\n        278,\n        262\n      ],\n      \"left\": 239,\n      \"top\": 580,\n      \"width\": 1307,\n      \"height\": 1177\n    }\n  ]\n}\n"
+    },
+    {
+      "path": "tmp_image/fire-sit-original-20261106/previous-generated/fire-sit-sequence.png",
+      "bytes": 14645073,
+      "sha256": "fec8ea1aa3b07eba200b9513393863628a5ac4f5eeb9cd7d06a941a3f4bd125f"
+    },
+    {
+      "path": "tmp_image/fire-sit-original-20261106/previous-generated/fire-sit-sequence.webp",
+      "bytes": 1533716,
+      "sha256": "4ead75c700a53101bcef5ed990e5233bd07108ae4267ca7a51a8729d4a8ba2f9"
+    },
+    {
+      "path": "tmp_image/fire-sit-original-20261106/review-1.png",
+      "bytes": 472547,
+      "sha256": "8615923596c815407b08ce36ba9a4f2f43a1bb589294c0de2f710c6aa8165aaa"
+    },
+    {
+      "path": "tmp_image/fire-sit-original-20261106/review-2.png",
+      "bytes": 489053,
+      "sha256": "587e8361fb35a616e41c4b03ad8e6e84e7a5d6bdd63cac10763d33321a0e4f81"
+    },
+    {
+      "path": "tmp_image/fire-sit-original-20261106/review-3.png",
+      "bytes": 486846,
+      "sha256": "c25c3208fac3fae7b8ed3f04cc21e8e963b0c75087d3245b192f090cbcc27f77"
+    },
+    {
+      "path": "tmp_image/fire-sit-original-20261106/review-4.png",
+      "bytes": 482795,
+      "sha256": "29dac0837f0c91364a7c70fb92accee6e90c98e0e08e7f46f7c812cff9007aae"
+    },
+    {
+      "path": "tmp_image/fire-sit-review-20261106/README.md",
+      "bytes": 2100,
+      "sha256": "69f4c96d891729296f7eb6bf36d9b35f58f1690b3e6b336736e998db202a5d9f",
+      "text": "# 불 아기 앉기 시안 · 2026-11-06\n\n제공 원본 `../Gemini_Generated_Image_ylxu5fylxu5fylxu.png`는 4640×928의 5자세 시트다. RGBA이지만 알파는 모두 255이며 회색 체크무늬와 오른쪽 아래 별이 이미지에 포함돼 있다. 기존 무속성 앉기 순서와 대응하고 큰 번짐은 없어 후속 제작에 사용했다.\n\n## 제작\n\n- built-in image_gen으로 체크무늬·배경의 별을 제거하고 `fire-sit-transparent-generated.png`를 얻었다. 실제 알파 투명이며 2172×724다. 생성형 편집이므로 원본의 픽셀·세부를 그대로 보존한 결과는 아니다.\n- 균등 5칸 경계는 첫 자세를 자를 수 있어, 알파 연결 성분으로 다섯 실루엣의 범위를 확인하고 추출 범위를 기록했다.\n- `build-sheet.mjs`는 첫 칸에 기존 정식 `fire.png`의 RGBA 픽셀을 그대로 복사한다. 나머지 네 자세는 같은 배율을 적용하고 직접 측정한 가까운 앞발 끝을 (1330,1608)에 맞춘다. 형태 합성·선명화·RGB 보정은 하지 않는다.\n- 입력 PNG는 10240×2048, 5칸의 크기는 2048×2048이다. 배포 WebP는 5120×1024 무손실이다. 첫 칸의 원본 픽셀 일치와 실제 알파 투명도를 검사했다.\n- 제공 원본은 보존한다. 정식 PNG와 배치 JSON은 `assets/dragons/source/baby/fire-sit-sequence.*`에 복사하며 빌드는 `tmp_image/`에 의존하지 않는다.\n\n## 앱 동작과 검증\n\n불 아기도 5초 대기 후 300ms씩 0→1→2→3→4로 앉고, 터치하면 현재 자세부터 역순으로 일어선다. 움직임 줄이기에서는 최종 앉기/서기만 표시한다. 기존 불 걷기를 유지하며 PWA 캐시는 v14다.\n\n컴포넌트의 대기 경계·정방향/역방향·중간 터치·속성 전환, 브라우저의 390/1280px 걷기/앉기/일어서기/움직임 줄이기, 실제 PWA의 캐시 등록과 오프라인 에셋 응답을 확인한다. 잘못된 속성 문자열은 TypeScript 계약 밖이므로 강제 캐스팅 테스트를 추가하지 않고, 미지원 속성과 성장 경계를 확인한다.\n"
+    },
+    {
+      "path": "tmp_image/fire-sit-review-20261106/build-sheet.mjs",
+      "bytes": 3284,
+      "sha256": "a2ae27c28080f573a9a0c0cd2f345f7db1444be1e5014ed4eb6c853519f8e4f6",
+      "text": "import sharp from 'sharp';\nimport { createHash } from 'node:crypto';\nimport { readFile, writeFile } from 'node:fs/promises';\nimport { fileURLToPath } from 'node:url';\n\nconst dir = new URL('./', import.meta.url);\nconst source = fileURLToPath(new URL('fire-sit-transparent-generated.png', dir));\nconst standing = fileURLToPath(new URL('../../assets/dragons/source/baby/fire.png', dir));\nconst scale = 1181 / 301;\nconst frames = [\n  { id: 'early', box: { left: 483, top: 216, width: 379, height: 302 }, toe: [288, 299] },\n  { id: 'middle', box: { left: 931, top: 240, width: 339, height: 305 }, toe: [259, 267] },\n  { id: 'late', box: { left: 1357, top: 245, width: 336, height: 302 }, toe: [262, 263] },\n  { id: 'seated', box: { left: 1782, top: 247, width: 333, height: 300 }, toe: [278, 262] },\n];\nconst standingBytes = await readFile(standing);\nconst layers = [{ input: standingBytes, left: 0, top: 0 }];\nconst layout = [{ id: 'standing', source: 'fire.png', sha256: createHash('sha256').update(standingBytes).digest('hex'), left: 0, top: 0, width: 2048, height: 2048 }];\nfor (const [index, frame] of frames.entries()) {\n  const width = Math.round(frame.box.width * scale);\n  const height = Math.round(frame.box.height * scale);\n  const left = Math.round(1330 - frame.toe[0] * scale);\n  const top = Math.round(1608 - frame.toe[1] * scale);\n  if (left < 0 || top < 0 || left + width > 2048 || top + height > 2048) throw new Error('Frame exceeds canvas');\n  const input = await sharp(source).extract(frame.box).resize(width, height).png().toBuffer();\n  layers.push({ input, left: (index + 1) * 2048 + left, top });\n  layout.push({ ...frame, left, top, width, height });\n}\nconst pixels = await sharp({ create: { width: 10240, height: 2048, channels: 4, background: '#00000000' } }).composite(layers).raw().toBuffer();\nconst original = await sharp(standing).ensureAlpha().raw().toBuffer();\nfor (let y = 0; y < 2048; y++) original.copy(pixels, y * 10240 * 4, y * 2048 * 4, (y + 1) * 2048 * 4);\nconst sheet = await sharp(pixels, { raw: { width: 10240, height: 2048, channels: 4 } }).png().toBuffer();\nawait writeFile(new URL('fire-sit-sequence.png', dir), sheet);\nawait sharp(sheet).resize({ width: 5120 }).webp({ lossless: true }).toFile(fileURLToPath(new URL('fire-sit-sequence.webp', dir)));\nawait writeFile(new URL('fire-sit-sequence.json', dir), JSON.stringify({\n  providedSource: 'Gemini_Generated_Image_ylxu5fylxu5fylxu.png',\n  generatedSource: 'fire-sit-transparent-generated.png',\n  sourceSha256: createHash('sha256').update(await readFile(source)).digest('hex'),\n  frameSize: 2048, frameDurationMs: 300, frontToe: [1330, 1608], scale,\n  note: 'First frame uses existing fire.png unchanged. Other frames use one scale and manually measured near-front-toe anchors. Generated cutout changes source details.',\n  frames: layout,\n}, null, 2) + '\\n');\nconst firstFrame = await sharp(sheet).extract({ left: 0, top: 0, width: 2048, height: 2048 }).ensureAlpha().raw().toBuffer();\nif (!firstFrame.equals(original)) throw new Error('First frame differs from current standing artwork');\nconst stats = await sharp(sheet).stats();\nif (stats.isOpaque) throw new Error('Transparency missing');\nconsole.log('Five-frame fire sit sheet built; transparency and unchanged standing frame verified.');\n"
+    },
+    {
+      "path": "tmp_image/fire-sit-review-20261106/fire-sit-sequence.json",
+      "bytes": 1835,
+      "sha256": "de7a46c559859b180e3cdf7d65452ca84c5a7eaed8220199cf4ddf8eb3479d5f",
+      "text": "{\n  \"providedSource\": \"Gemini_Generated_Image_ylxu5fylxu5fylxu.png\",\n  \"generatedSource\": \"fire-sit-transparent-generated.png\",\n  \"sourceSha256\": \"d4b3916699e986f252d9c8e2fdc9d969f1bbd974997864d96b6dfb26d8515fd2\",\n  \"frameSize\": 2048,\n  \"frameDurationMs\": 300,\n  \"frontToe\": [\n    1330,\n    1608\n  ],\n  \"scale\": 3.9235880398671097,\n  \"note\": \"First frame uses existing fire.png unchanged. Other frames use one scale and manually measured near-front-toe anchors. Generated cutout changes source details.\",\n  \"frames\": [\n    {\n      \"id\": \"standing\",\n      \"source\": \"fire.png\",\n      \"sha256\": \"b24327f71865c57ac8152121f8ab0aecfad5a99501ac887b49006749dea244ab\",\n      \"left\": 0,\n      \"top\": 0,\n      \"width\": 2048,\n      \"height\": 2048\n    },\n    {\n      \"id\": \"early\",\n      \"box\": {\n        \"left\": 483,\n        \"top\": 216,\n        \"width\": 379,\n        \"height\": 302\n      },\n      \"toe\": [\n        288,\n        299\n      ],\n      \"left\": 200,\n      \"top\": 435,\n      \"width\": 1487,\n      \"height\": 1185\n    },\n    {\n      \"id\": \"middle\",\n      \"box\": {\n        \"left\": 931,\n        \"top\": 240,\n        \"width\": 339,\n        \"height\": 305\n      },\n      \"toe\": [\n        259,\n        267\n      ],\n      \"left\": 314,\n      \"top\": 560,\n      \"width\": 1330,\n      \"height\": 1197\n    },\n    {\n      \"id\": \"late\",\n      \"box\": {\n        \"left\": 1357,\n        \"top\": 245,\n        \"width\": 336,\n        \"height\": 302\n      },\n      \"toe\": [\n        262,\n        263\n      ],\n      \"left\": 302,\n      \"top\": 576,\n      \"width\": 1318,\n      \"height\": 1185\n    },\n    {\n      \"id\": \"seated\",\n      \"box\": {\n        \"left\": 1782,\n        \"top\": 247,\n        \"width\": 333,\n        \"height\": 300\n      },\n      \"toe\": [\n        278,\n        262\n      ],\n      \"left\": 239,\n      \"top\": 580,\n      \"width\": 1307,\n      \"height\": 1177\n    }\n  ]\n}\n"
+    },
+    {
+      "path": "tmp_image/fire-sit-review-20261106/fire-sit-sequence.png",
+      "bytes": 14645073,
+      "sha256": "fec8ea1aa3b07eba200b9513393863628a5ac4f5eeb9cd7d06a941a3f4bd125f"
+    },
+    {
+      "path": "tmp_image/fire-sit-review-20261106/fire-sit-sequence.webp",
+      "bytes": 1533716,
+      "sha256": "4ead75c700a53101bcef5ed990e5233bd07108ae4267ca7a51a8729d4a8ba2f9"
+    },
+    {
+      "path": "tmp_image/fire-sit-review-20261106/fire-sit-transparent-generated.png",
+      "bytes": 775488,
+      "sha256": "d4b3916699e986f252d9c8e2fdc9d969f1bbd974997864d96b6dfb26d8515fd2"
+    },
+    {
+      "path": "tmp_image/fire-sit-review-20261106/inspect-frame-2.png",
+      "bytes": 622927,
+      "sha256": "40db8e4b90208eb4c590259d1bae908600d3fc73509edd9dbab3e2f2fa00da25"
+    },
+    {
+      "path": "tmp_image/fire-sit-review-20261106/inspect-frame-3.png",
+      "bytes": 643522,
+      "sha256": "bb0d124a5bfc31c64bf9a9b862cb7611cafee146473edfa24fe269c3469f8a69"
+    },
+    {
+      "path": "tmp_image/fire-sit-review-20261106/inspect-frame-4.png",
+      "bytes": 636387,
+      "sha256": "d94afb2bf5144df9e282af2b6a55ea3720fb6cddeabdd43387305f0537fee96c"
+    },
+    {
+      "path": "tmp_image/fire-sit-review-20261106/inspect-frame-5.png",
+      "bytes": 628631,
+      "sha256": "afc998619f7cfe5ac178d19da3e8da9af8c43e3677056c3c73e07907b507815e"
+    },
+    {
+      "path": "tmp_image/fire-sit-review-20261106/prompt.txt",
+      "bytes": 1071,
+      "sha256": "6a4e8734a5b46aedc84f49fa3a50a72436676396d84e25bb2fd7388a4027006e",
+      "text": "Use case: background-extraction. Edit target is the supplied five-frame fire baby dragon sit animation sheet. Remove ONLY the painted gray checkerboard background, including enclosed holes between limbs, tail and body and under wings, and remove the small white sparkle in the bottom-right background. Output true alpha transparency. Keep exactly FIVE complete dragons in their original left-to-right order in ONE horizontal row: standing, early descent, middle descent, late descent, fully seated. Preserve their precise individual poses, proportions, placement relative to each other, dark charcoal skin, orange lava markings, red horns, facial details and clean outlines. Do not redraw, repeat, invent, omit, reorder, or blend frames. No background, floor, checkerboard, shadow, text, glow or new effects. All horns, wings, feet and tails fully visible. Maintain original 5:1 canvas composition if possible; if more canvas padding is needed, add transparent padding without cropping any dragon. This is a background cutout of existing artwork, not a new illustration.\n"
+    },
+    {
+      "path": "tmp_image/ice_sit/Gemini_Generated_Image_iizebciizebciize.png",
+      "bytes": 4798230,
+      "sha256": "201eaee15131558ebcd7bcffacad123d898bb647f7cca341c0d5e4f60728cd05"
+    },
+    {
+      "path": "tmp_image/ice_sit/Gemini_Generated_Image_iizebciizebciize.png:Zone.Identifier",
+      "bytes": 25,
+      "sha256": "b952d24cf701bc4e7a7d21e1ae85c611824e80579a89836c0cb49b193446ccfe"
+    },
+    {
+      "path": "tmp_image/ice_sit/Gemini_Generated_Image_jwnwsxjwnwsxjwnw.png",
+      "bytes": 5507769,
+      "sha256": "cc7f4bc409dd80466059bf57dcb2fc776847647c0e0df55337e2516a6ef4cc6f"
+    },
+    {
+      "path": "tmp_image/ice_sit/Gemini_Generated_Image_jwnwsxjwnwsxjwnw.png:Zone.Identifier",
+      "bytes": 25,
+      "sha256": "b952d24cf701bc4e7a7d21e1ae85c611824e80579a89836c0cb49b193446ccfe"
+    },
+    {
+      "path": "tmp_image/ice_sit/Gemini_Generated_Image_vdxd33vdxd33vdxd.png",
+      "bytes": 7119587,
+      "sha256": "ca2f070830d9a50d908bf4e43e74482a03c8705a109c5c5b4b06404e863d9605"
+    },
+    {
+      "path": "tmp_image/ice_sit/Gemini_Generated_Image_vdxd33vdxd33vdxd.png:Zone.Identifier",
+      "bytes": 25,
+      "sha256": "b952d24cf701bc4e7a7d21e1ae85c611824e80579a89836c0cb49b193446ccfe"
+    },
+    {
+      "path": "tmp_image/ice_sit/draft/A-1-cutout.png",
+      "bytes": 744347,
+      "sha256": "aeba2ed63f2cde800ac8635d63b41f79c198a1e82c4b31521129e4969243c019"
+    },
+    {
+      "path": "tmp_image/ice_sit/draft/A-3-cutout.png",
+      "bytes": 808942,
+      "sha256": "497989ec2be400ef223f37aa6854f25ab670ef17476e1f874630c624ea8a75f6"
+    },
+    {
+      "path": "tmp_image/ice_sit/draft/A-4-cutout.png",
+      "bytes": 787139,
+      "sha256": "5f0d1806e6ea2274d58cc428a0c1a07ad337fb75daaca2916939dc3bbbf0db56"
+    },
+    {
+      "path": "tmp_image/ice_sit/draft/A-5-cutout.png",
+      "bytes": 871728,
+      "sha256": "5f22800fdda95da12c48939e64cee3b82929615d8664d51ee496182c3aa218dc"
+    },
+    {
+      "path": "tmp_image/ice_sit/draft/README.md",
+      "bytes": 1546,
+      "sha256": "286501b85eb3bb3e2d60d02ce57d7e9e9f15d6d4198995a151237f9d8c5613cb",
+      "text": "# 얼음 앉기 4단계 시안\n\n선정 순서: A-1 → A-3 → A-4 → A-5. 기존 원본의 RGB를 보존하고 알파만 바꿔 흰 배경을 분리했다. 작은 닫힌 흰 영역(2048픽셀 이하)은 가슴 하이라이트 보존을 위해 복원했다. 원본 크기를 유지하고 가까운 앞발의 발톱 접점을 수동 측정하여 1024×1024 캔버스의 (730, 810)에 배치했다.\n\n- `preview.gif`: 어두운 배경의 앉기·역순 일어서기 반복 미리보기.\n- `preview.webp`: 같은 반복의 무손실 WebP.\n- `comparison.png`: 위쪽 밝은 배경, 아래쪽 어두운 배경의 네 자세.\n- `ice-sit-sequence.png`: 투명 4096×1024 시트.\n- `frame-1.png`부터 `frame-4.png`: 정렬한 개별 투명 프레임.\n- `A-*-cutout.png`: 정렬 전 원본 크기의 배경 분리본.\n- `layout.json`: 원본 출처, 접점, 배치 및 검증 기록.\n\n중간 자세는 각각 300ms이며 서기 1200ms, 완전 앉기 1500ms 동안 유지한다. `node tmp_image/ice_sit/draft/build.mjs`로 재생성한다. 배경 분리 전후 RGB 채널 차이 0개와 애니메이션 6프레임·시간 메타데이터를 검사했다. 비교표에서 실루엣 잘림과 가슴 하이라이트를 확인했다.\n\n첫 하강에서 꼬리가 크게 말리는 변화는 원본 자세의 차이로 남아 있다. 어두운 배경에서 밝은 테두리가 일부 보일 수 있어 최종 적용 전 검토 대상이다. 앱의 기존 서기 원화와 연결한 시안은 아니며, 앱 코드와 정식 에셋에는 적용하지 않았다.\n"
+    },
+    {
+      "path": "tmp_image/ice_sit/draft/build-app-sheet.mjs",
+      "bytes": 2291,
+      "sha256": "9a55be050da8df439a623d1f0fd787df72e310f39836e2b21c1093cff7e3a5ee",
+      "text": "import sharp from 'sharp';\nimport { readFile, writeFile } from 'node:fs/promises';\nimport { createHash } from 'node:crypto';\nimport { fileURLToPath } from 'node:url';\n\nconst root = new URL('../../../', import.meta.url);\nconst dir = new URL('./', import.meta.url);\nconst standingPath = fileURLToPath(new URL('assets/dragons/source/baby/ice.png', root));\nconst standing = await sharp(standingPath).ensureAlpha().raw().toBuffer();\nconst layers = [];\nconst frames = [{ id: 'standing', source: 'ice.png', pixelsUnchanged: true }];\nfor (let index = 1; index < 4; index++) {\n  const draft = await sharp(fileURLToPath(new URL(`frame-${index + 1}.png`, dir))).resize(2048, 2048).png().toBuffer();\n  // Translate the approved draft anchor (1460,1620) to the app anchor (1330,1608).\n  const input = await sharp(draft).extract({ left: 130, top: 12, width: 1918, height: 2036 }).png().toBuffer();\n  layers.push({ input, left: index * 2048, top: 0 });\n  frames.push({ id: ['A-1', 'A-3', 'A-4', 'A-5'][index], draft: `frame-${index + 1}.png`, scale: 2, translate: [-130, -12] });\n}\nconst pixels = await sharp({ create: { width: 8192, height: 2048, channels: 4, background: '#00000000' } }).composite(layers).raw().toBuffer();\nfor (let y = 0; y < 2048; y++) standing.copy(pixels, y * 8192 * 4, y * 2048 * 4, (y + 1) * 2048 * 4);\nconst sheet = await sharp(pixels, { raw: { width: 8192, height: 2048, channels: 4 } }).png().toBuffer();\nconst first = await sharp(sheet).extract({ left: 0, top: 0, width: 2048, height: 2048 }).ensureAlpha().raw().toBuffer();\nif (!first.equals(standing)) throw Error('Standing pixels changed');\nconst layout = JSON.parse(await readFile(new URL('layout.json', dir), 'utf8'));\nawait writeFile(new URL('assets/dragons/source/baby/ice-sit-sequence.png', root), sheet);\nawait writeFile(new URL('assets/dragons/source/baby/ice-sit-sequence.json', root), JSON.stringify({ frameSize: 2048, frameCount: 4, frameDurationMs: 300, frontToe: [1330, 1608], source: layout.source, draftSource: 'tmp_image/ice_sit/draft/', sourceSha256: createHash('sha256').update(await readFile(new URL('../Gemini_Generated_Image_iizebciizebciize.png', dir))).digest('hex'), method: layout.method, frames }, null, 2) + '\\n');\nconsole.log('Registered four frames; first frame RGBA matches existing ice.png.');\n"
+    },
+    {
+      "path": "tmp_image/ice_sit/draft/build.mjs",
+      "bytes": 5084,
+      "sha256": "ddf1d23bee84c6cacb9a1066b5b042743cec1fecf79c4bc61ee395adc40d8e18",
+      "text": "import sharp from 'sharp';\nimport { writeFile } from 'node:fs/promises';\nimport { fileURLToPath } from 'node:url';\n\nconst dir = new URL('./', import.meta.url);\nconst output = name => fileURLToPath(new URL(name, dir));\nconst choices = [\n  { id: 'A-1', toe: [622, 783] },\n  { id: 'A-3', toe: [606, 774] },\n  { id: 'A-4', toe: [655, 769] },\n  { id: 'A-5', toe: [707, 773] },\n];\nconst frames = [];\nconst records = [];\nfor (const { id, toe } of choices) {\n  const { data, info } = await sharp(fileURLToPath(new URL(`../review/crops/${id}.png`, dir))).ensureAlpha().raw().toBuffer({ resolveWithObject: true });\n  const rgba = Buffer.from(data);\n  const count = info.width * info.height;\n  const mask = new Uint8Array(count);\n  for (let i = 0; i < count; i++) {\n    const rgb = data.subarray(i * 4, i * 4 + 3);\n    const min = Math.min(...rgb), max = Math.max(...rgb);\n    mask[i] = min >= 235 && max - min <= 16 ? 0 : 255;\n  }\n  // Keep enclosed pale chest highlights; leave the large limb and wing gaps transparent.\n  const seen = new Uint8Array(count);\n  const queue = new Int32Array(count);\n  for (let i = 0; i < count; i++) {\n    if (mask[i] || seen[i]) continue;\n    let read = 0, length = 1, edge = false;\n    queue[0] = i; seen[i] = 1;\n    while (read < length) {\n      const p = queue[read++], x = p % info.width, y = Math.floor(p / info.width);\n      if (x === 0 || y === 0 || x === info.width - 1 || y === info.height - 1) edge = true;\n      for (const n of [x > 0 ? p - 1 : -1, x < info.width - 1 ? p + 1 : -1, y > 0 ? p - info.width : -1, y < info.height - 1 ? p + info.width : -1]) {\n        if (n >= 0 && !mask[n] && !seen[n]) { seen[n] = 1; queue[length++] = n; }\n      }\n    }\n    if (!edge && length <= 2048) for (let j = 0; j < length; j++) mask[queue[j]] = 255;\n  }\n  let rgbChanges = 0;\n  for (let i = 0; i < count; i++) {\n    rgba[i * 4 + 3] = mask[i];\n    for (let c = 0; c < 3; c++) if (rgba[i * 4 + c] !== data[i * 4 + c]) rgbChanges++;\n  }\n  if (rgbChanges) throw Error('Original RGB changed');\n  const cutout = await sharp(rgba, { raw: { width: info.width, height: info.height, channels: 4 } }).png().toBuffer();\n  await writeFile(output(`${id}-cutout.png`), cutout);\n  let xMin = info.width, xMax = 0, yMin = info.height, yMax = 0;\n  for (let i = 0; i < count; i++) if (mask[i]) {\n    const x = i % info.width, y = Math.floor(i / info.width);\n    xMin = Math.min(xMin, x); xMax = Math.max(xMax, x);\n    yMin = Math.min(yMin, y); yMax = Math.max(yMax, y);\n  }\n  const box = { left: xMin, top: yMin, width: xMax - xMin + 1, height: yMax - yMin + 1 };\n  const left = 730 - toe[0] + xMin, top = 810 - toe[1] + yMin;\n  if (left < 0 || top < 0 || left + box.width > 1024 || top + box.height > 1024) throw Error('Canvas overflow');\n  const trimmed = await sharp(cutout).extract(box).png().toBuffer();\n  const frame = await sharp({ create: { width: 1024, height: 1024, channels: 4, background: '#00000000' } }).composite([{ input: trimmed, left, top }]).png().toBuffer();\n  frames.push(frame);\n  await writeFile(output(`frame-${frames.length}.png`), frame);\n  records.push({ id, toe, box, placement: { left, top }, rgbChanges });\n}\nawait sharp({ create: { width: 4096, height: 1024, channels: 4, background: '#00000000' } }).composite(frames.map((input, i) => ({ input, left: i * 1024, top: 0 }))).png().toFile(output('ice-sit-sequence.png'));\nconst panels = [];\nfor (const [row, background] of ['#e8edf2', '#283747'].entries()) {\n  for (let i = 0; i < 4; i++) {\n    const frame = await sharp(frames[i]).resize(400, 400).flatten({ background }).png().toBuffer();\n    panels.push({ input: frame, left: i * 400, top: row * 400 });\n  }\n}\nawait sharp({ create: { width: 1600, height: 800, channels: 3, background: '#ffffff' } }).composite(panels).png().toFile(output('comparison.png'));\nconst order = [0, 1, 2, 3, 2, 1];\nconst delay = [1200, 300, 300, 1500, 300, 300];\nconst animation = [];\nfor (const index of order) {\n  animation.push(await sharp(frames[index]).resize(512, 512).flatten({ background: '#283747' }).ensureAlpha().raw().toBuffer());\n}\nconst raw = { width: 512, height: 512 * order.length, channels: 4, pageHeight: 512 };\nawait sharp(Buffer.concat(animation), { raw }).gif({ delay, loop: 0, effort: 7 }).toFile(output('preview.gif'));\nawait sharp(Buffer.concat(animation), { raw }).webp({ delay, loop: 0, lossless: true }).toFile(output('preview.webp'));\nconst metadata = await sharp(output('preview.gif'), { animated: true }).metadata();\nif (metadata.pages !== 6 || metadata.pageHeight !== 512 || metadata.delay.some((value, i) => value !== delay[i])) throw Error('Animation metadata mismatch');\nawait writeFile(output('layout.json'), JSON.stringify({ frameSize: 1024, source: '../Gemini_Generated_Image_iizebciizebciize.png', method: 'Alpha-only near-white removal; enclosed highlights up to 2048px restored; no RGB edits or frame rescaling.', anchor: [730, 810], frameDurationMs: 300, order, delay, frames: records, animationVerified: true }, null, 2) + '\\n');\nconsole.log('Four aligned frames; RGB changes: 0. Animation: six pages with verified timing.');\n"
+    },
+    {
+      "path": "tmp_image/ice_sit/draft/comparison.png",
+      "bytes": 928117,
+      "sha256": "17938a7307c2cfc54047cedc22f3aa33981b0b7ccdede8554b9ccdbeb424fc58"
+    },
+    {
+      "path": "tmp_image/ice_sit/draft/frame-1.png",
+      "bytes": 575512,
+      "sha256": "e257106c1e5ebda9197f4315be6e0144957d79bb8bf1fa09ec7662388ede4b5c"
+    },
+    {
+      "path": "tmp_image/ice_sit/draft/frame-2.png",
+      "bytes": 611337,
+      "sha256": "93734ea677926419c552ad67a707e0da6539ce0fdf072a92e2a2e0d57d3e710a"
+    },
+    {
+      "path": "tmp_image/ice_sit/draft/frame-3.png",
+      "bytes": 589376,
+      "sha256": "84cf5f210f99444cd88ca93f468f20132c540d744bc3fe9474d41fa4f3f056f4"
+    },
+    {
+      "path": "tmp_image/ice_sit/draft/frame-4.png",
+      "bytes": 601031,
+      "sha256": "7405077b3ab40023e751952c32fb9964b0622ba569bf1f99e81d4cc40b60599b"
+    },
+    {
+      "path": "tmp_image/ice_sit/draft/ice-sit-sequence.png",
+      "bytes": 2455758,
+      "sha256": "c2682cf4a435f52040e16ccf496e0a1643ebb290216ba0ea401b83d20626908e"
+    },
+    {
+      "path": "tmp_image/ice_sit/draft/layout.json",
+      "bytes": 1575,
+      "sha256": "c9e28f9c103e8909921c17845b27762647c7d607f0f40916818888471b608edf",
+      "text": "{\n  \"frameSize\": 1024,\n  \"source\": \"../Gemini_Generated_Image_iizebciizebciize.png\",\n  \"method\": \"Alpha-only near-white removal; enclosed highlights up to 2048px restored; no RGB edits or frame rescaling.\",\n  \"anchor\": [\n    730,\n    810\n  ],\n  \"frameDurationMs\": 300,\n  \"order\": [\n    0,\n    1,\n    2,\n    3,\n    2,\n    1\n  ],\n  \"delay\": [\n    1200,\n    300,\n    300,\n    1500,\n    300,\n    300\n  ],\n  \"frames\": [\n    {\n      \"id\": \"A-1\",\n      \"toe\": [\n        622,\n        783\n      ],\n      \"box\": {\n        \"left\": 69,\n        \"top\": 170,\n        \"width\": 798,\n        \"height\": 618\n      },\n      \"placement\": {\n        \"left\": 177,\n        \"top\": 197\n      },\n      \"rgbChanges\": 0\n    },\n    {\n      \"id\": \"A-3\",\n      \"toe\": [\n        606,\n        774\n      ],\n      \"box\": {\n        \"left\": 99,\n        \"top\": 228,\n        \"width\": 723,\n        \"height\": 633\n      },\n      \"placement\": {\n        \"left\": 223,\n        \"top\": 264\n      },\n      \"rgbChanges\": 0\n    },\n    {\n      \"id\": \"A-4\",\n      \"toe\": [\n        655,\n        769\n      ],\n      \"box\": {\n        \"left\": 162,\n        \"top\": 230,\n        \"width\": 700,\n        \"height\": 618\n      },\n      \"placement\": {\n        \"left\": 237,\n        \"top\": 271\n      },\n      \"rgbChanges\": 0\n    },\n    {\n      \"id\": \"A-5\",\n      \"toe\": [\n        707,\n        773\n      ],\n      \"box\": {\n        \"left\": 157,\n        \"top\": 236,\n        \"width\": 704,\n        \"height\": 618\n      },\n      \"placement\": {\n        \"left\": 180,\n        \"top\": 273\n      },\n      \"rgbChanges\": 0\n    }\n  ],\n  \"animationVerified\": true\n}\n"
+    },
+    {
+      "path": "tmp_image/ice_sit/draft/preview.gif",
+      "bytes": 398779,
+      "sha256": "85df2e47e78dbd8dd185751fcfebd5d809cba3c2e36857ca433e3c19b3ae59b8"
+    },
+    {
+      "path": "tmp_image/ice_sit/draft/preview.webp",
+      "bytes": 534440,
+      "sha256": "bdf9158d6107a2f6cbd65abc60d5e95f40277caa8789059f07169a326ba9eb61"
+    },
+    {
+      "path": "tmp_image/ice_sit/review/README.md",
+      "bytes": 2268,
+      "sha256": "2424d1cecf4562a1fde92ab4c4dfa1ba251934fcf382343cd83b5d2218b7b5aa",
+      "text": "# 얼음 드래곤 앉기 원본 검토\n\n원본 3장 각각을 왼쪽부터 1–5로 잘라 `crops/`에 저장했다. A는 iize, B는 jwnw, C는 vdxd 파일이다. `contact-sheet.png`에서 15컷을 비교할 수 있다. 원본은 수정하지 않았다.\n\n## 판단\n\n서기 → 하강 중간 → 거의 앉기 → 완전 앉기의 네 자세는 확보 가능하다. A-1, A-3, A-4, A-5를 우선 후보로 추천한다. A 내부에서 색감과 얼굴을 유지할 수 있고 기존 얼음 서기 원화의 밝은 청회색과도 비교하기 좋다. B-1, B-3, B-4, B-5도 대안이다. B는 상대적으로 어둡고 얼굴·비늘 표현이 달라 A와 혼합하면 전환 시 차이가 보일 수 있다.\n\n무속성의 다섯 칸 구성과 비교하면 '서기 다음의 초기 하강' 후보가 약하다. A-2는 A-1과 자세 차이가 작고 왼쪽 날개 끝이 흐리다. B-2는 꼬리 끝이 흐리다. C-2는 체크 배경과 테두리의 흐림이 있어 단순 자르기로 해결되지 않는다. 첫 자세를 반복해 칸 수를 채울 수는 있지만 새로운 하강 자세가 생기지는 않는다. 다섯 단계의 매끄러운 전환을 확정하려면 이 초기 자세의 보완 또는 추가 원본이 필요하다.\n\nC의 체크무늬는 투명 표시가 아닌 이미지에 포함된 배경이다. 세 원본 모두 전체 알파가 255로 실제 투명 영역이 없다. A/B도 흰 배경 제거가 필요하다. 크롭 자체만으로 앱용 투명 시트가 완성되는 것은 아니다. 배경 제거 후 머리 크기와 앞발 접지를 맞추고 300ms 전환 및 역순 재생을 확인해야 최종 연결성을 판단할 수 있다.\n\n## 검증과 범위\n\n`node tmp_image/ice_sit/review/crop-review.mjs`로 재생성한다. 15개 크롭 모두 원본 대응 영역과 RGBA 채널 차이가 0임을 검사했다. 이미지마다 실제 자세 간 공백에 맞춰 경계를 지정하고 비교표에서 머리·꼬리 잘림이 없는지 확인했다. `crops.json`에 원본 크기, 알파 범위, 크롭 좌표와 검증 결과를 기록했다.\n\n이번 작업은 원본 크롭과 검토 자료 작성까지이며 앱 에셋·코드에는 적용하지 않았다. 이미지 생성, 색 보정, 배경 제거는 수행하지 않았다.\n"
+    },
+    {
+      "path": "tmp_image/ice_sit/review/contact-sheet.png",
+      "bytes": 1453384,
+      "sha256": "897717f1bf65927ad1ce0ae7d49a386aaf956be08583228439bffe1c02c73498"
+    },
+    {
+      "path": "tmp_image/ice_sit/review/crop-review.mjs",
+      "bytes": 3012,
+      "sha256": "be17f4d068c24e9a4eaf57ce71f9e0fe6dcb231cd7c5c90168a29f68bc489b32",
+      "text": "import sharp from 'sharp';\nimport { writeFile } from 'node:fs/promises';\nimport { fileURLToPath } from 'node:url';\n\nconst out = new URL('./', import.meta.url);\nconst sources = [\n  ['A', 'Gemini_Generated_Image_iizebciizebciize.png', [0, 928, 1856, 2784, 3712, 4640]],\n  ['B', 'Gemini_Generated_Image_jwnwsxjwnwsxjwnw.png', [0, 880, 1720, 2510, 3330, 4128]],\n  ['C', 'Gemini_Generated_Image_vdxd33vdxd33vdxd.png', [0, 940, 1860, 2750, 3630, 4416]],\n];\nconst composites = [];\nconst records = [];\nconst label = (value, width, height) => Buffer.from(`<svg width=\"${width}\" height=\"${height}\"><rect width=\"100%\" height=\"100%\" fill=\"white\"/><text x=\"12\" y=\"26\" font-family=\"sans-serif\" font-size=\"20\">${value}</text></svg>`);\nfor (const [row, [id, source, boundaries]] of sources.entries()) {\n  const path = fileURLToPath(new URL(`../${source}`, out));\n  const { data, info } = await sharp(path).ensureAlpha().raw().toBuffer({ resolveWithObject: true });\n  const stats = await sharp(path).stats();\n  const record = { id, source, width: info.width, height: info.height, alphaMin: stats.channels[3].min, alphaMax: stats.channels[3].max, frames: [] };\n  composites.push({ input: label(`${id}: ${source}`, 1800, 40), left: 0, top: row * 350 });\n  for (let col = 0; col < 5; col++) {\n    const left = boundaries[col];\n    const right = boundaries[col + 1];\n    const box = { left, top: 0, width: right - left, height: info.height };\n    const crop = await sharp(path).extract(box).png().toBuffer();\n    const decoded = await sharp(crop).ensureAlpha().raw().toBuffer();\n    let changed = 0;\n    for (let y = 0; y < box.height; y++) for (let x = 0; x < box.width; x++) for (let c = 0; c < 4; c++) {\n      if (decoded[(y * box.width + x) * 4 + c] !== data[(y * info.width + x + left) * 4 + c]) changed++;\n    }\n    if (changed) throw Error(`${id}-${col + 1}: changed pixels`);\n    const file = `crops/${id}-${col + 1}.png`;\n    await writeFile(new URL(file, out), crop);\n    record.frames.push({ index: col + 1, file, box, changedRgbaChannels: changed });\n    composites.push({ input: label(`${id}-${col + 1}`, 360, 35), left: col * 360, top: row * 350 + 40 });\n    const thumb = await sharp(crop).resize(350, 265, { fit: 'inside' }).png().toBuffer();\n    const metadata = await sharp(thumb).metadata();\n    composites.push({ input: thumb, left: col * 360 + Math.floor((360 - metadata.width) / 2), top: row * 350 + 77 + Math.floor((265 - metadata.height) / 2) });\n  }\n  records.push(record);\n}\nawait sharp({ create: { width: 1800, height: 1050, channels: 4, background: '#ffffff' } }).composite(composites).png().toFile(fileURLToPath(new URL('contact-sheet.png', out)));\nawait writeFile(new URL('crops.json', out), JSON.stringify({ method: 'Five rectangular crops per source; original RGBA preserved. No background removal, regeneration, or color correction. Contact sheet thumbnails resized only.', sources: records }, null, 2) + '\\n');\nconsole.log(records.map(({ id, alphaMin, alphaMax }) => ({ id, alphaMin, alphaMax })));\n"
+    },
+    {
+      "path": "tmp_image/ice_sit/review/crops/A-1.png",
+      "bytes": 744830,
+      "sha256": "4679edc52224bfea3128c733db0447785ead2a1cf8d217ef5cf519a7b4fad7c1"
+    },
+    {
+      "path": "tmp_image/ice_sit/review/crops/A-2.png",
+      "bytes": 774357,
+      "sha256": "7326a575ad65c3452b279349c550b75fca42daf160333aab6888a04b89e11055"
+    },
+    {
+      "path": "tmp_image/ice_sit/review/crops/A-3.png",
+      "bytes": 810206,
+      "sha256": "a3be20edfc612ed6cf0cdda0e6b587f9997d516d0e4ded7f5ce9c0ee3717a620"
+    },
+    {
+      "path": "tmp_image/ice_sit/review/crops/A-4.png",
+      "bytes": 789062,
+      "sha256": "45fab8c653651ed6074864f256108165d35681c9fb29c79bd0c1f9b61f2e5369"
+    },
+    {
+      "path": "tmp_image/ice_sit/review/crops/A-5.png",
+      "bytes": 873761,
+      "sha256": "ee0b6fc194de3b2cff5b697b4b9c2e7aa15a95f7f7b10e31df8ebd0e4108a289"
+    },
+    {
+      "path": "tmp_image/ice_sit/review/crops/B-1.png",
+      "bytes": 858721,
+      "sha256": "4f9529c47e87c69ed195d53bbf7b705fb08f1eb69f10ac209d5d08ec2797c600"
+    },
+    {
+      "path": "tmp_image/ice_sit/review/crops/B-2.png",
+      "bytes": 854080,
+      "sha256": "d77e6df64a127862ff81da600d5a4996a5511bad2d9324e17f9ec96ed6ca1963"
+    },
+    {
+      "path": "tmp_image/ice_sit/review/crops/B-3.png",
+      "bytes": 855068,
+      "sha256": "912b54b7eaa15c99131895a7c1cb3f3be6b33dad79a8aeb973941bd0ba3e4f0d"
+    },
+    {
+      "path": "tmp_image/ice_sit/review/crops/B-4.png",
+      "bytes": 879097,
+      "sha256": "c2e0bada9a9f822c255dea9e1bdb9a42595a791005c46ba017faac76eb384d0d"
+    },
+    {
+      "path": "tmp_image/ice_sit/review/crops/B-5.png",
+      "bytes": 875043,
+      "sha256": "6a8d8afc1e09bfcdd2ad9975938e89d6bc395480b3f2ac6e90c7ae0546783c7f"
+    },
+    {
+      "path": "tmp_image/ice_sit/review/crops/C-1.png",
+      "bytes": 1216935,
+      "sha256": "e9785518e9bb6e1988aa4fef1b3fd5f12830f930026b46f15046928016375e4d"
+    },
+    {
+      "path": "tmp_image/ice_sit/review/crops/C-2.png",
+      "bytes": 1229891,
+      "sha256": "e5cee6a267dfcbc601d1ec93fdaa6c62ec35d896089c4d092e43418863c010a1"
+    },
+    {
+      "path": "tmp_image/ice_sit/review/crops/C-3.png",
+      "bytes": 1194984,
+      "sha256": "8ba653b99a5223bd0af36b2de1db52c1144656dce15081b852eebcc272603ded"
+    },
+    {
+      "path": "tmp_image/ice_sit/review/crops/C-4.png",
+      "bytes": 1196734,
+      "sha256": "71da4ef1dc3a1b1e05794fa94cdd00287fdd4ce46a03e6589bb789f75f508ecd"
+    },
+    {
+      "path": "tmp_image/ice_sit/review/crops/C-5.png",
+      "bytes": 1130305,
+      "sha256": "1524d423e345cd9d37d30ea3d6e1f52ef548497aac3df4115eacca5f64754cf3"
+    },
+    {
+      "path": "tmp_image/ice_sit/review/crops.json",
+      "bytes": 4481,
+      "sha256": "5ea14b1da2018e5e51114453693e7d0ae91449e00f8fca95eb6d76a9f5990c1b",
+      "text": "{\n  \"method\": \"Five rectangular crops per source; original RGBA preserved. No background removal, regeneration, or color correction. Contact sheet thumbnails resized only.\",\n  \"sources\": [\n    {\n      \"id\": \"A\",\n      \"source\": \"Gemini_Generated_Image_iizebciizebciize.png\",\n      \"width\": 4640,\n      \"height\": 928,\n      \"alphaMin\": 255,\n      \"alphaMax\": 255,\n      \"frames\": [\n        {\n          \"index\": 1,\n          \"file\": \"crops/A-1.png\",\n          \"box\": {\n            \"left\": 0,\n            \"top\": 0,\n            \"width\": 928,\n            \"height\": 928\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 2,\n          \"file\": \"crops/A-2.png\",\n          \"box\": {\n            \"left\": 928,\n            \"top\": 0,\n            \"width\": 928,\n            \"height\": 928\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 3,\n          \"file\": \"crops/A-3.png\",\n          \"box\": {\n            \"left\": 1856,\n            \"top\": 0,\n            \"width\": 928,\n            \"height\": 928\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 4,\n          \"file\": \"crops/A-4.png\",\n          \"box\": {\n            \"left\": 2784,\n            \"top\": 0,\n            \"width\": 928,\n            \"height\": 928\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 5,\n          \"file\": \"crops/A-5.png\",\n          \"box\": {\n            \"left\": 3712,\n            \"top\": 0,\n            \"width\": 928,\n            \"height\": 928\n          },\n          \"changedRgbaChannels\": 0\n        }\n      ]\n    },\n    {\n      \"id\": \"B\",\n      \"source\": \"Gemini_Generated_Image_jwnwsxjwnwsxjwnw.png\",\n      \"width\": 4128,\n      \"height\": 1024,\n      \"alphaMin\": 255,\n      \"alphaMax\": 255,\n      \"frames\": [\n        {\n          \"index\": 1,\n          \"file\": \"crops/B-1.png\",\n          \"box\": {\n            \"left\": 0,\n            \"top\": 0,\n            \"width\": 880,\n            \"height\": 1024\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 2,\n          \"file\": \"crops/B-2.png\",\n          \"box\": {\n            \"left\": 880,\n            \"top\": 0,\n            \"width\": 840,\n            \"height\": 1024\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 3,\n          \"file\": \"crops/B-3.png\",\n          \"box\": {\n            \"left\": 1720,\n            \"top\": 0,\n            \"width\": 790,\n            \"height\": 1024\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 4,\n          \"file\": \"crops/B-4.png\",\n          \"box\": {\n            \"left\": 2510,\n            \"top\": 0,\n            \"width\": 820,\n            \"height\": 1024\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 5,\n          \"file\": \"crops/B-5.png\",\n          \"box\": {\n            \"left\": 3330,\n            \"top\": 0,\n            \"width\": 798,\n            \"height\": 1024\n          },\n          \"changedRgbaChannels\": 0\n        }\n      ]\n    },\n    {\n      \"id\": \"C\",\n      \"source\": \"Gemini_Generated_Image_vdxd33vdxd33vdxd.png\",\n      \"width\": 4416,\n      \"height\": 960,\n      \"alphaMin\": 255,\n      \"alphaMax\": 255,\n      \"frames\": [\n        {\n          \"index\": 1,\n          \"file\": \"crops/C-1.png\",\n          \"box\": {\n            \"left\": 0,\n            \"top\": 0,\n            \"width\": 940,\n            \"height\": 960\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 2,\n          \"file\": \"crops/C-2.png\",\n          \"box\": {\n            \"left\": 940,\n            \"top\": 0,\n            \"width\": 920,\n            \"height\": 960\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 3,\n          \"file\": \"crops/C-3.png\",\n          \"box\": {\n            \"left\": 1860,\n            \"top\": 0,\n            \"width\": 890,\n            \"height\": 960\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 4,\n          \"file\": \"crops/C-4.png\",\n          \"box\": {\n            \"left\": 2750,\n            \"top\": 0,\n            \"width\": 880,\n            \"height\": 960\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 5,\n          \"file\": \"crops/C-5.png\",\n          \"box\": {\n            \"left\": 3630,\n            \"top\": 0,\n            \"width\": 786,\n            \"height\": 960\n          },\n          \"changedRgbaChannels\": 0\n        }\n      ]\n    }\n  ]\n}\n"
+    },
+    {
+      "path": "tmp_image/ice_walk/Gemini_Generated_Image_h92gdth92gdth92g.png",
+      "bytes": 5459462,
+      "sha256": "9ca18280f576647bb2fae5170ab1ef90c9aba183b937240b0ed082cd16f69698"
+    },
+    {
+      "path": "tmp_image/ice_walk/Gemini_Generated_Image_h92gdth92gdth92g.png:Zone.Identifier",
+      "bytes": 25,
+      "sha256": "b952d24cf701bc4e7a7d21e1ae85c611824e80579a89836c0cb49b193446ccfe"
+    },
+    {
+      "path": "tmp_image/ice_walk/Gemini_Generated_Image_jzm788jzm788jzm7.png",
+      "bytes": 5553748,
+      "sha256": "0747e0303dbc3819e1274874e08328e1992b4af137c1e3614aedbea9f367fb24"
+    },
+    {
+      "path": "tmp_image/ice_walk/Gemini_Generated_Image_jzm788jzm788jzm7.png:Zone.Identifier",
+      "bytes": 25,
+      "sha256": "b952d24cf701bc4e7a7d21e1ae85c611824e80579a89836c0cb49b193446ccfe"
+    },
+    {
+      "path": "tmp_image/ice_walk/Gemini_Generated_Image_vvt69ivvt69ivvt6.png",
+      "bytes": 4726781,
+      "sha256": "2dfe0d5163fbac5421e66e87a2765968ffb352cfc237f58c2a946c74fa78fbcf"
+    },
+    {
+      "path": "tmp_image/ice_walk/Gemini_Generated_Image_vvt69ivvt69ivvt6.png:Zone.Identifier",
+      "bytes": 25,
+      "sha256": "b952d24cf701bc4e7a7d21e1ae85c611824e80579a89836c0cb49b193446ccfe"
+    },
+    {
+      "path": "tmp_image/ice_walk/review-bde/README.md",
+      "bytes": 2022,
+      "sha256": "f21349501a6937455876170a28f82f5f24e18001bd649d22fa0ede210bb5436c",
+      "text": "# 얼음 아기 걷기 후보\n\n기존 무속성 B→D→E에 대응하는 세 컷을 제공 원본에서 추출했다.\n\n| 자세 | 원본 | 위치 |\n| --- | --- | --- |\n| B | `../Gemini_Generated_Image_vvt69ivvt69ivvt6.png` | 왼쪽 |\n| D | `../Gemini_Generated_Image_h92gdth92gdth92g.png` | 가운데 |\n| E | `../Gemini_Generated_Image_h92gdth92gdth92g.png` | 오른쪽 |\n\n`node tmp_image/ice_walk/review-bde/build.mjs`로 재생성한다. 흰색 배경 마스크와 가장 큰 연결 실루엣을 사용해 다른 캐릭터 조각을 제외하고, 작은 내부 하이라이트를 복구한다. 생성형 편집이나 색 보정은 하지 않았다. `cutout-{B,D,E}.png`를 다시 디코드해 원본 crop과 비교한 RGB 변경 수는 모두 0이다. 크기 조절 후의 픽셀은 리샘플링되므로 원본과 동일하지 않다.\n\n세 자세에 공통 배율을 적용해 최대 높이 550px, 발끝 하단 경계 y=580, 800×620 칸 중앙에 배치했다. 기존 무속성 시트와 동일한 규격이다. `layout.json`에 원본 SHA-256, 추출 좌표, 배치와 검증 결과를 기록한다. 원본과 정식 앱 에셋은 변경하지 않았다.\n\n- `ice-walk-bde.png`: 2400×620 투명 시트.\n- `ice-walk-bde.webp`: 같은 시트의 무손실 WebP.\n- `walk-preview.webp`: B→D→E, 프레임당 200ms, 무한 반복 미리보기.\n- `index.html`: 무속성과 동시 재생, 일시정지, 다음 자세, 밝은/어두운 배경 비교.\n\nPNG 알파 범위 0–255, 애니메이션 3프레임과 200ms 지연을 검사했다. 원화의 자세별 형태 차이와 밝은 가장자리의 연결감은 미리보기로 검토해야 한다. 검토용 후보이며 정식 등록이나 앱 연결은 이번 작업에 포함하지 않았다.\n\nChromium에서 이미지 로딩, 움직임 줄이기 시 자동 재생 중지, 다음 자세, 재생, 배경 전환을 확인했다. 390px 화면 가로 넘침과 페이지 오류가 없었다. `desktop-review.png`와 `mobile-review.png`에 비교 화면을 보관한다.\n"
+    },
+    {
+      "path": "tmp_image/ice_walk/review-bde/build.mjs",
+      "bytes": 6542,
+      "sha256": "ccf57650ed2479a34173ce414abf09020c70464d4d04fcafb3031d2cd59e6fd6",
+      "text": "import sharp from 'sharp';\nimport { writeFile, readFile, copyFile } from 'node:fs/promises';\nimport { createHash } from 'node:crypto';\n\nconst dir = new URL('./', import.meta.url);\nconst selections = [\n  { pose: 'B', source: 'Gemini_Generated_Image_vvt69ivvt69ivvt6.png', left: 0, width: 1300, position: '왼쪽' },\n  { pose: 'D', source: 'Gemini_Generated_Image_h92gdth92gdth92g.png', left: 1362, width: 1363, position: '가운데' },\n  { pose: 'E', source: 'Gemini_Generated_Image_h92gdth92gdth92g.png', left: 2725, width: 1363, position: '오른쪽' },\n];\nconst extracted = [];\nfor (const selection of selections) {\n  const source = new URL(`../${selection.source}`, dir);\n  const { height } = await sharp(source.pathname).metadata();\n  const crop = { left: selection.left, top: 0, width: selection.width, height };\n  const { data, info } = await sharp(source.pathname).extract(crop).ensureAlpha().raw().toBuffer({ resolveWithObject: true });\n  const { width } = info, count = width * height;\n  const foreground = new Uint8Array(count), seen = new Uint8Array(count), queue = new Int32Array(count);\n  function neighbors(k) {\n    const x = k % width, y = Math.floor(k / width);\n    return [x > 0 ? k - 1 : -1, x + 1 < width ? k + 1 : -1, y > 0 ? k - width : -1, y + 1 < height ? k + width : -1];\n  }\n  // Select the outlined silhouette, excluding white backdrop and detached fragments.\n  for (let i = 0; i < count; i++) {\n    const r = data[i * 4], g = data[i * 4 + 1], b = data[i * 4 + 2];\n    foreground[i] = !(Math.min(r, g, b) >= 242 && Math.max(r, g, b) - Math.min(r, g, b) <= 16);\n  }\n  let largest = [];\n  for (let i = 0; i < count; i++) {\n    if (!foreground[i] || seen[i]) continue;\n    let head = 0, tail = 1; queue[0] = i; seen[i] = 1;\n    while (head < tail) {\n      const k = queue[head++];\n      for (const n of neighbors(k)) if (n >= 0 && foreground[n] && !seen[n]) { seen[n] = 1; queue[tail++] = n; }\n    }\n    if (tail > largest.length) largest = Array.from(queue.subarray(0, tail));\n  }\n  if (largest.length < 100000) throw new Error(`Incomplete silhouette: ${selection.pose}`);\n  const mask = new Uint8Array(count);\n  for (const i of largest) mask[i] = 255;\n  // Keep small enclosed white highlights; larger openings between limbs stay clear.\n  seen.fill(0);\n  for (let i = 0; i < count; i++) {\n    if (mask[i] || seen[i]) continue;\n    let head = 0, tail = 1, edge = false; queue[0] = i; seen[i] = 1;\n    while (head < tail) {\n      const k = queue[head++], x = k % width, y = Math.floor(k / width);\n      if (x === 0 || x === width - 1 || y === 0 || y === height - 1) edge = true;\n      for (const n of neighbors(k)) if (n >= 0 && !mask[n] && !seen[n]) { seen[n] = 1; queue[tail++] = n; }\n    }\n    if (!edge && tail <= 512) for (let p = 0; p < tail; p++) mask[queue[p]] = 255;\n  }\n  let left = width, top = height, right = -1, bottom = -1;\n  const output = Buffer.from(data);\n  for (let i = 0; i < count; i++) {\n    let alpha = mask[i];\n    const r = data[i * 4], g = data[i * 4 + 1], b = data[i * 4 + 2], min = Math.min(r, g, b);\n    if (alpha && min >= 220 && Math.max(r, g, b) - min <= 18 && neighbors(i).some(n => n >= 0 && !mask[n])) alpha = Math.round(255 * (255 - min) / 35);\n    output[i * 4 + 3] = alpha;\n    if (!alpha) continue;\n    const x = i % width, y = Math.floor(i / width);\n    left = Math.min(left, x); right = Math.max(right, x); top = Math.min(top, y); bottom = Math.max(bottom, y);\n  }\n  const box = { left, top, width: right - left + 1, height: bottom - top + 1 };\n  const cutout = await sharp(output, { raw: { width, height, channels: 4 } }).png().toBuffer();\n  await writeFile(new URL(`cutout-${selection.pose}.png`, dir), cutout);\n  const decoded = await sharp(cutout).raw().toBuffer();\n  let rgbChanges = 0;\n  for (let i = 0; i < count; i++) for (let c = 0; c < 3; c++) if (decoded[i * 4 + c] !== data[i * 4 + c]) rgbChanges++;\n  if (rgbChanges) throw new Error('Source RGB changed');\n  extracted.push({ ...selection, crop, box, cutout, rgbChanges, sha256: createHash('sha256').update(await readFile(source)).digest('hex') });\n}\nconst scale = 550 / Math.max(...extracted.map(frame => frame.box.height));\nconst frames = [], layout = [];\nfor (const frame of extracted) {\n  const width = Math.round(frame.box.width * scale), height = Math.round(frame.box.height * scale);\n  const left = Math.round((800 - width) / 2), top = 580 - height;\n  if (left < 20 || top < 20) throw new Error('Insufficient canvas margin');\n  const input = await sharp(frame.cutout).extract(frame.box).resize(width, height).png().toBuffer();\n  const buffer = await sharp({ create: { width: 800, height: 620, channels: 4, background: '#00000000' } }).composite([{ input, left, top }]).png().toBuffer();\n  await writeFile(new URL(`frame-${frame.pose}.png`, dir), buffer);\n  frames.push(buffer);\n  const { cutout, ...record } = frame;\n  layout.push({ ...record, placement: { left, top, width, height } });\n}\nconst sheet = await sharp({ create: { width: 2400, height: 620, channels: 4, background: '#00000000' } }).composite(frames.map((input, i) => ({ input, left: i * 800, top: 0 }))).png().toBuffer();\nawait writeFile(new URL('ice-walk-bde.png', dir), sheet);\nawait sharp(sheet).webp({ lossless: true }).toFile(new URL('ice-walk-bde.webp', dir).pathname);\nconst raw = await Promise.all(frames.map(frame => sharp(frame).ensureAlpha().raw().toBuffer()));\nawait sharp(Buffer.concat(raw), { raw: { width: 800, height: 1860, channels: 4, pageHeight: 620 } }).webp({ lossless: true, loop: 0, delay: [200, 200, 200] }).toFile(new URL('walk-preview.webp', dir).pathname);\nawait copyFile(new URL('../../../public/assets/dragons/baby/walk-bde.webp', dir), new URL('neutral-reference.webp', dir));\nconst stats = await sharp(sheet).stats();\nconst animation = await sharp(new URL('walk-preview.webp', dir).pathname, { animated: true }).metadata();\nif (stats.channels[3].min !== 0 || stats.channels[3].max !== 255 || animation.pages !== 3 || animation.delay.some(ms => ms !== 200)) throw new Error('Invalid output');\nawait writeFile(new URL('layout.json', dir), JSON.stringify({ width: 2400, height: 620, frameWidth: 800, fps: 5, baseline: 580, scale, extraction: 'Deterministic white mask and largest connected silhouette; source RGB preserved before resizing; no generation.', frames: layout, alpha: [stats.channels[3].min, stats.channels[3].max], animation: { pages: animation.pages, delay: animation.delay } }, null, 2) + '\\n');\nconsole.log('Created B→D→E: 2400×620, transparent, source RGB preserved, animated WebP 3×200ms.');\n"
+    },
+    {
+      "path": "tmp_image/ice_walk/review-bde/cutout-B.png",
+      "bytes": 1382447,
+      "sha256": "64531ec84d2ebe765350c3ba2143b500b1419f8ced3295ff0f3dca57beb62f96"
+    },
+    {
+      "path": "tmp_image/ice_walk/review-bde/cutout-D.png",
+      "bytes": 1514879,
+      "sha256": "e577a2bd241bac908cf63ca3e1634ff61554b564b04169c960e489e6cd251426"
+    },
+    {
+      "path": "tmp_image/ice_walk/review-bde/cutout-E.png",
+      "bytes": 1590894,
+      "sha256": "a25da4f597d8e435d78c3917e5857193fb567aa631968a7c582216deb2229a2a"
+    },
+    {
+      "path": "tmp_image/ice_walk/review-bde/desktop-review.png",
+      "bytes": 593743,
+      "sha256": "e42369aeceed070d26fd57123dec464de378d15659c99f5ea8481f5980c7ca62"
+    },
+    {
+      "path": "tmp_image/ice_walk/review-bde/frame-B.png",
+      "bytes": 515580,
+      "sha256": "d332c86310ab292106401333751fbd50f9ba7ad3bf4fa5d2226c36177036ac4c"
+    },
+    {
+      "path": "tmp_image/ice_walk/review-bde/frame-D.png",
+      "bytes": 494051,
+      "sha256": "553dd22415788e136c8fb36e0427a91eb79b17f248a60acad49cfa912bae5645"
+    },
+    {
+      "path": "tmp_image/ice_walk/review-bde/frame-E.png",
+      "bytes": 533603,
+      "sha256": "ede1a405847137cbdca0c054d6a749a9db4b522d148d782e39e2aa6597e0b4d2"
+    },
+    {
+      "path": "tmp_image/ice_walk/review-bde/ice-walk-bde.png",
+      "bytes": 1560332,
+      "sha256": "61b299100cf29a057a01f340ca9e09778e4ff443737fa562ea2e655ac371a0f9"
+    },
+    {
+      "path": "tmp_image/ice_walk/review-bde/ice-walk-bde.webp",
+      "bytes": 780022,
+      "sha256": "8d9ec932c6511df7d8d28e52c1289ac9034690175d41a861bbeaf6d34400d742"
+    },
+    {
+      "path": "tmp_image/ice_walk/review-bde/index.html",
+      "bytes": 3407,
+      "sha256": "e68841fbc3449d4df5f1a35f4b5419ba2943029d29d83bb55a876360aa72f6ea"
+    },
+    {
+      "path": "tmp_image/ice_walk/review-bde/layout.json",
+      "bytes": 2198,
+      "sha256": "2a51633cc776b4cda7bcc5d3d53c0dfbbcf6b7adf856e6b4050508498aef7a19",
+      "text": "{\n  \"width\": 2400,\n  \"height\": 620,\n  \"frameWidth\": 800,\n  \"fps\": 5,\n  \"baseline\": 580,\n  \"scale\": 0.593311758360302,\n  \"extraction\": \"Deterministic white mask and largest connected silhouette; source RGB preserved before resizing; no generation.\",\n  \"frames\": [\n    {\n      \"pose\": \"B\",\n      \"source\": \"Gemini_Generated_Image_vvt69ivvt69ivvt6.png\",\n      \"left\": 0,\n      \"width\": 1300,\n      \"position\": \"왼쪽\",\n      \"crop\": {\n        \"left\": 0,\n        \"top\": 0,\n        \"width\": 1300,\n        \"height\": 1056\n      },\n      \"box\": {\n        \"left\": 35,\n        \"top\": 56,\n        \"width\": 1191,\n        \"height\": 927\n      },\n      \"rgbChanges\": 0,\n      \"sha256\": \"2dfe0d5163fbac5421e66e87a2765968ffb352cfc237f58c2a946c74fa78fbcf\",\n      \"placement\": {\n        \"left\": 47,\n        \"top\": 30,\n        \"width\": 707,\n        \"height\": 550\n      }\n    },\n    {\n      \"pose\": \"D\",\n      \"source\": \"Gemini_Generated_Image_h92gdth92gdth92g.png\",\n      \"left\": 1362,\n      \"width\": 1363,\n      \"position\": \"가운데\",\n      \"crop\": {\n        \"left\": 1362,\n        \"top\": 0,\n        \"width\": 1363,\n        \"height\": 1056\n      },\n      \"box\": {\n        \"left\": 49,\n        \"top\": 56,\n        \"width\": 1172,\n        \"height\": 924\n      },\n      \"rgbChanges\": 0,\n      \"sha256\": \"9ca18280f576647bb2fae5170ab1ef90c9aba183b937240b0ed082cd16f69698\",\n      \"placement\": {\n        \"left\": 53,\n        \"top\": 32,\n        \"width\": 695,\n        \"height\": 548\n      }\n    },\n    {\n      \"pose\": \"E\",\n      \"source\": \"Gemini_Generated_Image_h92gdth92gdth92g.png\",\n      \"left\": 2725,\n      \"width\": 1363,\n      \"position\": \"오른쪽\",\n      \"crop\": {\n        \"left\": 2725,\n        \"top\": 0,\n        \"width\": 1363,\n        \"height\": 1056\n      },\n      \"box\": {\n        \"left\": 51,\n        \"top\": 59,\n        \"width\": 1252,\n        \"height\": 922\n      },\n      \"rgbChanges\": 0,\n      \"sha256\": \"9ca18280f576647bb2fae5170ab1ef90c9aba183b937240b0ed082cd16f69698\",\n      \"placement\": {\n        \"left\": 29,\n        \"top\": 33,\n        \"width\": 743,\n        \"height\": 547\n      }\n    }\n  ],\n  \"alpha\": [\n    0,\n    255\n  ],\n  \"animation\": {\n    \"pages\": 3,\n    \"delay\": [\n      200,\n      200,\n      200\n    ]\n  }\n}\n"
+    },
+    {
+      "path": "tmp_image/ice_walk/review-bde/mobile-review.png",
+      "bytes": 232778,
+      "sha256": "4fbfa238198cb8093662f8dfb141ab79a32f8fae6c8797b193db787c6b250f58"
+    },
+    {
+      "path": "tmp_image/ice_walk/review-bde/neutral-reference.webp",
+      "bytes": 672122,
+      "sha256": "f97a7c50a0309903befc8742bf8d74236d48de414edde69f8778a37db92db48f"
+    },
+    {
+      "path": "tmp_image/ice_walk/review-bde/walk-preview.webp",
+      "bytes": 772962,
+      "sha256": "0045968cafd661942616fba2abd7e2cfa53687312a5293edad6838760c2e7591"
+    },
+    {
+      "path": "tmp_image/lightning_sit/Gemini_Generated_Image_12d75t12d75t12d7.png",
+      "bytes": 4366972,
+      "sha256": "fb10c5510c36eb18430e53b8d41356d1343a8ea23880f635979943e29131502b"
+    },
+    {
+      "path": "tmp_image/lightning_sit/Gemini_Generated_Image_12d75t12d75t12d7.png:Zone.Identifier",
+      "bytes": 25,
+      "sha256": "b952d24cf701bc4e7a7d21e1ae85c611824e80579a89836c0cb49b193446ccfe"
+    },
+    {
+      "path": "tmp_image/lightning_sit/Gemini_Generated_Image_dttjnbdttjnbdttj.png",
+      "bytes": 5065953,
+      "sha256": "7b17dcf9e22a912f34c36ca7f25d1d124413931816ea54b334cf5124d524fb8e"
+    },
+    {
+      "path": "tmp_image/lightning_sit/Gemini_Generated_Image_dttjnbdttjnbdttj.png:Zone.Identifier",
+      "bytes": 25,
+      "sha256": "b952d24cf701bc4e7a7d21e1ae85c611824e80579a89836c0cb49b193446ccfe"
+    },
+    {
+      "path": "tmp_image/lightning_sit/Gemini_Generated_Image_xnvl08xnvl08xnvl.png",
+      "bytes": 4586728,
+      "sha256": "bf9565c35751a7a1dca0b60234b42b2a9908a6ec9f04575eecfd0ebe62a7c6dc"
+    },
+    {
+      "path": "tmp_image/lightning_sit/Gemini_Generated_Image_xnvl08xnvl08xnvl.png:Zone.Identifier",
+      "bytes": 25,
+      "sha256": "b952d24cf701bc4e7a7d21e1ae85c611824e80579a89836c0cb49b193446ccfe"
+    },
+    {
+      "path": "tmp_image/lightning_sit/c4cc6d21-c845-40be-935a-d955aedd267c.png",
+      "bytes": 1042054,
+      "sha256": "03ba7e7d69506355844214b1e4642fb0e5afe4986f379120d9db516505adad60"
+    },
+    {
+      "path": "tmp_image/lightning_sit/c4cc6d21-c845-40be-935a-d955aedd267c.png:Zone.Identifier",
+      "bytes": 25,
+      "sha256": "b952d24cf701bc4e7a7d21e1ae85c611824e80579a89836c0cb49b193446ccfe"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/README.md",
+      "bytes": 3358,
+      "sha256": "dec448eef642c1e1011907d3cd884df462a32ac27963f9fbfbabb443990fe6ef",
+      "text": "# 번개 아기 앉기 시안 v1\n\n2026-11-06. 무속성 아기와 같은 앉기·역순 일어서기를 검토하기 위한 독립 시안이다. 앱 자산과 코드는 바꾸지 않았다.\n\n## 보기\n\n- `index.html`: 무속성과 번개 동시 재생. 기본 5초 대기 후 300ms 간격으로 앉는다. 드래곤 터치 또는 일어서기 버튼은 현재 자세부터 역순으로 재생한다. 자세 직접 선택, 정지, 배경 변경도 가능하다. HTML 파일을 브라우저에서 직접 열면 된다.\n- `sit-rise-comparison.gif`: 두 드래곤의 반복 비교. 전환 300ms, 양 끝 유지 1200ms인 짧은 검토 루프이며 앱의 5초 대기는 HTML에서 확인한다.\n- `neutral-lightning-comparison.png`: 위 무속성, 아래 번개인 다섯 자세 비교.\n- `preview-desktop.png`, `preview-mobile.png`: 브라우저에서 찍은 화면.\n\n## 제작\n\n기존 `assets/dragons/source/baby/lightning.png`를 첫 칸에 그대로 사용했다. 나머지 네 칸은 `Gemini_Generated_Image_xnvl08xnvl08xnvl.png`의 2–5번을 사용했다. 내장 image_gen 도구로 흰 배경과 내부 빈 공간을 투명 처리하고, 연결 성분으로 각 자세를 분리해 원화와 같은 2048×2048 캔버스에 배치했다.\n\n생성형 투명 분리본이므로 나머지 자세의 선·색·세부 형태는 원본과 일부 다를 수 있다. 원본 RGB를 보존한 알파 분리본으로 설명하거나 취급하면 안 된다. 원본과 비교하면 큰 포즈와 속성색은 유지됐으나 세부 선 표현이 달라졌다. 생성 결과 원본은 `transparent-generated.png`로 보관했다. 프롬프트 전문은 `prompt.txt`에 있다. CLI/API 대체 경로는 사용하지 않았다.\n\n각 자세의 수동 측정 머리 폭을 520px로 맞추고, 가까운 앞발 기준점을 (1330,1608)에 배치했다. 측정과 배치 기록은 `layout.json`에 있다. 점선은 이 접지 좌표의 높이다. 프레임별 전체 실루엣의 가장 낮은 점은 꼬리·다른 발 때문에 점선과 다를 수 있다. 번개 후기 자세가 무속성보다 상체를 조금 더 세우며, 중간→후기 전환의 머리 높이 변화는 최종 선택 시 눈으로 검토할 부분이다.\n\n- `lightning-sit-sequence.png`: 10240×2048, 투명, 가로 5칸.\n- `lightning-sit-sequence.webp`: 5120×1024, 무손실, 가로 5칸.\n- `frame-0.png`–`frame-4.png`: 배치 후 개별 자세.\n- `cutout-1.png`–`cutout-5.png`: 생성형 분리본의 개별 자세. 1번은 비교용이며 시트 첫 칸에는 쓰지 않았다.\n\n## 확인 결과\n\n- 첫 프레임의 디코딩된 RGBA가 기존 번개 서기 원화와 완전히 같음을 확인했다.\n- 모든 배치가 2048×2048 캔버스 안에 들어감을 확인했다.\n- Chromium에서 300ms 전환, 하강 중 터치 시 현재 프레임부터 역순, 5초 대기, 마지막 앉기 유지, 움직임 줄이기 동작을 확인했다.\n- 데스크톱 1200px와 모바일 390px 화면을 확인했다. 모바일 가로 넘침과 브라우저 스크립트 오류가 없었다.\n- GIF의 9개 프레임과 전환·유지 지연시간을 디코딩해 확인했다.\n\n재현 스크립트: `extract.mjs`, `build.mjs`, `animate.mjs`, `check-preview.mjs`. 이 폴더에서 만든 독립 시안만 검사했으며 앱 기능·PWA 변경은 없어 앱 전체 빌드는 실행하지 않았다.\n"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/animate.mjs",
+      "bytes": 1340,
+      "sha256": "fb54780b90017173bdf4cbdbb799097bff6f385189357d4f6bc12002997a7f87",
+      "text": "import sharp from 'sharp';\nimport {fileURLToPath} from 'node:url';\nconst path=n=>fileURLToPath(new URL(n,import.meta.url));\nconst order=[0,1,2,3,4,3,2,1,0],delay=[300,300,300,300,1200,300,300,300,1200],width=800,height=440,frames=[];\nconst title=Buffer.from('<svg width=\"800\" height=\"40\"><text x=\"140\" y=\"28\" font-family=\"sans-serif\" font-size=\"19\" fill=\"#202b35\">Neutral</text><text x=\"530\" y=\"28\" font-family=\"sans-serif\" font-size=\"19\" fill=\"#202b35\">Lightning draft</text></svg>');\nfor(const i of order){\n const layers=[{input:title,left:0,top:0}];\n for(const [j,f] of ['neutral-sit-sequence.png','lightning-sit-sequence.png'].entries())layers.push({input:await sharp(path(f)).extract({left:i*2048,top:0,width:2048,height:2048}).resize(400).png().toBuffer(),left:j*400,top:40});\n frames.push(await sharp({create:{width,height,channels:4,background:'#e8f0e6'}}).composite(layers).raw().toBuffer());\n}\nawait sharp(Buffer.concat(frames),{raw:{width,height:height*frames.length,channels:4,pageHeight:height}}).gif({delay,loop:0,effort:7}).toFile(path('sit-rise-comparison.gif'));\nconst m=await sharp(path('sit-rise-comparison.gif'),{animated:true}).metadata();\nif(m.pages!==9||m.delay.some((v,i)=>v!==delay[i]))throw Error('Animation encoding failed');\nconsole.log('Animated comparison: 9 frames; 300ms transitions, 1200ms holds; loops.');\n"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/build.mjs",
+      "bytes": 3232,
+      "sha256": "8d3b960b8906a889483b5790dc2ed7c306819c3ab309c7c524dd0977e33866b8",
+      "text": "import sharp from 'sharp';\nimport {readFile,writeFile,copyFile} from 'node:fs/promises';\nimport {fileURLToPath} from 'node:url';\nimport {createHash} from 'node:crypto';\nconst dir=new URL('./',import.meta.url),path=n=>fileURLToPath(new URL(n,dir));\nconst standing=path('../../../assets/dragons/source/baby/lightning.png');\nconst source=path('../Gemini_Generated_Image_xnvl08xnvl08xnvl.png');\nconst headWidths=[152,154,152,158],toes=[[317,348],[283,314],[267,326],[309,308]];\nconst layers=[],placements=[];\nawait copyFile(standing,path('frame-0.png'));\nfor(let i=0;i<4;i++){\n const f=path(`cutout-${i+2}.png`),m=await sharp(f).metadata(),scale=520/headWidths[i];\n const width=Math.round(m.width*scale),height=Math.round(m.height*scale);\n const left=Math.round(1330-toes[i][0]*scale),top=Math.round(1608-toes[i][1]*scale);\n if(left<0||top<0||left+width>2048||top+height>2048)throw Error('Outside canvas');\n const frame=await sharp({create:{width:2048,height:2048,channels:4,background:'#00000000'}}).composite([{input:await sharp(f).resize(width,height).png().toBuffer(),left,top}]).png().toBuffer();\n await writeFile(path(`frame-${i+1}.png`),frame);\n layers.push({input:frame,left:(i+1)*2048,top:0});\n placements.push({frame:i+1,sourcePose:i+2,headWidth:headWidths[i],toe:toes[i],scale,width,height,left,top});\n}\nlayers.unshift({input:await readFile(standing),left:0,top:0});\nconst pixels=await sharp({create:{width:10240,height:2048,channels:4,background:'#00000000'}}).composite(layers).raw().toBuffer();\nconst standingPixels=await sharp(standing).ensureAlpha().raw().toBuffer();\nfor(let y=0;y<2048;y++)standingPixels.copy(pixels,y*10240*4,y*2048*4,(y+1)*2048*4);\nconst sheet=await sharp(pixels,{raw:{width:10240,height:2048,channels:4}}).png().toBuffer();\nawait writeFile(path('lightning-sit-sequence.png'),sheet);\nawait sharp(sheet).resize(5120).webp({lossless:true}).toFile(path('lightning-sit-sequence.webp'));\nawait copyFile(path('../../../assets/dragons/source/baby/sit-sequence.png'),path('neutral-sit-sequence.png'));\nconst original=await sharp(standing).raw().toBuffer(),first=await sharp(sheet).extract({left:0,top:0,width:2048,height:2048}).raw().toBuffer();\nif(!first.equals(original))throw Error('Standing pixels changed');\nconst contact=[];\nfor(let row=0;row<2;row++)for(let i=0;i<5;i++)contact.push({input:await sharp(row?sheet:path('neutral-sit-sequence.png')).extract({left:i*2048,top:0,width:2048,height:2048}).resize(320).png().toBuffer(),left:i*320,top:row*320});\nawait sharp({create:{width:1600,height:640,channels:4,background:'#e8f0e6'}}).composite(contact).png().toFile(path('neutral-lightning-comparison.png'));\nawait writeFile(path('layout.json'),JSON.stringify({draft:true,source:'../Gemini_Generated_Image_xnvl08xnvl08xnvl.png',sourceSha256:createHash('sha256').update(await readFile(source)).digest('hex'),method:'Built-in image_gen background extraction, followed by connected component cropping and per-frame scale/translation. Generated edit may differ from source RGB/shape.',firstFramePixelIdentical:true,frameSize:2048,frameDurationMs:300,headWidth:520,frontToe:[1330,1608],placements},null,2));\nconsole.log('Saved 5-frame PNG and WebP; first-frame RGBA match passed; all frames inside canvas.');\n"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/check-preview.mjs",
+      "bytes": 2513,
+      "sha256": "04a1b927b470a19cf4f4f3fd1b819206c890a337a6a817382cc89dc7a1e4e3a1",
+      "text": "import {chromium} from '@playwright/test';\nconst browser=await chromium.launch({headless:true});\nconst page=await browser.newPage({viewport:{width:1200,height:1050}});\nconst errors=[];page.on('pageerror',e=>errors.push(e.message));\nawait page.goto(new URL('./index.html',import.meta.url).href);\n// Given both dragons are standing, when sitting starts, then both reach the middle pose after two steps.\nawait page.locator('#sit').click();await page.waitForTimeout(650);\nif(await page.locator('body').getAttribute('data-frame')!=='2')throw Error('Middle frame timing failed');\n// Given descent is in progress, when touched, then it reverses from the current pose.\nawait page.locator('.lightning').click();await page.waitForTimeout(350);\nif(await page.locator('body').getAttribute('data-frame')!=='1')throw Error('Mid-descent reverse failed');\nawait page.waitForTimeout(350);\nif(await page.locator('body').getAttribute('data-frame')!=='0')throw Error('Rise did not finish');\n// Given a new idle wait, when five seconds elapse, then descent starts and holds the final pose.\nawait page.locator('#idle').click();await page.waitForTimeout(4800);\nif(await page.locator('body').getAttribute('data-frame')!=='0')throw Error('Idle too short');\nawait page.waitForTimeout(1600);\nif(await page.locator('body').getAttribute('data-frame')!=='4')throw Error('Idle sit failed');\nawait page.waitForTimeout(650);\nif(await page.locator('body').getAttribute('data-frame')!=='4')throw Error('Seated hold failed');\nawait page.screenshot({path:new URL('./preview-desktop.png',import.meta.url).pathname,fullPage:true});\n// Given a phone viewport, when using the preview, then the page fits without horizontal overflow.\nawait page.setViewportSize({width:390,height:844});await page.locator('#background').selectOption('dark');\nawait page.screenshot({path:new URL('./preview-mobile.png',import.meta.url).pathname,fullPage:true});\nif(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw Error('Mobile overflow');\n// Given reduced motion, when sitting starts, then only the final still pose is used.\nawait page.emulateMedia({reducedMotion:'reduce'});await page.reload();await page.locator('#sit').click();\nif(await page.locator('body').getAttribute('data-frame')!=='4')throw Error('Reduced motion failed');\nif(errors.length)throw Error(errors.join('\\n'));\nawait browser.close();console.log('Passed: 300ms progression, reverse from mid-descent, 5s idle, seated hold, reduced motion, mobile overflow, browser errors.');\n"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/cutout-1.png",
+      "bytes": 210154,
+      "sha256": "2cd0efd530ee996ee64947e25b119cab086d3f597be56adda063a41b3f21f99b"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/cutout-2.png",
+      "bytes": 196466,
+      "sha256": "813ee006ae74f0d54f1bf4147e9d4e408ce344f527c90ca613daa97dbf01aad8"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/cutout-3.png",
+      "bytes": 211513,
+      "sha256": "ac9f28cf9829752a4237d79d7d69bf1dfd0b312539a70e54f078bf4fd7776656"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/cutout-4.png",
+      "bytes": 205940,
+      "sha256": "a6d82deee4030629aa2b372c0eed760818c6debdc9be5a9800ddce3d323f13ed"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/cutout-5.png",
+      "bytes": 208117,
+      "sha256": "77139b2746868947db20c547e7f12548387a88edf997d494210abe1b8e6872c9"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/extract.mjs",
+      "bytes": 2079,
+      "sha256": "92b6458556a096e2963a7920f6b64c4e9d255d6add851cb838990e7f7ad2e4d0",
+      "text": "import sharp from 'sharp';\nimport {fileURLToPath} from 'node:url';\nimport {writeFile} from 'node:fs/promises';\nconst {data,info}=await sharp(fileURLToPath(new URL('transparent-generated.png',import.meta.url))).ensureAlpha().raw().toBuffer({resolveWithObject:true});\nconst {width:w,height:h}=info,seen=new Uint8Array(w*h),q=new Int32Array(w*h),parts=[];\nfor(let i=0;i<w*h;i++){\n if(seen[i]||data[i*4+3]<16)continue;\n let a=0,z=1;q[0]=i;seen[i]=1;let l=w,t=h,r=0,b=0;\n while(a<z){const k=q[a++],x=k%w,y=Math.floor(k/w);l=Math.min(l,x);r=Math.max(r,x);t=Math.min(t,y);b=Math.max(b,y);\n for(const n of [x>0?k-1:-1,x<w-1?k+1:-1,y>0?k-w:-1,y<h-1?k+w:-1])if(n>=0&&!seen[n]&&data[n*4+3]>=16){seen[n]=1;q[z++]=n;}}\n if(z>1000)parts.push({left:l,top:t,width:r-l+1,height:b-t+1,pixels:Array.from(q.subarray(0,z))});\n}\nparts.sort((a,b)=>a.left-b.left);if(parts.length!==5)throw Error(`Expected 5 silhouettes, got ${parts.length}`);\nconst boxes=[];\nfor(let j=0;j<5;j++){\n const {pixels,...box}=parts[j];\n // Components isolate adjacent poses even if their bounding rectangles overlap.\n // Copy original generated RGBA for each component and an alpha fringe of 1px.\n const keep=new Uint8Array(w*h);\n for(const k of pixels){const x=k%w,y=Math.floor(k/w);for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)if(x+dx>=0&&x+dx<w&&y+dy>=0&&y+dy<h)keep[(y+dy)*w+x+dx]=1;}\n const padded={left:Math.max(0,box.left-2),top:Math.max(0,box.top-2),width:0,height:0};\n padded.width=Math.min(w,box.left+box.width+2)-padded.left;padded.height=Math.min(h,box.top+box.height+2)-padded.top;\n const rgba=Buffer.alloc(padded.width*padded.height*4);\n for(let y=0;y<padded.height;y++)for(let x=0;x<padded.width;x++){const i=(y+padded.top)*w+x+padded.left;if(keep[i])data.copy(rgba,(y*padded.width+x)*4,i*4,i*4+4);}\n await sharp(rgba,{raw:{width:padded.width,height:padded.height,channels:4}}).png().toFile(fileURLToPath(new URL(`cutout-${j+1}.png`,import.meta.url)));\n boxes.push(padded);\n}\nawait writeFile(new URL('extraction.json',import.meta.url),JSON.stringify({width:w,height:h,boxes},null,2));console.log(boxes);\n"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/extraction.json",
+      "bytes": 504,
+      "sha256": "87b1f4c25d15e35eae495558ad70593df97fead8a6a7e81b96638444000ea4e5",
+      "text": "{\n  \"width\": 1926,\n  \"height\": 817,\n  \"boxes\": [\n    {\n      \"left\": 21,\n      \"top\": 269,\n      \"width\": 441,\n      \"height\": 367\n    },\n    {\n      \"left\": 412,\n      \"top\": 284,\n      \"width\": 417,\n      \"height\": 351\n    },\n    {\n      \"left\": 800,\n      \"top\": 307,\n      \"width\": 382,\n      \"height\": 362\n    },\n    {\n      \"left\": 1166,\n      \"top\": 307,\n      \"width\": 360,\n      \"height\": 380\n    },\n    {\n      \"left\": 1510,\n      \"top\": 343,\n      \"width\": 379,\n      \"height\": 355\n    }\n  ]\n}"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/frame-0.png",
+      "bytes": 3763377,
+      "sha256": "12a9813931063c19cb463619bd082a81f064f46fce1f506abe0e297ce768f7db"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/frame-1.png",
+      "bytes": 1906784,
+      "sha256": "0e6d2ff5ca78dd3b8740563721f160b536ee441c7d3b067a5ecb6d27b9e3edd3"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/frame-2.png",
+      "bytes": 2032264,
+      "sha256": "b31bdd5a58f4147640d5ffce266ec11542cb4e100c2e86b9aaad554bd0e7a8fd"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/frame-3.png",
+      "bytes": 2032035,
+      "sha256": "565e9ea14dbc095664c9cbc723773af2e16924bdbc57ababf44a99b2b5982a08"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/frame-4.png",
+      "bytes": 1908932,
+      "sha256": "f62e564ee113dbeb18344e9b73b4f30452d1382c1b51439453f3187d1c93f7e9"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/index.html",
+      "bytes": 5592,
+      "sha256": "c3df9e43742a47ac38e17e5ece555ba2e982642479918228763169620b0f801e"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/layout.json",
+      "bytes": 1476,
+      "sha256": "b95426df0cfe10ee97cf3a7f2b0bd19530c7306ab9f8aa5af4b4c8025b22710d",
+      "text": "{\n  \"draft\": true,\n  \"source\": \"../Gemini_Generated_Image_xnvl08xnvl08xnvl.png\",\n  \"sourceSha256\": \"bf9565c35751a7a1dca0b60234b42b2a9908a6ec9f04575eecfd0ebe62a7c6dc\",\n  \"method\": \"Built-in image_gen background extraction, followed by connected component cropping and per-frame scale/translation. Generated edit may differ from source RGB/shape.\",\n  \"firstFramePixelIdentical\": true,\n  \"frameSize\": 2048,\n  \"frameDurationMs\": 300,\n  \"headWidth\": 520,\n  \"frontToe\": [\n    1330,\n    1608\n  ],\n  \"placements\": [\n    {\n      \"frame\": 1,\n      \"sourcePose\": 2,\n      \"headWidth\": 152,\n      \"toe\": [\n        317,\n        348\n      ],\n      \"scale\": 3.4210526315789473,\n      \"width\": 1427,\n      \"height\": 1201,\n      \"left\": 246,\n      \"top\": 417\n    },\n    {\n      \"frame\": 2,\n      \"sourcePose\": 3,\n      \"headWidth\": 154,\n      \"toe\": [\n        283,\n        314\n      ],\n      \"scale\": 3.3766233766233764,\n      \"width\": 1290,\n      \"height\": 1222,\n      \"left\": 374,\n      \"top\": 548\n    },\n    {\n      \"frame\": 3,\n      \"sourcePose\": 4,\n      \"headWidth\": 152,\n      \"toe\": [\n        267,\n        326\n      ],\n      \"scale\": 3.4210526315789473,\n      \"width\": 1232,\n      \"height\": 1300,\n      \"left\": 417,\n      \"top\": 493\n    },\n    {\n      \"frame\": 4,\n      \"sourcePose\": 5,\n      \"headWidth\": 158,\n      \"toe\": [\n        309,\n        308\n      ],\n      \"scale\": 3.2911392405063293,\n      \"width\": 1247,\n      \"height\": 1168,\n      \"left\": 313,\n      \"top\": 594\n    }\n  ]\n}"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/lightning-sit-sequence.png",
+      "bytes": 13759544,
+      "sha256": "1d6396b0f7643cff9347c792feea15e5e755c99fe26e24b611e4e14a09d55e94"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/lightning-sit-sequence.webp",
+      "bytes": 1406728,
+      "sha256": "45380326be2847a48fa1fb46c668733b0c4686bb5a53c939b1c9deb2fafc5bb6"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/neutral-lightning-comparison.png",
+      "bytes": 596932,
+      "sha256": "a12a2b479543b49b87a31ee04c3b77907d2a2234e39f0137c665fbe5f284bbe4"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/neutral-sit-sequence.png",
+      "bytes": 10418425,
+      "sha256": "5789a81a45e541b0b34849a9ec89bb8a042ab6bf5c191f80f81fc7981eaaadc7"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/neutral-sit-sequence.webp",
+      "bytes": 1394336,
+      "sha256": "ab3a12fa4cfc379fe708eb52f29e799d4984357f82740e8090c5c765a61b9e98"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/preview-desktop.png",
+      "bytes": 244495,
+      "sha256": "c1b077069dfead3bd4500c2d629b2409b7d0b818952f760100ac6dd0b1addb9c"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/preview-mobile.png",
+      "bytes": 75279,
+      "sha256": "87d8f8d8b81e75eeb0fd5749febb38f5a5ad4918a985997f671cbf9c851dda2f"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/prompt.txt",
+      "bytes": 768,
+      "sha256": "be38bf7c60473cb93946ac2388159db311391338be87a5838d789a3450bcc557",
+      "text": "Use case: background-extraction. Edit target: the provided five-pose lightning baby dragon sprite strip. Remove ONLY the white background, including enclosed empty spaces between legs, wings and body. Output actual transparent alpha, not a checkerboard. Preserve exactly FIVE complete separate dragons in the original left-to-right order, all horns, wings, tails, feet, faces, purple/slate colors, yellow eyes, body proportions, pose and fine linework. Do not redraw, stylize, recolor, enhance, add glow, add shadows, add motion blur, or invent poses. Keep the five poses arranged horizontally with transparent gaps so each entire silhouette can be individually cropped. This is an extraction edit, not new artwork. No text or watermark. Highest available resolution.\n"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/sit-rise-comparison.gif",
+      "bytes": 606167,
+      "sha256": "c11bb25c6cdab18a908b2a6b40c2d9c573dc1b0583d12f9d0289fe45590266a6"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/standing-reference.png",
+      "bytes": 223393,
+      "sha256": "4d50ca04a2976590a27c746b0f60c186e3ac429aec9f6377a88458ef22a228bd"
+    },
+    {
+      "path": "tmp_image/lightning_sit/draft-v1/transparent-generated.png",
+      "bytes": 970851,
+      "sha256": "6eee95828641e0473cf49810d23abe12aa92f587c6977755b1d5fadd6611bd8a"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/README.md",
+      "bytes": 6961,
+      "sha256": "f986158f93fb1c87d541a034893f4c21c5be65f4f9ea17f21b20b4c5d2be819c",
+      "text": "# 번개 아기 앉기 이미지 검토\n\n검토일: 2026-11-06. 번호는 각 원본의 왼쪽부터 1–5다. 기존 앱의 번개 원화 `assets/dragons/source/baby/lightning.png`와 육안으로 비교했다.\n\n## 결론 — 무속성 아기와 같은 앉기·일어서기 용도\n\n**C (`Gemini_Generated_Image_xnvl08xnvl08xnvl.png`)는 무속성 아기와 같은 5자세 앉기·역순 일어서기에 사용할 작업 원본으로 적합하다.** 배경과 정렬은 자산 제작 단계의 문제이며, 목적에 맞는 자세가 없다는 뜻은 아니다. 다만 최종 정렬 후 재생 품질은 아직 검증하지 않았다.\n\n현재 무속성 시트와 비교하면 C의 1–5번은 서기 → 서기에 가까운 초기 전환 → 뒷다리를 굽힌 중간 전환 → 엉덩이를 내린 후기 전환 → 앞다리까지 낮춘 최종 앉기에 각각 대응한다. 무속성도 1–2번의 변화가 작으므로 C의 초기 변화가 작다는 이유만으로 부적합하다고 판단할 필요는 없다.\n\n| 무속성 동작 단계 | 번개 대응 | 판단 |\n| --- | --- | --- |\n| 0: 기존 서기 | 기존 번개 `lightning.png` | 기존 원화를 그대로 첫 칸에 사용하면 서기와 시트 사이의 점프를 방지할 수 있다. |\n| 1: 초기 전환 | C-2 | 무속성처럼 서기에 가까운 단계로 사용 가능 |\n| 2: 중간 하강 | C-3 | 뒷다리를 접고 꼬리를 구부리는 전환에 대응 |\n| 3: 후기 하강 | C-4 | 앉기 직전 자세에 대응 |\n| 4: 최종 앉기 | C-5 | 낮춘 앞다리와 접힌 뒷다리로 최종 유지 자세에 대응 |\n\n무속성 재생 규칙은 5초 대기 → 300ms 간격으로 0→1→2→3→4 → 마지막 자세 유지이며, 터치하면 현재 자세부터 역순으로 돌아간다. C의 대응 자세를 같은 캔버스·크기·접지로 정리하면 동일한 규칙에 넣을 수 있다. 움직임 줄이기에서는 기존 규칙대로 최종 앉기와 서기 정지만 사용한다.\n\n따라서 **새 자세 생성이 반드시 필요한 상태는 아니다. 기존 번개 서기 + C-2·3·4·5를 먼저 분리·정렬해 재생 검토하는 것이 적절하다.** A와 B는 중첩된 프레임 때문에 같은 목적의 전체 시퀀스 원본으로는 우선하지 않는다. D는 참고용으로 둔다.\n\n앱 코드 `app/dragon-scene.tsx`의 현재 앉기 활성화 대상은 무속성·불이다. 번개 시트를 만들어도 자산 추가와 번개 활성화 연결은 별도로 필요하다. 이번 작업은 사용 가능성 검토이며 앱 연결은 변경하지 않았다.\n\n## 원본별 판단\n\n| ID | 파일 | 판단 | 근거와 제약 |\n| --- | --- | --- | --- |\n| A | `Gemini_Generated_Image_12d75t12d75t12d7.png` | 전체 시퀀스 비추천 | 3번 머리에 심한 이중상. 4번 얼굴·날개도 흐린 잔상이 보인다. 1·2·5번은 개별 후보로 보존 가능하나 C보다 우선할 이유가 작다. |\n| B | `Gemini_Generated_Image_dttjnbdttjnbdttj.png` | 일부 자세만 후보 | 4번 머리·날개에 중첩/잔상. 1·2·3·5번은 개별 후보. 1–2번 차이는 작다. C와 섞으면 선·색·얼굴 비율 차이가 눈에 띌 수 있다. |\n| C | `Gemini_Generated_Image_xnvl08xnvl08xnvl.png` | 우선 후보, 추가 처리 필요 | 큰 이중상 없이 자세가 명확하다. 흰 배경 제거, 이웃 자세 분리, 머리 크기·접지 정렬 필요. 3–4번 머리 크기 및 뒷다리/몸 형태 변화는 실제 크기 재생에서 재검토해야 한다. |\n| D | `c4cc6d21-c845-40be-935a-d955aedd267c.png` | 최종 원본 비추천 | 각 캐릭터 높이가 약 198–201px로 다른 후보보다 작고 표현이 거칠다. 체크무늬는 실제 투명이 아니다. 우하단 HIGGSFIELD AI 표기는 크롭 범위 밖이나, 배경·해상도 문제는 남는다. |\n\n## 자세별 판단\n\n| 원본 | 1 | 2 | 3 | 4 | 5 |\n| --- | --- | --- | --- | --- | --- |\n| A | 서기 후보 | 서기 후보, 변화 작음 | 제외: 머리 이중상 | 제외 권장: 잔상 | 앉기 후보 |\n| B | 서기 후보 | 서기 후보, 변화 작음 | 전환 후보 | 제외: 머리/날개 중첩 | 앉기 후보 |\n| C | 비교용 서기 | 초기 전환 후보 | 중간 전환 후보 | 후기 전환 후보 | 최종 앉기 우선 후보 |\n| D | 저해상도 참고 | 저해상도 참고 | 저해상도 참고 | 저해상도 참고 | 저해상도 참고 |\n\n## 배경·해상도 실측\n\n| ID | 원본 크기 | 알파 최솟값–최댓값 | 해석 |\n| --- | --- | --- | --- |\n| A | 4640×928 | 255–255 | 전체 불투명, 흰 배경 포함 |\n| B | 4640×928 | 255–255 | 전체 불투명, 흰 배경 포함 |\n| C | 3168×1344 | 255–255 | 전체 불투명, 흰 배경 포함 |\n| D | 1584×672 | 191–255 | 알파 0 픽셀 없음. 보이는 체크무늬는 투명 표시가 아니라 원본에 들어 있는 배경 |\n\n파일에 알파 채널이 있다는 사실만으로 투명 이미지인 것은 아니다. D의 알파 최솟값은 우하단 표기 부근에서 측정됐다.\n\n## 만든 결과물과 검증 범위\n\n- `contact-sheet.png`: 네 원본 × 다섯 자세 비교. 화면 비교를 위해 각 칸에 맞춰 축소/확대했으므로 실제 크기·접지 정렬 결과는 아니다.\n- `crops/`: A-1부터 D-5까지 총 20개 PNG. 원본 해상도 그대로의 사각형 크롭이다. **배경이 남아 있으며, C에는 이웃 자세 조각도 포함돼 최종 사용 파일이 아니다.** C는 캐릭터들의 가로 범위가 겹치므로 사각형만으로 온전히 분리할 수 없다.\n- `crops.json`: 원본 크기, 알파 범위, 각 크롭 좌표, 픽셀 검증 기록. `sha256`은 PNG 파일 바이트가 아닌 디코딩된 원본 픽셀의 해시다.\n- `crop-review.mjs`: 재현 스크립트. 큰 어두운 연결 성분의 범위로 크롭 좌표를 찾는다. 윤곽의 밝은 안티앨리어싱 경계까지 보존하는 최종 분리 알고리즘은 아니다.\n- `index.html`: 원본별 크롭·판정 보기.\n\n20개 PNG를 다시 디코딩해 원본의 해당 사각 영역과 RGBA 채널을 전부 비교했다. 차이는 모두 0개다. 원본 네 장과 앱 자산은 변경하지 않았다. 이미지 재생성·색 보정·형태 수정은 하지 않았다.\n\n## 최종 사용 전 남은 조건\n\n1. C의 자세별 실루엣을 분리해 흰 배경과 이웃 자세를 제거한다. 날개 안쪽과 다리 사이 빈 공간, 밝은 테두리도 확인한다.\n2. 기존 번개 서기 원화를 기준으로 같은 캔버스와 배율, 가까운 앞발의 접지 위치를 맞춘다. 머리 크기를 맞추는 과정에서 몸 비율 차이도 확인한다.\n3. 정렬한 2–5번을 서기→앉기→역순 일어서기로 재생해 머리·꼬리·발이 튀는지 확인한다. 작은 앱 표시 크기와 확대 보기 양쪽에서 검토한다.\n4. 승인된 자세만 최종 PNG/WebP 시트로 내보낸다. 현재 검토에는 앱 연결·PWA 변경·배포가 포함되지 않는다.\n"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/contact-sheet.png",
+      "bytes": 2464150,
+      "sha256": "a03bff9779ffe855f45c8e907b056826f334bcc62dbd0eaa53bd689c9ca9d2d6"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/crop-review.mjs",
+      "bytes": 3772,
+      "sha256": "67f534583391bdff44d65339e3908adf02c795749b0822bf8e0134aedca78fbe",
+      "text": "import sharp from 'sharp';\nimport { writeFile } from 'node:fs/promises';\nimport { createHash } from 'node:crypto';\nimport { fileURLToPath } from 'node:url';\nconst root = new URL('../', import.meta.url);\nconst out = new URL('./', import.meta.url);\nconst sources = [\n ['A','Gemini_Generated_Image_12d75t12d75t12d7.png',210],\n ['B','Gemini_Generated_Image_dttjnbdttjnbdttj.png',210],\n ['C','Gemini_Generated_Image_xnvl08xnvl08xnvl.png',210],\n ['D','c4cc6d21-c845-40be-935a-d955aedd267c.png',160],\n];\nconst records=[]; const overlays=[];\nconst label=async(text,width,height)=>sharp(Buffer.from(`<svg width=\"${width}\" height=\"${height}\"><rect width=\"100%\" height=\"100%\" fill=\"white\"/><text x=\"12\" y=\"25\" font-family=\"sans-serif\" font-size=\"18\" fill=\"#171717\">${text}</text></svg>`)).png().toBuffer();\nfor(let row=0;row<sources.length;row++) {\n const [id,name,threshold]=sources[row];\n const path=fileURLToPath(new URL(name,root));\n const {data,info}=await sharp(path).ensureAlpha().raw().toBuffer({resolveWithObject:true});\n const {width:w,height:h}=info; const visited=new Uint8Array(w*h); const queue=new Int32Array(w*h); const components=[];\n const subject=i=>Math.max(data[i*4],data[i*4+1],data[i*4+2])<threshold;\n for(let i=0;i<w*h;i++) {\n  if(visited[i]||!subject(i)) continue;\n  let read=0,write=1; queue[0]=i; visited[i]=1;\n  let l=w,t=h,r=0,b=0;\n  while(read<write) {\n   const p=queue[read++],x=p%w,y=Math.floor(p/w);\n   l=Math.min(l,x);r=Math.max(r,x);t=Math.min(t,y);b=Math.max(b,y);\n   for(const n of [x>0?p-1:-1,x<w-1?p+1:-1,y>0?p-w:-1,y<h-1?p+w:-1])\n    if(n>=0&&!visited[n]&&subject(n)) {visited[n]=1;queue[write++]=n;}\n  }\n  if(write>5000) components.push({left:l,top:t,width:r-l+1,height:b-t+1,area:write});\n }\n components.sort((a,b)=>a.left-b.left);\n if(components.length!==5) throw Error(`${id}: found ${components.length} subjects`);\n const stats=await sharp(path).stats();\n const entry={id,source:name,sha256:createHash('sha256').update(await sharp(path).raw().toBuffer()).digest('hex'),width:w,height:h,alphaMin:stats.channels[3].min,alphaMax:stats.channels[3].max,frames:[]};\n overlays.push({input:await label(`${id}: ${name}`,1500,40),left:0,top:row*330});\n for(let j=0;j<5;j++) {\n  const {area,...box}=components[j];\n  // Rectangular crops only: preserve all original RGBA pixels, including backdrop.\n  const crop=await sharp(path).extract(box).png().toBuffer();\n  const f=`crops/${id}-${j+1}.png`;\n  await writeFile(new URL(f,out),crop);\n  const decoded=await sharp(crop).raw().toBuffer();\n  let changed=0;\n  for(let y=0;y<box.height;y++) for(let x=0;x<box.width;x++) for(let c=0;c<4;c++)\n   if(decoded[(y*box.width+x)*4+c]!==data[((y+box.top)*w+x+box.left)*4+c]) changed++;\n  if(changed) throw Error('Crop changed pixels');\n  entry.frames.push({index:j+1,file:f,box,changedRgbaChannels:changed});\n  overlays.push({input:await label(`${id}-${j+1} (${box.width} x ${box.height})`,300,35),left:j*300,top:row*330+40});\n  const thumb=await sharp(crop).resize(284,245,{fit:'inside'}).toBuffer();\n  const m=await sharp(thumb).metadata();\n  overlays.push({input:thumb,left:j*300+Math.floor((300-m.width)/2),top:row*330+78+Math.floor((245-m.height)/2)});\n }\n records.push(entry);\n}\nawait sharp({create:{width:1500,height:1320,channels:4,background:'#ffffff'}}).composite(overlays).png().toFile(fileURLToPath(new URL('contact-sheet.png',out)));\nawait writeFile(new URL('crops.json',out),JSON.stringify({method:'Rectangular crop only; original RGBA preserved. Background not removed. Boxes derived from largest dark connected components; not an alpha mask. sha256 is decoded pixel data hash.',sources:records},null,2)+'\\n');\nconsole.log(JSON.stringify(records.map(({id,alphaMin,alphaMax,frames})=>({id,alphaMin,alphaMax,frames:frames.map(f=>f.box)})),null,2));\n"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/crops/A-1.png",
+      "bytes": 536562,
+      "sha256": "95d2030ec0565d95dd19c951d92102475efaa29c38f4c8bc697229a9a126ef19"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/crops/A-2.png",
+      "bytes": 543628,
+      "sha256": "adc040686b1962093053c858d069740143f135ce7e22879defc06bd61d1a1183"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/crops/A-3.png",
+      "bytes": 661922,
+      "sha256": "d28131981733e1615149a1086067dae40f29e0b49c3bb2a936373a81e09fe8a3"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/crops/A-4.png",
+      "bytes": 558984,
+      "sha256": "3d4c756aeed13f84fee771539aa7bdc167ec04e82079ffe3e1d96eea59f8ad00"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/crops/A-5.png",
+      "bytes": 573644,
+      "sha256": "4af4029161a6fe0683f7c32df756f50f6dc2258f79d074b163c64e0040b6b539"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/crops/B-1.png",
+      "bytes": 575586,
+      "sha256": "a8da27ae032af8b9264c22921efb1fc25828c74cb8f802af046c16524376f10d"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/crops/B-2.png",
+      "bytes": 580537,
+      "sha256": "a9c2f2c439a09bfce9022815b7a555e4659d952c07fb9cb312e3036bd3530939"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/crops/B-3.png",
+      "bytes": 559951,
+      "sha256": "eb81fac6fe8232a3dd716756fc1bbf7ba32f74d2075880f832d65e318bb26a83"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/crops/B-4.png",
+      "bytes": 567537,
+      "sha256": "37fb4850dab9c3798408835e01dbb3366227e00f5a88c6374d5595db3d84c181"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/crops/B-5.png",
+      "bytes": 571232,
+      "sha256": "bca560e469d8fa89009e5b7cdfa419b8962d41559bb5aacc88430899b3972794"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/crops/C-1.png",
+      "bytes": 524639,
+      "sha256": "1ae2fa7451bc09e041800fb9cfadef9ca4bbc3adef63dd08abf70961e73460d9"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/crops/C-2.png",
+      "bytes": 515589,
+      "sha256": "f041060f915beb31d1d9cd31d966b17471e22be849d9b1b1663c08db8078e2a0"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/crops/C-3.png",
+      "bytes": 515860,
+      "sha256": "837dd847440557ed5485ef589c0a0c404a3ba9e232261670f671528b459524d7"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/crops/C-4.png",
+      "bytes": 503108,
+      "sha256": "a39e98f8f6cfea12fe9679f445286ac691622e53d6e4b38dcfe703e62da7fe76"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/crops/C-5.png",
+      "bytes": 498023,
+      "sha256": "cb5e7a49a5c920896747f89d2a6a8fb35ec1c301f0cbaacde675f0869320a305"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/crops/D-1.png",
+      "bytes": 93402,
+      "sha256": "546bcaf2cac32d10ea3e81250623b58b0559dc85d2ceb0778058b66f1a437368"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/crops/D-2.png",
+      "bytes": 89578,
+      "sha256": "a7d60d4a0a97152b2d43270f15b79e0351b930d7ffb69fe63b36585fcbc71097"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/crops/D-3.png",
+      "bytes": 87830,
+      "sha256": "78a0f7a89da5b682c544fe36908fa1b773d3fb68ebcebaebfd1a9bf7eebd50a6"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/crops/D-4.png",
+      "bytes": 87701,
+      "sha256": "6ac1f24f22eb6c425130da3534cf95fe994a3a4ab3095fcd482dbb72d8041432"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/crops/D-5.png",
+      "bytes": 89890,
+      "sha256": "17a5ba340d56f6c79237eda77d05a3a91be31542eca3304c5e8ecb61b95b1a21"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/crops.json",
+      "bytes": 6305,
+      "sha256": "b49ce7a7f0ced47a474cc239d92f32f27fee5d7dd6a6fb4eb949c388277fb8f7",
+      "text": "{\n  \"method\": \"Rectangular crop only; original RGBA preserved. Background not removed. Boxes derived from largest dark connected components; not an alpha mask. sha256 is decoded pixel data hash.\",\n  \"sources\": [\n    {\n      \"id\": \"A\",\n      \"source\": \"Gemini_Generated_Image_12d75t12d75t12d7.png\",\n      \"sha256\": \"79294b64497494454e2a4e01fa64483e91ff7e008fb15a020b3aee3b635faf6f\",\n      \"width\": 4640,\n      \"height\": 928,\n      \"alphaMin\": 255,\n      \"alphaMax\": 255,\n      \"frames\": [\n        {\n          \"index\": 1,\n          \"file\": \"crops/A-1.png\",\n          \"box\": {\n            \"left\": 110,\n            \"top\": 188,\n            \"width\": 733,\n            \"height\": 571\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 2,\n          \"file\": \"crops/A-2.png\",\n          \"box\": {\n            \"left\": 1015,\n            \"top\": 193,\n            \"width\": 741,\n            \"height\": 568\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 3,\n          \"file\": \"crops/A-3.png\",\n          \"box\": {\n            \"left\": 2001,\n            \"top\": 254,\n            \"width\": 867,\n            \"height\": 570\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 4,\n          \"file\": \"crops/A-4.png\",\n          \"box\": {\n            \"left\": 2907,\n            \"top\": 254,\n            \"width\": 676,\n            \"height\": 570\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 5,\n          \"file\": \"crops/A-5.png\",\n          \"box\": {\n            \"left\": 3845,\n            \"top\": 254,\n            \"width\": 673,\n            \"height\": 580\n          },\n          \"changedRgbaChannels\": 0\n        }\n      ]\n    },\n    {\n      \"id\": \"B\",\n      \"source\": \"Gemini_Generated_Image_dttjnbdttjnbdttj.png\",\n      \"sha256\": \"42958167cb40897117aa74bb100fcb904167272d98fb967e3a17ab65b9bf6351\",\n      \"width\": 4640,\n      \"height\": 928,\n      \"alphaMin\": 255,\n      \"alphaMax\": 255,\n      \"frames\": [\n        {\n          \"index\": 1,\n          \"file\": \"crops/B-1.png\",\n          \"box\": {\n            \"left\": 89,\n            \"top\": 146,\n            \"width\": 750,\n            \"height\": 604\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 2,\n          \"file\": \"crops/B-2.png\",\n          \"box\": {\n            \"left\": 1006,\n            \"top\": 154,\n            \"width\": 746,\n            \"height\": 598\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 3,\n          \"file\": \"crops/B-3.png\",\n          \"box\": {\n            \"left\": 1996,\n            \"top\": 232,\n            \"width\": 655,\n            \"height\": 606\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 4,\n          \"file\": \"crops/B-4.png\",\n          \"box\": {\n            \"left\": 2921,\n            \"top\": 241,\n            \"width\": 651,\n            \"height\": 597\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 5,\n          \"file\": \"crops/B-5.png\",\n          \"box\": {\n            \"left\": 3873,\n            \"top\": 245,\n            \"width\": 644,\n            \"height\": 597\n          },\n          \"changedRgbaChannels\": 0\n        }\n      ]\n    },\n    {\n      \"id\": \"C\",\n      \"source\": \"Gemini_Generated_Image_xnvl08xnvl08xnvl.png\",\n      \"sha256\": \"64670c04772ef1e8f21931f213087da88a63d0ba866d858e938cd4847b683dd7\",\n      \"width\": 3168,\n      \"height\": 1344,\n      \"alphaMin\": 255,\n      \"alphaMax\": 255,\n      \"frames\": [\n        {\n          \"index\": 1,\n          \"file\": \"crops/C-1.png\",\n          \"box\": {\n            \"left\": 37,\n            \"top\": 447,\n            \"width\": 717,\n            \"height\": 593\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 2,\n          \"file\": \"crops/C-2.png\",\n          \"box\": {\n            \"left\": 681,\n            \"top\": 472,\n            \"width\": 677,\n            \"height\": 568\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 3,\n          \"file\": \"crops/C-3.png\",\n          \"box\": {\n            \"left\": 1319,\n            \"top\": 510,\n            \"width\": 621,\n            \"height\": 586\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 4,\n          \"file\": \"crops/C-4.png\",\n          \"box\": {\n            \"left\": 1922,\n            \"top\": 509,\n            \"width\": 582,\n            \"height\": 616\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 5,\n          \"file\": \"crops/C-5.png\",\n          \"box\": {\n            \"left\": 2487,\n            \"top\": 568,\n            \"width\": 615,\n            \"height\": 575\n          },\n          \"changedRgbaChannels\": 0\n        }\n      ]\n    },\n    {\n      \"id\": \"D\",\n      \"source\": \"c4cc6d21-c845-40be-935a-d955aedd267c.png\",\n      \"sha256\": \"035e6f403d847c0138320e275b949ad9b88efa386b3b32841c65548ab8399b94\",\n      \"width\": 1584,\n      \"height\": 672,\n      \"alphaMin\": 191,\n      \"alphaMax\": 255,\n      \"frames\": [\n        {\n          \"index\": 1,\n          \"file\": \"crops/D-1.png\",\n          \"box\": {\n            \"left\": 30,\n            \"top\": 226,\n            \"width\": 245,\n            \"height\": 201\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 2,\n          \"file\": \"crops/D-2.png\",\n          \"box\": {\n            \"left\": 362,\n            \"top\": 229,\n            \"width\": 235,\n            \"height\": 198\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 3,\n          \"file\": \"crops/D-3.png\",\n          \"box\": {\n            \"left\": 695,\n            \"top\": 244,\n            \"width\": 214,\n            \"height\": 201\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 4,\n          \"file\": \"crops/D-4.png\",\n          \"box\": {\n            \"left\": 1004,\n            \"top\": 243,\n            \"width\": 213,\n            \"height\": 201\n          },\n          \"changedRgbaChannels\": 0\n        },\n        {\n          \"index\": 5,\n          \"file\": \"crops/D-5.png\",\n          \"box\": {\n            \"left\": 1305,\n            \"top\": 248,\n            \"width\": 217,\n            \"height\": 201\n          },\n          \"changedRgbaChannels\": 0\n        }\n      ]\n    }\n  ]\n}\n"
+    },
+    {
+      "path": "tmp_image/lightning_sit/review/index.html",
+      "bytes": 4709,
+      "sha256": "6e819d2180316c7f6d578ce1c76e3af60332ef7bc8772ebdaa94a31a6db4412a"
+    },
+    {
+      "path": "tmp_image/lightning_walk/Gemini_Generated_Image_8vgtcn8vgtcn8vgt.png",
+      "bytes": 4945558,
+      "sha256": "211a84652962482f56e61bb540c02a0d03cadbbe1771992aed624d5171dcadad"
+    },
+    {
+      "path": "tmp_image/lightning_walk/Gemini_Generated_Image_8vgtcn8vgtcn8vgt.png:Zone.Identifier",
+      "bytes": 25,
+      "sha256": "b952d24cf701bc4e7a7d21e1ae85c611824e80579a89836c0cb49b193446ccfe"
+    },
+    {
+      "path": "tmp_image/lightning_walk/Gemini_Generated_Image_u5vwcuu5vwcuu5vw.png",
+      "bytes": 4340412,
+      "sha256": "3c881f00d132ad098b0c1bd3265727bfe74c6baa23c4a578bb25862082d17359"
+    },
+    {
+      "path": "tmp_image/lightning_walk/Gemini_Generated_Image_u5vwcuu5vwcuu5vw.png:Zone.Identifier",
+      "bytes": 25,
+      "sha256": "b952d24cf701bc4e7a7d21e1ae85c611824e80579a89836c0cb49b193446ccfe"
+    },
+    {
+      "path": "tmp_image/lightning_walk/extracted-v1/README.md",
+      "bytes": 776,
+      "sha256": "05209feaaed3090a91e7aed6fd4394de124083f6f92f011d068fe1eb0e194662",
+      "text": "# 번개 아기 걷기\n\n기존 무속성 걷기와 동일한 2400×620, 800×620 세 칸, 5fps, 발끝 y=580 규격으로 구성했다.\n\n- frame-1/2: u5vwcuu5vwcuu5vw 원본의 왼쪽/가운데\n- frame-3/4: 8vgtcn8vgtcn8vgt 원본의 왼쪽/가운데\n- 사용 순서: 1→2→3. 4는 2와 유사하여 제외했다.\n- walk-preview.webp: 200ms 간격 무한 반복 미리보기\n- thunder-walk-bde.png/webp: 앱과 동일한 시트\n- layout.json: 추출 경계·공통 배율·배치 기록\n- build.mjs: 추출 시트를 자르고 정렬하는 Sharp 스크립트\n\n배경 추출은 built-in image_gen을 사용했다. 원본 세부가 일부 달라질 수 있으며 픽셀 보존본은 아니다. 사용 프롬프트는 prompt.txt에 보관했다. 제공 원본은 보존했다.\n"
+    },
+    {
+      "path": "tmp_image/lightning_walk/extracted-v1/browser-1280.png",
+      "bytes": 380220,
+      "sha256": "249805bb4302bf85cf60b2772c3b305ef8147ff75a3256d21c72ab2501b05a83"
+    },
+    {
+      "path": "tmp_image/lightning_walk/extracted-v1/browser-390.png",
+      "bytes": 285565,
+      "sha256": "c2925125f5e5d8e0827f1c3d993f72dd42c39b33b722428b2e754e012d72b327"
+    },
+    {
+      "path": "tmp_image/lightning_walk/extracted-v1/browser-results.json",
+      "bytes": 384,
+      "sha256": "e2ae7cf861e6c1cc00b9ab57512c70905ef6a39ed09310fe97838746c397046d",
+      "text": "[\n  {\n    \"width\": 1280,\n    \"frames\": [\n      \"0%\",\n      \"50%\",\n      \"100%\"\n    ],\n    \"walking\": true,\n    \"reducedMotion\": true,\n    \"idleAfterRelease\": true,\n    \"missingAssets\": []\n  },\n  {\n    \"width\": 390,\n    \"frames\": [\n      \"0%\",\n      \"50%\",\n      \"100%\"\n    ],\n    \"walking\": true,\n    \"reducedMotion\": true,\n    \"idleAfterRelease\": true,\n    \"missingAssets\": []\n  }\n]\n"
+    },
+    {
+      "path": "tmp_image/lightning_walk/extracted-v1/build.mjs",
+      "bytes": 3222,
+      "sha256": "ff5aa3d27052319778967cb2c6c734426225bc48706a3da345dff1920a24ae84",
+      "text": "import sharp from 'sharp';\nimport { writeFile, copyFile } from 'node:fs/promises';\n\nconst dir = new URL('./', import.meta.url);\nconst source = new URL('extracted-sheet.png', dir);\nconst { data, info } = await sharp(source.pathname).ensureAlpha().raw().toBuffer({ resolveWithObject: true });\nconst bounds = [];\nfor (let frame = 0; frame < 4; frame++) {\n  const x0 = Math.floor((frame % 2) * info.width / 2);\n  const x1 = Math.floor((frame % 2 + 1) * info.width / 2);\n  const y0 = Math.floor(Math.floor(frame / 2) * info.height / 2);\n  const y1 = Math.floor((Math.floor(frame / 2) + 1) * info.height / 2);\n  let left = x1, right = -1, top = y1, bottom = -1;\n  for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) {\n    if (data[(y * info.width + x) * 4 + 3] <= 32) continue;\n    left = Math.min(left, x); right = Math.max(right, x);\n    top = Math.min(top, y); bottom = Math.max(bottom, y);\n  }\n  if (right < left) throw new Error(`Empty frame ${frame}`);\n  bounds.push({ left, top, width: right - left + 1, height: bottom - top + 1 });\n}\nconst scale = 550 / Math.max(...bounds.map((b) => b.height));\nconst frames = [];\nconst placements = [];\nfor (let frame = 0; frame < 4; frame++) {\n  const box = bounds[frame];\n  const width = Math.round(box.width * scale);\n  const height = Math.round(box.height * scale);\n  if (width > 760) throw new Error('Insufficient horizontal margin');\n  const input = await sharp(source.pathname).extract(box).resize(width, height).png().toBuffer();\n  const left = Math.round((800 - width) / 2), top = 580 - height;\n  const buffer = await sharp({ create: { width: 800, height: 620, channels: 4, background: '#00000000' } })\n    .composite([{ input, left, top }]).png().toBuffer();\n  await writeFile(new URL(`frame-${frame + 1}.png`, dir), buffer);\n  frames.push(buffer); placements.push({ left, top, width, height });\n}\n// The fourth pose closely repeats the second; use three distinct leg positions.\nconst sequence = [0, 1, 2];\nconst sheet = await sharp({ create: { width: 2400, height: 620, channels: 4, background: '#00000000' } })\n  .composite(sequence.map((index, slot) => ({ input: frames[index], left: slot * 800, top: 0 }))).png().toBuffer();\nawait writeFile(new URL('thunder-walk-bde.png', dir), sheet);\nawait sharp(sheet).webp({ lossless: true }).toFile(new URL('thunder-walk-bde.webp', dir).pathname);\nconst rawFrames = await Promise.all(sequence.map((index) => sharp(frames[index]).ensureAlpha().raw().toBuffer()));\nawait sharp(Buffer.concat(rawFrames), { raw: { width: 800, height: 620 * 3, channels: 4, pageHeight: 620 } })\n  .webp({ lossless: true, loop: 0, delay: [200, 200, 200] }).toFile(new URL('walk-preview.webp', dir).pathname);\nawait writeFile(new URL('layout.json', dir), JSON.stringify({ source: 'extracted-sheet.png', extraction: 'built-in image_gen; generated extraction may differ from original details', bounds, scale, placements, sequence: sequence.map((i) => i + 1), width: 2400, height: 620, fps: 5, baseline: 580 }, null, 2) + '\\n');\nawait copyFile(new URL('thunder-walk-bde.png', dir), new URL('../../../assets/dragons/source/baby/thunder-walk-bde.png', dir));\nconsole.log('Four transparent frames; 2400×620 three-pose sheet and 5fps preview created.');\n"
+    },
+    {
+      "path": "tmp_image/lightning_walk/extracted-v1/extracted-sheet.png",
+      "bytes": 1248729,
+      "sha256": "7287ef16f316501c52deaddf7501c3fe835f28bc1ce66fa13554e8de90ced057"
+    },
+    {
+      "path": "tmp_image/lightning_walk/extracted-v1/frame-1.png",
+      "bytes": 488861,
+      "sha256": "d64d476dcf8879a695a11f5c53a7a15bd0108cd3b2690dbdb109e7e9e8dffb9e"
+    },
+    {
+      "path": "tmp_image/lightning_walk/extracted-v1/frame-2.png",
+      "bytes": 476872,
+      "sha256": "db4fad6712679ef137de38b75158d94dd958d6393264f1eef9abac5180753139"
+    },
+    {
+      "path": "tmp_image/lightning_walk/extracted-v1/frame-3.png",
+      "bytes": 503437,
+      "sha256": "127413b130e8dc340f016cde071ecbd85f624642cee54b5d571d6c449a819e0a"
+    },
+    {
+      "path": "tmp_image/lightning_walk/extracted-v1/frame-4.png",
+      "bytes": 493670,
+      "sha256": "24867d665a88815555bdec6184f774c2b7ca6d64056311e0672f2e95630e71cf"
+    },
+    {
+      "path": "tmp_image/lightning_walk/extracted-v1/layout.json",
+      "bytes": 1016,
+      "sha256": "7878e1e6c945673b0b493b5a88317f8541d8424f2610015d10551442603ef61b",
+      "text": "{\n  \"source\": \"extracted-sheet.png\",\n  \"extraction\": \"built-in image_gen; generated extraction may differ from original details\",\n  \"bounds\": [\n    {\n      \"left\": 13,\n      \"top\": 72,\n      \"width\": 569,\n      \"height\": 471\n    },\n    {\n      \"left\": 630,\n      \"top\": 71,\n      \"width\": 566,\n      \"height\": 472\n    },\n    {\n      \"left\": 13,\n      \"top\": 683,\n      \"width\": 572,\n      \"height\": 476\n    },\n    {\n      \"left\": 633,\n      \"top\": 683,\n      \"width\": 564,\n      \"height\": 476\n    }\n  ],\n  \"scale\": 1.1554621848739495,\n  \"placements\": [\n    {\n      \"left\": 72,\n      \"top\": 36,\n      \"width\": 657,\n      \"height\": 544\n    },\n    {\n      \"left\": 73,\n      \"top\": 35,\n      \"width\": 654,\n      \"height\": 545\n    },\n    {\n      \"left\": 70,\n      \"top\": 30,\n      \"width\": 661,\n      \"height\": 550\n    },\n    {\n      \"left\": 74,\n      \"top\": 30,\n      \"width\": 652,\n      \"height\": 550\n    }\n  ],\n  \"sequence\": [\n    1,\n    2,\n    3\n  ],\n  \"width\": 2400,\n  \"height\": 620,\n  \"fps\": 5,\n  \"baseline\": 580\n}\n"
+    },
+    {
+      "path": "tmp_image/lightning_walk/extracted-v1/prompt.txt",
+      "bytes": 1063,
+      "sha256": "6da6650c5a1b60f5938c6a11ab5be17d4022d53194a63c1898b4010f03e103c0",
+      "text": "Use case: background-extraction\nAsset type: transparent sprite extraction sheet for a dragon walking preview.\nInput images: Image 1 and Image 2 are EDIT TARGETS.\nPrimary request: Extract exactly FOUR existing dragons: LEFT and CENTER from Image 1, LEFT and CENTER from Image 2. Discard the rightmost dragon in both images. Remove all white background including gaps between legs, horns, wings and tail.\nOutput: a transparent PNG sprite sheet in a strictly equal 2 by 2 grid, one complete dragon per cell. Top left = Image 1 left; top right = Image 1 center; bottom left = Image 2 left; bottom right = Image 2 center. Each cell same size with ample transparent margins. Match dragon scale and ground baseline in every cell.\nConstraints: Preserve the exact existing poses, face, wings, tail, legs, illustration detail and colors. This is extraction only. Do not redesign, redraw poses, invent limbs, add motion effects, shadows, labels, borders, text, or background. Entire horns/tail/feet must fit each cell without clipping. Genuine transparent alpha background.\n"
+    },
+    {
+      "path": "tmp_image/lightning_walk/extracted-v1/smoke.mjs",
+      "bytes": 2863,
+      "sha256": "e5c1f864dbf9ef237f3df34ade9331b556e35c4d9cd96152977932f279f8be6f",
+      "text": "import { chromium } from 'playwright';\nimport assert from 'node:assert/strict';\nimport { writeFile } from 'node:fs/promises';\n\nconst browser = await chromium.launch({ headless: true });\nconst results = [];\ntry {\n  for (const width of [1280, 390]) {\n    const page = await browser.newPage({ viewport: { width, height: 960 } });\n    const errors = [];\n    page.on('pageerror', (e) => errors.push(e.message));\n    page.on('response', (r) => { if (r.status() >= 400 && r.url().includes('/assets/dragons/')) errors.push(`${r.status()} ${r.url()}`); });\n    await page.goto('http://127.0.0.1:3100/dev/dragon-showcase');\n    const panel = page.locator('.showcase-panel').first();\n    await panel.locator('select').nth(1).selectOption('thunder');\n    const scene = panel.locator('.dragon-scene');\n    await scene.scrollIntoViewIfNeeded();\n    const box = await scene.boundingBox();\n    const x = box.x + box.width * .5, y = box.y + box.height * .5;\n    await page.mouse.move(x, y);\n    await page.mouse.down();\n    await page.mouse.move(x + 45, y, { steps: 3 });\n    const frame = panel.locator('.dragon-walk-frame');\n    await frame.waitFor({ state: 'visible' });\n    assert.match(await frame.evaluate((e) => e.style.backgroundImage), /thunder-walk-bde/);\n    const style = await frame.evaluate((e) => ({ duration: getComputedStyle(e).animationDuration, size: getComputedStyle(e).backgroundSize }));\n    assert.equal(style.duration, '0.6s');\n    assert.equal(style.size, '300% 100%');\n    const positions = new Set();\n    for (let i = 0; i < 8; i++) {\n      positions.add(await frame.evaluate((e) => getComputedStyle(e).backgroundPositionX));\n      await page.waitForTimeout(100);\n    }\n    assert.equal(positions.size, 3);\n    await page.screenshot({ path: new URL(`browser-${width}.png`, import.meta.url).pathname, fullPage: true });\n    await page.emulateMedia({ reducedMotion: 'reduce' });\n    assert.equal(await panel.locator('.dragon-walk').isVisible(), false);\n    assert.equal(await panel.locator('.dragon-idle').isVisible(), true);\n    await page.mouse.up();\n    await page.emulateMedia({ reducedMotion: 'no-preference' });\n    assert.equal(await panel.locator('.dragon-walk').count(), 0);\n    await page.waitForTimeout(6500);\n    assert.equal(await panel.locator('.dragon-sit').count(), 0);\n    assert.equal(await panel.locator('link[href*=\"thunder-sit\"]').count(), 0);\n    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);\n    assert.deepEqual(errors, []);\n    results.push({ width, frames: [...positions], walking: true, reducedMotion: true, idleAfterRelease: true, missingAssets: errors });\n    await page.close();\n  }\n  await writeFile(new URL('browser-results.json', import.meta.url), JSON.stringify(results, null, 2) + '\\n');\n  console.log(JSON.stringify(results));\n} finally {\n  await browser.close();\n}\n"
+    },
+    {
+      "path": "tmp_image/lightning_walk/extracted-v1/thunder-walk-bde.png",
+      "bytes": 1481324,
+      "sha256": "9bd0a11aa221df9bb30411a58b34b16d450dacbb046e579436175e5d1afa6db7"
+    },
+    {
+      "path": "tmp_image/lightning_walk/extracted-v1/thunder-walk-bde.webp",
+      "bytes": 742310,
+      "sha256": "b4405855e96a0dccda11905fcf3bddd3601c7e5486f91d5e91c07db9c8e78eb3"
+    },
+    {
+      "path": "tmp_image/lightning_walk/extracted-v1/walk-preview.webp",
+      "bytes": 727336,
+      "sha256": "caa340089b5a73a2e9c1ad8b7904485fcae84e47182f33a0a5b515ea1781ab85"
+    },
+    {
+      "path": "tmp_image/walk-element-review-20261106/README.md",
+      "bytes": 3535,
+      "sha256": "c031bc03461cd8777c1baa5b62d94bc6086c75c2d63514e344d5ffd589b94082",
+      "text": "# 속성 걷기 시안 검토 · 2026-11-06\n\n## 판정\n\n| 속성 | 제공 파일 | 크기 | 판정 |\n| --- | --- | --- | --- |\n| 불 | `../Gemini_Generated_Image_zaoe3gzaoe3gzaoe.png` | 4128×1024 | 후속 제작 후보로 채택. 세 자세의 선과 속성 외형이 비교적 안정적이다. |\n| 번개 | `../Gemini_Generated_Image_8vgtcn8vgtcn8vgt.png` | 4064×1056 | 사용 제외. 세 번째 자세 날개 아래·어깨·몸통에 가로 번짐과 흐린 잔상이 보인다. |\n| 얼음 | `../Gemini_Generated_Image_16cmj916cmj916cm.png` | 4128×1024 | 사용 제외. 세 번째 자세 목·가슴·몸통의 윤곽과 질감이 다른 자세보다 흐려 반복 시 품질 차이가 드러난다. |\n\n사용 제외는 제작 대상에서 제외한다는 의미다. 제공 원본은 삭제하거나 변경하지 않았다.\n\n## 파일 검사\n\nSharp metadata/stats로 확인했다. 세 파일 모두 RGBA이지만 알파 최솟값과 최댓값이 모두 255다. 투명 배경이 아닌 흰색 불투명 배경이다. 정식 걷기 시트 2400×620과 해상도·종횡비도 다르므로 단순 교체할 수 없다.\n\n## 불 시안 후속 조건\n\n1. 흰 배경과 날개·다리 사이 흰 공간을 실제 알파 투명으로 제거한다.\n2. 세 자세를 분리하고 정식 800×620 셀에 각각 배치한다. 원본을 2400×620으로 강제 변형하지 않는다.\n3. 무속성 걷기의 높이 550px·발끝 y=580 기준과 기존 불 서기/호흡/깜빡임 사이 크기·접지를 비교한다.\n4. B→D→E 5fps 반복과 정지 전환을 확인한 후 정식 에셋으로 등록한다.\n\n## 투명 배경 후보 제작\n\n사용자 동의 후 built-in image_gen으로 흰 배경 제거를 요청했다. 생성 결과 `fire-transparent-generated.png`는 2172×724이며 실제 알파 투명도를 포함한다. 원본 4128×1024에서 해상도·여백과 세부 표현이 바뀌었으므로 픽셀 보존 결과로 취급하지 않는다. 기존 파일은 덮어쓰지 않았다.\n\n`build-fire-sheet.mjs`는 생성본 각 칸에서 알파 32 초과 영역을 측정하고, 세 자세에 같은 배율을 적용해 최대 높이 550px로 맞춘다. 각 800×620 칸 중앙에 배치하고 발끝 기준은 y=580으로 맞췄다. RGB 보정이나 형태 합성은 하지 않는다. 출력은 `fire-walk-bde-candidate.png`와 무손실 `fire-walk-bde-candidate.webp`다. PNG는 2400×620이며 알파 최솟값 0·최댓값 255를 확인했다. 추출 좌표는 `fire-sheet-layout.json`에 기록한다.\n\n`index.html`은 정렬 후보를 5fps로 재생하며 전체 후보와 제공 원본을 함께 보여준다. 검토용 산출물이며 정식 등록·앱 연결은 하지 않았다. 기존 불 서기와 전환하는 실제 장면 비교는 아직 하지 않았다.\n\n### 사용 프롬프트\n\n> Use case: background-extraction. Edit target: the attached fire baby dragon walking sprite sheet. Remove ONLY the white background and replace it with true alpha transparency, including enclosed white holes between legs and between wings, torso and tail. Preserve all three dragons exactly, their dark charcoal body, red horns, orange lava markings, poses, outlines, proportions, facial details, and left-to-right frame order. Do not repaint, redesign, regenerate poses, add shadows or effects. Keep the complete three-frame horizontal sheet and all tails/horns/feet uncropped. Maintain the source 4128x1024 canvas and placement if possible. No checkerboard painted into image, no white matte or halo. Output transparent PNG.\n"
+    },
+    {
+      "path": "tmp_image/walk-element-review-20261106/build-fire-sheet.mjs",
+      "bytes": 2693,
+      "sha256": "8cba86bb12dbe2b6a3036a17e9d9db88be8f4144b9842aa980b82ffdf0afab09",
+      "text": "import sharp from 'sharp';\nimport { writeFile } from 'node:fs/promises';\nimport { fileURLToPath } from 'node:url';\n\nconst dir = new URL('./', import.meta.url);\nconst source = fileURLToPath(new URL('fire-transparent-generated.png', dir));\nconst { data, info } = await sharp(source).ensureAlpha().raw().toBuffer({ resolveWithObject: true });\nconst cellWidth = info.width / 3;\nif (!Number.isInteger(cellWidth)) throw new Error('Expected three equal frame cells');\nconst bounds = [];\nfor (let frame = 0; frame < 3; frame++) {\n  let left = cellWidth, top = info.height, right = -1, bottom = -1;\n  for (let y = 0; y < info.height; y++) for (let x = 0; x < cellWidth; x++) {\n    if (data[(y * info.width + frame * cellWidth + x) * 4 + 3] <= 32) continue;\n    left = Math.min(left, x); right = Math.max(right, x);\n    top = Math.min(top, y); bottom = Math.max(bottom, y);\n  }\n  if (right < left) throw new Error(`Empty frame ${frame}`);\n  bounds.push({ left: frame * cellWidth + left, top, width: right - left + 1, height: bottom - top + 1 });\n}\nconst scale = 550 / Math.max(...bounds.map((box) => box.height));\nconst placements = [];\nfor (let frame = 0; frame < 3; frame++) {\n  const box = bounds[frame];\n  const width = Math.round(box.width * scale);\n  const height = Math.round(box.height * scale);\n  if (width > 800) throw new Error('Frame too wide');\n  const buffer = await sharp(source).extract(box).resize(width, height).png().toBuffer();\n  const left = Math.round((800 - width) / 2);\n  const top = 580 - height;\n  await sharp({ create: { width: 800, height: 620, channels: 4, background: '#00000000' } })\n    .composite([{ input: buffer, left, top }]).png().toFile(fileURLToPath(new URL(`fire-frame-${frame + 1}.png`, dir)));\n  placements.push({ input: buffer, left: frame * 800 + left, top });\n}\nconst sheet = await sharp({ create: { width: 2400, height: 620, channels: 4, background: '#00000000' } })\n  .composite(placements).png().toBuffer();\nawait writeFile(new URL('fire-walk-bde-candidate.png', dir), sheet);\nawait sharp(sheet).webp({ lossless: true }).toFile(fileURLToPath(new URL('fire-walk-bde-candidate.webp', dir)));\nconst stats = await sharp(sheet).stats();\nif (stats.isOpaque || stats.channels[3].min !== 0) throw new Error('Transparency missing');\nawait writeFile(new URL('fire-sheet-layout.json', dir), JSON.stringify({ source: 'fire-transparent-generated.png', width: 2400, height: 620, frameWidth: 800, fps: 5, scale, bounds, frames: placements.map(({ left, top }) => ({ left, top })), alphaMin: stats.channels[3].min, alphaMax: stats.channels[3].max }, null, 2) + '\\n');\nconsole.log('Fire candidate: 2400x620, three 800x620 cells, alpha verified, lossless WebP generated.');\n"
+    },
+    {
+      "path": "tmp_image/walk-element-review-20261106/fire-frame-1.png",
+      "bytes": 488447,
+      "sha256": "760e9ee859018836c3e28dc2fb1525a64eb394c5364889f2e4edaafd0e4ab4a7"
+    },
+    {
+      "path": "tmp_image/walk-element-review-20261106/fire-frame-2.png",
+      "bytes": 476777,
+      "sha256": "8c55569a09237c64b78fe7e4c15b94b01dff3be7036d769d84265596740a2c90"
+    },
+    {
+      "path": "tmp_image/walk-element-review-20261106/fire-frame-3.png",
+      "bytes": 504134,
+      "sha256": "5c9244a91a64906a9e5a9fba9daa2e9fabfc8a1d45d95d2484af3834bda404f2"
+    },
+    {
+      "path": "tmp_image/walk-element-review-20261106/fire-sheet-layout.json",
+      "bytes": 633,
+      "sha256": "773f3996c543b13429317d1709f23f978952ed1cd9169d4bef95511406ff8269",
+      "text": "{\n  \"source\": \"fire-transparent-generated.png\",\n  \"width\": 2400,\n  \"height\": 620,\n  \"frameWidth\": 800,\n  \"fps\": 5,\n  \"scale\": 1.1387163561076605,\n  \"bounds\": [\n    {\n      \"left\": 21,\n      \"top\": 118,\n      \"width\": 645,\n      \"height\": 483\n    },\n    {\n      \"left\": 745,\n      \"top\": 117,\n      \"width\": 633,\n      \"height\": 481\n    },\n    {\n      \"left\": 1489,\n      \"top\": 118,\n      \"width\": 666,\n      \"height\": 480\n    }\n  ],\n  \"frames\": [\n    {\n      \"left\": 33,\n      \"top\": 30\n    },\n    {\n      \"left\": 840,\n      \"top\": 32\n    },\n    {\n      \"left\": 1621,\n      \"top\": 33\n    }\n  ],\n  \"alphaMin\": 0,\n  \"alphaMax\": 255\n}\n"
+    },
+    {
+      "path": "tmp_image/walk-element-review-20261106/fire-transparent-generated.png",
+      "bytes": 937987,
+      "sha256": "6f0eda0acacaa0312163013417786ffb1af943df7504f08124a41f57817591b5"
+    },
+    {
+      "path": "tmp_image/walk-element-review-20261106/fire-walk-bde-candidate.png",
+      "bytes": 1476926,
+      "sha256": "90575f8357c0f12318276ce397efdde71d4a54850267d09fd6e6a05fb7eebef2"
+    },
+    {
+      "path": "tmp_image/walk-element-review-20261106/fire-walk-bde-candidate.webp",
+      "bytes": 784864,
+      "sha256": "d918ece33b030d19938f80bd636ca17052e20303a9744ed6140fb91929c649ca"
+    },
+    {
+      "path": "tmp_image/walk-element-review-20261106/index.html",
+      "bytes": 2223,
+      "sha256": "c656be8233428d65341fc2c232e81686402ca1ff3689c313a193b31a7dc4ea6d"
+    }
+  ]
+}
