@@ -6,7 +6,7 @@
 
 - [용암의 성역](fire-dragon/habitat-preview.html): 배경 4종, 성체 대기·포효·불 뿜기, 석비·수정 표시 및 배치 비교.
 - 기존 [흰 배경 동작 시험](fire-dragon/combined-preview.html)과 개별 동작 시험은 그대로 유지한다.
-- Chrome에서 `file://wsl.localhost/Ubuntu/home/joon/workspace/english-with-dad/plans/active/avatar-customization/dragon-assets/fire-dragon/habitat-preview.html`을 연다.
+- Chrome에서 `file://wsl.localhost/Ubuntu/home/joon/workspace/english-with-dad/plans/archive/avatar-customization/dragon-assets/fire-dragon/habitat-preview.html`을 연다.
 
 ## 원본 대응
 
@@ -31,6 +31,6 @@
 
 ## 검증 실행
 
-저장소 루트에서 `node plans/active/avatar-customization/dragon-assets/fire-dragon/check-habitat.cjs` 실행. 로컬 임시 HTTP 서버와 Playwright Chromium을 사용하고 종료 시 닫는다. 태블릿 가로·세로 및 작은 화면, 이미지 로딩, 배경·소품 전환, 동작 잠금·복귀, 일시정지, 모션 감소 설정, 이미지 누락 오류를 확인한다.
+저장소 루트에서 `node plans/archive/avatar-customization/dragon-assets/fire-dragon/check-habitat.cjs` 실행. 로컬 임시 HTTP 서버와 Playwright Chromium을 사용하고 종료 시 닫는다. 태블릿 가로·세로 및 작은 화면, 이미지 로딩, 배경·소품 전환, 동작 잠금·복귀, 일시정지, 모션 감소 설정, 이미지 누락 오류를 확인한다.
 
 배경 분리 프롬프트와 도구 정보는 [extraction-prompts.md](extraction-prompts.md), 최신 검증 결과와 제한은 [../review.md](../review.md)에 기록한다.

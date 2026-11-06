@@ -4,7 +4,7 @@
 
 ## 파일 대응
 
-원본은 `plans/active/avatar-customization/` 루트에 보존한다.
+원본은 `plans/archive/avatar-customization/` 루트에 보존한다.
 
 | 원본 (`Gemini_Generated_Image_` 접두사) | 배경 분리 원본 | 크기 정렬 최종본 |
 | --- | --- | --- |
@@ -24,7 +24,7 @@ Use case: background-extraction. Edit target: the supplied dragon egg image. Rem
 
 ## 정렬과 확인
 
-- `node plans/active/avatar-customization/dragon-assets/eggs/normalize.cjs`로 분리 결과를 리사이즈·투명 캔버스 중앙 정렬한다. 디자인 변경은 하지 않는다.
+- `node plans/archive/avatar-customization/dragon-assets/eggs/normalize.cjs`로 분리 결과를 리사이즈·투명 캔버스 중앙 정렬한다. 디자인 변경은 하지 않는다.
 - 최종 PNG는 모두 RGBA 1024×1024. 알파 128 초과 기준 y=64…959, 높이 896px. x는 반점 178…845, 띠무늬·마름모 178…846이다.
 - `preview.html`에서 알 3종과 기존 배경 4종을 전환할 수 있다. 기존 석비·용암 수정과 별도 CSS 접지 그림자를 사용한다.
 - 장면은 16:9. 알 캔버스는 left 29%, bottom 7%, width 32%이며, 알 그림 자체의 투명 여백을 포함한다.

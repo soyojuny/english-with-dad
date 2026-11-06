@@ -4,10 +4,10 @@
 
 | 정식 원본 | 제작 당시 위치 | 용도 |
 | --- | --- | --- |
-| `source/eggs/*.png` | `plans/active/avatar-customization/dragon-assets/eggs/` | 알 3종 |
+| `source/eggs/*.png` | `plans/archive/avatar-customization/dragon-assets/eggs/` | 알 3종 |
 | `source/backgrounds/*.png` | 같은 dragon-assets의 `backgrounds/` | 배경 4종 |
 | `source/props/*.png` | 같은 dragon-assets의 `props/` | 석비·용암 수정 |
-| `source/baby/*.png` | `plans/active/avatar-customization/baby/original-cutouts/` | 무속성·불·번개·얼음, 눈 감기·들숨 |
+| `source/baby/*.png` | `plans/archive/avatar-customization/baby/original-cutouts/` | 무속성·불·번개·얼음, 눈 감기·들숨 |
 | `source/adult-fire/*.png` | dragon-assets의 `fire-dragon/transparent/` | 성체 기본·동작 7장 |
 | `source/effects/fire-stream.png` | dragon-assets의 `fire-dragon/effects/fire-stream-transparent.png` | 불길 |
 

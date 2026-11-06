@@ -64,7 +64,7 @@
 
 ## 지금 열어 볼 파일
 
-기준: `plans/active/avatar-customization/`.
+기준: `plans/archive/avatar-customization/`.
 
 - `dragon-assets/fire-dragon/habitat-preview.html`, `habitat-preview.js`: 최신 승인 시안. 다음 작업의 기준.
 - `dragon-assets/README.md`: 배경·소품 원본 대응과 미리보기 사용법.
@@ -113,10 +113,10 @@
 
 ## 검증과 실행
 
-- `node plans/active/avatar-customization/dragon-assets/fire-dragon/check-habitat.cjs`: Playwright Chromium 검사. 1280×800, 800×1280, 390×844, 320×740에서 이미지 로딩, 배경 4종·소품·배치 전환, 동작 중 잠금, 포효/불 뿜기 후 복귀, 정지 유지, 가로 넘침을 확인했다. 모션 감소 설정·이미지 누락 오류도 통과했다.
+- `node plans/archive/avatar-customization/dragon-assets/fire-dragon/check-habitat.cjs`: Playwright Chromium 검사. 1280×800, 800×1280, 390×844, 320×740에서 이미지 로딩, 배경 4종·소품·배치 전환, 동작 중 잠금, 포효/불 뿜기 후 복귀, 정지 유지, 가로 넘침을 확인했다. 모션 감소 설정·이미지 누락 오류도 통과했다.
 - file URL 로딩과 포효 후 자동 대기 재개도 확인했다. 최종 보정 뒤 브라우저 검사·캡처 갱신, JS 문법 검사, `npm run check:pwa`, `npm run typecheck` 통과.
 - 눈 깜빡임 확대 캡처와 픽셀 비교로 눈 주변만 주로 변하는 것을 확인했다. 실제 태블릿 터치·성능은 미검증이다.
 - Chromium은 샌드박스 실행이 제한돼 `require_escalated`로 로컬 검증했다.
 - Windows Chrome: `/mnt/c/Program Files/Google/Chrome/Application/chrome.exe`.
-- 최신 미리보기 URL: `file://wsl.localhost/Ubuntu/home/joon/workspace/english-with-dad/plans/active/avatar-customization/dragon-assets/fire-dragon/habitat-preview.html`.
+- 최신 미리보기 URL: `file://wsl.localhost/Ubuntu/home/joon/workspace/english-with-dad/plans/archive/avatar-customization/dragon-assets/fire-dragon/habitat-preview.html`.
 - WSL에서 Chrome 실행에도 `require_escalated`가 필요했다. 사용자가 Chrome 확인 방식을 요청했으며 이번 수정본도 Chrome에 열었다.

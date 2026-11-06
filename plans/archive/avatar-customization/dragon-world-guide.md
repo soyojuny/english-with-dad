@@ -7,7 +7,7 @@
 로컬 서버로 여는 경우 저장소 루트에서:
 
 ```bash
-python3 -m http.server 4177 --bind 127.0.0.1 --directory plans/active/avatar-customization
+python3 -m http.server 4177 --bind 127.0.0.1 --directory plans/archive/avatar-customization
 ```
 
 브라우저 주소: <http://localhost:4177/dragon-world.html>
