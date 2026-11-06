@@ -33,7 +33,7 @@ function Panel({ title, background }: { title: string; background: string }) {
       <button type="button" onClick={() => setPaused(!paused)}>{paused ? "동작 재생" : "동작 일시정지"}</button>
     </div>
     <div className={paused ? "showcase-paused" : ""}><DragonScene dragon={dragon} decor={decor} catalog={catalog} /></div>
-    <p>{days > 0 && days < 18 ? element === "neutral" ? "장면을 드래그해 이동 · 5초 후 서기→2rus-2→A→B→앉기 · 터치하면 역순으로 일어서기" : element === "fire" ? "장면을 드래그해 이동 · 불 아기 B→D→E 걷기 · 5초 후 5자세로 앉기 · 터치하면 역순으로 일어서기" : element === "thunder" ? "장면을 드래그해 이동 · 번개 아기 3자세 걷기 · 멈추면 서서 숨쉬기와 깜빡임" : "장면을 드래그해 이동 · 얼음 아기 B→D→E 걷기 · 멈추면 서서 숨쉬기와 깜빡임" : "현재 앱에 연결된 동작 없음"}{days >= 18 && !(days >= 30 && element === "fire") ? " · 기존 대체 원화" : ""}</p>
+    <p>{days > 0 && days < 18 ? element === "neutral" ? "장면을 드래그해 이동 · 5초 후 서기→2rus-2→A→B→앉기 · 터치하면 역순으로 일어서기" : element === "fire" ? "장면을 드래그해 이동 · 불 아기 B→D→E 걷기 · 5초 후 5자세로 앉기 · 터치하면 역순으로 일어서기" : element === "thunder" ? "장면을 드래그해 이동 · 번개 아기 3자세 걷기 · 5초 후 5자세로 앉기 · 터치하면 역순으로 일어서기" : "장면을 드래그해 이동 · 얼음 아기 B→D→E 걷기 · 5초 후 4자세로 앉기 · 터치하면 역순으로 일어서기" : "현재 앱에 연결된 동작 없음"}{days >= 18 && !(days >= 30 && element === "fire") ? " · 기존 대체 원화" : ""}</p>
   </section>;
 }
 

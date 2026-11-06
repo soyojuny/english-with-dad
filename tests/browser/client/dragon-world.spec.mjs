@@ -76,9 +76,9 @@ test('불 아기 정지 원화와 호흡·깜빡임은 밝은 배경 테두리�
   }
 });
 
-for (const element of [null, 'fire', 'ice']) {
+for (const element of [null, 'fire', 'thunder', 'ice']) {
 for (const width of [390, 1280]) {
-  test(`${element === 'ice' ? '얼음' : element === 'fire' ? '불' : '무속성'} 아기 ${width}px: 스틱 이동과 정지`, async ({ childCompletion: f }, info) => {
+  test(`${element === 'ice' ? '얼음' : element === 'thunder' ? '번개' : element === 'fire' ? '불' : '무속성'} 아기 ${width}px: 스틱 이동과 정지`, async ({ childCompletion: f }, info) => {
     // Given
     const { page } = f; await page.setViewportSize({ width, height: 950 });
     await dragonFixture(page, { dragons: [{ id: 'dragon-1', egg: 0, days: 6, selectedDate: '2026-10-01', element, decor: decor(), version: 0 }] }); await openChild(page);
@@ -137,15 +137,6 @@ for (const width of [390, 1280]) {
     await expect(scene.locator('.dragon-stick')).toHaveCount(0);
     await expect(scene.locator('.dragon-walk')).toHaveCount(0);
     await page.clock.runFor(5000);
-    if (element === 'ice') {
-      await expect(scene.getByLabel('쉬는 아기 드래곤')).toHaveCount(0);
-      await expect(scene.locator('.dragon-idle img').first()).toHaveAttribute('src', '/assets/dragons/baby/ice.webp');
-      await expect(scene.locator('.dragon-breath')).toHaveAttribute('src', '/assets/dragons/baby/ice-breathe.webp');
-      await expect(scene.locator('.dragon-blink')).toHaveAttribute('src', '/assets/dragons/baby/ice-blink.webp');
-      await page.getByRole('button', { name: '공간 꾸미기', exact: true }).click();
-      await expect(scene).not.toHaveClass(/is-controllable/);
-      return;
-    }
     await expect(scene.getByLabel('쉬는 아기 드래곤')).toBeVisible();
     const sitting = scene.locator('.dragon-sit');
     await expect(sitting).toHaveCSS('background-position-x', '0%');
@@ -153,16 +144,18 @@ for (const width of [390, 1280]) {
     await expect(sitting).toHaveCSS('background-position-x', '100%');
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await expect(sitting).toHaveCSS('background-position-x', '0%');
-    const sitPath = `/assets/dragons/baby/${element === 'fire' ? 'fire-' : ''}sit-sequence.webp`;
+    const sitPath = `/assets/dragons/baby/${element ? `${element}-` : ''}sit-sequence.webp`;
     const sitSheet = await sitting.evaluate(async (element, path) => {
       const image = new Image(); image.src = path; await image.decode();
       return { width: image.naturalWidth, height: image.naturalHeight, background: getComputedStyle(element).backgroundImage };
     }, sitPath);
-    expect(sitSheet.width).toBe(5120); expect(sitSheet.height).toBe(1024);
+    expect(sitSheet.width).toBe(element === 'ice' ? 4096 : 5120); expect(sitSheet.height).toBe(1024);
     expect(sitSheet.background).toContain(sitPath);
+    const positions = element === 'ice' ? ['33.3333%', '66.6667%', '100%'] : ['25%', '50%', '75%', '100%'];
+    await expect(sitting).toHaveCSS('background-size', element === 'ice' ? '400% 100%' : '500% 100%');
     await page.clock.runFor(299); await expect(sitting).toHaveCSS('background-position-x', '0%');
-    await page.clock.runFor(1); await expect(sitting).toHaveCSS('background-position-x', '25%');
-    for (const position of ['50%', '75%', '100%']) {
+    await page.clock.runFor(1); await expect(sitting).toHaveCSS('background-position-x', positions[0]);
+    for (const position of positions.slice(1)) {
       await page.clock.runFor(300); await expect(sitting).toHaveCSS('background-position-x', position);
     }
     await expect(sitting).toHaveClass(/is-seated/);
@@ -175,16 +168,16 @@ for (const width of [390, 1280]) {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await expect(sitting).toHaveCSS('background-position-x', '0%');
     await page.emulateMedia({ reducedMotion: 'no-preference' });
-    for (const position of ['75%', '50%', '25%']) {
+    for (const position of positions.slice(0, -1).reverse()) {
       await page.clock.runFor(300); await expect(sitting).toHaveCSS('background-position-x', position);
     }
     await page.clock.runFor(300);
     await expect(sitting).toHaveCount(0);
     await expect(scene.locator('.dragon-idle')).toBeVisible();
-    if (element === 'fire') {
-      await expect(scene.locator('.dragon-idle img').first()).toHaveAttribute('src', '/assets/dragons/baby/fire.webp');
-      await expect(scene.locator('.dragon-breath')).toHaveAttribute('src', '/assets/dragons/baby/fire-breathe.webp');
-      await expect(scene.locator('.dragon-blink')).toHaveAttribute('src', '/assets/dragons/baby/fire-blink.webp');
+    if (element === 'fire' || element === 'thunder' || element === 'ice') {
+      await expect(scene.locator('.dragon-idle img').first()).toHaveAttribute('src', `/assets/dragons/baby/${element}.webp`);
+      await expect(scene.locator('.dragon-breath')).toHaveAttribute('src', `/assets/dragons/baby/${element}-breathe.webp`);
+      await expect(scene.locator('.dragon-blink')).toHaveAttribute('src', `/assets/dragons/baby/${element}-blink.webp`);
       await page.getByRole('button', { name: '공간 꾸미기', exact: true }).click();
       await expect(scene).not.toHaveClass(/is-controllable/);
     }

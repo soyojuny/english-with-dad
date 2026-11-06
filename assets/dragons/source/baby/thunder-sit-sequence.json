@@ -1,0 +1,77 @@
+{
+  "source": "tmp_image/lightning_sit/Gemini_Generated_Image_xnvl08xnvl08xnvl.png",
+  "sourceSha256": "bf9565c35751a7a1dca0b60234b42b2a9908a6ec9f04575eecfd0ebe62a7c6dc",
+  "method": "Built-in image_gen background extraction, followed by connected component cropping and per-frame scale/translation. Generated edit may differ from source RGB/shape.",
+  "firstFramePixelIdentical": true,
+  "frameSize": 2048,
+  "frameDurationMs": 300,
+  "headWidth": 520,
+  "frontToe": [
+    1330,
+    1608
+  ],
+  "placements": [
+    {
+      "frame": 1,
+      "sourcePose": 2,
+      "headWidth": 152,
+      "toe": [
+        317,
+        348
+      ],
+      "scale": 3.4210526315789473,
+      "width": 1427,
+      "height": 1201,
+      "left": 246,
+      "top": 417
+    },
+    {
+      "frame": 2,
+      "sourcePose": 3,
+      "headWidth": 154,
+      "toe": [
+        283,
+        314
+      ],
+      "scale": 3.3766233766233764,
+      "width": 1290,
+      "height": 1222,
+      "left": 374,
+      "top": 548
+    },
+    {
+      "frame": 3,
+      "sourcePose": 4,
+      "headWidth": 152,
+      "toe": [
+        267,
+        326
+      ],
+      "scale": 3.4210526315789473,
+      "width": 1232,
+      "height": 1300,
+      "left": 417,
+      "top": 493
+    },
+    {
+      "frame": 4,
+      "sourcePose": 5,
+      "headWidth": 158,
+      "toe": [
+        309,
+        308
+      ],
+      "scale": 3.2911392405063293,
+      "width": 1247,
+      "height": 1168,
+      "left": 313,
+      "top": 594
+    }
+  ],
+  "approval": "내용은 비슷해 구성을 진행해보자.",
+  "providedSource": "Gemini_Generated_Image_xnvl08xnvl08xnvl.png",
+  "draftSource": "tmp_image/lightning_sit/draft-v1/lightning-sit-sequence.png",
+  "sheetSha256": "1d6396b0f7643cff9347c792feea15e5e755c99fe26e24b611e4e14a09d55e94",
+  "standingSource": "lightning.png",
+  "standingSha256": "12a9813931063c19cb463619bd082a81f064f46fce1f506abe0e297ce768f7db"
+}

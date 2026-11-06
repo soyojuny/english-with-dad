@@ -18,6 +18,8 @@ const images = [
   ["baby/ice-walk-bde", "baby/ice-walk-bde", 2400],
   ["baby/sit-sequence", "baby/sit-sequence", 5120],
   ["baby/fire-sit-sequence", "baby/fire-sit-sequence", 5120],
+  ["baby/ice-sit-sequence", "baby/ice-sit-sequence", 4096],
+  ["baby/thunder-sit-sequence", "baby/thunder-sit-sequence", 5120],
   ["baby/lightning", "baby/thunder", 1024],
   ...["fire", "lightning", "ice"].flatMap((element) => ["blink", "breathe"].map((motion) =>
     [`baby/${element}-${motion}`, `baby/${element === "lightning" ? "thunder" : element}-${motion}`, 1024])),

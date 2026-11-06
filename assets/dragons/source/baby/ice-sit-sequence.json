@@ -1,0 +1,47 @@
+{
+  "frameSize": 2048,
+  "frameCount": 4,
+  "frameDurationMs": 300,
+  "frontToe": [
+    1330,
+    1608
+  ],
+  "source": "../Gemini_Generated_Image_iizebciizebciize.png",
+  "draftSource": "tmp_image/ice_sit/draft/",
+  "sourceSha256": "201eaee15131558ebcd7bcffacad123d898bb647f7cca341c0d5e4f60728cd05",
+  "method": "Alpha-only near-white removal; enclosed highlights up to 2048px restored; no RGB edits or frame rescaling.",
+  "frames": [
+    {
+      "id": "standing",
+      "source": "ice.png",
+      "pixelsUnchanged": true
+    },
+    {
+      "id": "A-3",
+      "draft": "frame-2.png",
+      "scale": 2,
+      "translate": [
+        -130,
+        -12
+      ]
+    },
+    {
+      "id": "A-4",
+      "draft": "frame-3.png",
+      "scale": 2,
+      "translate": [
+        -130,
+        -12
+      ]
+    },
+    {
+      "id": "A-5",
+      "draft": "frame-4.png",
+      "scale": 2,
+      "translate": [
+        -130,
+        -12
+      ]
+    }
+  ]
+}

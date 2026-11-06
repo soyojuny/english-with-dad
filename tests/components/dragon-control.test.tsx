@@ -7,8 +7,8 @@ const decor = defaultDragonDecor();
 const dragon = { id: "baby", egg: 0, selectedDate: "2026-11-04", days: 1, element: null, decor, version: 0 };
 afterEach(() => vi.useRealTimers());
 
-for (const element of [null, "fire"] as const) {
-test(`${element ?? "무속성"} 아기는 5초 후 다섯 자세로 앉고 터치하면 역순으로 일어선다`, () => {
+for (const element of [null, "fire", "thunder", "ice"] as const) {
+test(`${element ?? "무속성"} 아기는 5초 후 ${element === "ice" ? "네" : "다섯"} 자세로 앉고 터치하면 역순으로 일어선다`, () => {
   // Given
   vi.useFakeTimers();
   render(<DragonScene dragon={{ ...dragon, element }} decor={decor} catalog={[]} />);
@@ -18,14 +18,16 @@ test(`${element ?? "무속성"} 아기는 5초 후 다섯 자세로 앉고 터�
   act(() => vi.advanceTimersByTime(4999));
   expect(screen.queryByLabelText("쉬는 아기 드래곤")).toBeNull();
   act(() => vi.advanceTimersByTime(1));
-  // Then: stand → 2rus-2 → A → B → final, each exactly 300ms.
+  // Then: each approved pose advances exactly every 300ms.
+  const positions = element === "ice" ? ["33.333333333333336%", "66.66666666666667%", "100%"] : ["25%", "50%", "75%", "100%"];
+  expect(screen.getByLabelText("쉬는 아기 드래곤").style.backgroundSize).toBe(element === "ice" ? "400% 100%" : "500% 100%");
   expect(screen.getByLabelText("쉬는 아기 드래곤").style.backgroundPositionX).toBe("0%");
-  expect(screen.getByLabelText("쉬는 아기 드래곤").style.backgroundImage).toContain(`/assets/dragons/baby/${element === "fire" ? "fire-" : ""}sit-sequence.webp`);
+  expect(screen.getByLabelText("쉬는 아기 드래곤").style.backgroundImage).toContain(`/assets/dragons/baby/${element ? `${element}-` : ""}sit-sequence.webp`);
   act(() => vi.advanceTimersByTime(299));
   expect(screen.getByLabelText("쉬는 아기 드래곤").style.backgroundPositionX).toBe("0%");
   act(() => vi.advanceTimersByTime(1));
-  expect(screen.getByLabelText("쉬는 아기 드래곤").style.backgroundPositionX).toBe("25%");
-  for (const position of ["50%", "75%", "100%"]) {
+  expect(screen.getByLabelText("쉬는 아기 드래곤").style.backgroundPositionX).toBe(positions[0]);
+  for (const position of positions.slice(1)) {
     act(() => vi.advanceTimersByTime(300));
     expect(screen.getByLabelText("쉬는 아기 드래곤").style.backgroundPositionX).toBe(position);
   }
@@ -34,7 +36,7 @@ test(`${element ?? "무속성"} 아기는 5초 후 다섯 자세로 앉고 터�
   expect(screen.getByLabelText("쉬는 아기 드래곤").style.backgroundPositionX).toBe("100%");
   fireEvent.pointerDown(scene, { pointerId: 1, pointerType: "touch", clientX: 20, clientY: 20 });
   expect(screen.getByLabelText("쉬는 아기 드래곤").className).toContain("is-rising");
-  for (const position of ["75%", "50%", "25%"]) {
+  for (const position of positions.slice(0, -1).reverse()) {
     act(() => vi.advanceTimersByTime(300));
     expect(screen.getByLabelText("쉬는 아기 드래곤").style.backgroundPositionX).toBe(position);
   }
@@ -54,9 +56,9 @@ test("앉는 도중 터치하면 현재 자세에서 되돌아가며 마지막 �
   // When
   fireEvent.pointerDown(scene, { pointerId: 1, pointerType: "touch", clientX: 20, clientY: 20 });
   // Then
-  expect(screen.getByLabelText("쉬는 아기 드래곤").style.backgroundPositionX).toBe("50%");
+  expect(screen.getByLabelText("쉬는 아기 드래곤").style.backgroundPositionX).toBe(element === "ice" ? "66.66666666666667%" : "50%");
   act(() => vi.advanceTimersByTime(300));
-  expect(screen.getByLabelText("쉬는 아기 드래곤").style.backgroundPositionX).toBe("25%");
+  expect(screen.getByLabelText("쉬는 아기 드래곤").style.backgroundPositionX).toBe(element === "ice" ? "33.333333333333336%" : "25%");
   act(() => vi.advanceTimersByTime(300));
   expect(screen.queryByLabelText("쉬는 아기 드래곤")).toBeNull();
 });
@@ -143,11 +145,11 @@ test.each([
   act(() => vi.advanceTimersByTime(10000));
   // Then
   expect(screen.getByLabelText("드래곤의 공간").className.includes("is-controllable")).toBe(enabled);
-  expect(!!screen.queryByLabelText("쉬는 아기 드래곤")).toBe(enabled && element === "fire");
+  expect(!!screen.queryByLabelText("쉬는 아기 드래곤")).toBe(enabled && (element === "fire" || element === "thunder" || element === "ice"));
 });
 
 for (const element of ["thunder", "ice"] as const) {
-test(`${element} 아기는 드래그 중 전용 시트로 걷고 손을 떼면 서서 쉰다`, () => {
+test(`${element} 아기는 드래그 중 전용 시트로 걷고 손을 떼면 정지한 뒤 속성별 대기 동작을 한다`, () => {
   // Given
   vi.useFakeTimers();
   const view = render(<DragonScene dragon={{ ...dragon, element }} decor={decor} catalog={[]} />);
@@ -160,9 +162,10 @@ test(`${element} 아기는 드래그 중 전용 시트로 걷고 손을 떼면 �
   expect(screen.getByLabelText("걷는 아기 드래곤").firstElementChild?.getAttribute("style")).toContain(`${element}-walk-bde.webp`);
   fireEvent.pointerUp(scene, { pointerId: 1 });
   expect(screen.queryByLabelText("걷는 아기 드래곤")).toBeNull();
-  act(() => vi.advanceTimersByTime(10000));
-  expect(screen.queryByLabelText("쉬는 아기 드래곤")).toBeNull();
   expect(view.container.querySelector('.dragon-idle img')?.getAttribute('src')).toBe(`/assets/dragons/baby/${element}.webp`);
-  expect(view.container.querySelector(`link[href*="${element}-sit"]`)).toBeNull();
+  act(() => vi.advanceTimersByTime(4999));
+  expect(screen.queryByLabelText("쉬는 아기 드래곤")).toBeNull();
+  act(() => vi.advanceTimersByTime(1));
+  expect(screen.getByLabelText("쉬는 아기 드래곤").style.backgroundImage).toContain(`${element}-sit-sequence.webp`);
 });
 }

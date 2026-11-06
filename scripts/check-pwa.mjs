@@ -37,7 +37,7 @@ for (const icon of manifest.icons ?? []) {
 }
 
 const sw = await readFile(serviceWorkerPath, "utf8");
-if (!sw.includes('const cacheName = "ewd-reading-v18";')) fail("ice baby walking requires the v18 cache");
+if (!sw.includes('const cacheName = "ewd-reading-v20";')) fail("ice baby sitting requires the v20 cache");
 const appShellMatch = sw.match(/const appShell = \[([\s\S]*?)\];/);
 if (!appShellMatch) fail("service worker appShell array not found");
 
@@ -61,6 +61,8 @@ const dragonArtwork = [
   "/assets/dragons/baby/ice-walk-bde.webp",
   "/assets/dragons/baby/sit-sequence.webp",
   "/assets/dragons/baby/fire-sit-sequence.webp",
+  "/assets/dragons/baby/ice-sit-sequence.webp",
+  "/assets/dragons/baby/thunder-sit-sequence.webp",
   "/assets/dragons/baby/breathe.webp",
   "/assets/dragons/baby/blink.webp",
   "/assets/dragons/baby/fire-breathe.webp",
