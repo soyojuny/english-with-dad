@@ -50,7 +50,7 @@ test('P01-B02: 앱 등록 worker가 shell 자산을 준비하고 온라인 navig
   // When
   const state = await page.evaluate(async () => {
     const registration = await navigator.serviceWorker.getRegistration();
-    const cache = await caches.open('ewd-reading-v11');
+    const cache = await caches.open('ewd-reading-v12');
     return { script: registration.active.scriptURL, scope: registration.scope,
       paths: (await cache.keys()).map(request => new URL(request.url).pathname).sort() };
   });

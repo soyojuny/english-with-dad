@@ -25,6 +25,26 @@ async function openChild(page) {
   await page.locator('.profile-grid').getByRole('button', { name: /민준/ }).click();
   await expect(page.getByRole('button', { name: '드래곤' })).toBeEnabled();
 }
+
+test('무속성 아기: 서기·호흡·깜빡임·걷기·앉기 시작의 날개 틈은 투명하다', async ({ childCompletion: f }) => {
+  // Given: the production WebP assets loaded from the actual app origin.
+  const samples = [
+    ['neutral', 443, 498], ['blink', 443, 498], ['breathe', 443, 498],
+    ['walk-bde', 335, 298], ['walk-bde', 1128, 293], ['walk-bde', 1948, 301],
+    ['sit-sequence', 443, 498],
+  ];
+  // When: reading a 3×3 patch inside each formerly white opening.
+  const alpha = await f.page.evaluate(async samples => Promise.all(samples.map(async ([name, x, y]) => {
+    const image = new Image(); image.src = `/assets/dragons/baby/${name}.webp`; await image.decode();
+    const canvas = document.createElement('canvas'); canvas.width = image.naturalWidth; canvas.height = image.naturalHeight;
+    const context = canvas.getContext('2d'); context.drawImage(image, 0, 0);
+    const pixels = context.getImageData(x - 1, y - 1, 3, 3).data;
+    return Math.max(...Array.from(pixels).filter((_, index) => index % 4 === 3));
+  })), samples);
+  // Then: the habitat can show through every opening, including all walking frames.
+  expect(alpha).toEqual(samples.map(() => 0));
+});
+
 for (const width of [390, 1280]) {
   test(`무속성 아기 ${width}px: 스틱 이동과 정지`, async ({ childCompletion: f }, info) => {
     // Given
