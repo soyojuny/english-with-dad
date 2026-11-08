@@ -1835,6 +1835,11 @@ label > textarea {
 .dragon-stick span { position: absolute; left: 50%; top: 50%; width: 30px; height: 30px; margin: -15px; border-radius: 50%; background: #ffffffc9; }
 .dragon-walk { display: block; position: relative; aspect-ratio: 1; }
 .dragon-sit { display: block; aspect-ratio: 1; background: url('/assets/dragons/baby/sit-sequence.webp') 0% 0% / 500% 100% no-repeat; }
+.dragon-flight { display: block; position: relative; aspect-ratio: 1; }
+.dragon-flight-frame { display: block; position: absolute; width: 140%; aspect-ratio: 1; left: -1%; top: -2%; background-repeat: no-repeat; }
+.dragon-flight-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+.dragon-flight-controls button { min-width: 80px; min-height: 44px; }
+.dragon-flight-controls span { flex: 1; min-width: 180px; }
 .dragon-walk-frame { display: block; position: absolute; left: 8.5%; top: 18%; width: 83%; aspect-ratio: 800 / 620; background: url('/assets/dragons/baby/walk-bde.webp') 0% 0% / 300% 100% no-repeat; animation: dragon-step .6s steps(1) infinite; }
 .is-walking .dragon-idle { display: none; }
 @keyframes dragon-step { 0% { background-position: 0% 0%; } 33.333333% { background-position: 50% 0%; } 66.666667% { background-position: 100% 0%; } }

@@ -4,8 +4,38 @@ import { DragonScene } from "../../app/dragon-scene";
 import { defaultDragonDecor } from "../../lib/dragon-data";
 
 const decor = defaultDragonDecor();
-const dragon = { id: "baby", egg: 0, selectedDate: "2026-11-04", days: 1, element: null, decor, version: 0 };
+const dragon = { id: "baby", egg: 0, selectedDate: "2026-11-04", days: 1, element: null, skills: [], decor, version: 0 };
 afterEach(() => vi.useRealTimers());
+
+test("날기 획득 후 이륙·좌우 비행·공중 대기·역순 착륙을 하고 공중에서는 앉지 않는다", () => {
+  // Given
+  vi.useFakeTimers();
+  vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+  const view = render(<DragonScene dragon={{ ...dragon, skills: ["fly"] }} decor={decor} catalog={[]} />);
+  const scene = screen.getByLabelText("드래곤의 공간"); scene.setPointerCapture = vi.fn();
+  const advance = (count: number) => { for (let i = 0; i < count; i++) act(() => vi.advanceTimersByTime(84)); };
+  // When
+  fireEvent.click(screen.getByRole("button", { name: "날기" }));
+  expect(screen.getByLabelText("날아오르는 아기 드래곤")).toBeTruthy();
+  expect(screen.getByRole("button", { name: "날아오르는 중" }).hasAttribute("disabled")).toBe(true);
+  advance(30);
+  const resident = view.container.querySelector<HTMLElement>(".dragon-resident")!;
+  expect(resident.style.top).toBe("49%");
+  fireEvent.pointerDown(scene, { pointerId: 1, clientX: 20, clientY: 20 });
+  fireEvent.pointerMove(scene, { pointerId: 1, clientX: 60, clientY: 20 });
+  expect(screen.getByLabelText("비행하는 아기 드래곤")).toBeTruthy();
+  expect(screen.queryByLabelText("걷는 아기 드래곤")).toBeNull();
+  fireEvent.pointerUp(scene, { pointerId: 1 }); advance(72);
+  expect(screen.getByLabelText("공중에 머무는 아기 드래곤")).toBeTruthy();
+  expect(screen.queryByLabelText("쉬는 아기 드래곤")).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "날기" }));
+  expect(screen.getByLabelText("착륙하는 아기 드래곤")).toBeTruthy();
+  advance(30);
+  // Then
+  expect(view.container.querySelector(".dragon-flight")).toBeNull();
+  expect(resident.style.top).toBe("65%");
+  expect(screen.getByRole("button", { name: "날기" }).getAttribute("aria-pressed")).toBe("false");
+});
 
 for (const element of [null, "fire", "thunder", "ice"] as const) {
 test(`${element ?? "무속성"} 아기는 5초 후 ${element === "ice" ? "네" : "다섯"} 자세로 앉고 터치하면 역순으로 일어선다`, () => {

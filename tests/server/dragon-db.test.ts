@@ -258,6 +258,9 @@ test("화면 규칙 적용은 저장 행을 일괄 변경하지 않고 명시적
   const sql = await readFile(resolve("supabase/migrations/20261104130000_dragon_decor_without_nest.sql"), "utf8");
   // When
   await db.exec(sql);
+  // Restore the current RPC after replaying this historical migration.
+  const current = await readFile(resolve("supabase/migrations/20261108120000_dragon_flight.sql"), "utf8");
+  await db.exec(current.slice(current.indexOf("create or replace function")));
   const visible = (await world()).dragons[0];
   const untouched = (await db.query<{ decor: unknown; version: number }>("select decor,version from public.dragons where id=$1", [dragon])).rows[0];
   // Then: rendering rules do not rewrite any existing data or optimistic version.
@@ -268,4 +271,65 @@ test("화면 규칙 적용은 저장 행을 일괄 변경하지 않고 명시적
   expect(visible.decor.left.itemId).toBe("ancient-dragon-relic");
   const saved = await world("decorate", { id: dragon, version: 4, decor: visible.decor });
   expect(saved.dragons[0].version).toBe(5);
+});
+
+for (const [before, allowed] of [[1, false], [2, true]] as const) {
+  test(`날기: ${before + 1}일 달성의 기회 경계를 서버에서 확인한다`, async () => {
+    // Given
+    await seedGrowing(before);
+    // When
+    const action = world('skill', { id: dragon, skill: 'fly' });
+    // Then
+    if (!allowed) {
+      await expect(action).rejects.toThrow('선택 기회');
+      expect((await world()).dragons[0].skills).toEqual([]);
+    } else {
+      const acquired = await action;
+      expect(acquired.credits).toBe(0);
+      expect(acquired.dragons[0].skills).toEqual(['fly']);
+      expect((await world('skill', { id: dragon, skill: 'fly' })).credits).toBe(0);
+    }
+  });
+}
+
+test('날기는 드래곤별로 저장하고 성장·속성 변경 후 재시도에도 추가 차감하지 않는다', async () => {
+  // Given
+  await seedGrowing(2);
+  await world('skill', { id: dragon, skill: 'fly' });
+  await db.exec(`update public.dragons set days=30, element='fire'; update public.dragon_progress set total_days=6;`);
+  // When
+  const retry = await world('skill', { id: dragon, skill: 'fly' });
+  const next = await world('egg', { id: nextDragon, egg: 1 });
+  // Then
+  expect(retry.credits).toBe(1);
+  expect(retry.dragons[0].skills).toEqual(['fly']);
+  expect(next.dragons[1].skills).toEqual([]);
+});
+
+for (const [days, element] of [[0, null], [18, null], [30, null], [6, 'fire'], [6, 'thunder'], [6, 'ice']] as const) {
+  test(`날기 최초 획득은 ${days}일/${element ?? '무속성'}에서 허용 범위를 지킨다`, async () => {
+    // Given
+    await seedGrowing(2); await world();
+    await db.query('update public.dragons set days=$1,element=$2 where id=$3', [days, element, dragon]);
+    // When
+    const result = world('skill', { id: dragon, skill: 'fly' });
+    // Then
+    await expect(result).rejects.toThrow('무속성 아기');
+    expect((await world()).credits).toBe(1);
+  });
+}
+
+test('지원하지 않는 기능·다른 아동의 드래곤·직접 기능 변경은 거절한다', async () => {
+  // Given
+  await seedGrowing(2); await world();
+  // When / Then
+  await expect(world('skill', { id: dragon, skill: 'roar' })).rejects.toThrow('지원하지 않는');
+  await expect(world('skill', { id: dragon })).rejects.toThrow('지원하지 않는');
+  await db.exec(`insert into public.children(id,owner_user_id,name) values ('20000000-0000-0000-0000-000000000002','${owner}','다른 아이');
+    insert into public.dragons(id,child_id,owner_user_id,egg,selected_date,days) values ('${nextDragon}','20000000-0000-0000-0000-000000000002','${owner}',0,${today},3);`);
+  await expect(world('skill', { id: nextDragon, skill: 'fly' })).rejects.toThrow('찾지 못');
+  await db.exec(`set role authenticated;`);
+  await expect(db.exec(`update public.dragons set skills=array['fly']`)).rejects.toThrow('permission denied');
+  await db.exec(`select set_config('request.jwt.claim.sub','${other}',false)`);
+  await expect(world('skill', { id: dragon, skill: 'fly' })).rejects.toThrow('권한');
 });

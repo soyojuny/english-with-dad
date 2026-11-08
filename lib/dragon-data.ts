@@ -12,6 +12,9 @@ export function availableDragonItems(catalog: DragonItem[]) {
 }
 export const dragonElements = { fire: "불", thunder: "번개", ice: "얼음" } as const;
 export const dragonEggs = ["반점 무늬 알", "물결 무늬 알", "마름모 무늬 알"];
+export function supportsDragonFlight(dragon: Pick<Dragon, "days" | "element">) {
+  return dragon.days > 0 && dragon.days < 18 && dragon.element === null;
+}
 export function defaultDragonDecor(): DragonDecor {
   return {
     background: { itemId: "lava-open-foreground", x: 50, y: 50 },

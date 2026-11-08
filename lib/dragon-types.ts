@@ -1,4 +1,5 @@
 export type DragonElement = "fire" | "thunder" | "ice";
+export type DragonSkill = "fly";
 export type DragonSlot = "background" | "left" | "right";
 export type DragonPlacement = { itemId: string | null; x: number; y: number };
 export type DragonDecor = Record<DragonSlot, DragonPlacement>;
@@ -8,6 +9,7 @@ export type Dragon = {
   selectedDate: string;
   days: number;
   element: DragonElement | null;
+  skills: DragonSkill[];
   decor: DragonDecor;
   version: number;
 };
@@ -33,4 +35,5 @@ export type DragonAction =
   | { action: "egg"; id: string; egg: number }
   | { action: "element"; id: string; element: DragonElement }
   | { action: "claim"; itemId: string }
+  | { action: "skill"; id: string; skill: DragonSkill }
   | { action: "decorate"; id: string; version: number; decor: DragonDecor };

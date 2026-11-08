@@ -12,11 +12,32 @@ function controller(world: DragonWorld | null): DragonController {
 function world(): DragonWorld {
   return { today: "2026-11-04", credited: true, eligible: true, totalDays: 0, credits: 0,
     owned: ["lava-open-foreground", "ancient-dragon-relic", "lava-crystal"],
-    dragons: [{ id: "first", egg: 0, selectedDate: "2026-11-04", days: 0, element: null, decor: defaultDragonDecor(), version: 0 }],
+    dragons: [{ id: "first", egg: 0, selectedDate: "2026-11-04", days: 0, element: null, skills: [], decor: defaultDragonDecor(), version: 0 }],
     catalog: [{ id: "ancient-dragon-relic", name: "고대 드래곤 석비", kind: "prop", art: "ancient-dragon-relic", free: true },
       { id: "lava-open-foreground", name: "용암 계곡", kind: "background", art: "lava-open-foreground", free: true },
       { id: "lava-crystal", name: "용암 수정", kind: "prop", art: "lava-crystal", free: true }] };
 }
+
+test("보상 기회가 있을 때 선택한 드래곤의 날기를 요청하고 저장 전에는 조작 버튼을 주지 않는다", async () => {
+  // Given
+  const data = world(); data.credits = 1; data.dragons[0].days = 3;
+  const state = controller(data); render(<DragonScreen controller={state} />);
+  // When
+  await userEvent.click(screen.getByRole("button", { name: "날기 배우기 · 기회 1개" }));
+  // Then
+  expect(state.run).toHaveBeenCalledWith({ action: "skill", id: "first", skill: "fly" });
+  expect(screen.queryByRole("button", { name: "날기" })).toBeNull();
+});
+
+test("기회가 없으면 날기를 배울 수 없고 저장 중에는 획득 요청을 막는다", () => {
+  // Given
+  const data = world(); data.dragons[0].days = 3;
+  const state = controller(data); const view = render(<DragonScreen controller={state} />);
+  // When / Then
+  expect(screen.getByRole("button", { name: "날기 배우기 · 기회 1개" }).hasAttribute("disabled")).toBe(true);
+  view.rerender(<DragonScreen controller={{ ...state, pending: true, world: { ...data, credits: 1 } }} />);
+  expect(screen.getByRole("button", { name: "날기 배우기 · 기회 1개" }).hasAttribute("disabled")).toBe(true);
+});
 
 test("초기 조회 실패도 전용 화면에서 다시 확인할 수 있다", async () => {
   // Given

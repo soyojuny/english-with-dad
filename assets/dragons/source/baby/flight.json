@@ -1,0 +1,522 @@
+{
+  "cell": 640,
+  "columns": 6,
+  "fps": 12,
+  "background": "Edge-connected black pixels (max RGB <=24), alpha-only; source RGB retained.",
+  "takeoffReplacements": {
+    "25": "old 14 at (-9,+17)",
+    "26": "old 15 at (-9,+17)"
+  },
+  "frames": [
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기013.png",
+      "sha256": "8b34dc2e4fb3ef5de8d511fef94422e03253e406c700195e821389c4d4b0fabd",
+      "index": 0,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기014.png",
+      "sha256": "c4fbb20c15883e254ebd6b2405cea29d3374c28e20c5ccb089dfeebbe3a12d4d",
+      "index": 1,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기015.png",
+      "sha256": "22783cb2580cee79a96a2333bcd459135cb3f1b49c7d15802e18a1ebff9ecc04",
+      "index": 2,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기016.png",
+      "sha256": "86071c38a075a0752b21800816969517ee305b02b1f4f776ff25b3175efe192d",
+      "index": 3,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기017.png",
+      "sha256": "a5f9bde64cd7752c3cc40060f7bc8878c6aabf99776c25918156788cc701823d",
+      "index": 4,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기018.png",
+      "sha256": "db20cbb44e3da5a2b6d848ce0286a41fdac51970b6d30fad3f26aafd3c2a540a",
+      "index": 5,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기019.png",
+      "sha256": "247340dccc172fb8dfd4933feb439fba18397c12551c6379ed7d90f7dbe9bb0a",
+      "index": 6,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기020.png",
+      "sha256": "0001d0a6c1befa02b7dea28b6fee44edf12ce121633c7dd1d53d51d65ab3942e",
+      "index": 7,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기021.png",
+      "sha256": "144f8f603e636db164d87b4054eb3f27cc7c07153502edf3abbcd3dfff105da9",
+      "index": 8,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기022.png",
+      "sha256": "e8db4c9bb0e297bd15f798a53889b5d3af8bdc7a978b155b919ae87f82fbd39a",
+      "index": 9,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기023.png",
+      "sha256": "943861aa9a11f1a5af2cfc6199844bae539cb3948ccbda16864b7661954dd8fc",
+      "index": 10,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기024.png",
+      "sha256": "68d909990fa5619d9d91ccd95e196e20a0fa5887e8f7ef4b966ef2941a6e9896",
+      "index": 11,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기025.png",
+      "sha256": "a360b416cd08b7c90d0629822aebde2b1517a146988a78e4edaa6745dd2e79d0",
+      "index": 12,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기026.png",
+      "sha256": "239de7114378b44f8355ad0587fa08df6e41979564095013833fcbc7e6461119",
+      "index": 13,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기027.png",
+      "sha256": "d7a902f1a2066f75ac4255f88a408300313787d3688e25bfe991a29a5d67a8ed",
+      "index": 14,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기028.png",
+      "sha256": "36d219f97054857fa6aa979cf60f0e9c707b54a10df0fb03abb9dd2f189989f7",
+      "index": 15,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기029.png",
+      "sha256": "6635d6b7c99d0a964fa22ced9f952f4e7e5e650dfc6c30572d0f21f47c37356e",
+      "index": 16,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기030.png",
+      "sha256": "1a392ce81f784480fafcb13075544ab2b07ed92775cd8b94c09e3696f53e3220",
+      "index": 17,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기031.png",
+      "sha256": "412a2e7a221f1f0dac15682f9e8e17a383789079acadf68cbb51dec68cc68969",
+      "index": 18,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기032.png",
+      "sha256": "766261d89b9f78cd54c4641798a3b44f7cd7c3c2ee1e73e1a3e63f897f9c1190",
+      "index": 19,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기033.png",
+      "sha256": "6b42448d185553e1e6b9de759e79ce0de066e04c28dd8132d0b3f62494c7b13c",
+      "index": 20,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기034.png",
+      "sha256": "9606ded317e3284d4234f4a9e363d74b8fb3de8823910122009fe62dead240c3",
+      "index": 21,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기035.png",
+      "sha256": "a6d27c6dd3af7cca4e71c48b68bacac13f04d1417841f2c46023661788be60fd",
+      "index": 22,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기036.png",
+      "sha256": "441f0b3e5f90dd53bd6a5093bd0044e99c6424fc44f5f89d9b466fa4761bfa2d",
+      "index": 23,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기037.png",
+      "sha256": "0d6c13baf9b9cf03f507ab17ee1f2a67cac83f1584217d1edc6b3b6978713308",
+      "index": 24,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기038.png",
+      "sha256": "0fdf7e0ea8b20b097b8b5e82ae99ecc4829bc064586ad7225918188fa3ff1c17",
+      "index": 25,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기039.png",
+      "sha256": "83a06cbe895942fd2e984f4902992778a7d8266ec5d0ee673c599fb7b285b8a5",
+      "index": 26,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기040.png",
+      "sha256": "0e69830b2a5fbaa42ad769e9a48c2e57c40c101f88faa39fefdcb4cfdd269198",
+      "index": 27,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기041.png",
+      "sha256": "e8238ed017ad040a2452ec69bf2fb1cfea5fc12755728379631d9fec0c523753",
+      "index": 28,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "takeoff",
+      "source": "tmp_dragon/무속성 드래곤 날기_2/new날기042.png",
+      "sha256": "33700c6422c8b7d26c8e7d40a0dd68d332d83e54b839aa6c423a61770b45da80",
+      "index": 29,
+      "translate": [
+        0,
+        0
+      ]
+    },
+    {
+      "motion": "move",
+      "source": "tmp_dragon/무속성 드래곤 날기/neutral_fly_036.png",
+      "sha256": "a97ae6e04ec02a3cbb5eaf6d615b875eef7b0df9524d3bffa5f71cb28300492c",
+      "index": 0,
+      "translate": [
+        -9,
+        22
+      ]
+    },
+    {
+      "motion": "move",
+      "source": "tmp_dragon/무속성 드래곤 날기/neutral_fly_037.png",
+      "sha256": "c50bc8c52785ee0949efcf8048ed47bb0bdc327eed2ab32b58214c7f8afd3dfd",
+      "index": 1,
+      "translate": [
+        -9,
+        22
+      ]
+    },
+    {
+      "motion": "move",
+      "source": "tmp_dragon/무속성 드래곤 날기/neutral_fly_038.png",
+      "sha256": "0d2edd35ab46067123633e4bd88a6d2f2d2a271b440694034fc68d469bdd7ffd",
+      "index": 2,
+      "translate": [
+        -9,
+        22
+      ]
+    },
+    {
+      "motion": "move",
+      "source": "tmp_dragon/무속성 드래곤 날기/neutral_fly_039.png",
+      "sha256": "a526fdaf530a0f53066271c6c3f26e0523952f2d9f929baa5bcab8bb878b232e",
+      "index": 3,
+      "translate": [
+        -9,
+        22
+      ]
+    },
+    {
+      "motion": "move",
+      "source": "tmp_dragon/무속성 드래곤 날기/neutral_fly_040.png",
+      "sha256": "86a59ca99a0d3b2b33b02e69f90c14f37b0f37bd7fe10d3d3c3807181aba3307",
+      "index": 4,
+      "translate": [
+        -9,
+        22
+      ]
+    },
+    {
+      "motion": "move",
+      "source": "tmp_dragon/무속성 드래곤 날기/neutral_fly_041.png",
+      "sha256": "25671c44ab1988671b84353da2db7fc7bce19fadbd8e906dff61409f3d96ba67",
+      "index": 5,
+      "translate": [
+        -9,
+        22
+      ]
+    },
+    {
+      "motion": "move",
+      "source": "tmp_dragon/무속성 드래곤 날기/neutral_fly_042.png",
+      "sha256": "253af1e94bccc0bfb2d5c6a1e9a11911fb1f0906421fdc3800c6650e4784ddf8",
+      "index": 6,
+      "translate": [
+        -9,
+        22
+      ]
+    },
+    {
+      "motion": "move",
+      "source": "tmp_dragon/무속성 드래곤 날기/neutral_fly_043.png",
+      "sha256": "fdb2308fe6d2b088498be0ca7ac7466015df6b0963898f36194e91823b8cce5c",
+      "index": 7,
+      "translate": [
+        -9,
+        22
+      ]
+    },
+    {
+      "motion": "move",
+      "source": "tmp_dragon/무속성 드래곤 날기/neutral_fly_044.png",
+      "sha256": "a6295d6112dbed2ec5f83e30aa1fb9d0654214909d8c153cf1221251d21e39d6",
+      "index": 8,
+      "translate": [
+        -9,
+        22
+      ]
+    },
+    {
+      "motion": "move",
+      "source": "tmp_dragon/무속성 드래곤 날기/neutral_fly_045.png",
+      "sha256": "2f9e557fe397cc1ba2a678a0158c2c45e55b7dacf671a0847f36ab541ca83e3f",
+      "index": 9,
+      "translate": [
+        -9,
+        22
+      ]
+    },
+    {
+      "motion": "move",
+      "source": "tmp_dragon/무속성 드래곤 날기/neutral_fly_046.png",
+      "sha256": "0d3c58e738a45136675230e23915d900e8184ebb76279ce7321bc57e1d65f78d",
+      "index": 10,
+      "translate": [
+        -9,
+        22
+      ]
+    },
+    {
+      "motion": "move",
+      "source": "tmp_dragon/무속성 드래곤 날기/neutral_fly_047.png",
+      "sha256": "61d094e434083ffd2f5283c73b8cf0e5523b23d7a8f802e252ce7fb03540c28a",
+      "index": 11,
+      "translate": [
+        -9,
+        22
+      ]
+    },
+    {
+      "motion": "hover",
+      "source": "tmp_dragon/무속성 드래곤 날기/neutral_fly_058.png",
+      "sha256": "1d254ec10a3c253dca71fad09adcbec02ef7855e6be8a1b2308d1d290c4bec0c",
+      "index": 0,
+      "translate": [
+        -9,
+        22
+      ]
+    },
+    {
+      "motion": "hover",
+      "source": "tmp_dragon/무속성 드래곤 날기/neutral_fly_059.png",
+      "sha256": "e4dcb0bb04d2ef2461dcda9528f1d928c8bb3abfd3b650ffef1038d3031801c3",
+      "index": 1,
+      "translate": [
+        -9,
+        22
+      ]
+    },
+    {
+      "motion": "hover",
+      "source": "tmp_dragon/무속성 드래곤 날기/neutral_fly_060.png",
+      "sha256": "81a802df479869f95a9170f55876268f4e8d3b16e0c44068f19b7c771bffb918",
+      "index": 2,
+      "translate": [
+        -9,
+        22
+      ]
+    },
+    {
+      "motion": "hover",
+      "source": "tmp_dragon/무속성 드래곤 날기/neutral_fly_061.png",
+      "sha256": "547036789fc75124ef8e818734b25edd95012ed4d31e88678fa4c8f5c1af9e9d",
+      "index": 3,
+      "translate": [
+        -9,
+        22
+      ]
+    },
+    {
+      "motion": "hover",
+      "source": "tmp_dragon/무속성 드래곤 날기/neutral_fly_062.png",
+      "sha256": "57a733185a6e9d6c4b3141d509fa2dfccd5f7ca4373643376e3fc3bfe4bfbc1f",
+      "index": 4,
+      "translate": [
+        -9,
+        22
+      ]
+    },
+    {
+      "motion": "hover",
+      "source": "tmp_dragon/무속성 드래곤 날기/neutral_fly_063.png",
+      "sha256": "8073d8ae9ddb394bc50e77b551e7d79ae69795e9a09a3c0be423bece0ebd601c",
+      "index": 5,
+      "translate": [
+        -9,
+        22
+      ]
+    },
+    {
+      "motion": "hover",
+      "source": "tmp_dragon/무속성 드래곤 날기/neutral_fly_064.png",
+      "sha256": "8a129bcc9694550e0fb9c1bbeb508173473b48e2b07ea22ae3a7f8f97bb10873",
+      "index": 6,
+      "translate": [
+        -9,
+        22
+      ]
+    },
+    {
+      "motion": "hover",
+      "source": "tmp_dragon/무속성 드래곤 날기/neutral_fly_065.png",
+      "sha256": "27a455c8552cd214fac0f89dcfebdb1e8d178fe4225d79f74ee2e2930174a1f8",
+      "index": 7,
+      "translate": [
+        -9,
+        22
+      ]
+    },
+    {
+      "motion": "hover",
+      "source": "tmp_dragon/무속성 드래곤 날기/neutral_fly_066.png",
+      "sha256": "0dbb0cf3c97e819bb0097018fc285124d8ac73ada86ebecc37ac91315e1df894",
+      "index": 8,
+      "translate": [
+        -9,
+        22
+      ]
+    }
+  ]
+}

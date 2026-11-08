@@ -65,7 +65,7 @@ An opportunity earned by a child every three eligible daily goal achievements to
 _Avoid_: Point, currency, expiring claim
 
 **Dragon Skill**:
-An ability acquired for an individual dragon, such as roar or breath. Breath takes the dragon's element and becomes usable from the juvenile stage after an element is chosen; roar can be used from the hatchling stage.
+An ability acquired for an individual dragon, such as flight, roar or breath. Flight lets a neutral hatchling take off, move in the air and land; roar can be used from the hatchling stage, and breath takes the dragon's element and becomes usable from the juvenile stage after an element is chosen.
 _Avoid_: Shared item, dragon element
 
 **Daily Goal Achievement**:

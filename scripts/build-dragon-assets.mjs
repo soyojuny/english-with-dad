@@ -20,6 +20,7 @@ const images = [
   ["baby/fire-sit-sequence", "baby/fire-sit-sequence", 5120],
   ["baby/ice-sit-sequence", "baby/ice-sit-sequence", 4096],
   ["baby/thunder-sit-sequence", "baby/thunder-sit-sequence", 5120],
+  ...["takeoff", "move", "hover"].map((motion) => [`baby/flight-${motion}`, `baby/flight-${motion}`, 3840]),
   ["baby/lightning", "baby/thunder", 1024],
   ...["fire", "lightning", "ice"].flatMap((element) => ["blink", "breathe"].map((motion) =>
     [`baby/${element}-${motion}`, `baby/${element === "lightning" ? "thunder" : element}-${motion}`, 1024])),
@@ -33,6 +34,6 @@ for (const [input, name, width] of images) {
   const file = resolve(output, `${name}.webp`);
   await mkdir(dirname(file), { recursive: true });
   await sharp(resolve(source, `${input}.png`)).resize({ width, withoutEnlargement: true })
-    .webp((name.endsWith("walk-bde") || name.endsWith("sit-sequence")) ? { lossless: true } : { quality: 90, alphaQuality: 100 }).toFile(file);
+    .webp((name.endsWith("walk-bde") || name.endsWith("sit-sequence")) ? { lossless: true } : { quality: name.includes("flight-") ? 85 : 90, alphaQuality: 100 }).toFile(file);
 }
 console.log(`Dragon assets: ${images.length} WebP files built from assets/dragons/source`);
