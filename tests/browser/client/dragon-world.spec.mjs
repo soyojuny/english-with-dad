@@ -369,7 +369,9 @@ for (const width of [390, 1280]) {
     await screen.getByRole('button', { name: '날기 배우기 · 기회 1개' }).click();
     await expect(screen.getByRole('button', { name: '날기', exact: true })).toBeVisible();
     expect(fixture.state.credits).toBe(1);
-    await page.reload(); if (await page.locator('.profile-grid').isVisible()) await openChild(page);
+    // Reload restores the saved child asynchronously; wait for its action instead
+    // of clicking a profile card that can disappear during automatic restoration.
+    await page.reload();
     await page.getByRole('button', { name: '드래곤', exact: true }).click();
     await screen.getByRole('button', { name: '날기', exact: true }).click();
     await expect(screen.getByRole('button', { name: '날아오르는 중' })).toBeDisabled();
@@ -446,4 +448,55 @@ test(`날기 ${element ?? '무속성'}: 움직임 줄이기와 꾸미기 진입�
   await expect(page.locator('.dragon-flight')).toHaveCount(0);
   await expect(page.getByRole('button', { name: '날기', exact: true })).toHaveCount(0);
 });
+}
+
+for (const width of [390, 1280]) {
+  test(`번개 꼬리 공격 ${width}px: 3일 보상 기회로 획득하고 43프레임 공격 후 서기로 복귀`, async ({ childCompletion: f }) => {
+    // Given: two choices earned from six days, shared by flight and tail attack.
+    const { page } = f; await page.setViewportSize({ width, height: 950 });
+    const fixture = await dragonFixture(page, { dragons: [{ id: 'dragon-1', egg: 0, days: 6, selectedDate: '2026-10-01', element: 'thunder', decor: decor(), skills: [], version: 0 }] });
+    await openChild(page); await page.getByRole('button', { name: '드래곤', exact: true }).click();
+    await expect(page.getByRole('button', { name: '꼬리 공격', exact: true })).toHaveCount(0);
+    // When
+    await page.getByRole('button', { name: '꼬리 공격 배우기 · 기회 1개' }).click();
+    await page.getByRole('button', { name: '날기 배우기 · 기회 1개' }).click();
+    // Then: both skills persist in the server snapshot and share the choice balance.
+    expect(fixture.state.credits).toBe(0);
+    expect(fixture.state.dragons[0].skills).toEqual(['tail-attack', 'fly']);
+    const attackButton = page.getByRole('button', { name: '꼬리 공격', exact: true });
+    const scene = page.getByLabel('드래곤의 공간');
+    const resident = scene.locator('.dragon-resident');
+    const before = await resident.getAttribute('style');
+    await attackButton.click();
+    const attack = scene.locator('.dragon-tail-attack-frame');
+    await expect(attack).toHaveCSS('background-size', '600% 800%');
+    await expect(attack).toHaveCSS('background-position', '0% 0%');
+    const dimensions = await page.evaluate(async () => {
+      const image = new Image(); image.src = '/assets/dragons/baby/thunder-tail-attack.webp'; await image.decode();
+      return [image.naturalWidth, image.naturalHeight];
+    });
+    expect(dimensions).toEqual([3606, 2888]);
+    await expect(page.getByRole('button', { name: '꼬리 공격 중' })).toBeDisabled();
+    await expect(page.getByRole('button', { name: '날기', exact: true })).toBeDisabled();
+    const box = await scene.boundingBox();
+    await page.mouse.move(box.x + box.width * .5, box.y + box.height * .5);
+    await page.mouse.down(); await page.mouse.move(box.x + box.width * .6, box.y + box.height * .5); await page.mouse.up();
+    await expect(scene.locator('.dragon-stick')).toHaveCount(0);
+    for (let frame = 1; frame <= 42; frame++) await page.clock.runFor(56);
+    await expect(attack).toHaveCSS('background-position', '0% 100%');
+    expect(await resident.getAttribute('style')).toBe(before);
+    await page.clock.runFor(56);
+    await expect(attack).toHaveCount(0); await expect(scene.locator('.dragon-idle')).toBeVisible();
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await attackButton.click();
+    await expect(attack).toHaveCSS('background-position', '0% 57.1429%');
+    await page.clock.runFor(300); await expect(attack).toHaveCount(0);
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await page.getByRole('button', { name: '날기', exact: true }).click();
+    await expect(attackButton).toBeDisabled();
+    await page.clock.runFor(700);
+    await page.getByRole('button', { name: '날기', exact: true }).click();
+    await page.clock.runFor(700); await expect(attackButton).toBeEnabled();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
+  });
 }

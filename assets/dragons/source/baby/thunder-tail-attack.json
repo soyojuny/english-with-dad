@@ -1,0 +1,274 @@
+{
+  "status": "43-frame canonical source",
+  "frames": 43,
+  "columns": 6,
+  "rows": 8,
+  "cellWidth": 601,
+  "cellHeight": 361,
+  "fps": 18,
+  "order": "001 through 043",
+  "sourceDirectory": "tmp_dragon/lightning_꼬리 공격",
+  "sha256": "a907fc9de28df938c2c693193cb2b5feb3c772847f3fee7c61dfcefdfce08357",
+  "processing": "Deterministic exterior neutral backdrop flood fill plus enclosed neutral components of at least 200 pixels with over 60% bright pixels (min RGB 220). Dark dust retained with estimated alpha and matte removal. No generative redraw. Body pixels outside the backdrop mask unchanged before uniform downscale and WebP encoding.",
+  "limitations": "Top-edge horn clipping is present in the originals. Pale sweep and dust details may be lost; neutral connected edges may be altered. Validate against light and dark backgrounds.",
+  "sources": [
+    {
+      "name": "꼬리공격001.png",
+      "sha256": "83ef0bbc7209dbebd37fd52a8b69eea6db6833fcb414d66f50895a9f4a36b406",
+      "removed": 543686,
+      "translucent": 16375
+    },
+    {
+      "name": "꼬리공격002.png",
+      "sha256": "00e9ad150f235805e002dd99c20730c78e1a7e7a5298317e7d3f795243ea9d1c",
+      "removed": 544962,
+      "translucent": 16564
+    },
+    {
+      "name": "꼬리공격003.png",
+      "sha256": "82dffc4e2dc431bad9e2e38a66d0fd825ffb1993bea31d57e8faba35e1ab65de",
+      "removed": 546576,
+      "translucent": 16790
+    },
+    {
+      "name": "꼬리공격004.png",
+      "sha256": "f17d49747f5bda3514a71e6772d34eaa12287e059cb34a6fc293218dade01c4e",
+      "removed": 547937,
+      "translucent": 17448
+    },
+    {
+      "name": "꼬리공격005.png",
+      "sha256": "619786963e84a3466c6f75f11132c0f43c6d96301b3622e647aee2f5267a350d",
+      "removed": 549032,
+      "translucent": 17966
+    },
+    {
+      "name": "꼬리공격006.png",
+      "sha256": "4c73b94ea42fe722d2710a7f866a6f14eccafb22016e8f9f4d1bb95aefc36ccf",
+      "removed": 549982,
+      "translucent": 18278
+    },
+    {
+      "name": "꼬리공격007.png",
+      "sha256": "7fb8676734ed47cfafa446be8f57e7f3d276db4e2545cb0f1153dd3765167a11",
+      "removed": 549636,
+      "translucent": 18568
+    },
+    {
+      "name": "꼬리공격008.png",
+      "sha256": "90b5f398b73a4e9ee960b8f12c93795aff3b92666532e5349a3d5faf65b79922",
+      "removed": 548220,
+      "translucent": 18925
+    },
+    {
+      "name": "꼬리공격009.png",
+      "sha256": "9a46084efc4e53cf79fc99583216e6585a21f1dc4dc4f5d71bb3946cdd1c914d",
+      "removed": 547809,
+      "translucent": 19044
+    },
+    {
+      "name": "꼬리공격010.png",
+      "sha256": "b72af9bea5ccfd06a09e49d8ef5e542b852d982b8ff1e1371a998385b823d9ef",
+      "removed": 552144,
+      "translucent": 19127
+    },
+    {
+      "name": "꼬리공격011.png",
+      "sha256": "9495f1f5077b660a5a314199a69a43debbd6881345ead135a58dd1b1778218c1",
+      "removed": 580059,
+      "translucent": 19279
+    },
+    {
+      "name": "꼬리공격012.png",
+      "sha256": "a3abe1e5e825f073708abc72195486272b42b7ef238136a4ed1d513faa09d5af",
+      "removed": 597850,
+      "translucent": 21393
+    },
+    {
+      "name": "꼬리공격013.png",
+      "sha256": "85754b8a4687ce101bd5a540b65678a7fdc410ad14569e5147f3e0515ead762a",
+      "removed": 595335,
+      "translucent": 25130
+    },
+    {
+      "name": "꼬리공격014.png",
+      "sha256": "e89b87be06ed969de0d94e565250226de511429ad8e3e30e1fe2b84df47bf8aa",
+      "removed": 601724,
+      "translucent": 25453
+    },
+    {
+      "name": "꼬리공격015.png",
+      "sha256": "8bc97fbcd5f68a4e3012a114398bfa4d8e0cb147a9413faa07899f49231260db",
+      "removed": 604319,
+      "translucent": 25527
+    },
+    {
+      "name": "꼬리공격016.png",
+      "sha256": "70c6d62cd935f22ae75e968b9f7b6c845527b246a0bc6872fa60a6c675d8bd96",
+      "removed": 572989,
+      "translucent": 26020
+    },
+    {
+      "name": "꼬리공격017.png",
+      "sha256": "7a798b5e75f78fd64742bf3b8dace9e4a31e159f91bf97c3923fe1a87a4652c0",
+      "removed": 585877,
+      "translucent": 30414
+    },
+    {
+      "name": "꼬리공격018.png",
+      "sha256": "922326a9f2703a2d91c1ac25899e237f7f192601bc19c5bd12f1061ec3f9894f",
+      "removed": 593797,
+      "translucent": 43377
+    },
+    {
+      "name": "꼬리공격019.png",
+      "sha256": "8e11a15a30dea14274e88feb6921efbb5440788bd0dca3d1bb74cc9ba6fa7e97",
+      "removed": 557266,
+      "translucent": 56809
+    },
+    {
+      "name": "꼬리공격020.png",
+      "sha256": "59f1dd2732de1d8565bcc182011b59fe64a3f6a18b6fd61a749b3f51d0aacfdd",
+      "removed": 544756,
+      "translucent": 87260
+    },
+    {
+      "name": "꼬리공격021.png",
+      "sha256": "ca9d0f64ba03601ad1d9df92e9d70c387bbda04bc815af79fb20c6f0ca2777db",
+      "removed": 556267,
+      "translucent": 96212
+    },
+    {
+      "name": "꼬리공격022.png",
+      "sha256": "d79dce37ef0427a4776ee4bb276d34dac21f808dc2a8129c077dcf3d3e062a3a",
+      "removed": 574947,
+      "translucent": 96801
+    },
+    {
+      "name": "꼬리공격023.png",
+      "sha256": "409ea125207a8a11e64409a03da7ce7b33450d9998559dbb6d80b352883fee10",
+      "removed": 559427,
+      "translucent": 98929
+    },
+    {
+      "name": "꼬리공격024.png",
+      "sha256": "5be2773ade41a66a1e4a81579ff3ed4db5275e4a26b43721d3f0b4a41360b7ae",
+      "removed": 547304,
+      "translucent": 103906
+    },
+    {
+      "name": "꼬리공격025.png",
+      "sha256": "af62309f10daf2d9df0d005dbd689d74943fa3125f00f098d24a2b4541dbb873",
+      "removed": 561025,
+      "translucent": 75026
+    },
+    {
+      "name": "꼬리공격026.png",
+      "sha256": "769f123de017c9cc75c4e06fc95548ddab6f8e8e7d59b342cebd95e953987b4d",
+      "removed": 566673,
+      "translucent": 55321
+    },
+    {
+      "name": "꼬리공격027.png",
+      "sha256": "bb6783d8f66fad15b5f2cb36d7fd61269dc381d59289a031337bdacdc627e489",
+      "removed": 572763,
+      "translucent": 39889
+    },
+    {
+      "name": "꼬리공격028.png",
+      "sha256": "a3a384711ff1b6687dcb6388fe17e8c792bf436110c82383b7bb8b549b3de463",
+      "removed": 564705,
+      "translucent": 32013
+    },
+    {
+      "name": "꼬리공격029.png",
+      "sha256": "a1d817a492809453146c0656fe1c563483abae4aedf7ec7fd57b554b8af7aa46",
+      "removed": 550363,
+      "translucent": 29017
+    },
+    {
+      "name": "꼬리공격030.png",
+      "sha256": "24eaa4bc9384eed8a635148b4c78ca9d7d545da402d9095a57eea13ac9b5bcc2",
+      "removed": 536075,
+      "translucent": 29906
+    },
+    {
+      "name": "꼬리공격031.png",
+      "sha256": "d6a568f1843e61fba896f17bed16dab7e9a4c17592b027aa65720703427713e7",
+      "removed": 530038,
+      "translucent": 29748
+    },
+    {
+      "name": "꼬리공격032.png",
+      "sha256": "7ca5a85306ad44661643d297836ff43febdae320849a8310d575f6ffea003f20",
+      "removed": 525897,
+      "translucent": 30169
+    },
+    {
+      "name": "꼬리공격033.png",
+      "sha256": "6b44bd5011396713a2e6c2adf97f441287e661ef5c14550b96bbdaab8f831d01",
+      "removed": 526754,
+      "translucent": 26481
+    },
+    {
+      "name": "꼬리공격034.png",
+      "sha256": "51e24acde8144d6fa2e04886b5a8faab1dce6af772eeb5f1ef2b6647e471bfc6",
+      "removed": 532737,
+      "translucent": 22037
+    },
+    {
+      "name": "꼬리공격035.png",
+      "sha256": "7d811210dceadd12d387f5325bee847a5e5cde3269ef82ee2f7981bd86437fe5",
+      "removed": 539244,
+      "translucent": 18646
+    },
+    {
+      "name": "꼬리공격036.png",
+      "sha256": "27daf6a1149c67ab67c74765194685490db8f175ce7d56418187dc1d692eb3c1",
+      "removed": 543557,
+      "translucent": 17642
+    },
+    {
+      "name": "꼬리공격037.png",
+      "sha256": "4d08c700ebcc8ffbe94c512cdf1103ed50b31f7fede68cae662badc3dc420fc3",
+      "removed": 546623,
+      "translucent": 17068
+    },
+    {
+      "name": "꼬리공격038.png",
+      "sha256": "ac01ee25e172d68992acd21ce5c51fa341cf3fa7bafad1f0209df20d4e7aac55",
+      "removed": 547180,
+      "translucent": 16745
+    },
+    {
+      "name": "꼬리공격039.png",
+      "sha256": "5edef1c55c7d5780940866ea9ee0f0ef01f9e88bca51534cd6c775693f0c01ea",
+      "removed": 545881,
+      "translucent": 16743
+    },
+    {
+      "name": "꼬리공격040.png",
+      "sha256": "b02a200d46aff659c79983fb0b3f38c97bd7859ca319bc02ca5829b3eed6bbf8",
+      "removed": 541548,
+      "translucent": 16798
+    },
+    {
+      "name": "꼬리공격041.png",
+      "sha256": "98519951f78516101fa08de56ac39a829cc2b873242e9cc3dbd6a70b86cbcc5e",
+      "removed": 543205,
+      "translucent": 16585
+    },
+    {
+      "name": "꼬리공격042.png",
+      "sha256": "6cbd65ac91b4912de320f4c2c7c1ea65bb285588d032717f01fcd6d21dba366e",
+      "removed": 543467,
+      "translucent": 16576
+    },
+    {
+      "name": "꼬리공격043.png",
+      "sha256": "90491df14b1e4770f99990edfe0f547f494b5f2d8d1ad3b22dda06333783060a",
+      "removed": 543947,
+      "translucent": 16438
+    }
+  ]
+}

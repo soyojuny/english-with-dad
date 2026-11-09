@@ -1,4 +1,4 @@
-const cacheName = "ewd-reading-v23";
+const cacheName = "ewd-reading-v24";
 const appShell = [
   "/",
   "/manifest.webmanifest",
@@ -21,6 +21,7 @@ const appShell = [
   "/assets/dragons/baby/fire-flight-move.webp",
   "/assets/dragons/baby/thunder-flight-takeoff.webp",
   "/assets/dragons/baby/thunder-flight-move.webp",
+  "/assets/dragons/baby/thunder-tail-attack.webp",
   "/assets/dragons/baby/walk-bde.webp",
   "/assets/dragons/baby/fire-walk-bde.webp",
   "/assets/dragons/baby/thunder-walk-bde.webp",

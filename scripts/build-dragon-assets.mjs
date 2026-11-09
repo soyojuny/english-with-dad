@@ -23,6 +23,7 @@ const images = [
   ...["takeoff", "move", "hover"].map((motion) => [`baby/flight-${motion}`, `baby/flight-${motion}`, 3840]),
   ...["takeoff", "move"].map((motion) => [`baby/fire-flight-${motion}`, `baby/fire-flight-${motion}`, 1774]),
   ...["takeoff", "move"].map((motion) => [`baby/thunder-flight-${motion}`, `baby/thunder-flight-${motion}`, 3072]),
+  ["baby/thunder-tail-attack", "baby/thunder-tail-attack", 3606],
   ["baby/lightning", "baby/thunder", 1024],
   ...["fire", "lightning", "ice"].flatMap((element) => ["blink", "breathe"].map((motion) =>
     [`baby/${element}-${motion}`, `baby/${element === "lightning" ? "thunder" : element}-${motion}`, 1024])),
@@ -36,6 +37,6 @@ for (const [input, name, width] of images) {
   const file = resolve(output, `${name}.webp`);
   await mkdir(dirname(file), { recursive: true });
   await sharp(resolve(source, `${input}.png`)).resize({ width, withoutEnlargement: true })
-    .webp((name.endsWith("walk-bde") || name.endsWith("sit-sequence")) ? { lossless: true } : { quality: name.includes("flight-") ? 85 : 90, alphaQuality: 100 }).toFile(file);
+    .webp((name.endsWith("walk-bde") || name.endsWith("sit-sequence") || name.endsWith("tail-attack")) ? { lossless: true } : { quality: name.includes("flight-") ? 85 : 90, alphaQuality: 100 }).toFile(file);
 }
 console.log(`Dragon assets: ${images.length} WebP files built from assets/dragons/source`);

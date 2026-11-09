@@ -15,6 +15,9 @@ export const dragonEggs = ["반점 무늬 알", "물결 무늬 알", "마름모 
 export function supportsDragonFlight(dragon: Pick<Dragon, "days" | "element">) {
   return dragon.days > 0 && dragon.days < 18 && (dragon.element === null || dragon.element === "fire" || dragon.element === "thunder");
 }
+export function supportsDragonTailAttack(dragon: Pick<Dragon, "days" | "element">) {
+  return dragon.days > 0 && dragon.days < 18 && dragon.element === "thunder";
+}
 export function defaultDragonDecor(): DragonDecor {
   return {
     background: { itemId: "lava-open-foreground", x: 50, y: 50 },

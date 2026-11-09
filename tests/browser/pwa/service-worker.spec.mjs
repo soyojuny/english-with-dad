@@ -50,7 +50,7 @@ test('P01-B02: 앱 등록 worker가 shell 자산을 준비하고 온라인 navig
   // When
   const state = await page.evaluate(async () => {
     const registration = await navigator.serviceWorker.getRegistration();
-    const cache = await caches.open('ewd-reading-v23');
+    const cache = await caches.open('ewd-reading-v24');
     return { script: registration.active.scriptURL, scope: registration.scope,
       paths: (await cache.keys()).map(request => new URL(request.url).pathname).sort() };
   });
@@ -79,6 +79,7 @@ test('P01-B02: 앱 등록 worker가 shell 자산을 준비하고 온라인 navig
     '/assets/dragons/baby/fire-flight-move.webp',
     '/assets/dragons/baby/thunder-flight-takeoff.webp',
     '/assets/dragons/baby/thunder-flight-move.webp',
+    '/assets/dragons/baby/thunder-tail-attack.webp',
     '/assets/dragons/baby/walk-bde.webp',
     '/assets/dragons/baby/fire-walk-bde.webp',
     '/assets/dragons/baby/thunder-walk-bde.webp',
@@ -116,7 +117,7 @@ test('P01-B03: offline navigation은 cached root 문서를 반환하고 캐시 i
     const response = await fetch('/assets/app-icon.svg');
     return { status: response.status, text: await response.text() };
   });
-  const motionAssets = await page.evaluate(async () => Promise.all(['flight-takeoff', 'flight-move', 'flight-hover', 'fire-flight-takeoff', 'fire-flight-move', 'thunder-flight-takeoff', 'thunder-flight-move', 'sit-sequence', 'fire-walk-bde', 'ice-walk-bde', 'fire-sit-sequence', 'thunder-sit-sequence', 'ice-sit-sequence'].map(async name => {
+  const motionAssets = await page.evaluate(async () => Promise.all(['flight-takeoff', 'flight-move', 'flight-hover', 'fire-flight-takeoff', 'fire-flight-move', 'thunder-flight-takeoff', 'thunder-flight-move', 'thunder-tail-attack', 'sit-sequence', 'fire-walk-bde', 'ice-walk-bde', 'fire-sit-sequence', 'thunder-sit-sequence', 'ice-sit-sequence'].map(async name => {
     const response = await fetch(`/assets/dragons/baby/${name}.webp`);
     return { status: response.status, type: response.headers.get('content-type'), bytes: (await response.arrayBuffer()).byteLength };
   })));

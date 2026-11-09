@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { DragonController } from "./use-dragon-world";
 import { DragonScene, DragonSprite } from "./dragon-scene";
-import { availableDragonItems, clampDragonPosition, defaultDragonDecor, dragonEggs, dragonElements, dragonSlotLabels, dragonSlots, dragonStage, supportsDragonFlight } from "../lib/dragon-data";
+import { availableDragonItems, clampDragonPosition, defaultDragonDecor, dragonEggs, dragonElements, dragonSlotLabels, dragonSlots, dragonStage, supportsDragonFlight, supportsDragonTailAttack } from "../lib/dragon-data";
 import type { Dragon, DragonDecor, DragonElement, DragonSlot } from "../lib/dragon-types";
 import { dragonBackgroundArt, dragonPropArt } from "../lib/dragon-art";
 
@@ -58,6 +58,7 @@ function DragonWorldScreen({ controller }: { controller: DragonController }) {
       </section>}
       <DragonDecorator key={`${dragon.id}:${dragon.version}`} dragon={dragon} controller={controller} />
       {supportsDragonFlight(dragon) && <section aria-label="드래곤 기능 선택"><h4>드래곤 기능 선택</h4>{dragon.skills?.includes("fly") ? <p>날기를 배웠어요. 날기 버튼으로 날아올라 보세요.</p> : <><p>선택 기회 1개로 이 드래곤에게 날기를 가르쳐요.</p><button type="button" disabled={controller.pending || world.credits < 1} onClick={() => void controller.run({ action: "skill", id: dragon.id, skill: "fly" })}>날기 배우기 · 기회 1개</button>{world.credits < 1 && <p>3일 달성을 모으면 기능을 고를 수 있어요.</p>}</>}</section>}
+      {supportsDragonTailAttack(dragon) && <section aria-label="꼬리 공격 기능 선택"><h4>꼬리 공격</h4>{dragon.skills?.includes("tail-attack") ? <p>꼬리 공격을 배웠어요. 땅에서 꼬리 공격 버튼을 눌러 보세요.</p> : <><p>3일 달성마다 받는 선택 기회 1개로 이 드래곤에게 꼬리 공격을 가르쳐요.</p><button type="button" disabled={controller.pending || world.credits < 1} onClick={() => void controller.run({ action: "skill", id: dragon.id, skill: "tail-attack" })}>꼬리 공격 배우기 · 기회 1개</button>{world.credits < 1 && <p>3일 달성을 모으면 기능을 고를 수 있어요.</p>}</>}</section>}
     </> : <p>오늘 배정된 학습을 모두 마치면 첫 알을 고를 수 있어요. 쉬는 날에도 기존 누적은 유지돼요.</p>}
   </section>;
 }

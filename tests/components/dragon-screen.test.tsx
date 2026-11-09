@@ -39,6 +39,33 @@ test("기회가 없으면 날기를 배울 수 없고 저장 중에는 획득 �
   expect(screen.getByRole("button", { name: "날기 배우기 · 기회 1개" }).hasAttribute("disabled")).toBe(true);
 });
 
+test("번개 아기는 기회 1개로 꼬리 공격을 요청하고 서버 저장 후 조작 버튼을 받는다", async () => {
+  // Given
+  vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+  const data = world(); data.credits = 1; data.dragons[0].days = 6; data.dragons[0].element = "thunder";
+  const state = controller(data); const view = render(<DragonScreen controller={state} />);
+  // When
+  await userEvent.click(screen.getByRole("button", { name: "꼬리 공격 배우기 · 기회 1개" }));
+  // Then
+  expect(state.run).toHaveBeenCalledWith({ action: "skill", id: "first", skill: "tail-attack" });
+  expect(screen.queryByRole("button", { name: "꼬리 공격" })).toBeNull();
+  view.rerender(<DragonScreen controller={{ ...state, world: { ...data, credits: 0, dragons: [{ ...data.dragons[0], skills: ["tail-attack"] }] } }} />);
+  expect(screen.queryByRole("button", { name: "꼬리 공격 배우기 · 기회 1개" })).toBeNull();
+  expect(screen.getByRole("button", { name: "꼬리 공격" })).toBeTruthy();
+});
+
+test("꼬리 공격 획득은 기회 부족과 저장 중에는 막고 다른 속성에는 제공하지 않는다", () => {
+  // Given
+  const data = world(); data.dragons[0].days = 6; data.dragons[0].element = "thunder";
+  const state = controller(data); const view = render(<DragonScreen controller={state} />);
+  // When / Then
+  expect(screen.getByRole("button", { name: "꼬리 공격 배우기 · 기회 1개" }).hasAttribute("disabled")).toBe(true);
+  view.rerender(<DragonScreen controller={{ ...state, pending: true, world: { ...data, credits: 1 } }} />);
+  expect(screen.getByRole("button", { name: "꼬리 공격 배우기 · 기회 1개" }).hasAttribute("disabled")).toBe(true);
+  view.rerender(<DragonScreen controller={{ ...state, world: { ...data, dragons: [{ ...data.dragons[0], element: "fire" }] } }} />);
+  expect(screen.queryByRole("button", { name: "꼬리 공격 배우기 · 기회 1개" })).toBeNull();
+});
+
 test("초기 조회 실패도 전용 화면에서 다시 확인할 수 있다", async () => {
   // Given
   const state = { ...controller(null), error: "연결 오류", retry: { action: "sync" } as const };

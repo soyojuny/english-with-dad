@@ -1,6 +1,7 @@
 import type { Dragon } from "./dragon-types";
 
 const root = "/assets/dragons";
+export const dragonTailAttackAnimation = { artwork: `${root}/baby/thunder-tail-attack.webp`, columns: 6, rows: 8, frames: 43, fps: 18 };
 export const dragonFlightAnimations = {
   neutral: { prefix: "", columns: 6, fps: 12, frames: { takeoff: 30, move: 12, hover: 9 } },
   fire: { prefix: "fire-", columns: 4, fps: 8, frames: { takeoff: 8, move: 8, hover: 8 } },
