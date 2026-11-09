@@ -1,0 +1,868 @@
+{
+  "batchSha256": "6ce344cbea9337c033be4195b33c550cf9a7ba9ab78bc709c7e980603bda675a",
+  "status": "db_verified",
+  "projectRef": "yocdammswepuwyvzydra",
+  "ownerUserId": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+  "childId": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+  "startSunday": "2026-11-15",
+  "endDate": "2026-11-20",
+  "createdBookIds": [
+    "3cfae2ce-3ba3-4fdc-a58f-82cb927bdeea",
+    "38310770-46e7-430d-bb4c-a38db73a8ee8",
+    "7b05606d-9c32-439f-9910-1f7c13ff0a64",
+    "9879d7b5-b16b-42b4-9a8c-67c025745251",
+    "62bc9767-525c-4918-a1d1-a985e6990c56",
+    "7ac47cc3-0e28-4b12-be3a-0f8a7fb600a3",
+    "3d06f675-2426-47c6-ba96-6d1128a32fb8"
+  ],
+  "reusedBookIds": [],
+  "createdAssignmentIds": [
+    "6770907c-87fd-4b7f-8c02-e4f74794852c",
+    "1d6e8825-3f6f-4ff7-b405-9de54ee3182d",
+    "5e69a6c9-5361-4a12-bc78-ba34d81cb3d3",
+    "c8af27ca-c402-4365-8ce2-25bfc2ddd45c",
+    "c2c7a1f5-c5c7-4c18-b0c5-2f2e7475a7a3",
+    "1e14ef8e-c400-4cbc-996a-074149b45f40",
+    "ad239d12-c5eb-4522-bbba-e99e511261c6",
+    "f644c9b3-1970-4ff0-86e8-e066ea7d8863",
+    "dc51aa0d-f3d7-4b93-a373-8be7f88a422a",
+    "4a7be654-cf10-4da8-ba9f-f67a50ab057f",
+    "e175fe42-014d-45c8-a40c-12af54f15004",
+    "b994df6a-110c-49e3-93da-d563b204c08c",
+    "7eb601b1-8a24-4612-820f-639ffc9a49f4",
+    "9d5a0dbd-5025-447a-b132-7f198c90c051",
+    "8ddf836c-dc4d-427a-8194-d34b28fb30ad",
+    "ce9ea8df-15b5-458a-8319-07ccea0cc47b",
+    "d926839f-020b-4923-8c9a-ddce0a9eed25",
+    "8d004e01-cc97-4b74-a813-7b7fe3caedeb",
+    "56b096f0-8f02-481e-b339-279e8854feed",
+    "0d4d8257-eceb-4df4-bae6-83aef172d180",
+    "9717d604-1a0e-4a49-9efd-c84c009945b3",
+    "9ca04f0b-ba26-40ab-9d80-17990aeec60e",
+    "ceb3babd-cbe0-4c85-99c7-e42279f1f734",
+    "b55610cc-9739-4d2d-b1ef-0be7233a8d96",
+    "9beadf4d-5e07-4f33-bb3d-ee6e39f8bd84",
+    "312c41aa-4fc3-46db-b57c-6bd0e73b58c2",
+    "76030dc5-0027-4268-82d2-ba4ae47d741a",
+    "a0b54a36-1263-47fa-b4fa-ca2d7b5a1335",
+    "a5285c7f-a0ab-470d-bbb8-df92300e2fff",
+    "71d910fa-4b63-407f-9f91-b92b93521a59"
+  ],
+  "reusedAssignmentIds": [],
+  "dbVerification": "passed",
+  "appVerification": "pending",
+  "unresolved": [],
+  "books": [
+    {
+      "id": "3cfae2ce-3ba3-4fdc-a58f-82cb927bdeea",
+      "note": "",
+      "level": "",
+      "title": "Got a Job?",
+      "active": true,
+      "series": "Oxford Reading Tree",
+      "volume": "",
+      "cover_bytes": 250823,
+      "audio_listen": "https://naver.me/xVRm04Aq",
+      "audio_shadow": "https://naver.me/FLECqURh",
+      "content_type": "book",
+      "cover_sha256": "e55dd98af465c92336a216e2e467676f3b7377dab933c13a6c10988d61bf8904",
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18"
+    },
+    {
+      "id": "38310770-46e7-430d-bb4c-a38db73a8ee8",
+      "note": "",
+      "level": "",
+      "title": "Pete the Cat and the Tip-Top Tree House",
+      "active": true,
+      "series": "I Can Read!",
+      "volume": "",
+      "cover_bytes": 252607,
+      "audio_listen": "https://naver.me/GT41UKBH",
+      "audio_shadow": "",
+      "content_type": "book",
+      "cover_sha256": "0ba750e558b13245057fbde65bcfceba3cc286484ca52ca514d9283efd99345b",
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18"
+    },
+    {
+      "id": "7b05606d-9c32-439f-9910-1f7c13ff0a64",
+      "note": "",
+      "level": "",
+      "title": "Pete the Cat: A Pet for Pete",
+      "active": true,
+      "series": "I Can Read!",
+      "volume": "",
+      "cover_bytes": 178463,
+      "audio_listen": "https://naver.me/xAfh1khS",
+      "audio_shadow": "",
+      "content_type": "book",
+      "cover_sha256": "738101c1e02306f0a73da6fe0c66b7b1e3ee368529958f2a3d2b00811a52dd1e",
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18"
+    },
+    {
+      "id": "9879d7b5-b16b-42b4-9a8c-67c025745251",
+      "note": "",
+      "level": "",
+      "title": "Pete the Cat and the Bad Banana",
+      "active": true,
+      "series": "I Can Read!",
+      "volume": "",
+      "cover_bytes": 192923,
+      "audio_listen": "https://naver.me/xTyGM53z",
+      "audio_shadow": "",
+      "content_type": "book",
+      "cover_sha256": "1de325e642d2d94b359e4e9636a64216341314e6ab8f7d1abdd8d5ac8dcf171d",
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18"
+    },
+    {
+      "id": "62bc9767-525c-4918-a1d1-a985e6990c56",
+      "note": "",
+      "level": "",
+      "title": "Pete the Cat's Not So Groovy Day",
+      "active": true,
+      "series": "I Can Read!",
+      "volume": "",
+      "cover_bytes": 236051,
+      "audio_listen": "https://naver.me/xsZMi639",
+      "audio_shadow": "",
+      "content_type": "book",
+      "cover_sha256": "cf25e6872d133b85fdcc0051b656a76445de37bb4b21f9ae118207c50478ed6f",
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18"
+    },
+    {
+      "id": "7ac47cc3-0e28-4b12-be3a-0f8a7fb600a3",
+      "note": "",
+      "level": "",
+      "title": "Scary Party",
+      "active": true,
+      "series": "그림책",
+      "volume": "",
+      "cover_bytes": 170383,
+      "audio_listen": "https://naver.me/GmpHZneB",
+      "audio_shadow": "",
+      "content_type": "book",
+      "cover_sha256": "c4e4e0057c0538b09ba1cbb2968cb237f1744fdcff724601d3dabf903a08df68",
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18"
+    },
+    {
+      "id": "3d06f675-2426-47c6-ba96-6d1128a32fb8",
+      "note": "",
+      "level": "",
+      "title": "Dear Zoo",
+      "active": true,
+      "series": "그림책",
+      "volume": "",
+      "cover_bytes": 154439,
+      "audio_listen": "https://naver.me/574wiaFS",
+      "audio_shadow": "",
+      "content_type": "book",
+      "cover_sha256": "6557982f56b599347ed47ec0fcdedf2ee5156772a90f0659203c4bffdb16073e",
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18"
+    }
+  ],
+  "assignments": [
+    {
+      "id": "6770907c-87fd-4b7f-8c02-e4f74794852c",
+      "date": "2026-11-15",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "38310770-46e7-430d-bb4c-a38db73a8ee8",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "1d6e8825-3f6f-4ff7-b405-9de54ee3182d",
+      "date": "2026-11-15",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "7b05606d-9c32-439f-9910-1f7c13ff0a64",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "5e69a6c9-5361-4a12-bc78-ba34d81cb3d3",
+      "date": "2026-11-15",
+      "tasks": [
+        "listen",
+        "shadow",
+        "self"
+      ],
+      "book_id": "3cfae2ce-3ba3-4fdc-a58f-82cb927bdeea",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "self": 1,
+        "listen": 1,
+        "shadow": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "readAloud"
+    },
+    {
+      "id": "c8af27ca-c402-4365-8ce2-25bfc2ddd45c",
+      "date": "2026-11-15",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "7ac47cc3-0e28-4b12-be3a-0f8a7fb600a3",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "c2c7a1f5-c5c7-4c18-b0c5-2f2e7475a7a3",
+      "date": "2026-11-15",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "3d06f675-2426-47c6-ba96-6d1128a32fb8",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "1e14ef8e-c400-4cbc-996a-074149b45f40",
+      "date": "2026-11-16",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "38310770-46e7-430d-bb4c-a38db73a8ee8",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "ad239d12-c5eb-4522-bbba-e99e511261c6",
+      "date": "2026-11-16",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "7b05606d-9c32-439f-9910-1f7c13ff0a64",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "f644c9b3-1970-4ff0-86e8-e066ea7d8863",
+      "date": "2026-11-16",
+      "tasks": [
+        "listen",
+        "shadow",
+        "self"
+      ],
+      "book_id": "3cfae2ce-3ba3-4fdc-a58f-82cb927bdeea",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "self": 1,
+        "listen": 1,
+        "shadow": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "readAloud"
+    },
+    {
+      "id": "dc51aa0d-f3d7-4b93-a373-8be7f88a422a",
+      "date": "2026-11-16",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "7ac47cc3-0e28-4b12-be3a-0f8a7fb600a3",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "4a7be654-cf10-4da8-ba9f-f67a50ab057f",
+      "date": "2026-11-16",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "3d06f675-2426-47c6-ba96-6d1128a32fb8",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "e175fe42-014d-45c8-a40c-12af54f15004",
+      "date": "2026-11-17",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "38310770-46e7-430d-bb4c-a38db73a8ee8",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "b994df6a-110c-49e3-93da-d563b204c08c",
+      "date": "2026-11-17",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "7b05606d-9c32-439f-9910-1f7c13ff0a64",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "7eb601b1-8a24-4612-820f-639ffc9a49f4",
+      "date": "2026-11-17",
+      "tasks": [
+        "listen",
+        "shadow",
+        "self"
+      ],
+      "book_id": "3cfae2ce-3ba3-4fdc-a58f-82cb927bdeea",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "self": 1,
+        "listen": 1,
+        "shadow": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "readAloud"
+    },
+    {
+      "id": "9d5a0dbd-5025-447a-b132-7f198c90c051",
+      "date": "2026-11-17",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "7ac47cc3-0e28-4b12-be3a-0f8a7fb600a3",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "8ddf836c-dc4d-427a-8194-d34b28fb30ad",
+      "date": "2026-11-17",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "3d06f675-2426-47c6-ba96-6d1128a32fb8",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "ce9ea8df-15b5-458a-8319-07ccea0cc47b",
+      "date": "2026-11-18",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "9879d7b5-b16b-42b4-9a8c-67c025745251",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "d926839f-020b-4923-8c9a-ddce0a9eed25",
+      "date": "2026-11-18",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "62bc9767-525c-4918-a1d1-a985e6990c56",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "8d004e01-cc97-4b74-a813-7b7fe3caedeb",
+      "date": "2026-11-18",
+      "tasks": [
+        "listen",
+        "shadow",
+        "self"
+      ],
+      "book_id": "3cfae2ce-3ba3-4fdc-a58f-82cb927bdeea",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "self": 1,
+        "listen": 1,
+        "shadow": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "readAloud"
+    },
+    {
+      "id": "56b096f0-8f02-481e-b339-279e8854feed",
+      "date": "2026-11-18",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "7ac47cc3-0e28-4b12-be3a-0f8a7fb600a3",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "0d4d8257-eceb-4df4-bae6-83aef172d180",
+      "date": "2026-11-18",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "3d06f675-2426-47c6-ba96-6d1128a32fb8",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "9717d604-1a0e-4a49-9efd-c84c009945b3",
+      "date": "2026-11-19",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "9879d7b5-b16b-42b4-9a8c-67c025745251",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "9ca04f0b-ba26-40ab-9d80-17990aeec60e",
+      "date": "2026-11-19",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "62bc9767-525c-4918-a1d1-a985e6990c56",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "ceb3babd-cbe0-4c85-99c7-e42279f1f734",
+      "date": "2026-11-19",
+      "tasks": [
+        "listen",
+        "shadow",
+        "self"
+      ],
+      "book_id": "3cfae2ce-3ba3-4fdc-a58f-82cb927bdeea",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "self": 1,
+        "listen": 1,
+        "shadow": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "readAloud"
+    },
+    {
+      "id": "b55610cc-9739-4d2d-b1ef-0be7233a8d96",
+      "date": "2026-11-19",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "7ac47cc3-0e28-4b12-be3a-0f8a7fb600a3",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "9beadf4d-5e07-4f33-bb3d-ee6e39f8bd84",
+      "date": "2026-11-19",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "3d06f675-2426-47c6-ba96-6d1128a32fb8",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "312c41aa-4fc3-46db-b57c-6bd0e73b58c2",
+      "date": "2026-11-20",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "9879d7b5-b16b-42b4-9a8c-67c025745251",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "76030dc5-0027-4268-82d2-ba4ae47d741a",
+      "date": "2026-11-20",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "62bc9767-525c-4918-a1d1-a985e6990c56",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "focusListen"
+    },
+    {
+      "id": "a0b54a36-1263-47fa-b4fa-ca2d7b5a1335",
+      "date": "2026-11-20",
+      "tasks": [
+        "listen",
+        "shadow",
+        "self"
+      ],
+      "book_id": "3cfae2ce-3ba3-4fdc-a58f-82cb927bdeea",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "self": 1,
+        "listen": 1,
+        "shadow": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "readAloud"
+    },
+    {
+      "id": "a5285c7f-a0ab-470d-bbb8-df92300e2fff",
+      "date": "2026-11-20",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "7ac47cc3-0e28-4b12-be3a-0f8a7fb600a3",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "englishPicture"
+    },
+    {
+      "id": "71d910fa-4b63-407f-9f91-b92b93521a59",
+      "date": "2026-11-20",
+      "tasks": [
+        "listen"
+      ],
+      "book_id": "3d06f675-2426-47c6-ba96-6d1128a32fb8",
+      "child_id": "111e5fcd-be35-480f-8192-8eee41f03ef0",
+      "quiz_score": null,
+      "quiz_points": null,
+      "task_counts": {
+        "listen": 1
+      },
+      "quiz_enabled": false,
+      "owner_user_id": "0d6fb47c-66d1-44c2-be0f-7b1d6efd1b18",
+      "activity_category": "englishPicture"
+    }
+  ],
+  "covers": [
+    {
+      "bookId": "3cfae2ce-3ba3-4fdc-a58f-82cb927bdeea",
+      "original": {
+        "path": "/home/joon/workspace/english-with-dad/books/지율/20261108_200657.jpg",
+        "width": 1800,
+        "height": 2080,
+        "format": "jpeg",
+        "orientation": 1,
+        "bytes": 3126166,
+        "sha256": "a819e05c630553a9728e30e927e4c26a7e40518a3879a4ffa9f90244dd416c45"
+      },
+      "processed": {
+        "mime": "image/jpeg",
+        "width": 831,
+        "height": 960,
+        "bytes": 188098,
+        "sha256": "057e8d0aa679764a741292ee1d96d1d94c1b0046f9c490183a68b454bc52e480",
+        "storedCover": {
+          "characters": 250823,
+          "bytes": 250823,
+          "sha256": "e55dd98af465c92336a216e2e467676f3b7377dab933c13a6c10988d61bf8904"
+        }
+      }
+    },
+    {
+      "bookId": "38310770-46e7-430d-bb4c-a38db73a8ee8",
+      "original": {
+        "path": "/home/joon/workspace/english-with-dad/books/지율/20261108_200729.jpg",
+        "width": 1860,
+        "height": 2712,
+        "format": "jpeg",
+        "orientation": 1,
+        "bytes": 4768002,
+        "sha256": "15052c1e9ee0f435737ecf252da222ab74d255a8f7b2326009764c8342a2b69a"
+      },
+      "processed": {
+        "mime": "image/jpeg",
+        "width": 658,
+        "height": 960,
+        "bytes": 189436,
+        "sha256": "09157ef12d3c7a7b14c88a46bbebc6fa5175874d2ddc1549a1d1d00106bd4f0f",
+        "storedCover": {
+          "characters": 252607,
+          "bytes": 252607,
+          "sha256": "0ba750e558b13245057fbde65bcfceba3cc286484ca52ca514d9283efd99345b"
+        }
+      }
+    },
+    {
+      "bookId": "7b05606d-9c32-439f-9910-1f7c13ff0a64",
+      "original": {
+        "path": "/home/joon/workspace/english-with-dad/books/지율/20261108_200748.jpg",
+        "width": 1760,
+        "height": 2568,
+        "format": "jpeg",
+        "orientation": 1,
+        "bytes": 3482178,
+        "sha256": "030aa30acbdc0c215094ad0d2989c26af6c4e665d09e0af559d00c98aeb45902"
+      },
+      "processed": {
+        "mime": "image/jpeg",
+        "width": 658,
+        "height": 960,
+        "bytes": 133829,
+        "sha256": "06a9f7c98b3f5a9c8cc96d112e569e7a9f72e049a280c6e4c3da057029a91d5e",
+        "storedCover": {
+          "characters": 178463,
+          "bytes": 178463,
+          "sha256": "738101c1e02306f0a73da6fe0c66b7b1e3ee368529958f2a3d2b00811a52dd1e"
+        }
+      }
+    },
+    {
+      "bookId": "9879d7b5-b16b-42b4-9a8c-67c025745251",
+      "original": {
+        "path": "/home/joon/workspace/english-with-dad/books/지율/20261108_200806.jpg",
+        "width": 1728,
+        "height": 2572,
+        "format": "jpeg",
+        "orientation": 1,
+        "bytes": 3579311,
+        "sha256": "440067d1d719376f14e6a8205dc39d4c1a6e9450613e919f805960843761ae52"
+      },
+      "processed": {
+        "mime": "image/jpeg",
+        "width": 645,
+        "height": 960,
+        "bytes": 144673,
+        "sha256": "578ed8e232add105da07893be0c12a97fa994d04a1f2acecbae6b0582f581ca6",
+        "storedCover": {
+          "characters": 192923,
+          "bytes": 192923,
+          "sha256": "1de325e642d2d94b359e4e9636a64216341314e6ab8f7d1abdd8d5ac8dcf171d"
+        }
+      }
+    },
+    {
+      "bookId": "62bc9767-525c-4918-a1d1-a985e6990c56",
+      "original": {
+        "path": "/home/joon/workspace/english-with-dad/books/지율/20261108_200823.jpg",
+        "width": 1752,
+        "height": 2588,
+        "format": "jpeg",
+        "orientation": 1,
+        "bytes": 4024636,
+        "sha256": "538f1301d8b4c6b68b7a6f02e1ca2264cb8b1b4bcefdd26590407a1a60251ef6"
+      },
+      "processed": {
+        "mime": "image/jpeg",
+        "width": 650,
+        "height": 960,
+        "bytes": 177019,
+        "sha256": "fcc9c527e8b2db3ac5056bb9adc9835cf37729375fa52a537997e297e5d806ed",
+        "storedCover": {
+          "characters": 236051,
+          "bytes": 236051,
+          "sha256": "cf25e6872d133b85fdcc0051b656a76445de37bb4b21f9ae118207c50478ed6f"
+        }
+      }
+    },
+    {
+      "bookId": "7ac47cc3-0e28-4b12-be3a-0f8a7fb600a3",
+      "original": {
+        "path": "/home/joon/workspace/english-with-dad/books/지율/20261108_200902.jpg",
+        "width": 1964,
+        "height": 2176,
+        "format": "jpeg",
+        "orientation": 1,
+        "bytes": 3214367,
+        "sha256": "d515d7eceab39ed7d7240955b0de241f8e7624f8810ed06094dfeedc067d2a2c"
+      },
+      "processed": {
+        "mime": "image/jpeg",
+        "width": 866,
+        "height": 960,
+        "bytes": 127768,
+        "sha256": "e82a275a0e0d9fd6a9249b2c3f907386f1dfd995fb95eabe3edbad9c463bd5d4",
+        "storedCover": {
+          "characters": 170383,
+          "bytes": 170383,
+          "sha256": "c4e4e0057c0538b09ba1cbb2968cb237f1744fdcff724601d3dabf903a08df68"
+        }
+      }
+    },
+    {
+      "bookId": "3d06f675-2426-47c6-ba96-6d1128a32fb8",
+      "original": {
+        "path": "/home/joon/workspace/english-with-dad/books/지율/20261108_200922.jpg",
+        "width": 1948,
+        "height": 2008,
+        "format": "jpeg",
+        "orientation": 1,
+        "bytes": 1117458,
+        "sha256": "68e777a7c74c2c50f575e9acf17c88e779f8973ec7ff08bd98f0bd23e331614a"
+      },
+      "processed": {
+        "mime": "image/jpeg",
+        "width": 931,
+        "height": 960,
+        "bytes": 115810,
+        "sha256": "35017db6e1150258b6d3847cad114ca906a0cdc73386dd123381c330baf87c44",
+        "storedCover": {
+          "characters": 154439,
+          "bytes": 154439,
+          "sha256": "6557982f56b599347ed47ec0fcdedf2ee5156772a90f0659203c4bffdb16073e"
+        }
+      }
+    }
+  ]
+}

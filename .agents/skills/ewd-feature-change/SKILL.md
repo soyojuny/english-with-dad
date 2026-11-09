@@ -1,11 +1,13 @@
 ---
 name: ewd-feature-change
-description: Use for normal English with Dad feature work, refactors, bug fixes, or behavior changes that touch app UI, reading assignment flow, completion logic, or shared reading data logic.
+description: Use for normal English with Dad feature work, refactors, bug fixes, or behavior changes that touch app UI, reading assignment flow, completion logic, or shared reading data logic. Standalone avatar image and sprite-sheet production uses dragon-assets.
 ---
 
 # English With Dad Feature Change
 
 Follow this workflow for app behavior changes.
+
+Creating or reviewing dragon images and sprite sheets uses `dragon-assets`. Use this development workflow when the user asks to connect an approved asset to app behavior.
 
 ## 1. Find The Contract First
 

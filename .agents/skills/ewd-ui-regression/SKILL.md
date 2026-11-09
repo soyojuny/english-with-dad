@@ -1,11 +1,13 @@
 ---
 name: ewd-ui-regression
-description: Use for English with Dad UI, mobile PWA, visual layout, service worker, manifest, QR scan, camera/file upload, Naver audio launch, or browser regression work.
+description: Use for English with Dad app UI, mobile PWA, visual layout, service worker, manifest, QR scan, camera/file upload, Naver audio launch, or browser regression work. Standalone avatar image and sprite-sheet production uses dragon-assets.
 ---
 
 # English With Dad UI Regression
 
 Use this workflow for UI and PWA-sensitive work.
+
+Use it when an approved asset is integrated into the app, not for producing images or viewing a standalone sprite preview. Asset production uses `dragon-assets`.
 
 ## 1. Protect Core User Flows
 

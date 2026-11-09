@@ -139,6 +139,56 @@ Codex가 사진을 해석해 연결된 Supabase의 기존 자료·배정 테이�
 
 ## 진행 상태
 
+- 완료: 부모가 2026-11-08 검토안을 승인한 지온(`앤더 드래곤`)의 신규 책 10권과
+  2026-11-15~20 배정 24행을 저장했다. 읽기는 이번 배치에도 하루 1권씩
+  `Horrid Henry's Holiday` → `Horrid Henry's Underpants` → `Horrid Henry Gets Rich Quick`
+  → `Horrid Henry and the Football Fiend` → `Horrid Henry's Car Journey` →
+  `Horrid Henry Reads a Book` 순서로 매일 읽기 1회와 문제풀이를 배정했다.
+  정따는 일~화 `Henry and Mudge and the Sneaky Crackers`, 수~금
+  `Henry and Mudge in Puddle Trouble`을 매일 정따·스스로 읽기 각 1회와 문제풀이로
+  배정했다. 그림책 `Mr Tick the Teacher`·`Mr Creep the Crook`은 매일 읽기 각 1회,
+  문제풀이 없이 배정했다. 토요일 배정은 없다. QR 10개를 모두 인식했고 저장 직전
+  소유·중복·배정 충돌을 재확인했다. 제공된 표지 전체를 최대 변 960px·JPEG 품질
+  72로 압축했다(631~723×960px, 각 118,748~184,913B). 저장 후 책 메타데이터·
+  표지 길이와 SHA-256·배정 전체 필드가 후보와 일치함을 재조회로 검증했다.
+  실제 로그인 앱 표시·오디오 재생은 미확인이다.
+  [등록·배정 결과와 ID](../plans/archive/ai-registration-assignment/jion-registration-result-2026-11-15.json).
+- 완료: 부모가 2026-11-08 검토안을 승인한 지율(`골든스피노`)의 신규 책 7권과
+  2026-11-15~20 배정 30행을 저장했다. 읽기는 일~화
+  `Pete the Cat and the Tip-Top Tree House`·`Pete the Cat: A Pet for Pete`,
+  수~금 `Pete the Cat and the Bad Banana`·`Pete the Cat's Not So Groovy Day`를
+  매일 각 1회 배정했다. 정따 `Got a Job?`은 매일 읽기·정따·스스로 읽기 각 1회,
+  그림책 `Scary Party`·`Dear Zoo`는 매일 읽기 각 1회다. 퀴즈는 모두 비활성이며
+  토요일 배정은 없다. 원본 사진 복원 후 제공된 표지 전체를 최대 변 960px·JPEG
+  품질 72로 압축했다(645~931×960px, 각 115,810~189,436B). 저장 직전 소유·중복·
+  배정 충돌을 확인했고, 저장 후 책 메타데이터·표지 길이와 SHA-256·배정 전체 필드를
+  재조회해 후보와 일치함을 확인했다. 실제 로그인 앱 표시·오디오 재생은 미확인이다.
+  [등록·배정 결과와 ID](../plans/archive/ai-registration-assignment/jiyul-assignment-result-2026-11-15.json).
+- 완료: 김지온(`앤더 드래곤`)의 신규 책 10권과 2026-11-08~13 배정 24행을 저장했다.
+  부모가 검토안을 승인해 이번 배치의 읽기는 지난주처럼 하루 1권씩 적용했다.
+  일~금 순서는 `Nate the Great and the Phony Clue` → `Nate the Great and the Missing Key`
+  → `Nate the Great and the Snowy Trail` → `Nate the Great and the Lost List`
+  → `Don't Be Horrid, Henry!` → `Horrid Henry's Birthday Party`이며 매일 읽기 1회와
+  문제풀이를 포함한다. 이는 이번 배치의 합의이며 첫째 읽기의 영구 기본 루틴 변경은 아니다.
+  정따는 일~화 `Henry and Mudge and the Tumbling Trip`, 수~금
+  `Henry and Mudge Take the Big Test`를 매일 정따·스스로 읽기 각 1회와 문제풀이로 배정했다.
+  그림책 `Mrs Wobble the Waitress`·`Mrs Lather's Laundry`는 매일 읽기 각 1회,
+  문제풀이 없이 배정했다. 토요일 배정은 없다. QR 10개를 모두 인식했고 저장 직전
+  소유·중복·주간 배정 충돌을 확인했다. 표지 전체를 최대 변 960px·JPEG 품질 72로
+  압축했으며(640~722×960px, 각 122,008~179,724B), 저장한 책 메타데이터·표지
+  길이·SHA-256과 배정 전체 필드가 후보와 일치함을 재조회로 검증했다.
+  실제 로그인 앱 표시·오디오 재생은 미확인이다.
+  [등록·배정 결과와 ID](../plans/archive/ai-registration-assignment/jion-registration-result-2026-11-08.json).
+- 완료: 김지율(`골든스피노`)의 신규 책 7권과 2026-11-08~13 배정 30행을 저장했다.
+  읽기는 일~화 `Pete the Cat: Pete at the Beach`·`Pete the Cat and the Lost Tooth`,
+  수~금 `Pete the Cat and the Surprise Teacher`·`Pete the Cat: Too Cool for School`을
+  매일 각 1회씩 배정했다. 정따 `The Odd Egg`는 매일 읽기·정따·스스로 읽기 각 1회,
+  그림책 `Hello, Goodbye`·`Dinosaur Roar!`는 매일 읽기 각 1회다. 퀴즈는 모두 비활성이며
+  토요일 배정은 없다. 부모가 검토안을 승인한 후 소유·책 중복·주간 배정 충돌을 확인했고,
+  QR 8개를 모두 인식했다. 제공된 표지 전체를 압축했으며, 저장한 책 메타데이터·표지
+  길이·SHA-256과 배정 전체 필드가 후보와 일치함을 재조회로 검증했다.
+  실제 로그인 앱 표시·오디오 재생은 미확인이다.
+  [등록·배정 결과와 ID](../plans/archive/ai-registration-assignment/jiyul-assignment-result-2026-11-08.json).
 - 완료: 2026-10-21 부모 요청으로 김지온·김지율의 10월 21~23일 배정 27행을
   각각 하루 뒤인 10월 22~24일로 이동했다(지온 12행·지율 15행). 수정 전 완료·오디오
   실행 기록과 토요일 기존 배정은 0건이었다. 기존 ID·책·활동·과제·횟수·퀴즈를 유지하고

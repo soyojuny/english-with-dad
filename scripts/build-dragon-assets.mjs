@@ -21,6 +21,8 @@ const images = [
   ["baby/ice-sit-sequence", "baby/ice-sit-sequence", 4096],
   ["baby/thunder-sit-sequence", "baby/thunder-sit-sequence", 5120],
   ...["takeoff", "move", "hover"].map((motion) => [`baby/flight-${motion}`, `baby/flight-${motion}`, 3840]),
+  ...["takeoff", "move"].map((motion) => [`baby/fire-flight-${motion}`, `baby/fire-flight-${motion}`, 1774]),
+  ...["takeoff", "move"].map((motion) => [`baby/thunder-flight-${motion}`, `baby/thunder-flight-${motion}`, 3072]),
   ["baby/lightning", "baby/thunder", 1024],
   ...["fire", "lightning", "ice"].flatMap((element) => ["blink", "breathe"].map((motion) =>
     [`baby/${element}-${motion}`, `baby/${element === "lightning" ? "thunder" : element}-${motion}`, 1024])),

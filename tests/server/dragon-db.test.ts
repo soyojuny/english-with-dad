@@ -259,7 +259,7 @@ test("화면 규칙 적용은 저장 행을 일괄 변경하지 않고 명시적
   // When
   await db.exec(sql);
   // Restore the current RPC after replaying this historical migration.
-  const current = await readFile(resolve("supabase/migrations/20261108120000_dragon_flight.sql"), "utf8");
+  const current = await readFile(resolve("supabase/migrations/20261109120000_thunder_dragon_flight.sql"), "utf8");
   await db.exec(current.slice(current.indexOf("create or replace function")));
   const visible = (await world()).dragons[0];
   const untouched = (await db.query<{ decor: unknown; version: number }>("select decor,version from public.dragons where id=$1", [dragon])).rows[0];
@@ -306,7 +306,7 @@ test('날기는 드래곤별로 저장하고 성장·속성 변경 후 재시도
   expect(next.dragons[1].skills).toEqual([]);
 });
 
-for (const [days, element] of [[0, null], [18, null], [30, null], [6, 'fire'], [6, 'thunder'], [6, 'ice']] as const) {
+for (const [days, element] of [[0, null], [18, null], [30, null], [0, 'fire'], [18, 'fire'], [30, 'fire'], [0, 'thunder'], [18, 'thunder'], [30, 'thunder'], [6, 'ice']] as const) {
   test(`날기 최초 획득은 ${days}일/${element ?? '무속성'}에서 허용 범위를 지킨다`, async () => {
     // Given
     await seedGrowing(2); await world();
@@ -314,9 +314,27 @@ for (const [days, element] of [[0, null], [18, null], [30, null], [6, 'fire'], [
     // When
     const result = world('skill', { id: dragon, skill: 'fly' });
     // Then
-    await expect(result).rejects.toThrow('무속성 아기');
+    await expect(result).rejects.toThrow('무속성·불·번개 아기');
     expect((await world()).credits).toBe(1);
   });
+}
+
+for (const element of ["fire", "thunder"]) {
+for (const days of [6, 17]) {
+  test(`${element} 아기 ${days}일에도 날기를 배우고 재시도에는 기회를 추가 차감하지 않는다`, async () => {
+    // Given
+    await seedGrowing(2); await world();
+    await db.query("update public.dragons set days=$1,element=$2 where id=$3", [days, element, dragon]);
+    // When
+    const learned = await world('skill', { id: dragon, skill: 'fly' });
+    const retry = await world('skill', { id: dragon, skill: 'fly' });
+    // Then
+    expect(learned.dragons[0].skills).toEqual(['fly']);
+    expect(learned.credits).toBe(0);
+    expect(retry.credits).toBe(0);
+  });
+}
+
 }
 
 test('지원하지 않는 기능·다른 아동의 드래곤·직접 기능 변경은 거절한다', async () => {

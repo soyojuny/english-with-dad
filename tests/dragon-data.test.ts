@@ -5,16 +5,17 @@ import type { DragonItem } from "../lib/dragon-types";
 import { emptyReadingData } from "../lib/reading-data";
 import type { Assignment } from "../lib/reading-types";
 
+for (const element of [null, "fire", "thunder", "ice"] as const) {
 for (const [days, expected] of [[0, false], [1, true], [17, true], [18, false], [30, false]] as const) {
-  test(`날기 지원 경계: 무속성 ${days}일은 ${expected}다`, () => {
+  test(`날기 지원 경계: ${element ?? "무속성"} ${days}일`, () => {
     // Given
-    const dragon = { days, element: null };
+    const dragon = { days, element };
     // When
     const result = supportsDragonFlight(dragon);
     // Then
-    assert.equal(result, expected);
-    assert.equal(supportsDragonFlight({ ...dragon, element: "fire" }), false);
+    assert.equal(result, expected && (element === null || element === "fire" || element === "thunder"));
   });
+}
 }
 
 for (const [days, expected] of [[0, "알"], [1, "아기 드래곤"], [6, "아기 드래곤"], [17, "아기 드래곤"], [18, "청소년 드래곤"], [29, "청소년 드래곤"], [30, "성체 드래곤"]] as const) {

@@ -46,7 +46,7 @@ test('무속성 아기: 서기·호흡·깜빡임·걷기·앉기 시작의 날�
   expect(alpha).toEqual(samples.map(() => 0));
 });
 
-test('불 아기 정지 원화와 호흡·깜빡임은 밝은 배경 테두리와 날개 틈을 표시하지 않는다', async ({ childCompletion: f }, info) => {
+test('불 아기 정지 원화와 호흡·깜빡임은 밝은 배경 테두리와 날개 틈을 표시하지 않는다', async ({ childCompletion: f }) => {
   // Given: the actual deployed idle assets, including the breathing peak layer.
   const names = ['fire', 'fire-breathe', 'fire-blink'];
   // When: sampling the formerly opaque pale neck/horn edge and enclosed wing opening.
@@ -73,13 +73,12 @@ test('불 아기 정지 원화와 호흡·깜빡임은 밝은 배경 테두리�
     await f.page.setViewportSize({ width, height: 950 });
     await scene.scrollIntoViewIfNeeded();
     await expect(scene.locator('.dragon-breath')).toHaveCSS('opacity', '1');
-    await scene.screenshot({ path: info.outputPath(`dragon-fire-idle-breath-peak-${width}.png`) });
   }
 });
 
 for (const element of [null, 'fire', 'thunder', 'ice']) {
 for (const width of [390, 1280]) {
-  test(`${element === 'ice' ? '얼음' : element === 'thunder' ? '번개' : element === 'fire' ? '불' : '무속성'} 아기 ${width}px: 스틱 이동과 정지`, async ({ childCompletion: f }, info) => {
+  test(`${element === 'ice' ? '얼음' : element === 'thunder' ? '번개' : element === 'fire' ? '불' : '무속성'} 아기 ${width}px: 스틱 이동과 정지`, async ({ childCompletion: f }) => {
     // Given
     const { page } = f; await page.setViewportSize({ width, height: 950 });
     await dragonFixture(page, { dragons: [{ id: 'dragon-1', egg: 0, days: 6, selectedDate: '2026-10-01', element, decor: decor(), skills: [], version: 0 }] }); await openChild(page);
@@ -120,7 +119,6 @@ for (const width of [390, 1280]) {
     }, walkPath);
     expect(animation).toEqual({ width: 2400, height: 620,
       positions: ['0%', '0%', '50%', '50%', '100%', '100%', '0%'] });
-    await scene.screenshot({ path: info.outputPath(`dragon-${element ?? 'neutral'}-walking-bde-${width}.png`) });
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await expect(scene.locator('.dragon-walk')).toBeHidden();
     await expect(scene.locator('.dragon-idle')).toBeVisible();
@@ -163,7 +161,6 @@ for (const width of [390, 1280]) {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await expect(sitting).toHaveCSS('background-position-x', '100%');
     await page.emulateMedia({ reducedMotion: 'no-preference' });
-    await scene.screenshot({ path: info.outputPath(`dragon-${element ?? 'neutral'}-seated-${width}.png`) });
     await scene.click({ position: { x: 10, y: 10 } });
     await expect(sitting).toHaveClass(/is-rising/);
     await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -187,7 +184,7 @@ for (const width of [390, 1280]) {
 }
 }
 for (const width of [320, 390, 800, 1280]) {
-  test(`드래곤 ${width}px: 배경 선택·기본 장식·자유 배치·저장과 복원`, async ({ childCompletion: f }, info) => {
+  test(`드래곤 ${width}px: 배경 선택·기본 장식·자유 배치·저장과 복원`, async ({ childCompletion: f }) => {
     // Given
     const { page } = f; await page.setViewportSize({ width, height: 950 });
     const fixture = await dragonFixture(page); await openChild(page);
@@ -224,7 +221,6 @@ for (const width of [320, 390, 800, 1280]) {
     const bounds = await dialog.evaluate(element => ({ width: element.clientWidth, scroll: element.scrollWidth }));
     expect(bounds.scroll).toBeLessThanOrEqual(bounds.width + 1);
     await page.evaluate(() => window.scrollTo(0, 0));
-    await page.screenshot({ path: info.outputPath(`dragon-${width}.png`), fullPage: true });
     await dialog.getByRole('button', { name: '공간 꾸미기', exact: true }).click();
     await dialog.getByRole('button', { name: '장식 1', exact: true }).click();
     await dialog.getByRole('button', { name: '기본 위치' }).click();
@@ -233,7 +229,7 @@ for (const width of [320, 390, 800, 1280]) {
   });
 }
 
-test('무료 원화 선택·저장과 학습 복귀, 기록 팝업 및 성체 원화 연결', async ({ childCompletion: f }, info) => {
+test('무료 원화 선택·저장과 학습 복귀, 기록 팝업 및 성체 원화 연결', async ({ childCompletion: f }) => {
   // Given: a first-release egg with supplied artwork and no reward credits.
   const { page } = f; await page.setViewportSize({ width: 1280, height: 950 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -260,7 +256,6 @@ test('무료 원화 선택·저장과 학습 복귀, 기록 팝업 및 성체 �
   await expect(screen.locator('.dragon-resident img')).toHaveAttribute('src', /eggs\/diamond.webp$/);
   await expect.poll(() => screen.locator('.dragon-scene img').evaluateAll(images => images.every(image => image.complete && image.naturalWidth > 0))).toBe(true);
   await page.evaluate(() => window.scrollTo(0, 0));
-  await page.screenshot({ path: info.outputPath('dragon-free-habitat.png'), fullPage: true });
   await page.getByRole('button', { name: '오늘의 학습으로' }).click();
   await expect(page.getByRole('button', { name: '드래곤', exact: true })).toBeFocused();
   await expect(page.getByRole('region', { name: '오늘 해야 할 학습' })).toBeVisible();
@@ -275,7 +270,6 @@ test('무료 원화 선택·저장과 학습 복귀, 기록 팝업 및 성체 �
   await expect(screen.locator('.dragon-resident img')).toHaveAttribute('src', /adult-fire.webp$/);
   await expect.poll(() => screen.locator('.dragon-resident img').evaluate(image => image.complete && image.naturalWidth > 0)).toBe(true);
   await page.evaluate(() => window.scrollTo(0, 0));
-  await page.screenshot({ path: info.outputPath('dragon-adult-habitat.png'), fullPage: true });
 });
 
 test('첫 알 미리보기와 늦은 속성 선택, 남은 학습 이동 및 저장 오류 재확인', async ({ childCompletion: f }) => {
@@ -360,11 +354,14 @@ test('속성별 아기 동작과 움직임 줄이기', async ({ childCompletion:
   await expect(page.locator('.dragon-resident .dragon-motion-layer')).toHaveCount(0);
 });
 
+for (const element of [null, 'fire', 'thunder']) {
 for (const width of [390, 1280]) {
-  test(`날기 ${width}px: 보상 획득과 재조회, 이륙·좌우 비행·대기·역순 착륙`, async ({ childCompletion: f }, info) => {
+  test(`날기 ${element ?? '무속성'} ${width}px: 보상 획득과 재조회, 이륙·좌우 비행·대기·역순 착륙`, async ({ childCompletion: f }) => {
     // Given
     const { page } = f; await page.setViewportSize({ width, height: 950 });
-    const fixture = await dragonFixture(page); await openChild(page);
+    const fixture = await dragonFixture(page);
+    fixture.state.dragons[0].element = element;
+    await openChild(page);
     await page.getByRole('button', { name: '드래곤', exact: true }).click();
     const screen = page.getByRole('region', { name: '드래곤 키우기' });
     await expect(screen.getByRole('button', { name: '날기', exact: true })).toHaveCount(0);
@@ -376,11 +373,26 @@ for (const width of [390, 1280]) {
     await page.getByRole('button', { name: '드래곤', exact: true }).click();
     await screen.getByRole('button', { name: '날기', exact: true }).click();
     await expect(screen.getByRole('button', { name: '날아오르는 중' })).toBeDisabled();
-    await page.clock.runFor(2700);
+    await expect(page.locator('.dragon-flight-frame')).toHaveCSS('background-size', element ? '400% 200%' : '600% 500%');
+    if (element === 'thunder') {
+      // Then: preparation lowers the body before a visible, interpolated lift.
+      const resident = page.locator('.dragon-resident');
+      await expect(resident).toHaveCSS('transition-property', 'top');
+      await page.clock.runFor(120);
+      expect(await resident.evaluate(el => parseFloat(el.style.top))).toBe(66);
+      await page.clock.runFor(240);
+      expect(await resident.evaluate(el => parseFloat(el.style.top))).toBeLessThan(65);
+    }
+    await page.clock.runFor(element === 'thunder' ? 800 : element === 'fire' ? 1100 : 2700);
     const scene = page.getByLabel('드래곤의 공간');
     await expect(scene.getByLabel('공중에 머무는 아기 드래곤')).toBeVisible();
     const resident = scene.locator('.dragon-resident');
+    await expect(scene.locator('.dragon-flight-frame')).toHaveCSS('background-image', new RegExp(element ? `${element}-flight-move` : 'flight-hover'));
     const top = await resident.evaluate(el => el.style.top);
+    if (element === 'thunder') {
+      expect(top).toBe('37%');
+      expect(Number(await scene.locator('.dragon-flight-shadow').evaluate(el => el.style.opacity))).toBeLessThan(.5);
+    }
     await scene.scrollIntoViewIfNeeded();
     const box = await scene.boundingBox(), x = box.x + box.width * .5, y = box.y + box.height * .6;
     const initialX = await resident.evaluate(el => parseFloat(el.style.left));
@@ -399,27 +411,28 @@ for (const width of [390, 1280]) {
     await expect(scene.getByLabel('공중에 머무는 아기 드래곤')).toBeVisible();
     await expect(scene.locator('.dragon-sit')).toHaveCount(0);
     expect(await resident.evaluate(el => el.style.top)).toBe(top);
-    const alpha = await page.evaluate(async () => {
-      const img = new Image(); img.src = '/assets/dragons/baby/flight-takeoff.webp'; await img.decode();
+    const alpha = await page.evaluate(async (prefix) => {
+      const img = new Image(); img.src = `/assets/dragons/baby/${prefix}flight-takeoff.webp`; await img.decode();
       const canvas = document.createElement('canvas'); canvas.width = 1; canvas.height = 1;
       const context = canvas.getContext('2d'); context.drawImage(img, 0, 0);
       return context.getImageData(0, 0, 1, 1).data[3];
-    });
+    }, element ? `${element}-` : '');
     expect(alpha).toBe(0);
-    await page.screenshot({ path: info.outputPath(`dragon-flight-${width}.png`), fullPage: true });
     await screen.getByRole('button', { name: '날기', exact: true }).click();
     await expect(scene.getByLabel('착륙하는 아기 드래곤')).toBeVisible();
-    await page.clock.runFor(2700);
+    await page.clock.runFor(element === 'thunder' ? 800 : element === 'fire' ? 1100 : 2700);
     await expect(scene.locator('.dragon-flight')).toHaveCount(0);
     expect(await resident.evaluate(el => el.style.top)).toBe('65%');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   });
 }
+}
 
-test('날기: 움직임 줄이기와 꾸미기 진입은 반복 동작을 중단한다', async ({ childCompletion: f }) => {
+for (const element of [null, 'fire', 'thunder']) {
+test(`날기 ${element ?? '무속성'}: 움직임 줄이기와 꾸미기 진입은 반복 동작을 중단한다`, async ({ childCompletion: f }) => {
   // Given
   const { page } = f; await page.emulateMedia({ reducedMotion: 'reduce' });
-  await dragonFixture(page, { dragons: [{ id: 'dragon-1', egg: 0, days: 3, selectedDate: '2026-10-01', element: null, decor: decor(), skills: ['fly'], version: 0 }] });
+  await dragonFixture(page, { dragons: [{ id: 'dragon-1', egg: 0, days: 6, selectedDate: '2026-10-01', element, decor: decor(), skills: ['fly'], version: 0 }] });
   await openChild(page); await page.getByRole('button', { name: '드래곤', exact: true }).click();
   // When
   await page.getByRole('button', { name: '날기', exact: true }).click();
@@ -433,3 +446,4 @@ test('날기: 움직임 줄이기와 꾸미기 진입은 반복 동작을 중단
   await expect(page.locator('.dragon-flight')).toHaveCount(0);
   await expect(page.getByRole('button', { name: '날기', exact: true })).toHaveCount(0);
 });
+}

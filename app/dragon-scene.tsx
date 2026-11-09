@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Dragon, DragonDecor, DragonItem, DragonSlot } from "../lib/dragon-types";
 import { availableDragonItems, clampDragonPosition, dragonSlotLabels, dragonSprite, dragonStage, supportsDragonFlight } from "../lib/dragon-data";
-import { dragonArtwork, dragonBackgroundArt, dragonPropArt } from "../lib/dragon-art";
+import { dragonArtwork, dragonBackgroundArt, dragonFlightAnimations, dragonPropArt } from "../lib/dragon-art";
 import { useDragonFlight } from "./use-dragon-flight";
 
 export function DragonSprite({ dragon }: { dragon: Pick<Dragon, "egg" | "days" | "element"> }) {
@@ -35,14 +35,21 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
   const sitArtwork = `/assets/dragons/baby/${motionPrefix}sit-sequence.webp`;
   const moving = !!stick && Math.hypot(stick.dx, stick.dy) > 6;
   const canFly = enabled && supportsDragonFlight(dragon) && !!dragon.skills?.includes("fly");
-  const flight = useDragonFlight(canFly, moving, `${dragon.id}:${dragon.days}:${dragon.element}:${editing}`);
+  const flightAnimation = dragonFlightAnimations[dragon.element === "fire" || dragon.element === "thunder" ? dragon.element : "neutral"];
+  const flight = useDragonFlight(canFly, moving, `${dragon.id}:${dragon.days}:${dragon.element}:${editing}`, flightAnimation);
   const airborne = canFly && flight.phase !== "ground";
   const transitioning = airborne && flight.phase !== "flying";
   const canSit = enabled && !airborne;
   const flightMotion = flight.phase === "flying" ? moving ? "move" : "hover" : "takeoff";
-  const flightCount = flightMotion === "takeoff" ? 30 : flightMotion === "move" ? 12 : 9;
+  const flightCount = flightAnimation.frames[flightMotion];
   const flightFrame = flight.frame % flightCount;
-  const altitude = flight.phase === "taking-off" || flight.phase === "landing" ? flight.frame / 29 * 16 : flight.phase === "flying" ? 16 : 0;
+  const flightColumns = flightAnimation.columns;
+  const flightRows = Math.ceil(flightCount / flightColumns);
+  const flightArtwork = (motion: string) => `/assets/dragons/baby/${flightAnimation.prefix}flight-${dragon.element && motion === "hover" ? "move" : motion}.webp`;
+  const thunderFlight = canFly && dragon.element === "thunder";
+  const liftProgress = Math.max(0, (flight.frame - 1) / (flightAnimation.frames.takeoff - 2));
+  const transitionAltitude = thunderFlight ? flight.frame === 1 ? -1 : 28 * liftProgress * liftProgress * (3 - 2 * liftProgress) : flight.frame / (flightAnimation.frames.takeoff - 1) * 16;
+  const altitude = flight.phase === "taking-off" || flight.phase === "landing" ? transitionAltitude : flight.phase === "flying" ? thunderFlight ? 28 : 16 : 0;
   useEffect(() => { setPosition({ x: 31, y: 65 }); setPose("standing"); setSitFrame(0); setStick(null); pointer.current = null; }, [dragon.id, dragon.days, dragon.element, editing]);
   useEffect(() => {
     if (!canSit || stick || pose !== "standing") return;
@@ -103,11 +110,12 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
     onLostPointerCapture={(event) => { if (event.pointerId === pointer.current) { pointer.current = null; setStick(null); } }}>
     {enabled && <link rel="preload" as="image" href={walkArtwork} />}
     {canSit && <link rel="preload" as="image" href={sitArtwork} />}
-    {canFly && ["takeoff", "move", "hover"].map((motion) => <link key={motion} rel="preload" as="image" href={`/assets/dragons/baby/flight-${motion}.webp`} />)}
+    {canFly && (dragon.element ? ["takeoff", "move"] : ["takeoff", "move", "hover"]).map((motion) => <link key={motion} rel="preload" as="image" href={flightArtwork(motion)} />)}
     <img className="dragon-background-art" src={backgroundArt} alt="" draggable={false} />
-    <div className={`dragon-resident ${dragon.days === 0 ? "is-egg" : dragon.days < 18 ? "is-baby" : dragon.days >= 30 && dragon.element === "fire" ? "is-adult-fire" : ""} ${enabled ? "is-controlled" : ""} ${walking ? "is-walking" : ""}`} style={enabled ? { left: `${position.x}%`, top: `${Math.max(34, position.y - altitude)}%`, transform: `translate(-50%, -50%) scaleX(${facing})` } : undefined}>
+    {thunderFlight && airborne && <span className="dragon-flight-shadow" aria-hidden="true" style={{ left: `${position.x}%`, top: `${Math.min(94, position.y + 19.5)}%`, transform: `translate(-50%, -50%) scale(${1 - Math.max(0, altitude) / 28 * .55})`, opacity: 1 - Math.max(0, altitude) / 28 * .65 }} />}
+    <div className={`dragon-resident ${dragon.days === 0 ? "is-egg" : dragon.days < 18 ? "is-baby" : dragon.days >= 30 && dragon.element === "fire" ? "is-adult-fire" : ""} ${enabled ? "is-controlled" : ""} ${walking ? "is-walking" : ""} ${thunderFlight && airborne ? "has-thunder-flight" : ""}`} style={enabled ? { left: `${position.x}%`, top: `${Math.max(34, position.y - altitude)}%`, transform: `translate(-50%, -50%) scaleX(${facing})` } : undefined}>
       {dragon.days === 0 && <span className="dragon-ground-shadow" aria-hidden="true" />}
-      {airborne ? <span className="dragon-flight" role="img" aria-label={flight.phase === "taking-off" ? "날아오르는 아기 드래곤" : flight.phase === "landing" ? "착륙하는 아기 드래곤" : moving ? "비행하는 아기 드래곤" : "공중에 머무는 아기 드래곤"}><span className="dragon-flight-frame" style={{ backgroundImage: `url('/assets/dragons/baby/flight-${flightMotion}.webp')`, backgroundSize: `600% ${Math.ceil(flightCount / 6) * 100}%`, backgroundPosition: `${flightFrame % 6 * 20}% ${Math.floor(flightFrame / 6) * 100 / (Math.ceil(flightCount / 6) - 1)}%` }} /></span> : enabled && pose !== "standing" ? <span className={`dragon-sit is-${pose}`} style={{ backgroundImage: `url('${sitArtwork}')`, backgroundSize: `${sitFrameCount * 100}% 100%`, backgroundPositionX: `${sitFrame * 100 / (sitFrameCount - 1)}%` }} role="img" aria-label="쉬는 아기 드래곤" /> : <div className="dragon-idle"><DragonSprite dragon={dragon} /></div>}
+      {airborne ? <span className={`dragon-flight${dragon.element ? ` is-${dragon.element}` : ""}`} role="img" aria-label={flight.phase === "taking-off" ? "날아오르는 아기 드래곤" : flight.phase === "landing" ? "착륙하는 아기 드래곤" : moving ? "비행하는 아기 드래곤" : "공중에 머무는 아기 드래곤"}><span className="dragon-flight-frame" style={{ backgroundImage: `url('${flightArtwork(flightMotion)}')`, backgroundSize: `${flightColumns * 100}% ${flightRows * 100}%`, backgroundPosition: `${flightFrame % flightColumns * 100 / (flightColumns - 1)}% ${flightRows === 1 ? 0 : Math.floor(flightFrame / flightColumns) * 100 / (flightRows - 1)}%` }} /></span> : enabled && pose !== "standing" ? <span className={`dragon-sit is-${pose}`} style={{ backgroundImage: `url('${sitArtwork}')`, backgroundSize: `${sitFrameCount * 100}% 100%`, backgroundPositionX: `${sitFrame * 100 / (sitFrameCount - 1)}%` }} role="img" aria-label="쉬는 아기 드래곤" /> : <div className="dragon-idle"><DragonSprite dragon={dragon} /></div>}
       {walking && <span className="dragon-walk" role="img" aria-label="걷는 아기 드래곤"><span className="dragon-walk-frame" style={{ backgroundImage: `url('${walkArtwork}')` }} /></span>}
     </div>
     {stick && <span className="dragon-stick" aria-hidden="true" style={{ left: stick.x, top: stick.y }}><span style={{ transform: `translate(${Math.max(-35, Math.min(35, stick.dx))}px, ${Math.max(-35, Math.min(35, stick.dy))}px)` }} /></span>}

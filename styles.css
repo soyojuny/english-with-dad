@@ -1837,6 +1837,11 @@ label > textarea {
 .dragon-sit { display: block; aspect-ratio: 1; background: url('/assets/dragons/baby/sit-sequence.webp') 0% 0% / 500% 100% no-repeat; }
 .dragon-flight { display: block; position: relative; aspect-ratio: 1; }
 .dragon-flight-frame { display: block; position: absolute; width: 140%; aspect-ratio: 1; left: -1%; top: -2%; background-repeat: no-repeat; }
+.dragon-flight.is-fire .dragon-flight-frame { width: 87%; left: 6%; top: 4%; }
+.dragon-flight.is-thunder .dragon-flight-frame { width: 86%; aspect-ratio: 768 / 800; left: 3.5%; top: -.5%; }
+.dragon-resident.has-thunder-flight { transition: top 111.111ms linear; }
+.dragon-flight-shadow { position: absolute; z-index: 1; width: 16%; height: 2%; border-radius: 50%; background: #140b08a0; filter: blur(4px); pointer-events: none; transition: transform 111.111ms linear, opacity 111.111ms linear; }
+@media (prefers-reduced-motion: reduce) { .dragon-resident.has-thunder-flight, .dragon-flight-shadow { transition: none; } }
 .dragon-flight-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
 .dragon-flight-controls button { min-width: 80px; min-height: 44px; }
 .dragon-flight-controls span { flex: 1; min-width: 180px; }

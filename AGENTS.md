@@ -17,6 +17,8 @@
 - For Supabase work, preserve the `owner_user_id` access model, RLS, and per-user data isolation. Never expose service-role or secret keys to client code.
 - For PWA work, update `public/manifest.webmanifest`, `public/sw.js`, and `scripts/check-pwa.mjs` together when cached assets or install behavior changes.
 - Avoid destructive Git or filesystem actions unless the user explicitly asks for them.
+- Create only files required for the implementation, build, tests, or a review deliverable the user requested.
+- Browser checks should assert behavior and layout without saving successful-run screenshots. Save images only when the user requests them or they are needed to diagnose a failure; use ignored temporary storage for diagnostic files.
 
 ## Verification
 
@@ -28,7 +30,8 @@
 
 ## AI Workflow
 
-- For planning, use `npm run plan:workflow -- "<user request>"` to get script-generated scope warnings, skill hints, and recommended checks before deciding manually.
+- First distinguish avatar asset production from app implementation. Use `.agents/skills/dragon-assets` for image creation, sprite-sheet preparation, visual review, and asset organization. A standalone animation preview is asset work; app rendering, controls, PWA integration, and database behavior are development work.
+- For app development planning, use `npm run plan:workflow -- "<user request>"` to get script-generated scope warnings, skill hints, and recommended checks before deciding manually. Do not route asset-only work through this code-oriented planner or its app verification checks.
 - For substantial planned work, use `grill-with-docs` first and capture the agreed working contract under `plans/active/<slug>/` before implementation.
 - Active plans use `plan.md`, `review.md`, and `tasks/` as the required shape. Promote durable knowledge to `docs/` before moving a plan to `plans/archive/`.
 - Use `.agents/skills/ewd-git-publish` and the `npm run git:*` wrappers for repeated git status, commit, push, and publish operations.

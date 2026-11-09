@@ -1,0 +1,24 @@
+{
+  "columns": 4,
+  "rows": 2,
+  "framesPerSheet": 8,
+  "fps": 8,
+  "width": 1774,
+  "height": 887,
+  "cellSize": 443.5,
+  "hover": "move",
+  "landing": "takeoff reversed",
+  "provenance": "Built-in imagegen, approved sprite sample. PNG copied without pixel changes.",
+  "sheets": [
+    {
+      "file": "fire-flight-takeoff.png",
+      "source": "assets/dragons/sprites/baby/fire/takeoff.png",
+      "sha256": "3d613709898e73d4a7a6376b5faa1bcae494931602b33a2b52e13beef11a5aa7"
+    },
+    {
+      "file": "fire-flight-move.png",
+      "source": "assets/dragons/sprites/baby/fire/fly-right.png",
+      "sha256": "4c522b9ca30db84ee3dcb4401e5795d63f5381c6d2963f7dfff87c6fd48d7a5d"
+    }
+  ]
+}

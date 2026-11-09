@@ -202,7 +202,7 @@ test('H03-E01 경계: child를 왕복한 뒤 늦게 도착한 이전 완료 응�
 });
 
 for (const width of [320, 390, 768, 1280]) {
-  test(`퀴즈 점수는 ${width}px에서 저장·복원·수정·삭제된다`, async ({ childCompletion: f }, testInfo) => {
+  test(`퀴즈 점수는 ${width}px에서 저장·복원·수정·삭제된다`, async ({ childCompletion: f }) => {
     // Given
     await f.page.setViewportSize({ width, height: 900 });
     await selectChild(f.page, '민준');
@@ -246,7 +246,6 @@ for (const width of [320, 390, 768, 1280]) {
     await expect(f.page.getByText('퀴즈 FAIL 저장했습니다.')).toBeVisible();
     await f.page.clock.fastForward(2700);
     await expect(f.page.getByText('퀴즈 FAIL 저장했습니다.')).toBeHidden();
-    await card.screenshot({ path: testInfo.outputPath(`quiz-card-${width}.png`) });
   });
 }
 

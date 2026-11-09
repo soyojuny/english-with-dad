@@ -1,0 +1,343 @@
+{
+  "columns": 4,
+  "rows": 2,
+  "cellWidth": 768,
+  "cellHeight": 800,
+  "width": 3072,
+  "height": 1600,
+  "fps": 9,
+  "frames": {
+    "takeoff": 6,
+    "move": 8,
+    "hover": 8
+  },
+  "hover": "move",
+  "landing": "takeoff reversed",
+  "provenance": "User-approved local preview. Deterministic background removal and silhouette extraction; no generative redraw. Position aligned to eye (640,300), original scale retained.",
+  "sheets": [
+    {
+      "file": "thunder-flight-takeoff.png",
+      "sequence": [
+        1,
+        2,
+        3,
+        4,
+        6,
+        7
+      ],
+      "sha256": "09c827141c84bdd44a1158d0804db8a5e9ad8000d17f4b86d0130af1fd64464d",
+      "source": {
+        "source": "Gemini_Generated_Image_yjtslyyjtslyyjts.png",
+        "frames": [
+          {
+            "id": "takeoff-01",
+            "sourceFrame": 1,
+            "eye": {
+              "x": 580,
+              "y": 124
+            },
+            "offset": {
+              "x": 60,
+              "y": 176
+            },
+            "bounds": {
+              "left": 0,
+              "top": 0,
+              "right": 678,
+              "bottom": 532
+            }
+          },
+          {
+            "id": "takeoff-02",
+            "sourceFrame": 2,
+            "eye": {
+              "x": 569,
+              "y": 123
+            },
+            "offset": {
+              "x": 71,
+              "y": 177
+            },
+            "bounds": {
+              "left": 0,
+              "top": 0,
+              "right": 668,
+              "bottom": 497
+            }
+          },
+          {
+            "id": "takeoff-03",
+            "sourceFrame": 3,
+            "eye": {
+              "x": 563,
+              "y": 144
+            },
+            "offset": {
+              "x": 77,
+              "y": 156
+            },
+            "bounds": {
+              "left": 0,
+              "top": 0,
+              "right": 662,
+              "bottom": 539
+            }
+          },
+          {
+            "id": "takeoff-04",
+            "sourceFrame": 4,
+            "eye": {
+              "x": 562,
+              "y": 124
+            },
+            "offset": {
+              "x": 78,
+              "y": 176
+            },
+            "bounds": {
+              "left": 0,
+              "top": 0,
+              "right": 661,
+              "bottom": 593
+            }
+          },
+          {
+            "id": "takeoff-05",
+            "sourceFrame": 5,
+            "eye": {
+              "x": 562,
+              "y": 120
+            },
+            "offset": {
+              "x": 78,
+              "y": 180
+            },
+            "bounds": {
+              "left": 0,
+              "top": 0,
+              "right": 658,
+              "bottom": 514
+            }
+          },
+          {
+            "id": "takeoff-06",
+            "sourceFrame": 6,
+            "eye": {
+              "x": 557,
+              "y": 166
+            },
+            "offset": {
+              "x": 83,
+              "y": 134
+            },
+            "bounds": {
+              "left": 0,
+              "top": 0,
+              "right": 653,
+              "bottom": 578
+            }
+          },
+          {
+            "id": "takeoff-07",
+            "sourceFrame": 7,
+            "eye": {
+              "x": 552,
+              "y": 216
+            },
+            "offset": {
+              "x": 88,
+              "y": 84
+            },
+            "bounds": {
+              "left": 0,
+              "top": 0,
+              "right": 649,
+              "bottom": 663
+            }
+          },
+          {
+            "id": "takeoff-08",
+            "sourceFrame": 8,
+            "eye": {
+              "x": 558,
+              "y": 132
+            },
+            "offset": {
+              "x": 82,
+              "y": 168
+            },
+            "bounds": {
+              "left": 0,
+              "top": 0,
+              "right": 656,
+              "bottom": 574
+            }
+          }
+        ]
+      }
+    },
+    {
+      "file": "thunder-flight-move.png",
+      "sequence": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        1
+      ],
+      "sha256": "da6d3c11d1347b2342c06fb976b62b26a3cccc28311206524e26ca56086f1558",
+      "source": {
+        "source": "Gemini_Generated_Image_3q02vf3q02vf3q02.png",
+        "frames": [
+          {
+            "id": "fly-01",
+            "sourceFrame": 1,
+            "eye": {
+              "x": 572,
+              "y": 234
+            },
+            "offset": {
+              "x": 68,
+              "y": 66
+            },
+            "bounds": {
+              "left": 0,
+              "top": 0,
+              "right": 669,
+              "bottom": 619
+            }
+          },
+          {
+            "id": "fly-02",
+            "sourceFrame": 2,
+            "eye": {
+              "x": 571,
+              "y": 173
+            },
+            "offset": {
+              "x": 69,
+              "y": 127
+            },
+            "bounds": {
+              "left": 0,
+              "top": 0,
+              "right": 668,
+              "bottom": 558
+            }
+          },
+          {
+            "id": "fly-03",
+            "sourceFrame": 3,
+            "eye": {
+              "x": 570,
+              "y": 118
+            },
+            "offset": {
+              "x": 70,
+              "y": 182
+            },
+            "bounds": {
+              "left": 0,
+              "top": 0,
+              "right": 667,
+              "bottom": 503
+            }
+          },
+          {
+            "id": "fly-04",
+            "sourceFrame": 4,
+            "eye": {
+              "x": 567,
+              "y": 117
+            },
+            "offset": {
+              "x": 73,
+              "y": 183
+            },
+            "bounds": {
+              "left": 0,
+              "top": 0,
+              "right": 663,
+              "bottom": 503
+            }
+          },
+          {
+            "id": "fly-05",
+            "sourceFrame": 5,
+            "eye": {
+              "x": 574,
+              "y": 119
+            },
+            "offset": {
+              "x": 66,
+              "y": 181
+            },
+            "bounds": {
+              "left": 0,
+              "top": 0,
+              "right": 670,
+              "bottom": 504
+            }
+          },
+          {
+            "id": "fly-06",
+            "sourceFrame": 6,
+            "eye": {
+              "x": 574,
+              "y": 155
+            },
+            "offset": {
+              "x": 66,
+              "y": 145
+            },
+            "bounds": {
+              "left": 0,
+              "top": 0,
+              "right": 670,
+              "bottom": 540
+            }
+          },
+          {
+            "id": "fly-07",
+            "sourceFrame": 7,
+            "eye": {
+              "x": 573,
+              "y": 179
+            },
+            "offset": {
+              "x": 67,
+              "y": 121
+            },
+            "bounds": {
+              "left": 0,
+              "top": 0,
+              "right": 669,
+              "bottom": 564
+            }
+          },
+          {
+            "id": "fly-08",
+            "sourceFrame": 8,
+            "eye": {
+              "x": 573,
+              "y": 238
+            },
+            "offset": {
+              "x": 67,
+              "y": 62
+            },
+            "bounds": {
+              "left": 0,
+              "top": 0,
+              "right": 669,
+              "bottom": 624
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

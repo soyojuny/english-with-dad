@@ -1,6 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
 import { expect, test, vi } from "vitest";
 import { useDragonFlight } from "../../app/use-dragon-flight";
+import { dragonFlightAnimations } from "../../lib/dragon-art";
 
 function media(reduce = false) {
   vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: reduce, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
@@ -70,4 +71,29 @@ test("사용 권한을 잃으면 비행이 취소되고 다시 시작할 수 없
   rerender({ enabled: false }); act(() => result.current.toggle());
   // Then
   expect(result.current.phase).toBe("ground");
+});
+
+test("불 아기는 8fps로 여덟 프레임을 재생한 뒤 비행하며 착륙도 여덟 프레임을 역순으로 재생한다", () => {
+  // Given
+  vi.useFakeTimers(); media();
+  const { result, unmount } = renderHook(() => useDragonFlight(true, false, "fire", dragonFlightAnimations.fire));
+  // When
+  act(() => result.current.toggle());
+  act(() => vi.advanceTimersByTime(124));
+  expect(result.current.frame).toBe(0);
+  act(() => vi.advanceTimersByTime(751));
+  expect(result.current).toMatchObject({ phase: "taking-off", frame: 7 });
+  act(() => vi.advanceTimersByTime(125));
+  // Then
+  expect(result.current).toMatchObject({ phase: "flying", frame: 0 });
+  act(() => vi.advanceTimersByTime(1000));
+  expect(result.current).toMatchObject({ phase: "flying", frame: 0 });
+  act(() => result.current.toggle());
+  expect(result.current).toMatchObject({ phase: "landing", frame: 7 });
+  act(() => vi.advanceTimersByTime(875));
+  expect(result.current).toMatchObject({ phase: "landing", frame: 0 });
+  act(() => vi.advanceTimersByTime(125));
+  expect(result.current.phase).toBe("ground");
+  unmount();
+  expect(vi.getTimerCount()).toBe(0);
 });

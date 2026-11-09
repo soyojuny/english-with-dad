@@ -359,7 +359,9 @@ production build나 Android 설치를 보장하지 않는다. `page.request`는 
 worker event/cache/fetch 실행은 `node --test tests/harness/service-worker.test.mjs`로 별도 검증한다.
 
 매 명령은 `verification-artifacts/browser-<time>-<pid>/`에 JSON report/요청 attachment를 남기고
-실패에는 trace.zip·screenshot·오류 맥락을 보존한다. 서버 시작 실패는 Next 로그와 cleanup.json을
+성공 시 스크린샷은 저장하지 않는다. 화면 크기·정렬·동작은 assertion으로 검증한다.
+실패에는 trace.zip·screenshot·오류 맥락을 보존한다. 사용자가 요청한 이미지 외에
+별도 desktop/mobile 캡처나 모아보기 이미지를 검증 증거로 생성하지 않는다. 서버 시작 실패는 Next 로그와 cleanup.json을
 남긴다. 별도 시작 실패 probe에는 브라우저가 없어 trace/화면은 N/A다. Playwright가 test마다
 context를 닫고, fixture가 지연 응답을 풀고 HTTP 서버·Next process group·임시 bundle/build를
 finally에서 정리한다. 실패 artifact와 버전별 브라우저 cache만 보존한다.
