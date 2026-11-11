@@ -65,7 +65,7 @@ An opportunity earned by a child every three eligible daily goal achievements to
 _Avoid_: Point, currency, expiring claim
 
 **Dragon Skill**:
-An ability acquired for an individual dragon, such as flight, tail attack, roar or breath. Flight lets a supported hatchling take off, move in the air and land; tail attack lets a lightning hatchling turn and swing its tail while on the ground. Skills share reward choices but belong to each dragon, which may learn more than one skill. Planned roar can be used from the hatchling stage, and planned breath takes the dragon's element and becomes usable from the juvenile stage after an element is chosen.
+An ability acquired for an individual dragon, such as flight, tail attack, roar or breath. Flight lets a supported hatchling take off, move in the air and land; tail attack lets a fire or lightning hatchling turn and swing its tail while on the ground. Skills share reward choices but belong to each dragon, which may learn more than one skill. Planned roar can be used from the hatchling stage, and planned breath takes the dragon's element and becomes usable from the juvenile stage after an element is chosen.
 _Avoid_: Shared item, dragon element
 
 **Daily Goal Achievement**:

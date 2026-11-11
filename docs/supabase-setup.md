@@ -113,3 +113,5 @@ SQL Editor에서 아래 마이그레이션을 실행합니다.
 앱 배포 전에 `supabase/migrations/20261103120000_dragon_world.sql`을 적용합니다. 소유자별 달성 원장·드래곤·보유 소품과 읽기 전용 카탈로그, 검증 RPC 및 학습 저장 트리거를 추가합니다. 실제 권한과 테스트 절차는 [드래곤 저장 계약](dragon-rewards.md)을 참고하세요.
 
 번개 아기 꼬리 공격은 기존 날기 마이그레이션 이후 `supabase/migrations/20261110120000_thunder_tail_attack.sql`을 적용합니다. 날기와 꼬리 공격을 각각 보상 선택 기회 1개로 저장하고 두 기능을 함께 소유하도록 확장합니다. 기존 획득·원장·RLS는 보존합니다.
+
+불 아기 꼬리 공격 확장은 `supabase/migrations/20261111120000_fire_tail_attack.sql`을 추가 적용합니다. 기존 `tail-attack`의 최초 획득 조건만 불·번개 아기로 넓히며 보상 기회·소유권·RLS와 저장 형식을 유지합니다.

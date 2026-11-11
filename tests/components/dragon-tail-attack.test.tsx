@@ -59,7 +59,7 @@ test("앉은 상태에서 요청하면 역순으로 일어선 다음 공격하�
 test.each([
   { days: 0, element: "thunder" as const, skills: dragon.skills, editing: false },
   { days: 18, element: "thunder" as const, skills: dragon.skills, editing: false },
-  { days: 6, element: "fire" as const, skills: dragon.skills, editing: false },
+  { days: 6, element: "ice" as const, skills: dragon.skills, editing: false },
   { days: 6, element: "thunder" as const, skills: ["fly"] as Dragon["skills"], editing: false },
   { days: 6, element: "thunder" as const, skills: dragon.skills, editing: true },
 ])("허용되지 않는 상태 $days/$element/$editing 에서는 꼬리 공격 버튼과 시트를 제공하지 않는다", ({ days, element, skills, editing }) => {
@@ -70,6 +70,44 @@ test.each([
   // Then
   expect(screen.queryByRole("button", { name: "꼬리 공격" })).toBeNull();
   expect(view.container.querySelector('link[href$="thunder-tail-attack.webp"]')).toBeNull();
+});
+
+test("불 공격은 반대 방향의 마지막 자세로 대기하고 이동하면 일반 동작으로 돌아온다", () => {
+  // Given
+  const fire = { ...dragon, id: "fire", element: "fire" as const };
+  const view = render(<DragonScene dragon={fire} decor={decor} catalog={[]} />);
+  const scene = screen.getByLabelText("드래곤의 공간"); scene.setPointerCapture = vi.fn();
+  // When
+  fireEvent.click(screen.getByRole("button", { name: "꼬리 공격" }));
+  act(() => vi.advanceTimersByTime(3000));
+  // Then
+  const resting = screen.getByLabelText("공격 후 서 있는 아기 드래곤");
+  expect(resting.querySelector<HTMLElement>(".dragon-tail-attack-frame")!.style.backgroundImage).toContain("fire-tail-attack.webp");
+  expect(screen.queryByLabelText("꼬리 공격하는 아기 드래곤")).toBeNull();
+  expect(screen.getByRole("button", { name: "꼬리 공격" }).hasAttribute("disabled")).toBe(false);
+  const last = resting.innerHTML;
+  act(() => vi.advanceTimersByTime(6000));
+  expect(screen.getByLabelText("공격 후 서 있는 아기 드래곤").innerHTML).toBe(last);
+  expect(screen.queryByLabelText("쉬는 아기 드래곤")).toBeNull();
+  fireEvent.pointerDown(scene, { pointerId: 1, clientX: 20, clientY: 20 });
+  fireEvent.pointerMove(scene, { pointerId: 1, clientX: 80, clientY: 20 });
+  expect(screen.queryByLabelText("공격 후 서 있는 아기 드래곤")).toBeNull();
+  expect(screen.getByLabelText("걷는 아기 드래곤")).toBeTruthy();
+});
+
+test("불 공격 후 날기와 선택 변경은 마지막 자세를 해제한다", () => {
+  // Given
+  const fire = { ...dragon, id: "fire", element: "fire" as const };
+  const view = render(<DragonScene dragon={fire} decor={decor} catalog={[]} />);
+  fireEvent.click(screen.getByRole("button", { name: "꼬리 공격" }));
+  act(() => vi.advanceTimersByTime(3000));
+  // When
+  fireEvent.click(screen.getByRole("button", { name: "날기" }));
+  // Then
+  expect(screen.queryByLabelText("공격 후 서 있는 아기 드래곤")).toBeNull();
+  expect(screen.getByLabelText("날아오르는 아기 드래곤")).toBeTruthy();
+  view.rerender(<DragonScene dragon={{ ...fire, id: "other" }} decor={decor} catalog={[]} />);
+  expect(screen.queryByLabelText("공격 후 서 있는 아기 드래곤")).toBeNull();
 });
 
 test("다른 드래곤 선택과 꾸미기 전환은 진행 중인 공격을 취소한다", () => {

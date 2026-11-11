@@ -94,7 +94,7 @@ test("FAIL도 기록 완료이며 목표 초과 횟수는 남은 학습이 아�
   assert.deepEqual(result, []);
 });
 
-for (const [days, element, expected] of [[0, 'thunder', false], [1, 'thunder', true], [17, 'thunder', true], [18, 'thunder', false], [30, 'thunder', false], [6, null, false], [6, 'fire', false], [6, 'ice', false]] as const) {
+for (const [days, element, expected] of [[0, 'thunder', false], [1, 'thunder', true], [17, 'thunder', true], [18, 'thunder', false], [30, 'thunder', false], [6, null, false], [0, 'fire', false], [1, 'fire', true], [6, 'fire', true], [17, 'fire', true], [18, 'fire', false], [6, 'ice', false]] as const) {
   test(`꼬리 공격 지원 경계 ${days}일/${element ?? '무속성'}는 ${expected}`, () => {
     // Given
     const dragon = { days, element };

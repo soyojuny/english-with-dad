@@ -24,6 +24,7 @@ const images = [
   ...["takeoff", "move"].map((motion) => [`baby/fire-flight-${motion}`, `baby/fire-flight-${motion}`, 1774]),
   ...["takeoff", "move"].map((motion) => [`baby/thunder-flight-${motion}`, `baby/thunder-flight-${motion}`, 3072]),
   ["baby/thunder-tail-attack", "baby/thunder-tail-attack", 3606],
+  ["baby/fire-tail-attack", "baby/fire-tail-attack", 3606],
   ["baby/lightning", "baby/thunder", 1024],
   ...["fire", "lightning", "ice"].flatMap((element) => ["blink", "breathe"].map((motion) =>
     [`baby/${element}-${motion}`, `baby/${element === "lightning" ? "thunder" : element}-${motion}`, 1024])),

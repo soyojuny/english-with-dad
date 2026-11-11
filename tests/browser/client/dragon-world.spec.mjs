@@ -500,3 +500,53 @@ for (const width of [390, 1280]) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
   });
 }
+
+for (const width of [390, 1280]) {
+  test(`불 꼬리 공격 ${width}px: 기능 획득 후 반대 방향의 마지막 자세로 대기한다`, async ({ childCompletion: f }) => {
+    // Given: the actual production sprite and both skills share two earned choices.
+    const { page } = f; await page.setViewportSize({ width, height: 950 });
+    const fixture = await dragonFixture(page, { dragons: [{ id: 'dragon-1', egg: 0, days: 6, selectedDate: '2026-10-01', element: 'fire', decor: decor(), skills: [], version: 0 }] });
+    await openChild(page); await page.getByRole('button', { name: '드래곤', exact: true }).click();
+    await page.getByRole('button', { name: '꼬리 공격 배우기 · 기회 1개' }).click();
+    await page.getByRole('button', { name: '날기 배우기 · 기회 1개' }).click();
+    // When
+    await page.getByRole('button', { name: '꼬리 공격', exact: true }).click();
+    // Then: no motion controls can interrupt the attack; the decoded sheet is transparent.
+    expect(fixture.state.credits).toBe(0);
+    expect(fixture.state.dragons[0].skills).toEqual(['tail-attack', 'fly']);
+    const scene = page.getByLabel('드래곤의 공간');
+    const resident = scene.locator('.dragon-resident');
+    const sprite = scene.locator('.dragon-tail-attack-frame');
+    await expect(sprite).toHaveCSS('background-size', '600% 1400%');
+    await expect(page.getByRole('button', { name: '날기', exact: true })).toBeDisabled();
+    const image = await page.evaluate(async () => {
+      const image = new Image(); image.src = '/assets/dragons/baby/fire-tail-attack.webp'; await image.decode();
+      const c = document.createElement('canvas'); c.width = c.height = 1;
+      const ctx = c.getContext('2d'); ctx.drawImage(image, 0, 0);
+      return { dimensions: [image.naturalWidth, image.naturalHeight], alpha: ctx.getImageData(0, 0, 1, 1).data[3] };
+    });
+    expect(image).toEqual({ dimensions: [3606, 5194], alpha: 0 });
+    await page.clock.runFor(2250);
+    await expect(scene.getByLabel('공격 후 서 있는 아기 드래곤')).toBeVisible();
+    await expect(sprite).toHaveCSS('background-position', '0% 100%');
+    await expect(resident).toHaveCSS('transform', /matrix\(-1,/);
+    await expect(page.getByRole('button', { name: '꼬리 공격', exact: true })).toBeEnabled();
+    await page.clock.runFor(6000);
+    await expect(sprite).toHaveCSS('background-position', '0% 100%');
+    await expect(scene.locator('.dragon-sit')).toHaveCount(0);
+    // A second attack starts facing left and ends facing right without mirroring mid-attack.
+    await page.getByRole('button', { name: '꼬리 공격', exact: true }).click();
+    await expect(sprite).toHaveCSS('background-position', '0% 0%');
+    await expect(resident).toHaveCSS('transform', /matrix\(-1,/);
+    await page.clock.runFor(2250);
+    await expect(resident).toHaveCSS('transform', /matrix\(1,/);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.getByRole('button', { name: '꼬리 공격', exact: true }).click();
+    await page.clock.runFor(300);
+    await expect(scene.getByLabel('공격 후 서 있는 아기 드래곤')).toBeVisible();
+    await page.getByRole('button', { name: '날기', exact: true }).click();
+    await expect(scene.getByLabel('공격 후 서 있는 아기 드래곤')).toHaveCount(0);
+    await expect(scene.locator('.dragon-flight')).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  });
+}

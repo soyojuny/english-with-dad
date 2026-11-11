@@ -1,0 +1,605 @@
+{
+  "status": "approved fire tail attack",
+  "frames": 79,
+  "columns": 6,
+  "rows": 14,
+  "cellWidth": 601,
+  "cellHeight": 371,
+  "fps": 36,
+  "durationMs": 2194.444444444445,
+  "sourceOrder": [
+    1,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43
+  ],
+  "omitted": [
+    2,
+    3,
+    30,
+    31,
+    32,
+    33,
+    34
+  ],
+  "sourceDirectory": "tmp_dragon/fire_atack",
+  "previewSha256": "a81b75118dcfd0dda9a8d50e9c008385fe3064f1e770717cb1544b8c19ae6a98",
+  "sha256": "a82b200628a6eb9c1fbc25e25f00872621fa04fc91c0b900e01c0617feec8065",
+  "processing": "Rasterized the approved canvas preview at 36fps. Same neutral exterior matte, enclosed bright gaps and edge unmatting. Source 029→035 and recovery cross dissolves baked into the sheet; gradual recovery slowdown retained. Uniform 1200×740 canvas resized to 601×371; no per-pose position/scale adjustment, redraw or sharpening. Final sample is exactly source 043.",
+  "limitations": "Original foot cropping, pale smoke loss, some flame halos and brief doubled edges during cross dissolves remain.",
+  "samples": [
+    {
+      "source": 1,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 1,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 4,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 4,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 5,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 5,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 5,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 6,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 7,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 7,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 8,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 8,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 9,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 9,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 10,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 10,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 11,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 11,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 12,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 12,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 13,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 13,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 14,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 14,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 15,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 15,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 16,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 16,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 17,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 17,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 18,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 18,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 19,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 19,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 20,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 20,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 21,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 21,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 22,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 22,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 23,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 23,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 24,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 24,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 24,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 25,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 25,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 26,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 26,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 27,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 27,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 28,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 28,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 29,
+      "next": 35,
+      "blend": 0.5
+    },
+    {
+      "source": 29,
+      "next": 35,
+      "blend": 1
+    },
+    {
+      "source": 35,
+      "next": 36,
+      "blend": 0.5
+    },
+    {
+      "source": 35,
+      "next": 36,
+      "blend": 1
+    },
+    {
+      "source": 36,
+      "next": 37,
+      "blend": 0.5
+    },
+    {
+      "source": 36,
+      "next": 37,
+      "blend": 1
+    },
+    {
+      "source": 37,
+      "next": 38,
+      "blend": 0.5
+    },
+    {
+      "source": 37,
+      "next": 38,
+      "blend": 1
+    },
+    {
+      "source": 38,
+      "next": 39,
+      "blend": 0.440529
+    },
+    {
+      "source": 38,
+      "next": 39,
+      "blend": 0.881057
+    },
+    {
+      "source": 39,
+      "next": 40,
+      "blend": 0.287402
+    },
+    {
+      "source": 39,
+      "next": 40,
+      "blend": 0.681102
+    },
+    {
+      "source": 40,
+      "next": 41,
+      "blend": 0.067616
+    },
+    {
+      "source": 40,
+      "next": 41,
+      "blend": 0.423488
+    },
+    {
+      "source": 40,
+      "next": 41,
+      "blend": 0.779359
+    },
+    {
+      "source": 41,
+      "next": 42,
+      "blend": 0.123377
+    },
+    {
+      "source": 41,
+      "next": 42,
+      "blend": 0.448052
+    },
+    {
+      "source": 41,
+      "next": 42,
+      "blend": 0.772727
+    },
+    {
+      "source": 42,
+      "next": 43,
+      "blend": 0.089552
+    },
+    {
+      "source": 42,
+      "next": 43,
+      "blend": 0.38806
+    },
+    {
+      "source": 42,
+      "next": 43,
+      "blend": 0.686567
+    },
+    {
+      "source": 42,
+      "next": 43,
+      "blend": 0.985075
+    },
+    {
+      "source": 43,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 43,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 43,
+      "next": null,
+      "blend": 0
+    },
+    {
+      "source": 43,
+      "next": null,
+      "blend": 0
+    }
+  ],
+  "sources": [
+    {
+      "name": "fire_attack 001.png",
+      "sha256": "51ad5acbfa3c638f76235d988def74b6ce19d5c412bd41628b87fc93b41252fe"
+    },
+    {
+      "name": "fire_attack 004.png",
+      "sha256": "a8f4d337a2638805d618d468a5093cb9f7bca7d6fee29a59594ffc55d6a5c376"
+    },
+    {
+      "name": "fire_attack 005.png",
+      "sha256": "1577ae6f717f20652f1210c132b30dfe2a923f623ab9ff0640a5554b3214a1dd"
+    },
+    {
+      "name": "fire_attack 006.png",
+      "sha256": "ad5057b72f0b08955befc054ca70347b97d2b65faf7347e3a010b71bf289a718"
+    },
+    {
+      "name": "fire_attack 007.png",
+      "sha256": "4b93237a38da733a77edf4934dcf4daac9137b49425c69b1855e4c574f339dea"
+    },
+    {
+      "name": "fire_attack 008.png",
+      "sha256": "db7722545364f72dac8384edc6ab6613266800272c1fb02c69cb063327329d6e"
+    },
+    {
+      "name": "fire_attack 009.png",
+      "sha256": "923954a86c1aebe44e24e8b71213be95c5aa4835dc14cd514c57dda6c3ef0cc8"
+    },
+    {
+      "name": "fire_attack 010.png",
+      "sha256": "428d12b664a98cc1f3cfdf1c64de7ab85818aaaf486b082e2edd58119db21386"
+    },
+    {
+      "name": "fire_attack 011.png",
+      "sha256": "21b7bd030bb56270d78ee625b1176ce6e48020bf1929bfd77d139049936ea88e"
+    },
+    {
+      "name": "fire_attack 012.png",
+      "sha256": "74e55069de15a668d1871856bc648feed1ad92d6168384c0488130b61b7d79bf"
+    },
+    {
+      "name": "fire_attack 013.png",
+      "sha256": "99510f3195bb1fd3e4ef8113ab4f39dcb82cd83c7ec4e58487402b96973b793d"
+    },
+    {
+      "name": "fire_attack 014.png",
+      "sha256": "2a367233b46cd7b8fb05b7a7541b9ccb4a11882eb43ee34410cc1086bff709c4"
+    },
+    {
+      "name": "fire_attack 015.png",
+      "sha256": "76077f2c6508a5bf3f04c4063ad8ee33a41fb2ac6de3d50ab3ae32ab4aab11db"
+    },
+    {
+      "name": "fire_attack 016.png",
+      "sha256": "b3e1ef969d83aaaf4a329ca65e3e24e892eca32a5996243805d73dae9c4bad78"
+    },
+    {
+      "name": "fire_attack 017.png",
+      "sha256": "c526cef2266e9c09b2b8d5584f3133420d30358b0de536f41c17b25b29bcb296"
+    },
+    {
+      "name": "fire_attack 018.png",
+      "sha256": "b7051b98ee5dd905827741843d6945229a99a1af7859df9f26ac16eb61b3fc1f"
+    },
+    {
+      "name": "fire_attack 019.png",
+      "sha256": "5a0017e3098e6a902a6feffdfc4b3a26ddd5e542a7b46be770a2d18da8885ecd"
+    },
+    {
+      "name": "fire_attack 020.png",
+      "sha256": "9588c0b68d488f2bd4cc84cdd6189c3ec7c39e2dd3fed39fc004452b4b2555c9"
+    },
+    {
+      "name": "fire_attack 021.png",
+      "sha256": "4c4b9cfd84f5226dffe8da4b152bc342957d5b273e99818ae6e4714a63d8c738"
+    },
+    {
+      "name": "fire_attack 022.png",
+      "sha256": "b0d7ac5eb24175057cf96e49bb6c5cb38fc53d09ef392855cb045da1c4e38720"
+    },
+    {
+      "name": "fire_attack 023.png",
+      "sha256": "a7ecf223b32348ca01eef14a4b2a10aaaa6297a1c7cf779411d70144cf9934e7"
+    },
+    {
+      "name": "fire_attack 024.png",
+      "sha256": "db456b5cb31b16a644a83b972ace03f9a3a6f321d8d1807213f2f8b5619a256d"
+    },
+    {
+      "name": "fire_attack 025.png",
+      "sha256": "810a7bebf130b667cd5afa9302a9364ac87893e2a12246ae9638dc7972b68408"
+    },
+    {
+      "name": "fire_attack 026.png",
+      "sha256": "a94c625105c9ad7ca6a9258a45ecc688e7cb117b30743de35a23a9470abfacae"
+    },
+    {
+      "name": "fire_attack 027.png",
+      "sha256": "cced1c3af482572eae93f1801caafe0d7814b54be2e3ab582d951cd37d603337"
+    },
+    {
+      "name": "fire_attack 028.png",
+      "sha256": "36c338310a9aea8aa5f975ccd3c2dabf6a5704830423bc96c78642f9e4ee884a"
+    },
+    {
+      "name": "fire_attack 029.png",
+      "sha256": "b03e625299d6cf437bea4114359a83b5279d7ade9f920d00cd730fe13b9efb5a"
+    },
+    {
+      "name": "fire_attack 035.png",
+      "sha256": "19c4900934d66963c31b74047b22d0b2314bf5df652474bd00a050130f29aa07"
+    },
+    {
+      "name": "fire_attack 036.png",
+      "sha256": "40ffa77b4045bd8a09e811d1c4cac515a1a009810a8cc668f3d2c41291087d80"
+    },
+    {
+      "name": "fire_attack 037.png",
+      "sha256": "98a283f45386f03a7b65592854dcbcaa9d66c43842afaf7f0e348b86e6b55ed3"
+    },
+    {
+      "name": "fire_attack 038.png",
+      "sha256": "fc9dd8dbeacb81118f43dbac2c469c6d6df5f608e200f935c2ce1afe8b40b575"
+    },
+    {
+      "name": "fire_attack 039.png",
+      "sha256": "ccf02ca58a2d3eedf1465a2666464249fc909ad8f347d7bcf19a9cf96be5bd6e"
+    },
+    {
+      "name": "fire_attack 040.png",
+      "sha256": "04f6043ed8a0aeb6bb4a41d69fdb2362843463fba2a98b9c05c7abb22bc02f59"
+    },
+    {
+      "name": "fire_attack 041.png",
+      "sha256": "650267ba41f1b693f747b6cd82a20bff65049adec2958b938aa0c066b75563ef"
+    },
+    {
+      "name": "fire_attack 042.png",
+      "sha256": "9c07f67399bab11244cfea29e3c6acaa407bf3d508afbe0025d5bd0370e10690"
+    },
+    {
+      "name": "fire_attack 043.png",
+      "sha256": "d9fe3213d157023a60cd7e3898b49f316deb72280d9147c4c78776f253579c52"
+    }
+  ]
+}

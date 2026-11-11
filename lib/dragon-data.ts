@@ -16,7 +16,7 @@ export function supportsDragonFlight(dragon: Pick<Dragon, "days" | "element">) {
   return dragon.days > 0 && dragon.days < 18 && (dragon.element === null || dragon.element === "fire" || dragon.element === "thunder");
 }
 export function supportsDragonTailAttack(dragon: Pick<Dragon, "days" | "element">) {
-  return dragon.days > 0 && dragon.days < 18 && dragon.element === "thunder";
+  return dragon.days > 0 && dragon.days < 18 && (dragon.element === "fire" || dragon.element === "thunder");
 }
 export function defaultDragonDecor(): DragonDecor {
   return {

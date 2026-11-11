@@ -1841,6 +1841,7 @@ label > textarea {
 .dragon-flight.is-thunder .dragon-flight-frame { width: 86%; aspect-ratio: 768 / 800; left: 3.5%; top: -.5%; }
 .dragon-tail-attack { display: block; position: relative; aspect-ratio: 1; }
 .dragon-tail-attack-frame { display: block; position: absolute; width: 100%; aspect-ratio: 601 / 361; left: 0; top: 20.8%; background-repeat: no-repeat; }
+.dragon-tail-attack.is-fire .dragon-tail-attack-frame { aspect-ratio: 601 / 371; }
 .dragon-resident.has-thunder-flight { transition: top 111.111ms linear; }
 .dragon-flight-shadow { position: absolute; z-index: 1; width: 16%; height: 2%; border-radius: 50%; background: #140b08a0; filter: blur(4px); pointer-events: none; transition: transform 111.111ms linear, opacity 111.111ms linear; }
 @media (prefers-reduced-motion: reduce) { .dragon-resident.has-thunder-flight, .dragon-flight-shadow { transition: none; } }
