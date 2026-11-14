@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import type { Dragon, DragonDecor, DragonItem, DragonSlot } from "../lib/dragon-types";
-import { availableDragonItems, clampDragonPosition, dragonSlotLabels, dragonSprite, dragonStage, supportsDragonFlight, supportsDragonTailAttack } from "../lib/dragon-data";
+import { availableDragonItems, clampDragonPosition, dragonSlotLabels, dragonSprite, dragonStage, supportsDragonFlight, supportsDragonTailAttack, supportsDragonClone } from "../lib/dragon-data";
 import { dragonArtwork, dragonBackgroundArt, dragonFlightAnimations, dragonPropArt, dragonTailAttackAnimation, fireTailAttackAnimation } from "../lib/dragon-art";
 import { useDragonFlight } from "./use-dragon-flight";
 import { useDragonTailAttack } from "./use-dragon-tail-attack";
 import { DragonTailAttackSprite } from "./dragon-tail-attack";
+import { DragonCloneGame } from "./dragon-clone-game";
 
 export function DragonSprite({ dragon }: { dragon: Pick<Dragon, "egg" | "days" | "element"> }) {
   const artwork = dragonArtwork(dragon);
@@ -17,12 +18,14 @@ export function DragonSprite({ dragon }: { dragon: Pick<Dragon, "egg" | "days" |
   </span>;
   return <span className="dragon-sprite" role="img" aria-label={dragonStage(dragon.days)} style={dragonSprite(dragon)} />;
 }
-export function DragonScene({ dragon, decor, catalog, editing = false, selected, onSelect, onMove }: {
-  dragon: Dragon; decor: DragonDecor; catalog: DragonItem[]; selected?: DragonSlot;
+export function DragonScene({ dragon, decor, catalog, editing = false, selected, onSelect, onMove, paused = false }: {
+  dragon: Dragon; decor: DragonDecor; catalog: DragonItem[]; selected?: DragonSlot; paused?: boolean;
   editing?: boolean;
   onSelect?: (slot: DragonSlot) => void; onMove?: (slot: DragonSlot, x: number, y: number) => void;
 }) {
   const scene = useRef<HTMLDivElement>(null);
+  const cloneButton = useRef<HTMLButtonElement>(null);
+  const [cloneOpen, setCloneOpen] = useState(false);
   const [position, setPosition] = useState({ x: 31, y: 65 });
   const [stick, setStick] = useState<{ x: number; y: number; dx: number; dy: number } | null>(null);
   const [pose, setPose] = useState<"standing" | "sitting" | "seated" | "rising">("standing");
@@ -32,7 +35,8 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
   const [attackFacing, setAttackFacing] = useState(1);
   const pointer = useRef<number | null>(null);
   const direction = useRef({ dx: 0, dy: 0 });
-  const enabled = dragon.days > 0 && dragon.days < 18 && !editing;
+  const enabled = dragon.days > 0 && dragon.days < 18 && !editing && !cloneOpen;
+  const canClone = !editing && supportsDragonClone(dragon) && !!dragon.skills?.includes("clone");
   const motionPrefix = dragon.element ? `${dragon.element}-` : "";
   const walkArtwork = `/assets/dragons/baby/${motionPrefix}walk-bde.webp`;
   const sitFrameCount = dragon.element === "ice" ? 4 : 5;
@@ -58,7 +62,8 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
   const liftProgress = Math.max(0, (flight.frame - 1) / (flightAnimation.frames.takeoff - 2));
   const transitionAltitude = thunderFlight ? flight.frame === 1 ? -1 : 28 * liftProgress * liftProgress * (3 - 2 * liftProgress) : flight.frame / (flightAnimation.frames.takeoff - 1) * 16;
   const altitude = flight.phase === "taking-off" || flight.phase === "landing" ? transitionAltitude : flight.phase === "flying" ? thunderFlight ? 28 : 16 : 0;
-  useEffect(() => { setPosition({ x: 31, y: 65 }); setPose("standing"); setSitFrame(0); setStick(null); setAttackQueued(false); setAttackFacing(1); setFacing(1); pointer.current = null; }, [dragon.id, dragon.days, dragon.element, editing]);
+  useEffect(() => { setPosition({ x: 31, y: 65 }); setPose("standing"); setSitFrame(0); setStick(null); setAttackQueued(false); setAttackFacing(1); setFacing(1); setCloneOpen(false); pointer.current = null; }, [dragon.id, dragon.days, dragon.element, editing]);
+  useEffect(() => { if (!canClone) setCloneOpen(false); }, [canClone]);
   useEffect(() => {
     if (!attackQueued || pose !== "standing") return;
     setAttackQueued(false);
@@ -135,11 +140,11 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
     {canFly && (dragon.element ? ["takeoff", "move"] : ["takeoff", "move", "hover"]).map((motion) => <link key={motion} rel="preload" as="image" href={flightArtwork(motion)} />)}
     <img className="dragon-background-art" src={backgroundArt} alt="" draggable={false} />
     {thunderFlight && airborne && <span className="dragon-flight-shadow" aria-hidden="true" style={{ left: `${position.x}%`, top: `${Math.min(94, position.y + 19.5)}%`, transform: `translate(-50%, -50%) scale(${1 - Math.max(0, altitude) / 28 * .55})`, opacity: 1 - Math.max(0, altitude) / 28 * .65 }} />}
-    <div className={`dragon-resident ${dragon.days === 0 ? "is-egg" : dragon.days < 18 ? "is-baby" : dragon.days >= 30 && dragon.element === "fire" ? "is-adult-fire" : ""} ${enabled ? "is-controlled" : ""} ${walking ? "is-walking" : ""} ${thunderFlight && airborne ? "has-thunder-flight" : ""}`} style={enabled ? { left: `${position.x}%`, top: `${Math.max(34, position.y - altitude)}%`, transform: `translate(-50%, -50%) scaleX(${facing})` } : undefined}>
+    {!cloneOpen && <div className={`dragon-resident ${dragon.days === 0 ? "is-egg" : dragon.days < 18 ? "is-baby" : dragon.days >= 30 && dragon.element === "fire" ? "is-adult-fire" : ""} ${enabled ? "is-controlled" : ""} ${walking ? "is-walking" : ""} ${thunderFlight && airborne ? "has-thunder-flight" : ""}`} style={enabled ? { left: `${position.x}%`, top: `${Math.max(34, position.y - altitude)}%`, transform: `translate(-50%, -50%) scaleX(${facing})` } : undefined}>
       {dragon.days === 0 && <span className="dragon-ground-shadow" aria-hidden="true" />}
       {attack.active || attack.resting ? <DragonTailAttackSprite animation={attackAnimation} frame={attack.frame} resting={attack.resting} mirrored={attackFacing !== facing} /> : airborne ? <span className={`dragon-flight${dragon.element ? ` is-${dragon.element}` : ""}`} role="img" aria-label={flight.phase === "taking-off" ? "날아오르는 아기 드래곤" : flight.phase === "landing" ? "착륙하는 아기 드래곤" : moving ? "비행하는 아기 드래곤" : "공중에 머무는 아기 드래곤"}><span className="dragon-flight-frame" style={{ backgroundImage: `url('${flightArtwork(flightMotion)}')`, backgroundSize: `${flightColumns * 100}% ${flightRows * 100}%`, backgroundPosition: `${flightFrame % flightColumns * 100 / (flightColumns - 1)}% ${flightRows === 1 ? 0 : Math.floor(flightFrame / flightColumns) * 100 / (flightRows - 1)}%` }} /></span> : enabled && pose !== "standing" ? <span className={`dragon-sit is-${pose}`} style={{ backgroundImage: `url('${sitArtwork}')`, backgroundSize: `${sitFrameCount * 100}% 100%`, backgroundPositionX: `${sitFrame * 100 / (sitFrameCount - 1)}%` }} role="img" aria-label="쉬는 아기 드래곤" /> : <div className="dragon-idle"><DragonSprite dragon={dragon} /></div>}
       {walking && <span className="dragon-walk" role="img" aria-label="걷는 아기 드래곤"><span className="dragon-walk-frame" style={{ backgroundImage: `url('${walkArtwork}')` }} /></span>}
-    </div>
+    </div>}
     {stick && <span className="dragon-stick" aria-hidden="true" style={{ left: stick.x, top: stick.y }}><span style={{ transform: `translate(${Math.max(-35, Math.min(35, stick.dx))}px, ${Math.max(-35, Math.min(35, stick.dy))}px)` }} /></span>}
     {(["left", "right"] as const).map((slot) => {
       const entry = item(slot);
@@ -171,7 +176,14 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
         <img className="dragon-prop-art" src={dragonPropArt[entry.art]} alt="" draggable={false} />
       </button>;
     })}
-  </div>{canAttack && <div className="dragon-flight-controls"><button type="button" disabled={attacking || airborne} onClick={() => {
+  </div>{cloneOpen && canClone && scene.current && <DragonCloneGame element={dragon.element === "thunder" ? "thunder" : "fire"} scene={scene.current} origin={position} paused={paused} onClose={() => {
+    setCloneOpen(false);
+    window.requestAnimationFrame(() => cloneButton.current?.focus({ preventScroll: true }));
+  }} />}{canClone && !cloneOpen && <div className="dragon-flight-controls"><button ref={cloneButton} type="button" disabled={attacking || airborne || paused} onClick={() => {
+    if (attacking || airborne || paused) return;
+    setStick(null); pointer.current = null; direction.current = { dx: 0, dy: 0 };
+    setPose("standing"); setSitFrame(0); attack.clearRest(); setCloneOpen(true);
+  }}>분신 놀이</button><span>{airborne ? "착륙한 뒤 분신 놀이를 할 수 있어요." : "행동을 관찰해 세 마리 중 진짜를 찾아봐요."}</span></div>}{canAttack && <div className="dragon-flight-controls"><button type="button" disabled={attacking || airborne} onClick={() => {
     if (attacking || airborne) return;
     setStick(null); pointer.current = null; direction.current = { dx: 0, dy: 0 };
     if (pose !== "standing") { setPose("rising"); setAttackQueued(true); }

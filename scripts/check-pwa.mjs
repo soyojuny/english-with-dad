@@ -37,7 +37,7 @@ for (const icon of manifest.icons ?? []) {
 }
 
 const sw = await readFile(serviceWorkerPath, "utf8");
-if (!sw.includes('const cacheName = "ewd-reading-v25";')) fail("fire dragon tail attack requires the v25 cache");
+if (!sw.includes('const cacheName = "ewd-reading-v26";')) fail("fire and thunder clone games require the v26 cache");
 const appShellMatch = sw.match(/const appShell = \[([\s\S]*?)\];/);
 if (!appShellMatch) fail("service worker appShell array not found");
 

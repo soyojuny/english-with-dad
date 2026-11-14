@@ -1,5 +1,5 @@
 export type DragonElement = "fire" | "thunder" | "ice";
-export type DragonSkill = "fly" | "tail-attack";
+export type DragonSkill = "fly" | "tail-attack" | "clone";
 export type DragonSlot = "background" | "left" | "right";
 export type DragonPlacement = { itemId: string | null; x: number; y: number };
 export type DragonDecor = Record<DragonSlot, DragonPlacement>;

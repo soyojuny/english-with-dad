@@ -5,4 +5,4 @@
 .showcase label { display: inline-grid; gap: 4px; }
 .showcase select { min-height: 44px; padding: 6px 10px; font: inherit; }
 .showcase-paused .dragon-motion-layer, .showcase-paused .is-walking, .showcase-paused .dragon-walk, .showcase-paused .dragon-walk-frame { animation-play-state: paused; }
-@media (max-width: 760px) { .showcase { padding: 12px; } .showcase-grid { grid-template-columns: 1fr; } }
+@media (max-width: 1100px) { .showcase { padding: 12px; } .showcase-grid { grid-template-columns: 1fr; } }

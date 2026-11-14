@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, vi } from "vitest";
 import { DragonScreen } from "../../app/dragon-companion";
@@ -17,6 +17,32 @@ function world(): DragonWorld {
       { id: "lava-open-foreground", name: "용암 계곡", kind: "background", art: "lava-open-foreground", free: true },
       { id: "lava-crystal", name: "용암 수정", kind: "prop", art: "lava-crystal", free: true }] };
 }
+
+test.each(["fire", "thunder"] as const)("%s 분신은 기회 1개로 획득을 요청하고 저장 후에만 놀이 버튼을 제공한다", element => {
+  // Given
+  const data = world(); data.credits = 1; data.dragons[0].days = 6; data.dragons[0].element = element;
+  const state = controller(data); const view = render(<DragonScreen controller={state} />);
+  // When
+  fireEvent.click(screen.getByRole("button", { name: "분신 배우기 · 기회 1개" }));
+  // Then
+  expect(state.run).toHaveBeenCalledWith({ action: "skill", id: "first", skill: "clone" });
+  expect(screen.queryByRole("button", { name: "분신 놀이" })).toBeNull();
+  view.rerender(<DragonScreen controller={{ ...state, world: { ...data, credits: 0, dragons: [{ ...data.dragons[0], skills: ["clone"] }] } }} />);
+  expect(screen.queryByRole("button", { name: "분신 배우기 · 기회 1개" })).toBeNull();
+  expect(screen.getByRole("button", { name: "분신 놀이" })).toBeTruthy();
+});
+
+test("분신 획득은 기회 부족·저장 중에는 막고 불·번개 아기에게만 제공한다", () => {
+  // Given
+  const data = world(); data.dragons[0].days = 6; data.dragons[0].element = "fire";
+  const state = controller(data); const view = render(<DragonScreen controller={state} />);
+  // When / Then
+  expect((screen.getByRole("button", { name: "분신 배우기 · 기회 1개" }) as HTMLButtonElement).disabled).toBe(true);
+  view.rerender(<DragonScreen controller={{ ...state, pending: true, world: { ...data, credits: 1 } }} />);
+  expect((screen.getByRole("button", { name: "분신 배우기 · 기회 1개" }) as HTMLButtonElement).disabled).toBe(true);
+  view.rerender(<DragonScreen controller={{ ...state, world: { ...data, dragons: [{ ...data.dragons[0], element: "ice" }] } }} />);
+  expect(screen.queryByRole("button", { name: "분신 배우기 · 기회 1개" })).toBeNull();
+});
 
 test("보상 기회가 있을 때 선택한 드래곤의 날기를 요청하고 저장 전에는 조작 버튼을 주지 않는다", async () => {
   // Given

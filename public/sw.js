@@ -1,4 +1,4 @@
-const cacheName = "ewd-reading-v25";
+const cacheName = "ewd-reading-v26";
 const appShell = [
   "/",
   "/manifest.webmanifest",

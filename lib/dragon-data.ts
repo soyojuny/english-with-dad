@@ -18,6 +18,9 @@ export function supportsDragonFlight(dragon: Pick<Dragon, "days" | "element">) {
 export function supportsDragonTailAttack(dragon: Pick<Dragon, "days" | "element">) {
   return dragon.days > 0 && dragon.days < 18 && (dragon.element === "fire" || dragon.element === "thunder");
 }
+export function supportsDragonClone(dragon: Pick<Dragon, "days" | "element">) {
+  return dragon.days > 0 && dragon.days < 18 && (dragon.element === "fire" || dragon.element === "thunder");
+}
 export function defaultDragonDecor(): DragonDecor {
   return {
     background: { itemId: "lava-open-foreground", x: 50, y: 50 },

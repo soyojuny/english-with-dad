@@ -432,9 +432,54 @@ test('기능 제약은 알 수 없는 기능·중복·null을 거절하고 마�
   // When
   await db.exec(sql);
   await db.exec(await readFile(resolve('supabase/migrations/20261111120000_fire_tail_attack.sql'), 'utf8'));
+  await db.exec(await readFile(resolve('supabase/migrations/20261114120000_fire_clone.sql'), 'utf8'));
+  await db.exec(await readFile(resolve('supabase/migrations/20261114130000_thunder_clone.sql'), 'utf8'));
   // Then
   expect((await world()).dragons[0].skills).toEqual(['fly']);
-  for (const skills of ["array['roar']", "array['fly','fly']", "array['tail-attack','tail-attack']", "array[null]::text[]"]) {
+  for (const skills of ["array['roar']", "array['fly','fly']", "array['tail-attack','tail-attack']", "array['clone','clone']", "array[null]::text[]"]) {
     await expect(db.exec(`update public.dragons set skills=${skills}`)).rejects.toThrow('dragons_skills_check');
   }
+});
+
+test.each(['fire', 'thunder'])('%s 아기의 분신은 기존 기능과 공존하고 재시도와 성장 후 재요청에 중복 차감하지 않는다', async element => {
+  // Given
+  await seedGrowing(5, 11); await world('element', { id: dragon, element });
+  await world('skill', { id: dragon, skill: 'fly' });
+  await world('skill', { id: dragon, skill: 'tail-attack' });
+  // When
+  const acquired = await world('skill', { id: dragon, skill: 'clone' });
+  const retry = await world('skill', { id: dragon, skill: 'clone' });
+  await db.exec(`update public.dragons set days=30`);
+  const grownRetry = await world('skill', { id: dragon, skill: 'clone' });
+  // Then
+  expect(acquired.dragons[0].skills).toEqual(['fly', 'tail-attack', 'clone']);
+  expect(acquired.credits).toBe(1);
+  expect(retry.credits).toBe(1);
+  expect(grownRetry.credits).toBe(1);
+});
+
+test.each([{ days: 0, element: 'fire' }, { days: 18, element: 'fire' }, { days: 6, element: null }, { days: 6, element: 'ice' }, { days: 0, element: 'thunder' }, { days: 18, element: 'thunder' }])('분신 신규 획득은 $days/$element 에서 거절한다', async ({ days, element }) => {
+  // Given: seedGrowing's next sync has already been credited before setting the boundary.
+  await seedGrowing(5, 8); await world();
+  await db.query('update public.dragons set days=$1, element=$2', [days, element]);
+  // When
+  const request = world('skill', { id: dragon, skill: 'clone' });
+  // Then
+  await expect(request).rejects.toThrow('불·번개 아기');
+  expect((await world()).dragons[0].skills).toEqual([]);
+});
+
+test.each(['fire', 'thunder'])('%s 분신 획득은 기회 부족·다른 아동·다른 소유자·직접 갱신을 거절한다', async element => {
+  // Given
+  await seedGrowing(5, 0); await world('element', { id: dragon, element });
+  // When / Then
+  await expect(world('skill', { id: dragon, skill: 'clone' })).rejects.toThrow('선택 기회');
+  await db.exec(`update public.dragon_progress set total_days=9;
+    insert into public.children(id,owner_user_id,name) values ('${nextDragon}','${owner}','둘째');
+    insert into public.dragons(id,child_id,owner_user_id,egg,selected_date,days,element) values ('${nextDragon}','${nextDragon}','${owner}',0,${today},6,'fire');`);
+  await expect(world('skill', { id: nextDragon, skill: 'clone' })).rejects.toThrow('찾지 못');
+  await db.exec('set role authenticated');
+  await expect(db.exec("update public.dragons set skills=array['clone']")).rejects.toThrow('permission denied');
+  await db.exec(`select set_config('request.jwt.claim.sub','${other}',false)`);
+  await expect(world('skill', { id: dragon, skill: 'clone' })).rejects.toThrow('권한');
 });

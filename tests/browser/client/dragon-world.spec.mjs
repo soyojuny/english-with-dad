@@ -27,6 +27,68 @@ async function openChild(page) {
   await expect(page.getByRole('button', { name: '드래곤' })).toBeEnabled();
 }
 
+for (const element of ['fire', 'thunder']) {
+for (const viewport of [{ width: 1024, height: 768 }, { width: 768, height: 1024 }]) {
+  test(`아동 분신 ${element} ${viewport.width}px: 획득·재조회·원래 배경에서 찾기·대기 복귀`, async ({ childCompletion: f }) => {
+    // Given: the real child UI receives the stored per-dragon skill through its RPC.
+    const { page } = f;
+    await page.setViewportSize(viewport);
+    const fixture = await dragonFixture(page, { dragons: [{ id: 'dragon-1', egg: 0, days: 6, selectedDate: '2026-10-01', element, decor: decor(), skills: [], version: 0 }] });
+    await openChild(page);
+    await page.getByRole('button', { name: '드래곤', exact: true }).click();
+    const screen = page.getByRole('region', { name: '드래곤 키우기' });
+    await expect(screen.getByRole('button', { name: '분신 놀이', exact: true })).toHaveCount(0);
+    // When: learn once, reload the child screen, then play in the saved habitat.
+    await screen.getByRole('button', { name: '분신 배우기 · 기회 1개' }).click();
+    await expect(screen.getByRole('button', { name: '분신 놀이', exact: true })).toBeVisible();
+    expect(fixture.state.credits).toBe(1);
+    expect(fixture.state.dragons[0].skills).toEqual(['clone']);
+    await page.reload();
+    await page.getByRole('button', { name: '드래곤', exact: true }).click();
+    await screen.getByRole('button', { name: '분신 놀이', exact: true }).click();
+    const scene = screen.getByLabel('드래곤의 공간', { exact: true });
+    const background = await scene.locator('.dragon-background-art').getAttribute('src');
+    await page.clock.runFor(5500);
+    await expect(scene.locator('.clone-stage')).toHaveAttribute('data-phase', 'vanish');
+    await page.clock.runFor(600);
+    await expect(scene.locator('.clone-stage')).toHaveAttribute('data-phase', 'emerge');
+    await expect(scene.locator('.clone-candidate').first()).toBeDisabled();
+    await page.clock.runFor(300);
+    await expect(scene.locator('.clone-stage')).toHaveAttribute('data-phase', 'observe');
+    await expect(scene.locator('.clone-candidate')).toHaveCount(3);
+    const positions = await scene.locator('.clone-candidate').evaluateAll(buttons => buttons.map(button => button.style.cssText));
+    const sequence = (await screen.locator('.clone-hint').textContent()).includes('두 번');
+    await page.clock.runFor(1300);
+    const blinking = await scene.locator('.clone-blink').evaluateAll(images => images.map(image => image.style.opacity === '1'));
+    await page.clock.runFor(2300);
+    const patterns = await scene.locator('.clone-candidate').evaluateAll(buttons => buttons.map(button => ({
+      walking: !!button.querySelector('.is-stepping'), pose: button.querySelector('.clone-pose').style.backgroundPosition,
+      artwork: button.querySelector('.clone-pose').style.backgroundImage,
+    })));
+    const real = patterns.findIndex((pattern, index) => !pattern.walking && pattern.pose === '100% 0%' && (!sequence || blinking[index]));
+    const fake = patterns.findIndex(pattern => pattern.walking);
+    expect(real).toBeGreaterThanOrEqual(0);
+    expect(fake).toBeGreaterThanOrEqual(0);
+    for (const pattern of patterns) expect(pattern.artwork).toContain(`${element}-`);
+    await scene.locator('.clone-candidate').nth(fake).click();
+    await screen.getByRole('button', { name: '단서 다시 보기' }).click();
+    await page.clock.runFor(6400);
+    // Then: replay preserves placement/elimination and finding the real dragon restores idle without another charge.
+    expect(await scene.locator('.clone-candidate').evaluateAll(buttons => buttons.map(button => button.style.cssText))).toEqual(positions);
+    await expect(scene.locator('.clone-candidate').nth(fake)).toBeDisabled();
+    await scene.locator('.clone-candidate').nth(real).click();
+    await page.clock.runFor(600);
+    await expect(scene.locator('.clone-success-sparkle')).toHaveCount(1);
+    await page.clock.runFor(600);
+    await expect(scene.locator('.clone-stage')).toHaveCount(0);
+    await expect(scene.locator('.dragon-idle')).toBeVisible();
+    expect(await scene.locator('.dragon-background-art').getAttribute('src')).toBe(background);
+    expect(fixture.state.credits).toBe(1);
+    expect(fixture.state.dragons[0].skills).toEqual(['clone']);
+  });
+}
+}
+
 test('무속성 아기: 서기·호흡·깜빡임·걷기·앉기 시작의 날개 틈은 투명하다', async ({ childCompletion: f }) => {
   // Given: the production WebP assets loaded from the actual app origin.
   const samples = [

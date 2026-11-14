@@ -1870,3 +1870,31 @@ label > textarea {
 @media (prefers-reduced-motion: reduce) { .dragon-celebration { animation: none; } }
 @media (max-width: 480px) { .dragon-screen { padding: 10px; } .dragon-tools { padding: 10px; } .dragon-options { gap: 4px; } .dragon-options button { font-size: .8rem; } }
 .dragon-options .dragon-sprite { max-width: 120px; margin-inline: auto; }
+
+/* Clone actors stay in the existing 16:9 habitat; controls sit below it. */
+.dragon-clone-game { min-width: 0; padding-top: 14px; }
+.clone-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.clone-header h3 { margin: 0; font-size: 1.2rem; }
+.dragon-clone-game button { min-height: 48px; font: inherit; touch-action: manipulation; }
+.clone-hint { display: grid; gap: 6px; padding: 12px; background: #f1e9d3; border-radius: 12px; }
+.clone-hint strong { overflow-wrap: anywhere; }
+.clone-stage, .clone-choices { position: absolute; inset: 0; pointer-events: none; }
+.clone-stage { z-index: 4; }
+.clone-teacher, .dragon-screen .clone-candidate { position: absolute; width: 24%; aspect-ratio: 1; transform: translate(-50%, -50%); }
+.dragon-screen .clone-candidate { display: block; min-height: 44px; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; pointer-events: auto; touch-action: manipulation; }
+.dragon-screen .clone-candidate:disabled { opacity: 1; }
+.dragon-screen .clone-candidate:focus-visible { outline: 3px dashed #ffe3a1; outline-offset: 2px; border-radius: 20%; }
+.clone-sprite { position: relative; display: block; width: 100%; aspect-ratio: 1; pointer-events: none; }
+.clone-magic-body { display: block; width: 100%; }
+.clone-magic-burst, .clone-success-sparkle { position: absolute; inset: 0; pointer-events: none; border-radius: 50%; }
+.clone-magic-burst { background: radial-gradient(ellipse, #fff6c7 0%, #ffbf7370 25%, #ff783930 50%, transparent 70%); border: 3px solid #ffd498; box-shadow: inset 0 0 18px #ffbd6d, 0 0 12px #ff994f; }
+.clone-success-sparkle { background: radial-gradient(circle at 20% 25%, #fff6a5 0 3%, transparent 5%), radial-gradient(circle at 80% 20%, #fff6a5 0 4%, transparent 6%), radial-gradient(circle at 85% 75%, #ffd070 0 3%, transparent 5%), radial-gradient(circle at 15% 80%, #fff6a5 0 4%, transparent 6%); border: 2px solid #ffe2a0; }
+.clone-pose, .clone-blink { position: absolute; inset: 0; width: 100%; height: 100%; }
+.clone-pose { display: block; background-size: 500% 100%; background-repeat: no-repeat; }
+.clone-blink { object-fit: contain; mask-image: radial-gradient(ellipse 2.8% 2.2% at 74% 34%, black 65%, transparent 100%); }
+.clone-sprite.is-stepping .clone-pose { inset: 18% auto auto 8.5%; width: 83%; height: auto; aspect-ratio: 800 / 620; background-size: 300% 100%; }
+.dragon-screen .clone-candidate.is-dismissed { opacity: .18; }
+.dragon-screen .clone-candidate.is-real { filter: drop-shadow(0 0 8px #ffcf70); }
+.clone-status { min-height: 3em; margin: 12px 0 0; line-height: 1.5; font-weight: 650; }
+.clone-controls { display: flex; flex-wrap: wrap; gap: 10px; }
+.clone-footnote { font-size: .9rem; line-height: 1.6; }
