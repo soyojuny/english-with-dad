@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { availableDragonItems, clampDragonPosition, defaultDragonDecor, dragonSprite, dragonStage, missingDragonLearning, supportsDragonFlight, supportsDragonTailAttack } from "../lib/dragon-data";
+import { availableDragonItems, clampDragonPosition, defaultDragonDecor, dragonSprite, dragonStage, missingDragonLearning, supportsDragonFlight, supportsDragonTailAttack, supportsDragonBreath } from "../lib/dragon-data";
 import type { DragonItem } from "../lib/dragon-types";
 import { emptyReadingData } from "../lib/reading-data";
 import type { Assignment } from "../lib/reading-types";
@@ -103,4 +103,17 @@ for (const [days, element, expected] of [[0, 'thunder', false], [1, 'thunder', t
     // Then
     assert.equal(actual, expected);
   });
+}
+
+for (const element of [null, "fire", "thunder", "ice"] as const) {
+  for (const days of [0, 1, 17, 18, 30]) {
+    test(`브레스는 불·번개 아기만 지원한다: ${days}일/${element ?? "무속성"}`, () => {
+      // Given
+      const dragon = { days, element };
+      // When
+      const result = supportsDragonBreath(dragon);
+      // Then
+      assert.equal(result, (element === "fire" || element === "thunder") && days > 0 && days < 18);
+    });
+  }
 }

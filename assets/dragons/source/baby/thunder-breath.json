@@ -1,0 +1,396 @@
+{
+  "approvedVariant": "B",
+  "preview": "tmp_dragon/lightning-브레스/lightning-breath-compare-abc/preview.html",
+  "previewSha256": "a58a9ccbfe03548df04b98a1b25da8071b3e1e4bbbf3de2876268f02c4a98a49",
+  "original": "tmp_dragon/lightning-브레스/Gemini_Generated_Image_qdm5w9qdm5w9qdm5.png",
+  "originalSha256": "884fa7ccbf2cf6700d9425c5bdf8429b1242f045c8d79b3d06b8990cb3db7a9f",
+  "selectedOriginalFrames": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "previewSourceRectangles": [
+    [
+      0,
+      20,
+      800,
+      480,
+      574,
+      488
+    ],
+    [
+      840,
+      20,
+      780,
+      480,
+      1378,
+      488
+    ],
+    [
+      1640,
+      0,
+      760,
+      500,
+      2168,
+      488
+    ],
+    [
+      0,
+      500,
+      820,
+      433,
+      574,
+      925
+    ],
+    [
+      840,
+      500,
+      800,
+      433,
+      1365,
+      925
+    ],
+    [
+      1640,
+      500,
+      760,
+      433,
+      2168,
+      925
+    ],
+    [
+      0,
+      935,
+      845,
+      430,
+      568,
+      1356
+    ],
+    [
+      850,
+      935,
+      800,
+      430,
+      1360,
+      1356
+    ],
+    [
+      1650,
+      935,
+      750,
+      430,
+      2170,
+      1356
+    ],
+    [
+      0,
+      1370,
+      820,
+      422,
+      564,
+      1787
+    ],
+    [
+      850,
+      1370,
+      780,
+      422,
+      1362,
+      1787
+    ],
+    [
+      1650,
+      1370,
+      750,
+      422,
+      2162,
+      1787
+    ]
+  ],
+  "previewFrameSize": [
+    820,
+    570
+  ],
+  "previewFootAnchor": [
+    505,
+    530
+  ],
+  "output": "assets/dragons/source/baby/thunder-breath.png",
+  "outputSha256": "99735087060143f72fb55b88731721de0318ae859877fd90a855c3ff2f145acc",
+  "columns": 4,
+  "rows": 3,
+  "frameWidth": 820,
+  "frameHeight": 570,
+  "frameDurationsMs": [
+    850,
+    180,
+    180,
+    300,
+    130,
+    140,
+    100,
+    130,
+    200,
+    150,
+    150,
+    180
+  ],
+  "reducedFrame": 6,
+  "method": "Native source RGB copied with integer translations into 820x570 cells, no resizing, filtering or generative editing. Exterior white and measured wing/leg/tail gaps removed by connected flood fill. Opaque body pixels unchanged. Only matte-contaminated edge/glow pixels are mathematically unmixed from white; compositing visible pixels onto white reconstructs the native preview within one 8-bit level. White lightning cores protected. App build encodes this 3280x1710 canonical PNG as lossless WebP without resizing.",
+  "knownDefects": [
+    "Original beam ends in frames 6 and 7 are clipped in the approved source.",
+    "White-matte separation cannot uniquely recover original translucent glow; the deterministic result preserves visible appearance on white, with opaque white lightning cores retained. Near-white exterior pixels are removed at min RGB >=245 and channel spread <=8."
+  ],
+  "qualityChecks": [
+    {
+      "frame": 1,
+      "opaquePixelsPreserved": 89675,
+      "separatedMattePixels": 3178,
+      "backgroundPixelsRemoved": 374547,
+      "maxVisibleWhiteRoundtripError": 0,
+      "nativePreviewSha256": "355420479cc140f764358193929757211803e8f0f7210104c4285f804ac6a944",
+      "opaqueSourcePatches": [
+        {
+          "rect": [
+            420,
+            350,
+            20,
+            20
+          ],
+          "rgbaSha256": "857705f3ff815aa397e5933c8367a8bdf16be20fcc9a9a63d5c330631b80e465"
+        },
+        {
+          "rect": [
+            450,
+            200,
+            40,
+            40
+          ],
+          "rgbaSha256": "9488da7db2ba9d0471cea3ba01a4b3a60d4d77f968dec2924169982e447adc4a"
+        }
+      ]
+    },
+    {
+      "frame": 2,
+      "opaquePixelsPreserved": 93610,
+      "separatedMattePixels": 4269,
+      "backgroundPixelsRemoved": 369581,
+      "maxVisibleWhiteRoundtripError": 0,
+      "nativePreviewSha256": "e3e28062683925906aec67464656922a8005dcd5cd67871b0f6d58f42c940429",
+      "opaqueSourcePatches": [
+        {
+          "rect": [
+            420,
+            350,
+            20,
+            20
+          ],
+          "rgbaSha256": "63638e61b4b9bfd5bcaf2a05052048ba19ce58c82860af081aac818cd7fcdf50"
+        }
+      ]
+    },
+    {
+      "frame": 3,
+      "opaquePixelsPreserved": 97625,
+      "separatedMattePixels": 9946,
+      "backgroundPixelsRemoved": 359868,
+      "maxVisibleWhiteRoundtripError": 0,
+      "nativePreviewSha256": "276ab2b3fc7345cbb2fef6b6509720e09dcede89b21107f10f9933c73e06eeeb",
+      "opaqueSourcePatches": [
+        {
+          "rect": [
+            420,
+            350,
+            20,
+            20
+          ],
+          "rgbaSha256": "0d644a704209ded7a00aafac5d070eaf60d346a466362389070be1f67192523a"
+        }
+      ]
+    },
+    {
+      "frame": 4,
+      "opaquePixelsPreserved": 92977,
+      "separatedMattePixels": 7105,
+      "backgroundPixelsRemoved": 367398,
+      "maxVisibleWhiteRoundtripError": 0,
+      "nativePreviewSha256": "3b16a4a31c92040c16da6d4b3e49c44244658005707a5bce62a8995e844ba105",
+      "opaqueSourcePatches": [
+        {
+          "rect": [
+            420,
+            350,
+            20,
+            20
+          ],
+          "rgbaSha256": "ba5f2b4b1fbfc05db3e2c10db2dce15df56d176c3ef8fadaee99fe7f9ac1b863"
+        }
+      ]
+    },
+    {
+      "frame": 5,
+      "opaquePixelsPreserved": 94066,
+      "separatedMattePixels": 15570,
+      "backgroundPixelsRemoved": 359335,
+      "maxVisibleWhiteRoundtripError": 0,
+      "nativePreviewSha256": "d33f8db86dca106334a6a4d2a83e8dde0f4d1981c9cb2e4e4357edacd8fa29bb",
+      "opaqueSourcePatches": [
+        {
+          "rect": [
+            420,
+            350,
+            20,
+            20
+          ],
+          "rgbaSha256": "2b0d098ed6d26ccf4fbcd1f44f4d1f59336bf706944ea29a7ba466963a46f08e"
+        }
+      ]
+    },
+    {
+      "frame": 6,
+      "opaquePixelsPreserved": 105548,
+      "separatedMattePixels": 30493,
+      "backgroundPixelsRemoved": 339014,
+      "maxVisibleWhiteRoundtripError": 0,
+      "nativePreviewSha256": "bae25764c01a20b388ecaaeafcefae6221269a6128ab179c07149ffb08825fb9",
+      "opaqueSourcePatches": [
+        {
+          "rect": [
+            420,
+            350,
+            20,
+            20
+          ],
+          "rgbaSha256": "3ae4429244050cb7fef8ae9bd4aba9025c06f2731201482532cdc95d2b1cb592"
+        }
+      ]
+    },
+    {
+      "frame": 7,
+      "opaquePixelsPreserved": 111829,
+      "separatedMattePixels": 41348,
+      "backgroundPixelsRemoved": 324180,
+      "maxVisibleWhiteRoundtripError": 0,
+      "nativePreviewSha256": "25e658e409b0e9cb257829b25c5a7cf07f84e81ce8b75f5e4147a75011198540",
+      "opaqueSourcePatches": [
+        {
+          "rect": [
+            420,
+            350,
+            20,
+            20
+          ],
+          "rgbaSha256": "a646214ce8735231a9cf9e3257a711ca8efdce54486f901e5db9c101d798caca"
+        }
+      ]
+    },
+    {
+      "frame": 8,
+      "opaquePixelsPreserved": 93886,
+      "separatedMattePixels": 6369,
+      "backgroundPixelsRemoved": 367933,
+      "maxVisibleWhiteRoundtripError": 0,
+      "nativePreviewSha256": "d2685c69b8667dcd39bca5d59de7270329b5735693a64cc4f89aa079acc0831b",
+      "opaqueSourcePatches": [
+        {
+          "rect": [
+            420,
+            350,
+            20,
+            20
+          ],
+          "rgbaSha256": "885b62b4a24f02f0b942f21ec96aca4e798f62651e1e6a43f9ec39cb42adafea"
+        }
+      ]
+    },
+    {
+      "frame": 9,
+      "opaquePixelsPreserved": 91634,
+      "separatedMattePixels": 3054,
+      "backgroundPixelsRemoved": 372712,
+      "maxVisibleWhiteRoundtripError": 0,
+      "nativePreviewSha256": "fda4680bff0e0b5bfa9a0fb3104818d93a60dd391a5102aabe3114b1246c99de",
+      "opaqueSourcePatches": [
+        {
+          "rect": [
+            420,
+            350,
+            20,
+            20
+          ],
+          "rgbaSha256": "6925990fd0c5b0d7b8669f6ad9bf81d436d685bb083ce55df2a30af0815fa9c4"
+        }
+      ]
+    },
+    {
+      "frame": 10,
+      "opaquePixelsPreserved": 94817,
+      "separatedMattePixels": 2733,
+      "backgroundPixelsRemoved": 369850,
+      "maxVisibleWhiteRoundtripError": 0,
+      "nativePreviewSha256": "2f99755ef3bd96438c4a760275ce45b183f8a79363e4a217d94a89c97b6de2da",
+      "opaqueSourcePatches": [
+        {
+          "rect": [
+            420,
+            350,
+            20,
+            20
+          ],
+          "rgbaSha256": "60a98e9660d925c8bae6f527db46e1fe17fbb4d717ce73339624b4d2acc2d96c"
+        }
+      ]
+    },
+    {
+      "frame": 11,
+      "opaquePixelsPreserved": 94184,
+      "separatedMattePixels": 2868,
+      "backgroundPixelsRemoved": 370348,
+      "maxVisibleWhiteRoundtripError": 0,
+      "nativePreviewSha256": "7d600aaeff9fd8e0606a801f01a39f54923e4448700d31f9257c958079896ab2",
+      "opaqueSourcePatches": [
+        {
+          "rect": [
+            420,
+            350,
+            20,
+            20
+          ],
+          "rgbaSha256": "a14bdf6e2d7708880b84249b548a727f76f217b3dd1e2060763c19fa3afbe74a"
+        }
+      ]
+    },
+    {
+      "frame": 12,
+      "opaquePixelsPreserved": 94492,
+      "separatedMattePixels": 2720,
+      "backgroundPixelsRemoved": 370188,
+      "maxVisibleWhiteRoundtripError": 0,
+      "nativePreviewSha256": "0eebd1f8a1987dde23420e51fe9ad35aa575c0e756c3f02fe90cf746700e377a",
+      "opaqueSourcePatches": [
+        {
+          "rect": [
+            420,
+            350,
+            20,
+            20
+          ],
+          "rgbaSha256": "8ff179455fce7676eceb1b33ecdfd5052fa66100045738bfda7356eaac91d357"
+        }
+      ]
+    }
+  ],
+  "decodedPngQuality": {
+    "maxVisibleWhiteRoundtripError": 1,
+    "changedOpaqueChannels": 0
+  }
+}

@@ -1,11 +1,13 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import type { Dragon, DragonDecor, DragonItem, DragonSlot } from "../lib/dragon-types";
-import { availableDragonItems, clampDragonPosition, dragonSlotLabels, dragonSprite, dragonStage, supportsDragonFlight, supportsDragonTailAttack, supportsDragonClone } from "../lib/dragon-data";
-import { dragonArtwork, dragonBackgroundArt, dragonFlightAnimations, dragonPropArt, dragonTailAttackAnimation, fireTailAttackAnimation } from "../lib/dragon-art";
+import { availableDragonItems, clampDragonPosition, dragonSlotLabels, dragonSprite, dragonStage, supportsDragonFlight, supportsDragonTailAttack, supportsDragonClone, supportsDragonBreath } from "../lib/dragon-data";
+import { dragonArtwork, dragonBackgroundArt, dragonFlightAnimations, dragonPropArt, dragonTailAttackAnimation, fireTailAttackAnimation, fireBreathAnimation, thunderBreathAnimation } from "../lib/dragon-art";
 import { useDragonFlight } from "./use-dragon-flight";
 import { useDragonTailAttack } from "./use-dragon-tail-attack";
 import { DragonTailAttackSprite } from "./dragon-tail-attack";
+import { useDragonBreath } from "./use-dragon-breath";
+import { DragonBreathSprite } from "./dragon-breath";
 import { DragonCloneGame } from "./dragon-clone-game";
 
 export function DragonSprite({ dragon }: { dragon: Pick<Dragon, "egg" | "days" | "element"> }) {
@@ -31,7 +33,7 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
   const [pose, setPose] = useState<"standing" | "sitting" | "seated" | "rising">("standing");
   const [sitFrame, setSitFrame] = useState(0);
   const [facing, setFacing] = useState(1);
-  const [attackQueued, setAttackQueued] = useState(false);
+  const [queuedAction, setQueuedAction] = useState<"tail-attack" | "breath" | null>(null);
   const [attackFacing, setAttackFacing] = useState(1);
   const pointer = useRef<number | null>(null);
   const direction = useRef({ dx: 0, dy: 0 });
@@ -49,7 +51,11 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
   const canAttack = enabled && supportsDragonTailAttack(dragon) && !!dragon.skills?.includes("tail-attack");
   const attackAnimation = dragon.element === "fire" ? fireTailAttackAnimation : dragonTailAttackAnimation;
   const attack = useDragonTailAttack(canAttack && !airborne, `${dragon.id}:${dragon.days}:${dragon.element}:${editing}`, attackAnimation);
-  const attacking = attack.active || attackQueued;
+  const canBreathe = enabled && supportsDragonBreath(dragon) && !!dragon.skills?.includes("breath");
+  const breathAnimation = dragon.element === "thunder" ? thunderBreathAnimation : fireBreathAnimation;
+  const breathEffect = dragon.element === "thunder" ? "번개를" : "불꽃을";
+  const breath = useDragonBreath(canBreathe && !airborne && !paused, `${dragon.id}:${dragon.days}:${dragon.element}:${editing}`, breathAnimation);
+  const attacking = attack.active || breath.active || queuedAction !== null;
   const transitioning = airborne && flight.phase !== "flying";
   const canSit = enabled && !airborne && !attacking && !attack.resting;
   const flightMotion = flight.phase === "flying" ? moving ? "move" : "hover" : "takeoff";
@@ -62,20 +68,23 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
   const liftProgress = Math.max(0, (flight.frame - 1) / (flightAnimation.frames.takeoff - 2));
   const transitionAltitude = thunderFlight ? flight.frame === 1 ? -1 : 28 * liftProgress * liftProgress * (3 - 2 * liftProgress) : flight.frame / (flightAnimation.frames.takeoff - 1) * 16;
   const altitude = flight.phase === "taking-off" || flight.phase === "landing" ? transitionAltitude : flight.phase === "flying" ? thunderFlight ? 28 : 16 : 0;
-  useEffect(() => { setPosition({ x: 31, y: 65 }); setPose("standing"); setSitFrame(0); setStick(null); setAttackQueued(false); setAttackFacing(1); setFacing(1); setCloneOpen(false); pointer.current = null; }, [dragon.id, dragon.days, dragon.element, editing]);
+  useEffect(() => { setPosition({ x: 31, y: 65 }); setPose("standing"); setSitFrame(0); setStick(null); setQueuedAction(null); setAttackFacing(1); setFacing(1); setCloneOpen(false); pointer.current = null; }, [dragon.id, dragon.days, dragon.element, editing]);
   useEffect(() => { if (!canClone) setCloneOpen(false); }, [canClone]);
   useEffect(() => {
-    if (!attackQueued || pose !== "standing") return;
-    setAttackQueued(false);
-    if (canAttack && !airborne && !document.hidden) { setAttackFacing(facing); attack.start(); }
-  }, [attackQueued, pose, canAttack, airborne]);
+    if (!queuedAction) return;
+    if (paused || airborne || document.hidden || (queuedAction === "breath" ? !canBreathe : !canAttack)) { setQueuedAction(null); return; }
+    if (pose !== "standing") return;
+    setQueuedAction(null);
+    if (queuedAction === "breath") breath.start();
+    else { setAttackFacing(facing); attack.start(); }
+  }, [queuedAction, pose, canAttack, canBreathe, airborne, paused]);
   useEffect(() => { if (attack.resting) setFacing(-attackFacing); }, [attack.resting, attackFacing]);
   useEffect(() => {
-    if (!attackQueued) return;
-    const cancel = () => { if (document.hidden) setAttackQueued(false); };
+    if (!queuedAction) return;
+    const cancel = () => { if (document.hidden) setQueuedAction(null); };
     document.addEventListener("visibilitychange", cancel);
     return () => document.removeEventListener("visibilitychange", cancel);
-  }, [attackQueued]);
+  }, [queuedAction]);
   useEffect(() => {
     if (!canSit || stick || pose !== "standing") return;
     const timer = window.setTimeout(() => setPose("sitting"), 5000);
@@ -137,12 +146,13 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
     {enabled && <link rel="preload" as="image" href={walkArtwork} />}
     {canSit && <link rel="preload" as="image" href={sitArtwork} />}
     {canAttack && <link rel="preload" as="image" href={attackAnimation.artwork} />}
+    {canBreathe && <link rel="preload" as="image" href={breathAnimation.artwork} />}
     {canFly && (dragon.element ? ["takeoff", "move"] : ["takeoff", "move", "hover"]).map((motion) => <link key={motion} rel="preload" as="image" href={flightArtwork(motion)} />)}
     <img className="dragon-background-art" src={backgroundArt} alt="" draggable={false} />
     {thunderFlight && airborne && <span className="dragon-flight-shadow" aria-hidden="true" style={{ left: `${position.x}%`, top: `${Math.min(94, position.y + 19.5)}%`, transform: `translate(-50%, -50%) scale(${1 - Math.max(0, altitude) / 28 * .55})`, opacity: 1 - Math.max(0, altitude) / 28 * .65 }} />}
     {!cloneOpen && <div className={`dragon-resident ${dragon.days === 0 ? "is-egg" : dragon.days < 18 ? "is-baby" : dragon.days >= 30 && dragon.element === "fire" ? "is-adult-fire" : ""} ${enabled ? "is-controlled" : ""} ${walking ? "is-walking" : ""} ${thunderFlight && airborne ? "has-thunder-flight" : ""}`} style={enabled ? { left: `${position.x}%`, top: `${Math.max(34, position.y - altitude)}%`, transform: `translate(-50%, -50%) scaleX(${facing})` } : undefined}>
       {dragon.days === 0 && <span className="dragon-ground-shadow" aria-hidden="true" />}
-      {attack.active || attack.resting ? <DragonTailAttackSprite animation={attackAnimation} frame={attack.frame} resting={attack.resting} mirrored={attackFacing !== facing} /> : airborne ? <span className={`dragon-flight${dragon.element ? ` is-${dragon.element}` : ""}`} role="img" aria-label={flight.phase === "taking-off" ? "날아오르는 아기 드래곤" : flight.phase === "landing" ? "착륙하는 아기 드래곤" : moving ? "비행하는 아기 드래곤" : "공중에 머무는 아기 드래곤"}><span className="dragon-flight-frame" style={{ backgroundImage: `url('${flightArtwork(flightMotion)}')`, backgroundSize: `${flightColumns * 100}% ${flightRows * 100}%`, backgroundPosition: `${flightFrame % flightColumns * 100 / (flightColumns - 1)}% ${flightRows === 1 ? 0 : Math.floor(flightFrame / flightColumns) * 100 / (flightRows - 1)}%` }} /></span> : enabled && pose !== "standing" ? <span className={`dragon-sit is-${pose}`} style={{ backgroundImage: `url('${sitArtwork}')`, backgroundSize: `${sitFrameCount * 100}% 100%`, backgroundPositionX: `${sitFrame * 100 / (sitFrameCount - 1)}%` }} role="img" aria-label="쉬는 아기 드래곤" /> : <div className="dragon-idle"><DragonSprite dragon={dragon} /></div>}
+      {breath.active ? <DragonBreathSprite frame={breath.frame} animation={breathAnimation} /> : attack.active || attack.resting ? <DragonTailAttackSprite animation={attackAnimation} frame={attack.frame} resting={attack.resting} mirrored={attackFacing !== facing} /> : airborne ? <span className={`dragon-flight${dragon.element ? ` is-${dragon.element}` : ""}`} role="img" aria-label={flight.phase === "taking-off" ? "날아오르는 아기 드래곤" : flight.phase === "landing" ? "착륙하는 아기 드래곤" : moving ? "비행하는 아기 드래곤" : "공중에 머무는 아기 드래곤"}><span className="dragon-flight-frame" style={{ backgroundImage: `url('${flightArtwork(flightMotion)}')`, backgroundSize: `${flightColumns * 100}% ${flightRows * 100}%`, backgroundPosition: `${flightFrame % flightColumns * 100 / (flightColumns - 1)}% ${flightRows === 1 ? 0 : Math.floor(flightFrame / flightColumns) * 100 / (flightRows - 1)}%` }} /></span> : enabled && pose !== "standing" ? <span className={`dragon-sit is-${pose}`} style={{ backgroundImage: `url('${sitArtwork}')`, backgroundSize: `${sitFrameCount * 100}% 100%`, backgroundPositionX: `${sitFrame * 100 / (sitFrameCount - 1)}%` }} role="img" aria-label="쉬는 아기 드래곤" /> : <div className="dragon-idle"><DragonSprite dragon={dragon} /></div>}
       {walking && <span className="dragon-walk" role="img" aria-label="걷는 아기 드래곤"><span className="dragon-walk-frame" style={{ backgroundImage: `url('${walkArtwork}')` }} /></span>}
     </div>}
     {stick && <span className="dragon-stick" aria-hidden="true" style={{ left: stick.x, top: stick.y }}><span style={{ transform: `translate(${Math.max(-35, Math.min(35, stick.dx))}px, ${Math.max(-35, Math.min(35, stick.dy))}px)` }} /></span>}
@@ -176,7 +186,7 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
         <img className="dragon-prop-art" src={dragonPropArt[entry.art]} alt="" draggable={false} />
       </button>;
     })}
-  </div>{cloneOpen && canClone && scene.current && <DragonCloneGame element={dragon.element === "thunder" ? "thunder" : "fire"} scene={scene.current} origin={position} paused={paused} onClose={() => {
+  </div>{cloneOpen && canClone && scene.current && <DragonCloneGame skills={dragon.skills} element={dragon.element === "thunder" ? "thunder" : "fire"} scene={scene.current} origin={position} paused={paused} onClose={() => {
     setCloneOpen(false);
     window.requestAnimationFrame(() => cloneButton.current?.focus({ preventScroll: true }));
   }} />}{canClone && !cloneOpen && <div className="dragon-flight-controls"><button ref={cloneButton} type="button" disabled={attacking || airborne || paused} onClick={() => {
@@ -186,7 +196,12 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
   }}>분신 놀이</button><span>{airborne ? "착륙한 뒤 분신 놀이를 할 수 있어요." : "행동을 관찰해 세 마리 중 진짜를 찾아봐요."}</span></div>}{canAttack && <div className="dragon-flight-controls"><button type="button" disabled={attacking || airborne} onClick={() => {
     if (attacking || airborne) return;
     setStick(null); pointer.current = null; direction.current = { dx: 0, dy: 0 };
-    if (pose !== "standing") { setPose("rising"); setAttackQueued(true); }
+    if (pose !== "standing") { setPose("rising"); setQueuedAction("tail-attack"); }
     else { setAttackFacing(facing); attack.start(); }
-  }}>{attacking ? "꼬리 공격 중" : "꼬리 공격"}</button><span aria-live="polite">{attackQueued ? "일어서서 꼬리 공격을 준비해요." : attack.active ? "꼬리를 크게 휘둘러요!" : airborne ? "착륙한 뒤 꼬리 공격을 할 수 있어요." : dragon.element === "fire" ? "꼬리를 휘두른 뒤 반대쪽을 바라보며 서 있어요." : "꼬리 공격을 누르면 한 바퀴 돌며 꼬리를 휘둘러요."}</span></div>}{canFly && <div className="dragon-flight-controls"><button type="button" aria-pressed={airborne} disabled={transitioning || attacking} onClick={() => { if (attacking) return; attack.clearRest(); if (flight.phase === "ground") setPosition((p) => ({ ...p, x: Math.max(25, Math.min(74, p.x)) })); setPose("standing"); setSitFrame(0); setStick(null); pointer.current = null; direction.current = { dx: 0, dy: 0 }; flight.toggle(); }}>{flight.phase === "taking-off" ? "날아오르는 중" : flight.phase === "landing" ? "착륙하는 중" : "날기"}</button><span aria-live="polite">{flight.phase === "flying" ? "좌우로 드래그하면 날아요. 날기를 다시 누르면 착륙해요." : flight.phase === "ground" ? "날기를 누르면 하늘로 올라가요." : flight.phase === "taking-off" ? "날아오르고 있어요." : "땅으로 내려오고 있어요."}</span></div>}</>;
+  }}>{attack.active || queuedAction === "tail-attack" ? "꼬리 공격 중" : "꼬리 공격"}</button><span aria-live="polite">{queuedAction === "tail-attack" ? "일어서서 꼬리 공격을 준비해요." : attack.active ? "꼬리를 크게 휘둘러요!" : airborne ? "착륙한 뒤 꼬리 공격을 할 수 있어요." : dragon.element === "fire" ? "꼬리를 휘두른 뒤 반대쪽을 바라보며 서 있어요." : "꼬리 공격을 누르면 한 바퀴 돌며 꼬리를 휘둘러요."}</span></div>}{canBreathe && <div className="dragon-flight-controls"><button type="button" disabled={attacking || airborne || paused} onClick={() => {
+    if (attacking || airborne || paused) return;
+    setStick(null); pointer.current = null; direction.current = { dx: 0, dy: 0 }; attack.clearRest();
+    if (pose !== "standing") { setPose("rising"); setQueuedAction("breath"); }
+    else breath.start();
+  }}>{breath.active || queuedAction === "breath" ? "브레스 중" : "브레스"}</button><span aria-live="polite">{queuedAction === "breath" ? "일어서서 브레스를 준비해요." : breath.active ? `후— ${breathEffect} 내뿜어요!` : airborne ? "착륙한 뒤 브레스를 뿜을 수 있어요." : `브레스를 누르면 ${breathEffect} 한 번 내뿜어요.`}</span></div>}{canFly && <div className="dragon-flight-controls"><button type="button" aria-pressed={airborne} disabled={transitioning || attacking} onClick={() => { if (attacking) return; attack.clearRest(); if (flight.phase === "ground") setPosition((p) => ({ ...p, x: Math.max(25, Math.min(74, p.x)) })); setPose("standing"); setSitFrame(0); setStick(null); pointer.current = null; direction.current = { dx: 0, dy: 0 }; flight.toggle(); }}>{flight.phase === "taking-off" ? "날아오르는 중" : flight.phase === "landing" ? "착륙하는 중" : "날기"}</button><span aria-live="polite">{flight.phase === "flying" ? "좌우로 드래그하면 날아요. 날기를 다시 누르면 착륙해요." : flight.phase === "ground" ? "날기를 누르면 하늘로 올라가요." : flight.phase === "taking-off" ? "날아오르고 있어요." : "땅으로 내려오고 있어요."}</span></div>}</>;
 }

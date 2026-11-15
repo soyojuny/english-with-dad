@@ -24,9 +24,10 @@ function Panel({ title, background }: { title: string; background: string }) {
   const [paused, setPaused] = useState(false);
   const [flight, setFlight] = useState(false);
   const [tailAttack, setTailAttack] = useState(false);
+  const [breath, setBreath] = useState(false);
   const [clone, setClone] = useState(false);
   const decor = { ...defaultDragonDecor(), background: { ...defaultDragonDecor().background, itemId: background } };
-  const dragon: Dragon = { id: title, egg, days, element: element === "neutral" ? null : element, selectedDate: "", decor, version: 0, skills: [...(flight ? ["fly" as const] : []), ...(tailAttack ? ["tail-attack" as const] : []), ...(clone ? ["clone" as const] : [])] };
+  const dragon: Dragon = { id: title, egg, days, element: element === "neutral" ? null : element, selectedDate: "", decor, version: 0, skills: [...(flight ? ["fly" as const] : []), ...(tailAttack ? ["tail-attack" as const] : []), ...(clone ? ["clone" as const] : []), ...(breath ? ["breath" as const] : [])] };
   return <section className="showcase-panel dragon-screen">
     <h2>{title}</h2>
     <div className="showcase-controls">
@@ -36,6 +37,7 @@ function Panel({ title, background }: { title: string; background: string }) {
       <button type="button" onClick={() => setPaused(!paused)}>{paused ? "동작 재생" : "동작 일시정지"}</button>
       {days > 0 && days < 18 && (element === "neutral" || element === "fire" || element === "thunder") && <label><input type="checkbox" checked={flight} onChange={(event) => setFlight(event.target.checked)} />날기 획득</label>}
       {days > 0 && days < 18 && (element === "fire" || element === "thunder") && <label><input type="checkbox" checked={tailAttack} onChange={(event) => setTailAttack(event.target.checked)} />꼬리 공격 획득</label>}
+      {days > 0 && days < 18 && (element === "fire" || element === "thunder") && <label><input type="checkbox" checked={breath} onChange={(event) => setBreath(event.target.checked)} />브레스 획득</label>}
       {days > 0 && days < 18 && (element === "fire" || element === "thunder") && <label><input type="checkbox" checked={clone} onChange={(event) => setClone(event.target.checked)} />분신 획득</label>}
     </div>
     <div className={paused ? "showcase-paused" : ""}><DragonScene dragon={dragon} decor={decor} catalog={catalog} paused={paused} /></div>
@@ -51,6 +53,6 @@ export function DragonShowcase() {
     <p>실제 앱 화면을 나란히 비교합니다. 변경 전후 비교는 현재 저장된 원화끼리만 가능합니다.</p>
     <label>배경 <select value={background} onChange={(e) => setBackground(e.target.value)}>{backgrounds.map((id, i) => <option key={id} value={id}>배경 {i + 1}</option>)}</select></label>
     <div className="showcase-grid"><Panel title="비교 A" background={background} /><Panel title="비교 B" background={background} /></div>
-    <p>포효와 브레스는 아직 앱에 연결되지 않았습니다. 새 동작을 앱에 추가할 때 이 화면의 선택지도 함께 갱신하세요.</p>
+    <p>불·번개 아기는 브레스 획득 후 지상에서 속성에 맞는 브레스를 한 번 뿜고 대기로 돌아옵니다. 번개는 승인한 B안의 보라빛 12자세를 사용합니다.</p>
   </main>;
 }

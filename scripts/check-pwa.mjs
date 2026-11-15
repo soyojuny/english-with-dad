@@ -37,7 +37,7 @@ for (const icon of manifest.icons ?? []) {
 }
 
 const sw = await readFile(serviceWorkerPath, "utf8");
-if (!sw.includes('const cacheName = "ewd-reading-v26";')) fail("fire and thunder clone games require the v26 cache");
+if (!sw.includes('const cacheName = "ewd-reading-v30";')) fail("native-resolution thunder breath requires the v30 cache");
 const appShellMatch = sw.match(/const appShell = \[([\s\S]*?)\];/);
 if (!appShellMatch) fail("service worker appShell array not found");
 
@@ -64,6 +64,8 @@ const dragonArtwork = [
   "/assets/dragons/baby/thunder-flight-move.webp",
   "/assets/dragons/baby/thunder-tail-attack.webp",
   "/assets/dragons/baby/fire-tail-attack.webp",
+  "/assets/dragons/baby/fire-breath.webp",
+  "/assets/dragons/baby/thunder-breath.webp",
   "/assets/dragons/baby/walk-bde.webp",
   "/assets/dragons/baby/fire-walk-bde.webp",
   "/assets/dragons/baby/thunder-walk-bde.webp",

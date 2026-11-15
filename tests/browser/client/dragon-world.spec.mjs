@@ -28,12 +28,12 @@ async function openChild(page) {
 }
 
 for (const element of ['fire', 'thunder']) {
-for (const viewport of [{ width: 1024, height: 768 }, { width: 768, height: 1024 }]) {
+for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 950 }]) {
   test(`아동 분신 ${element} ${viewport.width}px: 획득·재조회·원래 배경에서 찾기·대기 복귀`, async ({ childCompletion: f }) => {
     // Given: the real child UI receives the stored per-dragon skill through its RPC.
     const { page } = f;
     await page.setViewportSize(viewport);
-    const fixture = await dragonFixture(page, { dragons: [{ id: 'dragon-1', egg: 0, days: 6, selectedDate: '2026-10-01', element, decor: decor(), skills: [], version: 0 }] });
+    const fixture = await dragonFixture(page, { dragons: [{ id: 'dragon-1', egg: 0, days: 6, selectedDate: '2026-10-01', element, decor: decor(), skills: ['fly', 'tail-attack', 'breath'], version: 0 }] });
     await openChild(page);
     await page.getByRole('button', { name: '드래곤', exact: true }).click();
     const screen = page.getByRole('region', { name: '드래곤 키우기' });
@@ -42,13 +42,21 @@ for (const viewport of [{ width: 1024, height: 768 }, { width: 768, height: 1024
     await screen.getByRole('button', { name: '분신 배우기 · 기회 1개' }).click();
     await expect(screen.getByRole('button', { name: '분신 놀이', exact: true })).toBeVisible();
     expect(fixture.state.credits).toBe(1);
-    expect(fixture.state.dragons[0].skills).toEqual(['clone']);
+    expect(fixture.state.dragons[0].skills).toEqual(['fly', 'tail-attack', 'breath', 'clone']);
     await page.reload();
     await page.getByRole('button', { name: '드래곤', exact: true }).click();
     await screen.getByRole('button', { name: '분신 놀이', exact: true }).click();
     const scene = screen.getByLabel('드래곤의 공간', { exact: true });
     const background = await scene.locator('.dragon-background-art').getAttribute('src');
-    await page.clock.runFor(5500);
+    const teacher = [];
+    await page.clock.runFor(1500);
+    teacher.push(await scene.locator('.clone-teacher .clone-sprite').evaluate(sprite => sprite.outerHTML));
+    for (let step = 1; step < 3; step++) {
+      await page.clock.runFor(3000);
+      teacher.push(await scene.locator('.clone-teacher .clone-sprite').evaluate(sprite => sprite.outerHTML));
+    }
+    await expect(screen.locator('.clone-hint')).toHaveCount(0);
+    await page.clock.runFor(1800);
     await expect(scene.locator('.clone-stage')).toHaveAttribute('data-phase', 'vanish');
     await page.clock.runFor(600);
     await expect(scene.locator('.clone-stage')).toHaveAttribute('data-phase', 'emerge');
@@ -57,22 +65,22 @@ for (const viewport of [{ width: 1024, height: 768 }, { width: 768, height: 1024
     await expect(scene.locator('.clone-stage')).toHaveAttribute('data-phase', 'observe');
     await expect(scene.locator('.clone-candidate')).toHaveCount(3);
     const positions = await scene.locator('.clone-candidate').evaluateAll(buttons => buttons.map(button => button.style.cssText));
-    const sequence = (await screen.locator('.clone-hint').textContent()).includes('두 번');
-    await page.clock.runFor(1300);
-    const blinking = await scene.locator('.clone-blink').evaluateAll(images => images.map(image => image.style.opacity === '1'));
-    await page.clock.runFor(2300);
-    const patterns = await scene.locator('.clone-candidate').evaluateAll(buttons => buttons.map(button => ({
-      walking: !!button.querySelector('.is-stepping'), pose: button.querySelector('.clone-pose').style.backgroundPosition,
-      artwork: button.querySelector('.clone-pose').style.backgroundImage,
-    })));
-    const real = patterns.findIndex((pattern, index) => !pattern.walking && pattern.pose === '100% 0%' && (!sequence || blinking[index]));
-    const fake = patterns.findIndex(pattern => pattern.walking);
-    expect(real).toBeGreaterThanOrEqual(0);
+    const candidates = [[], [], []];
+    await page.clock.runFor(1500);
+    for (let step = 0; step < 3; step++) {
+      if (step) await page.clock.runFor(3000);
+      const sprites = await scene.locator('.clone-candidate .clone-sprite').evaluateAll(sprites => sprites.map(sprite => sprite.outerHTML));
+      sprites.forEach((sprite, index) => candidates[index].push(sprite));
+    }
+    const matching = candidates.map(candidate => JSON.stringify(candidate) === JSON.stringify(teacher));
+    const real = matching.indexOf(true);
+    const fake = matching.indexOf(false);
+    expect(matching.filter(Boolean)).toHaveLength(1);
     expect(fake).toBeGreaterThanOrEqual(0);
-    for (const pattern of patterns) expect(pattern.artwork).toContain(`${element}-`);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await scene.locator('.clone-candidate').nth(fake).click();
     await screen.getByRole('button', { name: '단서 다시 보기' }).click();
-    await page.clock.runFor(6400);
+    await page.clock.runFor(10200);
     // Then: replay preserves placement/elimination and finding the real dragon restores idle without another charge.
     expect(await scene.locator('.clone-candidate').evaluateAll(buttons => buttons.map(button => button.style.cssText))).toEqual(positions);
     await expect(scene.locator('.clone-candidate').nth(fake)).toBeDisabled();
@@ -84,7 +92,7 @@ for (const viewport of [{ width: 1024, height: 768 }, { width: 768, height: 1024
     await expect(scene.locator('.dragon-idle')).toBeVisible();
     expect(await scene.locator('.dragon-background-art').getAttribute('src')).toBe(background);
     expect(fixture.state.credits).toBe(1);
-    expect(fixture.state.dragons[0].skills).toEqual(['clone']);
+    expect(fixture.state.dragons[0].skills).toEqual(['fly', 'tail-attack', 'breath', 'clone']);
   });
 }
 }
@@ -609,6 +617,63 @@ for (const width of [390, 1280]) {
     await page.getByRole('button', { name: '날기', exact: true }).click();
     await expect(scene.getByLabel('공격 후 서 있는 아기 드래곤')).toHaveCount(0);
     await expect(scene.locator('.dragon-flight')).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  });
+}
+
+
+for (const element of ['fire', 'thunder']) for (const width of [390, 1280]) {
+  const durations = element === 'thunder' ? [850, 180, 180, 300, 130, 140, 100, 130, 200, 150, 150, 180] : [650, 130, 100, 100, 110, 150, 110, 90, 100, 150, 200];
+  test(`${element} 브레스 ${width}px: 기회로 획득·재조회하고 지상에서 한 번 재생한다`, async ({ childCompletion: f }) => {
+    // Given: actual child UI, production sprite, and a controlled RPC snapshot.
+    const { page } = f; await page.setViewportSize({ width, height: 950 });
+    const fixture = await dragonFixture(page, { dragons: [{ id: 'dragon-1', egg: 0, days: 6, selectedDate: '2026-10-01', element, decor: decor(), skills: ['fly', 'tail-attack', 'clone'], version: 0 }] });
+    await openChild(page); await page.getByRole('button', { name: '드래곤', exact: true }).click();
+    await expect(page.getByRole('button', { name: '브레스', exact: true })).toHaveCount(0);
+    // When: acquire and reload to prove UI availability follows the saved skill.
+    await page.getByRole('button', { name: '브레스 배우기 · 기회 1개' }).click();
+    await expect(page.getByRole('button', { name: '브레스', exact: true })).toBeVisible();
+    expect(fixture.state.credits).toBe(1);
+    await page.reload(); await page.getByRole('button', { name: '드래곤', exact: true }).click();
+    await page.getByRole('button', { name: '브레스', exact: true }).click();
+    // Then: frames advance without moving the resident or allowing another action.
+    const scene = page.getByLabel('드래곤의 공간', { exact: true });
+    const resident = scene.locator('.dragon-resident');
+    const before = await resident.getAttribute('style');
+    const sprite = scene.locator('.dragon-fire-breath-frame');
+    await expect(sprite).toHaveCSS('background-size', '400% 300%');
+    await expect(sprite).toHaveCSS('background-position', '0% 0%');
+    await expect(sprite).toHaveCSS('background-image', `url("${new URL(`/assets/dragons/baby/${element}-breath.webp`, page.url()).href}")`);
+    if (element === 'thunder') {
+      const residentBox = await resident.boundingBox(); const spriteBox = await sprite.boundingBox();
+      // Native first-frame front feet end at y=533 in the 570px cell, matching idle grounding.
+      const footY = spriteBox.y + spriteBox.height * 533 / 570;
+      expect(Math.abs(footY - (residentBox.y + residentBox.height * 1613 / 2048))).toBeLessThan(residentBox.height * .02);
+      const sceneBox = await scene.boundingBox();
+      expect(spriteBox.x).toBeGreaterThanOrEqual(sceneBox.x);
+      expect(spriteBox.x + spriteBox.width).toBeLessThanOrEqual(sceneBox.x + sceneBox.width);
+    }
+    for (const name of ['브레스 중', '꼬리 공격', '날기', '분신 놀이']) await expect(page.getByRole('button', { name, exact: true })).toBeDisabled();
+    const asset = await page.evaluate(async element => {
+      const image = new Image(); image.src = `/assets/dragons/baby/${element}-breath.webp`; await image.decode();
+      const canvas = document.createElement('canvas'); canvas.width = canvas.height = 1;
+      const ctx = canvas.getContext('2d'); ctx.drawImage(image, 0, 0);
+      return { dimensions: [image.naturalWidth, image.naturalHeight], alpha: ctx.getImageData(0, 0, 1, 1).data[3] };
+    }, element);
+    expect(asset).toEqual({ dimensions: element === 'thunder' ? [3280, 1710] : [3040, 1680], alpha: 0 });
+    for (let frame = 0; frame < durations.length; frame++) {
+      const column = frame % 4; const row = Math.floor(frame / 4);
+      await expect(sprite).toHaveCSS('background-position', `${Number((column * 100 / 3).toFixed(4))}% ${row * 50}%`);
+      expect(await resident.getAttribute('style')).toBe(before);
+      await page.clock.runFor(durations[frame]);
+    }
+    await expect(sprite).toHaveCount(0); await expect(scene.locator('.dragon-idle')).toBeVisible();
+    expect(fixture.state.credits).toBe(1);
+    expect(fixture.state.dragons[0].skills).toContain('breath');
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.getByRole('button', { name: '브레스', exact: true }).click();
+    await expect(sprite).toHaveCSS('background-position', element === 'thunder' ? '66.6667% 50%' : '33.3333% 50%');
+    await page.clock.runFor(300); await expect(sprite).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   });
 }

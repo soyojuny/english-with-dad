@@ -1,37 +1,47 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { cloneCycleMs, clonePose, createCloneRound, createClonePositions, createRandomCloneGame, clonePlayback } from "../lib/dragon-clone";
+import { cloneCycleMs, clonePose, createCloneRound, createClonePositions, createRandomCloneGame, clonePlayback, type ClonePattern } from "../lib/dragon-clone";
 import { supportsDragonClone } from "../lib/dragon-data";
 
-for (const difficulty of ["easy", "sequence"] as const) {
-  test(`${difficulty}: 세 마리 중 단서와 일치하는 드래곤은 하나이고 자리도 바뀐다`, () => {
-    // Given
-    const first = createCloneRound(difficulty, () => 0);
-    const last = createCloneRound(difficulty, () => .999);
-    // When
-    const matching = first.filter(pattern => pattern.action === "sit" && pattern.blinks === (difficulty === "easy" ? 0 : 2));
+test("모든 행동과 좌우 조합을 추첨하고 정답은 항상 하나다", () => {
+  // Given: seeded randomness plus both constant boundary generators.
+  let seed = 17;
+  const random = () => { seed = seed * 16807 % 2147483647; return seed / 2147483647; };
+  const actions = new Set<string>();
+  const directions = new Set<string>();
+  const patterns = new Set<string>();
+  // When
+  for (const generator of [() => 0, () => .999, ...Array.from({ length: 200 }, () => random)]) {
+    const round = createCloneRound(["clone", "fly", "tail-attack", "breath"], generator);
+    const real = round.find(pattern => pattern.real)!;
+    patterns.add(JSON.stringify(real.steps));
+    for (const step of real.steps) { actions.add(step.action); directions.add(step.facing); }
     // Then
-    assert.equal(first.length, 3);
-    assert.equal(matching.length, 1);
-    assert.equal(matching[0].real, true);
-    assert.notEqual(first.findIndex(pattern => pattern.real), last.findIndex(pattern => pattern.real));
-  });
-}
-
-test("새 놀이는 난이도·진짜 위치·배치를 무작위로 정한다", () => {
-  // Given
-  const easy = createRandomCloneGame(() => 0);
-  const sequence = createRandomCloneGame(() => .999);
-  // When / Then
-  assert.equal(easy.difficulty, "easy");
-  assert.equal(sequence.difficulty, "sequence");
-  assert.notEqual(easy.round.findIndex(pattern => pattern.real), sequence.round.findIndex(pattern => pattern.real));
-  assert.notDeepEqual(easy.positions, sequence.positions);
+    assert.equal(round.length, 3);
+    assert.equal(round.filter(pattern => pattern.real).length, 1);
+    assert.equal(new Set(round.map(pattern => JSON.stringify(pattern.steps))).size, 3);
+  }
+  assert.deepEqual([...actions].sort(), ["blink", "breath", "fly", "sit", "stand", "tail-attack", "walk"]);
+  assert.deepEqual([...directions].sort(), ["left", "right"]);
+  assert.ok(patterns.size > 150);
 });
 
-test("단서는 한 번만 재생하고 소멸·생성 효과 후 관찰 동작을 반복한다", () => {
+test("빈 스킬 목록에서는 기본 행동만 쓰며 새 놀이는 패턴·정답 자리·배치를 바꾼다", () => {
   // Given / When
-  const states = [5199, 5200, 5799, 5800, 6399, 6400, 13600].map(clonePlayback);
+  const first = createRandomCloneGame(() => 0);
+  const last = createRandomCloneGame(() => .999);
+  // Then
+  assert.notDeepEqual(first.round, last.round);
+  assert.notDeepEqual(first.positions, last.positions);
+  assert.notEqual(first.round.findIndex(pattern => pattern.real), last.round.findIndex(pattern => pattern.real));
+  for (const pattern of [...first.round, ...last.round]) for (const step of pattern.steps) {
+    assert.ok(["stand", "blink", "sit", "walk"].includes(step.action));
+  }
+});
+
+test("세 동작을 끝까지 보여준 뒤 소멸·생성하고 관찰을 반복한다", () => {
+  // Given / When
+  const states = [8999, 9000, 9599, 9600, 10199, 10200, 20400].map(clonePlayback);
   // Then
   assert.deepEqual(states.map(state => state.phase), ["clue", "vanish", "vanish", "emerge", "emerge", "observe", "observe"]);
   assert.equal(states[5].elapsed, 0);
@@ -58,39 +68,45 @@ test("무작위 배치는 세 마리를 장면 안에 유지하고 서로의 터
   assert.ok(new Set(layouts.map(layout => JSON.stringify(layout))).size > 90);
 });
 
-test("관찰 동작은 깜빡임 횟수·앉기·일어서기 경계를 지키고 반복한다", () => {
+test("동작 순서·방향·깜빡임·앉기 경계를 지키고 같은 패턴을 반복한다", () => {
   // Given
-  const real = { real: true, action: "sit" as const, blinks: 2 };
-  const fake = { ...real, real: false, blinks: 1 };
+  const pattern: ClonePattern = { real: true, steps: [{ action: "blink", facing: "left" }, { action: "sit", facing: "right" }, { action: "walk", facing: "left" }] };
   // When
-  const at = (time: number) => clonePose(real, time);
+  const at = (time: number) => clonePose(pattern, time);
   // Then
-  assert.equal(at(649).blinking, false);
-  assert.equal(at(650).blinking, true);
-  assert.equal(at(950).blinking, false);
-  assert.equal(at(1250).blinking, true);
-  assert.equal(clonePose(fake, 1250).blinking, false);
-  assert.equal(at(1550).blinking, false);
-  assert.equal(at(2199).frame, 0);
-  assert.equal(at(2200).frame, 1);
-  assert.equal(at(3400).frame, 4);
-  assert.equal(at(5199).frame, 1);
-  assert.equal(at(5200).frame, 0);
-  assert.deepEqual(at(cloneCycleMs + 650), at(650));
+  assert.equal(at(499).blinking, false);
+  assert.equal(at(500).blinking, true);
+  assert.equal(at(800).blinking, false);
+  assert.equal(at(1200).blinking, true);
+  assert.equal(at(1500).blinking, false);
+  assert.equal(at(2999).facing, "left");
+  assert.equal(at(3000).facing, "right");
+  assert.equal(at(4000).frame, 4);
+  assert.equal(at(5999).frame, 0);
+  assert.equal(at(6000).action, "walk");
+  assert.equal(at(9000).action, "stand");
+  assert.deepEqual(at(cloneCycleMs + 500), at(500));
+  assert.equal(clonePose(pattern, 3000, true).frame, 4);
+  assert.equal(clonePose(pattern, 6000, true).frame, 0);
 });
 
-test("움직임 줄이기는 중간 자세를 생략해도 깜빡임 횟수와 앉기 단서를 유지한다", () => {
-  // Given
-  const real = { real: true, action: "sit" as const, blinks: 2 };
-  // When
-  const blink = clonePose(real, 1250, true);
-  const sit = clonePose(real, 2200, true);
-  const stand = clonePose(real, 4000, true);
-  // Then
-  assert.equal(blink.blinking, true);
-  assert.equal(sit.frame, 4);
-  assert.equal(stand.frame, 0);
-});
+for (const element of ["fire", "thunder"] as const) {
+  test(`${element} 스킬은 전체 동작을 재생하며 움직임 줄이기에서도 구별된다`, () => {
+    // Given
+    const pattern: ClonePattern = { real: true, steps: [{ action: "fly", facing: "left" }, { action: "tail-attack", facing: "right" }, { action: "breath", facing: "left" }] };
+    // When
+    const poses = Array.from({ length: 90 }, (_, i) => clonePose(pattern, i * 100, false, element));
+    // Then
+    assert.equal(poses[15].motion, "hover");
+    assert.equal(poses[29].motion, "takeoff");
+    assert.ok(poses[40].frame > poses[30].frame);
+    assert.ok(poses[80].frame > poses[60].frame);
+    for (const time of [0, 3000, 6000]) {
+      assert.equal(clonePose(pattern, time, true, element).action, pattern.steps[time / 3000].action);
+      assert.equal(clonePose(pattern, time, true, element).facing, pattern.steps[time / 3000].facing);
+    }
+  });
+}
 
 for (const element of [null, "fire", "thunder", "ice"] as const) {
   for (const days of [0, 1, 17, 18, 30]) {

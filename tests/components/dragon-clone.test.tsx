@@ -7,7 +7,7 @@ import type { Dragon } from "../../lib/dragon-types";
 const decor = defaultDragonDecor();
 describe.each(["fire", "thunder"] as const)("%s 분신 놀이", element => {
 const dragon: Dragon = { id: element, egg: 0, selectedDate: "", days: 6, element, skills: ["clone", "fly", "tail-attack"], decor, version: 0 };
-function advanceToChoices() { act(() => vi.advanceTimersByTime(6400)); }
+function advanceToChoices() { act(() => vi.advanceTimersByTime(10200)); }
 function renderGame() {
   const view = render(<DragonScene dragon={dragon} decor={decor} catalog={[]} />);
   fireEvent.click(screen.getByRole("button", { name: "분신 놀이" }));
@@ -43,25 +43,24 @@ test("오답과 단서 재확인 후에도 같은 문제에서 정답을 고르�
   expect([...document.querySelectorAll<HTMLElement>(".clone-candidate")].map(button => button.style.cssText)).not.toEqual(positions);
 });
 
-test("난이도를 무작위로 정하고 관찰은 시간 제한 없이 반복된다", () => {
+test("패턴 설명 없이 무작위 동작과 방향을 시간 제한 없이 반복한다", () => {
   // Given
-  renderGame();
+  const view = renderGame();
   // When
   expect(screen.queryByRole("combobox")).toBeNull();
+  expect(view.container.querySelector(".clone-hint")).toBeNull();
   advanceToChoices();
-  act(() => vi.advanceTimersByTime(1300));
+  const sprite = () => view.container.querySelector(".clone-candidate .clone-sprite")!;
+  const first = sprite().outerHTML;
+  act(() => vi.advanceTimersByTime(10200 * 3));
   // Then
-  expect(screen.getByText("눈을 두 번 깜빡이고 → 앉았다 일어나기")).toBeTruthy();
-  const first = screen.getByRole("button", { name: "1번 드래곤 선택" });
-  const second = screen.getByRole("button", { name: "2번 드래곤 선택" });
-  expect(first.querySelector<HTMLElement>(".clone-blink")!.style.opacity).toBe("1");
-  expect(second.querySelector<HTMLElement>(".clone-blink")!.style.opacity).toBe("0");
-  act(() => vi.advanceTimersByTime(7200 * 3));
-  expect(first.querySelector<HTMLElement>(".clone-blink")!.style.opacity).toBe("1");
-  expect((first as HTMLButtonElement).disabled).toBe(false);
+  expect(sprite().outerHTML).toBe(first);
+  expect((screen.getByRole("button", { name: "1번 드래곤 선택" }) as HTMLButtonElement).disabled).toBe(false);
   vi.mocked(Math.random).mockReturnValue(.001);
   fireEvent.click(screen.getByRole("button", { name: "새로 놀기" }));
-  expect(screen.getByText("천천히 앉았다가 → 다시 일어나기")).toBeTruthy();
+  advanceToChoices();
+  expect(sprite().outerHTML).not.toBe(first);
+  expect(view.container.querySelector(".clone-hint")).toBeNull();
 });
 
 test("단서 행동 한 번 후 소멸·생성 효과를 거쳐 선택을 시작하며 전환 중에는 선택하지 못한다", () => {
@@ -70,7 +69,7 @@ test("단서 행동 한 번 후 소멸·생성 효과를 거쳐 선택을 시작
   const phase = () => view.container.querySelector<HTMLElement>(".clone-stage")!.dataset.phase;
   expect(phase()).toBe("clue");
   // When / Then: one clue pass, then disappearance and reappearance.
-  act(() => vi.advanceTimersByTime(5100));
+  act(() => vi.advanceTimersByTime(8900));
   expect(phase()).toBe("clue");
   act(() => vi.advanceTimersByTime(400));
   expect(phase()).toBe("vanish");
@@ -107,7 +106,7 @@ test("움직임 줄이기는 확대·축소 없이 전환하고 분신 생성도
   // Given
   vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
   const view = renderGame();
-  act(() => vi.advanceTimersByTime(5500));
+  act(() => vi.advanceTimersByTime(9300));
   const body = view.container.querySelector<HTMLElement>(".clone-magic-body")!;
   // When
   const before = body.style.cssText;
@@ -127,12 +126,12 @@ test("일시정지는 자세와 선택을 멈추고 화면 복귀는 같은 단�
   const view = renderGame();
   advanceToChoices();
   act(() => vi.advanceTimersByTime(2500));
-  const before = view.container.querySelector(".clone-pose")!.getAttribute("style");
+  const before = view.container.querySelector(".clone-sprite")!.outerHTML;
   // When
   view.rerender(<DragonScene dragon={dragon} decor={decor} catalog={[]} paused />);
   act(() => vi.advanceTimersByTime(10000));
   // Then
-  expect(view.container.querySelector(".clone-pose")!.getAttribute("style")).toBe(before);
+  expect(view.container.querySelector(".clone-sprite")!.outerHTML).toBe(before);
   expect((screen.getByRole("button", { name: "1번 드래곤 선택" }) as HTMLButtonElement).disabled).toBe(true);
   const hidden = vi.spyOn(document, "hidden", "get").mockReturnValue(true);
   act(() => document.dispatchEvent(new Event("visibilitychange")));

@@ -2,21 +2,31 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { cloneClues, cloneCycleMs, cloneClueMs, cloneMagicMs, cloneSuccessMs, clonePlayback, clonePose, createRandomCloneGame, type ClonePattern, type ClonePosition } from "../lib/dragon-clone";
+import { cloneCycleMs, cloneClueMs, cloneMagicMs, cloneSuccessMs, clonePlayback, clonePose, createRandomCloneGame, type ClonePattern, type ClonePosition } from "../lib/dragon-clone";
+import { dragonFlightAnimations, dragonTailAttackAnimation, fireTailAttackAnimation, fireBreathAnimation, thunderBreathAnimation } from "../lib/dragon-art";
+import type { DragonSkill } from "../lib/dragon-types";
+import { DragonTailAttackSprite } from "./dragon-tail-attack";
+import { DragonBreathSprite } from "./dragon-breath";
 
 const artwork = "/assets/dragons/baby/";
 
 function CloneSprite({ element, pattern, elapsed, reducedMotion }: { element: "fire" | "thunder"; pattern: ClonePattern; elapsed: number; reducedMotion: boolean }) {
-  const pose = clonePose(pattern, elapsed, reducedMotion);
-  return <span className={`clone-sprite${pose.walking ? " is-stepping" : ""}`} aria-hidden="true">
-    <span className="clone-pose" style={{ backgroundImage: `url('${artwork}${element}-${pose.walking ? "walk-bde" : "sit-sequence"}.webp')`, backgroundPosition: `${pose.walking ? pose.walkFrame * 50 : pose.frame * 25}% 0%` }} />
-    <img className="clone-blink" src={`${artwork}${element}-blink.webp`} alt="" draggable={false} style={{ opacity: pose.blinking ? 1 : 0 }} />
+  const pose = clonePose(pattern, elapsed, reducedMotion, element);
+  const flight = dragonFlightAnimations[element];
+  const rows = pose.motion === "takeoff" ? Math.ceil(flight.frames.takeoff / flight.columns) : Math.ceil(flight.frames.hover / flight.columns);
+  return <span className={`clone-sprite${pose.action === "walk" ? " is-stepping" : ""}`} style={{ transform: `scaleX(${pose.facing === "left" ? -1 : 1})` }} aria-hidden="true">
+    {pose.action === "breath" ? <DragonBreathSprite animation={element === "fire" ? fireBreathAnimation : thunderBreathAnimation} frame={pose.frame} />
+      : pose.action === "tail-attack" ? <DragonTailAttackSprite animation={element === "fire" ? fireTailAttackAnimation : dragonTailAttackAnimation} frame={pose.frame} resting={false} mirrored={false} />
+      : pose.action === "fly" ? <span className={`dragon-flight is-${element}`}><span className="dragon-flight-frame" style={{ backgroundImage: `url('${artwork}${element}-flight-${pose.motion === "hover" ? "move" : pose.motion}.webp')`, backgroundSize: `${flight.columns * 100}% ${rows * 100}%`, backgroundPosition: `${pose.frame % flight.columns * 100 / (flight.columns - 1)}% ${rows === 1 ? 0 : Math.floor(pose.frame / flight.columns) * 100 / (rows - 1)}%` }} /></span>
+      : <><span className="clone-pose" style={{ backgroundImage: `url('${artwork}${element}-${pose.action === "walk" ? "walk-bde" : "sit-sequence"}.webp')`, backgroundPosition: `${pose.action === "walk" ? pose.frame * 50 : pose.frame * 25}% 0%` }} />
+        {pose.action === "stand" && <img className="clone-rest" src={`${artwork}${element}-breathe.webp`} alt="" draggable={false} style={{ opacity: reducedMotion ? 0 : (1 - Math.cos(elapsed % 3000 / 3000 * Math.PI * 2)) / 2 }} />}
+        <img className="clone-blink" src={`${artwork}${element}-blink.webp`} alt="" draggable={false} style={{ opacity: pose.blinking ? 1 : 0 }} /></>}
   </span>;
 }
 
-export function DragonCloneGame({ element, scene, origin, onClose, paused = false }: { element: "fire" | "thunder"; scene: HTMLElement; origin: ClonePosition; onClose: () => void; paused?: boolean }) {
-  const [game, setGame] = useState(createRandomCloneGame);
-  const { difficulty, round, positions } = game;
+export function DragonCloneGame({ element, skills, scene, origin, onClose, paused = false }: { element: "fire" | "thunder"; skills: readonly DragonSkill[]; scene: HTMLElement; origin: ClonePosition; onClose: () => void; paused?: boolean }) {
+  const [game, setGame] = useState(() => createRandomCloneGame(Math.random, skills));
+  const { round, positions } = game;
   const [wonAt, setWonAt] = useState<number | null>(null);
   const [dismissed, setDismissed] = useState<number[]>([]);
   const [elapsed, setElapsed] = useState(0);
@@ -61,7 +71,7 @@ export function DragonCloneGame({ element, scene, origin, onClose, paused = fals
   }, [phase, round, scene]);
 
   function newRound() {
-    setGame(createRandomCloneGame()); setWonAt(null); setDismissed([]); setElapsed(0); setMessage("");
+    setGame(createRandomCloneGame(Math.random, skills)); setWonAt(null); setDismissed([]); setElapsed(0); setMessage("");
   }
   function showClue() { setElapsed(0); setMessage(""); }
   function choose(index: number) {
@@ -88,7 +98,6 @@ export function DragonCloneGame({ element, scene, origin, onClose, paused = fals
       </button>)}</div>}
     </div>, scene)}
     <header className="clone-header"><h3 ref={heading} tabIndex={-1}>진짜 나를 찾아봐!</h3><button type="button" onClick={onClose}>놀이 끝내기</button></header>
-    <div className="clone-hint"><span>우리만 아는 약속</span><strong>{cloneClues[difficulty]}</strong></div>
     <p className="clone-status" role="status">{paused ? "잠깐 쉬는 중이야. 동작 재생을 누르면 이어서 놀 수 있어." : phase === "clue" ? "내 행동을 잘 봐. 한 번 보여 주고 분신으로 변할게!" : phase === "vanish" || phase === "emerge" ? "빛 속에서 분신들이 나타나고 있어!" : message || "배경 속에서 약속한 행동을 하는 드래곤을 골라 줘."}</p>
     <div className="clone-controls">{phase === "observe" && <button type="button" onClick={showClue}>단서 다시 보기</button>}{phase !== "won" && <button type="button" onClick={newRound}>새로 놀기</button>}</div>
     <p className="clone-footnote">시간 제한은 없어. 행동은 천천히 반복돼. 분신을 골라도 계속 찾을 수 있어.</p>

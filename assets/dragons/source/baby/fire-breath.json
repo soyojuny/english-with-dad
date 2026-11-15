@@ -1,0 +1,46 @@
+{
+  "approvedPreview": "tmp_dragon/fire-브레스/preview.html",
+  "previewSha256": "7a9380093b0370e8572f30c7effb61752a4840530779a2463dc716b32cc304ff",
+  "original": "tmp_dragon/fire-브레스/Gemini_Generated_Image_cjtohpcjtohpcjto.png",
+  "originalSha256": "09b5bd70e5c6199b3fb45a05e7c696cd77eb84b0e60e540c3ff09c07ba17645e",
+  "output": "assets/dragons/source/baby/fire-breath.png",
+  "outputSha256": "eff4e6c3ccfe3dd7780f9e1cdcc56617970fede9c3837c20626c3ad5e5edd3d0",
+  "columns": 4,
+  "rows": 3,
+  "frameWidth": 760,
+  "frameHeight": 560,
+  "selectedOriginalFrames": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "excludedOriginalFrames": {
+    "12": "White star artifact on foreleg"
+  },
+  "frameDurationsMs": [
+    650,
+    130,
+    100,
+    100,
+    110,
+    150,
+    110,
+    90,
+    100,
+    150,
+    200
+  ],
+  "preparation": "Exact embedded approved preview frames, including its foot alignment and scale. Neutral white matte >=245 removed; within a two-pixel matte boundary, alpha inferred from the darkest channel and white RGB contamination removed to preserve appearance against white. No generative editing. Last cell empty.",
+  "knownDefects": [
+    "Original cropped fire at right edge remains.",
+    "Very pale neutral smoke and edge highlights may be lost when separating white matte."
+  ]
+}

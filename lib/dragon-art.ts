@@ -4,6 +4,15 @@ const root = "/assets/dragons";
 export type DragonTailAttackAnimation = { artwork: string; columns: number; rows: number; frames: number; fps: number; reducedFrame: number; holdLastFrame: boolean };
 export const dragonTailAttackAnimation: DragonTailAttackAnimation = { artwork: `${root}/baby/thunder-tail-attack.webp`, columns: 6, rows: 8, frames: 43, fps: 18, reducedFrame: 24, holdLastFrame: false };
 export const fireTailAttackAnimation: DragonTailAttackAnimation = { artwork: `${root}/baby/fire-tail-attack.webp`, columns: 6, rows: 14, frames: 79, fps: 36, reducedFrame: 45, holdLastFrame: true };
+export const fireBreathAnimation = {
+  artwork: `${root}/baby/fire-breath.webp`, columns: 4, rows: 3,
+  durations: [650, 130, 100, 100, 110, 150, 110, 90, 100, 150, 200], reducedFrame: 5,
+};
+export type DragonBreathAnimation = typeof fireBreathAnimation;
+export const thunderBreathAnimation: DragonBreathAnimation = {
+  artwork: `${root}/baby/thunder-breath.webp`, columns: 4, rows: 3,
+  durations: [850, 180, 180, 300, 130, 140, 100, 130, 200, 150, 150, 180], reducedFrame: 6,
+};
 export const dragonFlightAnimations = {
   neutral: { prefix: "", columns: 6, fps: 12, frames: { takeoff: 30, move: 12, hover: 9 } },
   fire: { prefix: "fire-", columns: 4, fps: 8, frames: { takeoff: 8, move: 8, hover: 8 } },

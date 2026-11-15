@@ -177,3 +177,30 @@ test("보기에서는 소품을 편집할 수 없고 닫으면 저장하지 않�
   await userEvent.click(screen.getByRole("button", { name: "공간 꾸미기" }));
   expect(screen.getByRole("button", { name: "꾸미기 저장" }).hasAttribute("disabled")).toBe(true);
 });
+
+test.each(["fire", "thunder"] as const)("%s 브레스는 기회 1개로 요청하고 서버 저장 후에만 실행 버튼을 제공한다", element => {
+  // Given
+  vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+  const data = world(); data.credits = 1; data.dragons[0].days = 6; data.dragons[0].element = element;
+  const state = controller(data); const view = render(<DragonScreen controller={state} />);
+  // When
+  fireEvent.click(screen.getByRole("button", { name: "브레스 배우기 · 기회 1개" }));
+  // Then
+  expect(state.run).toHaveBeenCalledWith({ action: "skill", id: "first", skill: "breath" });
+  expect(screen.queryByRole("button", { name: "브레스" })).toBeNull();
+  view.rerender(<DragonScreen controller={{ ...state, world: { ...data, credits: 0, dragons: [{ ...data.dragons[0], skills: ["breath"] }] } }} />);
+  expect(screen.queryByRole("button", { name: "브레스 배우기 · 기회 1개" })).toBeNull();
+  expect(screen.getByRole("button", { name: "브레스" })).toBeTruthy();
+});
+
+test("브레스 습득은 기회 부족과 저장 중에는 막고 다른 속성에는 제공하지 않는다", () => {
+  // Given
+  const data = world(); data.dragons[0].days = 6; data.dragons[0].element = "fire";
+  const state = controller(data); const view = render(<DragonScreen controller={state} />);
+  // When / Then
+  expect((screen.getByRole("button", { name: "브레스 배우기 · 기회 1개" }) as HTMLButtonElement).disabled).toBe(true);
+  view.rerender(<DragonScreen controller={{ ...state, pending: true, world: { ...data, credits: 1 } }} />);
+  expect((screen.getByRole("button", { name: "브레스 배우기 · 기회 1개" }) as HTMLButtonElement).disabled).toBe(true);
+  view.rerender(<DragonScreen controller={{ ...state, world: { ...data, dragons: [{ ...data.dragons[0], element: "ice" }] } }} />);
+  expect(screen.queryByRole("button", { name: "브레스 배우기 · 기회 1개" })).toBeNull();
+});
