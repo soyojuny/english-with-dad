@@ -61,8 +61,12 @@ A decoration in a child's collection, such as a background or surrounding orname
 _Avoid_: Point, currency
 
 **Reward Choice**:
-An opportunity earned by a child every three eligible daily goal achievements to acquire either one unowned dragon item for that child or one unowned skill for a selected dragon. A selection is acquired only when confirmed. Unused choices accumulate without expiration while learning and automatic dragon growth continue, independently of element selection.
+An opportunity earned by a child every three eligible daily goal achievements to acquire one unowned dragon item or food for that child, or one unowned skill for a selected dragon. A selection is acquired only when confirmed. Unused choices accumulate without expiration while learning and automatic dragon growth continue, independently of element selection.
 _Avoid_: Point, currency, expiring claim
+
+**Dragon Food (먹이)**:
+A reusable food unlocked for a child through one reward choice. Owned foods can be fed to that child's supported dragons repeatedly without consuming the food or another reward choice. Food ownership is separate from each dragon's skills and decorations.
+_Avoid_: Consumable inventory, per-dragon skill, decoration
 
 **Dragon Skill**:
 An ability acquired for an individual dragon, such as flight, tail attack, roar or breath. Flight lets a supported hatchling take off, move in the air and land; tail attack lets a fire or lightning hatchling turn and swing its tail while on the ground. Skills share reward choices but belong to each dragon, which may learn more than one skill. A fire or lightning hatchling may learn breath and use its elemental breath on the ground; breath for other elements has no available action yet. Learned skills remain with a dragon after growth even when its current stage cannot use them. Planned roar can be used from the hatchling stage.

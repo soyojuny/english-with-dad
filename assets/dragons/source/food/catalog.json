@@ -1,0 +1,1009 @@
+{
+  "version": 1,
+  "frameWidth": 1152,
+  "frameHeight": 1024,
+  "columns": 4,
+  "rows": 3,
+  "padding": 32,
+  "method": "Native source pixels are copied using integer translations only; no resizing, interpolation, sharpening, or generative editing. Exterior bright pixels are identified by flood fill through min RGB >150; enclosed highlights stay opaque. Exterior alpha uses the minimum white-matte alpha (255 - min RGB); white is unmixed while enclosed highlights are protected. Opaque RGB remains byte-identical. Detached grapes use connected silhouettes to exclude neighboring sprite fragments, with no hard sloping crop through the stem. PNG encode/decode preserves every RGBA byte.",
+  "foods": [
+    {
+      "id": "lava-apple",
+      "name": "용암 열매",
+      "group": "basic",
+      "states": [
+        "apple",
+        "appleBite"
+      ],
+      "bowl": "basicBowl",
+      "bowlAfter": "basicLessApple"
+    },
+    {
+      "id": "bone-meat",
+      "name": "뼈고기",
+      "group": "basic",
+      "states": [
+        "meat",
+        "meatBite",
+        "bone"
+      ],
+      "bowl": "basicBowl",
+      "bowlAfter": "basicLessMeat"
+    },
+    {
+      "id": "gold-star",
+      "name": "황금 별쿠키",
+      "group": "basic",
+      "states": [
+        "cookie",
+        "cookieBite"
+      ],
+      "bowl": "basicBowl",
+      "bowlAfter": "basicLessCookie"
+    },
+    {
+      "id": "fire-apple",
+      "name": "불꽃 사과",
+      "group": "magic",
+      "states": [
+        "fire",
+        "fireBite"
+      ],
+      "bowl": "magicBowl",
+      "bowlAfter": "magicLessApple"
+    },
+    {
+      "id": "thunder-grapes",
+      "name": "번개 포도",
+      "group": "magic",
+      "states": [
+        "grapes",
+        "grapeWhole",
+        "grapeHalf"
+      ],
+      "bunchAfterOne": "grapesAfterOne",
+      "bowl": "magicBowl",
+      "bowlAfter": "magicLessGrapes"
+    },
+    {
+      "id": "aurora-star",
+      "name": "오로라 별쿠키",
+      "group": "magic",
+      "states": [
+        "star",
+        "starBite"
+      ],
+      "bowl": "magicBowl",
+      "bowlAfter": "magicLessCookie"
+    }
+  ],
+  "atlases": {
+    "basic": {
+      "path": "assets/dragons/source/food/basic.png",
+      "size": [
+        4608,
+        3072
+      ],
+      "frames": 11,
+      "sha256": "89d4fdaaa0eb91db469674f58c084933fbfd501b4d28954b65d955807f62f686",
+      "rgbaSha256": "7978ad8982493455eee5a507ddaa30d2baff154fc08cebed1dd2e1076331f19c",
+      "changedOpaqueChannels": 0
+    },
+    "magic": {
+      "path": "assets/dragons/source/food/magic.png",
+      "size": [
+        4608,
+        3072
+      ],
+      "frames": 12,
+      "sha256": "13bc0d9a323a4f82cce53f086de5ebf2d183b160b7c457bcdac5d2edbbdaf6f7",
+      "rgbaSha256": "79efa6af4f9db7323842efad76e3d8e862c28d8620b74d605c410cb1cbf20520",
+      "changedOpaqueChannels": 0
+    }
+  },
+  "frames": {
+    "apple": {
+      "group": "basic",
+      "frame": 0,
+      "rect": [
+        0,
+        0,
+        1152,
+        1024
+      ],
+      "contentRect": [
+        229,
+        296,
+        694,
+        696
+      ],
+      "source": "basic",
+      "sourceRect": [
+        336,
+        0,
+        734,
+        764
+      ],
+      "sourceContentOffset": [
+        33,
+        68
+      ],
+      "integerTranslation": [
+        -140,
+        228
+      ],
+      "opaquePixelsPreserved": 254411,
+      "mattePixels": 46739,
+      "maxWhiteCompositeError": 5,
+      "wholeSilhouetteBounds": null,
+      "wholeSilhouettePixelsPreserved": 0
+    },
+    "appleBite": {
+      "group": "basic",
+      "frame": 1,
+      "rect": [
+        1152,
+        0,
+        1152,
+        1024
+      ],
+      "contentRect": [
+        261,
+        244,
+        630,
+        748
+      ],
+      "source": "bitten",
+      "sourceRect": [
+        93,
+        67,
+        640,
+        760
+      ],
+      "sourceContentOffset": [
+        10,
+        11
+      ],
+      "integerTranslation": [
+        158,
+        166
+      ],
+      "opaquePixelsPreserved": 240022,
+      "mattePixels": 48892,
+      "maxWhiteCompositeError": 5,
+      "wholeSilhouetteBounds": null,
+      "wholeSilhouettePixelsPreserved": 0
+    },
+    "meat": {
+      "group": "basic",
+      "frame": 2,
+      "rect": [
+        2304,
+        0,
+        1152,
+        1024
+      ],
+      "contentRect": [
+        105,
+        290,
+        941,
+        702
+      ],
+      "source": "basic",
+      "sourceRect": [
+        1529,
+        0,
+        1009,
+        764
+      ],
+      "sourceContentOffset": [
+        64,
+        60
+      ],
+      "integerTranslation": [
+        -1488,
+        230
+      ],
+      "opaquePixelsPreserved": 308916,
+      "mattePixels": 87386,
+      "maxWhiteCompositeError": 5,
+      "wholeSilhouetteBounds": null,
+      "wholeSilhouettePixelsPreserved": 0
+    },
+    "meatBite": {
+      "group": "basic",
+      "frame": 3,
+      "rect": [
+        3456,
+        0,
+        1152,
+        1024
+      ],
+      "contentRect": [
+        184,
+        347,
+        783,
+        645
+      ],
+      "source": "bitten",
+      "sourceRect": [
+        800,
+        120,
+        800,
+        693
+      ],
+      "sourceContentOffset": [
+        17,
+        47
+      ],
+      "integerTranslation": [
+        -633,
+        180
+      ],
+      "opaquePixelsPreserved": 252357,
+      "mattePixels": 73209,
+      "maxWhiteCompositeError": 5,
+      "wholeSilhouetteBounds": null,
+      "wholeSilhouettePixelsPreserved": 0
+    },
+    "bone": {
+      "group": "basic",
+      "frame": 4,
+      "rect": [
+        0,
+        1024,
+        1152,
+        1024
+      ],
+      "contentRect": [
+        185,
+        498,
+        782,
+        494
+      ],
+      "source": "bone",
+      "sourceRect": [
+        1360,
+        93,
+        867,
+        533
+      ],
+      "sourceContentOffset": [
+        49,
+        20
+      ],
+      "integerTranslation": [
+        -1224,
+        385
+      ],
+      "opaquePixelsPreserved": 96329,
+      "mattePixels": 65467,
+      "maxWhiteCompositeError": 5,
+      "wholeSilhouetteBounds": null,
+      "wholeSilhouettePixelsPreserved": 0
+    },
+    "cookie": {
+      "group": "basic",
+      "frame": 5,
+      "rect": [
+        1152,
+        1024,
+        1152,
+        1024
+      ],
+      "contentRect": [
+        225,
+        259,
+        702,
+        733
+      ],
+      "source": "basic",
+      "sourceRect": [
+        336,
+        764,
+        734,
+        771
+      ],
+      "sourceContentOffset": [
+        32,
+        0
+      ],
+      "integerTranslation": [
+        -143,
+        -505
+      ],
+      "opaquePixelsPreserved": 219304,
+      "mattePixels": 48407,
+      "maxWhiteCompositeError": 5,
+      "wholeSilhouetteBounds": null,
+      "wholeSilhouettePixelsPreserved": 0
+    },
+    "cookieBite": {
+      "group": "basic",
+      "frame": 6,
+      "rect": [
+        2304,
+        1024,
+        1152,
+        1024
+      ],
+      "contentRect": [
+        264,
+        412,
+        624,
+        580
+      ],
+      "source": "bitten",
+      "sourceRect": [
+        1680,
+        107,
+        640,
+        693
+      ],
+      "sourceContentOffset": [
+        16,
+        89
+      ],
+      "integerTranslation": [
+        -1432,
+        216
+      ],
+      "opaquePixelsPreserved": 195773,
+      "mattePixels": 45581,
+      "maxWhiteCompositeError": 5,
+      "wholeSilhouetteBounds": null,
+      "wholeSilhouettePixelsPreserved": 0
+    },
+    "basicBowl": {
+      "group": "basic",
+      "frame": 7,
+      "rect": [
+        3456,
+        1024,
+        1152,
+        1024
+      ],
+      "contentRect": [
+        174,
+        264,
+        803,
+        728
+      ],
+      "source": "basic",
+      "sourceRect": [
+        1651,
+        764,
+        826,
+        771
+      ],
+      "sourceContentOffset": [
+        5,
+        5
+      ],
+      "integerTranslation": [
+        -1482,
+        -505
+      ],
+      "opaquePixelsPreserved": 287619,
+      "mattePixels": 71601,
+      "maxWhiteCompositeError": 5,
+      "wholeSilhouetteBounds": null,
+      "wholeSilhouettePixelsPreserved": 0
+    },
+    "basicLessApple": {
+      "group": "basic",
+      "frame": 8,
+      "rect": [
+        0,
+        2048,
+        1152,
+        1024
+      ],
+      "contentRect": [
+        212,
+        371,
+        727,
+        621
+      ],
+      "source": "bitten",
+      "sourceRect": [
+        80,
+        1013,
+        733,
+        693
+      ],
+      "sourceContentOffset": [
+        6,
+        54
+      ],
+      "integerTranslation": [
+        126,
+        -696
+      ],
+      "opaquePixelsPreserved": 268046,
+      "mattePixels": 64618,
+      "maxWhiteCompositeError": 5,
+      "wholeSilhouetteBounds": null,
+      "wholeSilhouettePixelsPreserved": 0
+    },
+    "basicLessMeat": {
+      "group": "basic",
+      "frame": 9,
+      "rect": [
+        1152,
+        2048,
+        1152,
+        1024
+      ],
+      "contentRect": [
+        211,
+        351,
+        730,
+        641
+      ],
+      "source": "bitten",
+      "sourceRect": [
+        1613,
+        1013,
+        733,
+        693
+      ],
+      "sourceContentOffset": [
+        3,
+        32
+      ],
+      "integerTranslation": [
+        -1405,
+        -694
+      ],
+      "opaquePixelsPreserved": 257355,
+      "mattePixels": 66669,
+      "maxWhiteCompositeError": 5,
+      "wholeSilhouetteBounds": null,
+      "wholeSilhouettePixelsPreserved": 0
+    },
+    "basicLessCookie": {
+      "group": "basic",
+      "frame": 10,
+      "rect": [
+        2304,
+        2048,
+        1152,
+        1024
+      ],
+      "contentRect": [
+        209,
+        357,
+        733,
+        635
+      ],
+      "source": "bitten",
+      "sourceRect": [
+        853,
+        1013,
+        733,
+        693
+      ],
+      "sourceContentOffset": [
+        0,
+        54
+      ],
+      "integerTranslation": [
+        -644,
+        -710
+      ],
+      "opaquePixelsPreserved": 267943,
+      "mattePixels": 66219,
+      "maxWhiteCompositeError": 5,
+      "wholeSilhouetteBounds": null,
+      "wholeSilhouettePixelsPreserved": 0
+    },
+    "fire": {
+      "group": "magic",
+      "frame": 0,
+      "rect": [
+        0,
+        0,
+        1152,
+        1024
+      ],
+      "contentRect": [
+        222,
+        256,
+        707,
+        736
+      ],
+      "source": "magic",
+      "sourceRect": [
+        336,
+        0,
+        734,
+        764
+      ],
+      "sourceContentOffset": [
+        21,
+        28
+      ],
+      "integerTranslation": [
+        -135,
+        228
+      ],
+      "opaquePixelsPreserved": 265560,
+      "mattePixels": 82287,
+      "maxWhiteCompositeError": 5,
+      "wholeSilhouetteBounds": null,
+      "wholeSilhouettePixelsPreserved": 0
+    },
+    "fireBite": {
+      "group": "magic",
+      "frame": 1,
+      "rect": [
+        1152,
+        0,
+        1152,
+        1024
+      ],
+      "contentRect": [
+        243,
+        248,
+        666,
+        744
+      ],
+      "source": "alternate",
+      "sourceRect": [
+        93,
+        40,
+        667,
+        773
+      ],
+      "sourceContentOffset": [
+        0,
+        23
+      ],
+      "integerTranslation": [
+        150,
+        185
+      ],
+      "opaquePixelsPreserved": 255116,
+      "mattePixels": 85909,
+      "maxWhiteCompositeError": 5,
+      "wholeSilhouetteBounds": null,
+      "wholeSilhouettePixelsPreserved": 0
+    },
+    "grapes": {
+      "group": "magic",
+      "frame": 2,
+      "rect": [
+        2304,
+        0,
+        1152,
+        1024
+      ],
+      "contentRect": [
+        204,
+        278,
+        743,
+        714
+      ],
+      "source": "magic",
+      "sourceRect": [
+        1651,
+        0,
+        764,
+        764
+      ],
+      "sourceContentOffset": [
+        21,
+        50
+      ],
+      "integerTranslation": [
+        -1468,
+        228
+      ],
+      "opaquePixelsPreserved": 246369,
+      "mattePixels": 126682,
+      "maxWhiteCompositeError": 5,
+      "wholeSilhouetteBounds": null,
+      "wholeSilhouettePixelsPreserved": 0
+    },
+    "grapeWhole": {
+      "group": "magic",
+      "frame": 3,
+      "rect": [
+        3456,
+        0,
+        1152,
+        1024
+      ],
+      "contentRect": [
+        475,
+        833,
+        201,
+        159
+      ],
+      "source": "alternate",
+      "sourceRect": [
+        1267,
+        619,
+        253,
+        213
+      ],
+      "sourceContentOffset": [
+        22,
+        24
+      ],
+      "integerTranslation": [
+        -814,
+        190
+      ],
+      "opaquePixelsPreserved": 16674,
+      "mattePixels": 5523,
+      "maxWhiteCompositeError": 5,
+      "wholeSilhouetteBounds": [
+        34,
+        30,
+        210,
+        170
+      ],
+      "wholeSilhouettePixelsPreserved": 13701
+    },
+    "grapeHalf": {
+      "group": "magic",
+      "frame": 4,
+      "rect": [
+        0,
+        1024,
+        1152,
+        1024
+      ],
+      "contentRect": [
+        498,
+        858,
+        155,
+        134
+      ],
+      "source": "grape",
+      "sourceRect": [
+        1280,
+        653,
+        213,
+        173
+      ],
+      "sourceContentOffset": [
+        14,
+        10
+      ],
+      "integerTranslation": [
+        -796,
+        195
+      ],
+      "opaquePixelsPreserved": 9207,
+      "mattePixels": 4331,
+      "maxWhiteCompositeError": 0,
+      "wholeSilhouetteBounds": [
+        26,
+        22,
+        156,
+        131
+      ],
+      "wholeSilhouettePixelsPreserved": 8719
+    },
+    "star": {
+      "group": "magic",
+      "frame": 5,
+      "rect": [
+        1152,
+        1024,
+        1152,
+        1024
+      ],
+      "contentRect": [
+        213,
+        253,
+        726,
+        739
+      ],
+      "source": "magic",
+      "sourceRect": [
+        336,
+        764,
+        734,
+        771
+      ],
+      "sourceContentOffset": [
+        8,
+        0
+      ],
+      "integerTranslation": [
+        -131,
+        -511
+      ],
+      "opaquePixelsPreserved": 218360,
+      "mattePixels": 60610,
+      "maxWhiteCompositeError": 5,
+      "wholeSilhouetteBounds": null,
+      "wholeSilhouettePixelsPreserved": 0
+    },
+    "starBite": {
+      "group": "magic",
+      "frame": 6,
+      "rect": [
+        2304,
+        1024,
+        1152,
+        1024
+      ],
+      "contentRect": [
+        239,
+        347,
+        673,
+        645
+      ],
+      "source": "magicBitten",
+      "sourceRect": [
+        1789,
+        61,
+        673,
+        673
+      ],
+      "sourceContentOffset": [
+        0,
+        0
+      ],
+      "integerTranslation": [
+        -1550,
+        286
+      ],
+      "opaquePixelsPreserved": 199096,
+      "mattePixels": 57879,
+      "maxWhiteCompositeError": 5,
+      "wholeSilhouetteBounds": null,
+      "wholeSilhouettePixelsPreserved": 0
+    },
+    "magicBowl": {
+      "group": "magic",
+      "frame": 7,
+      "rect": [
+        3456,
+        1024,
+        1152,
+        1024
+      ],
+      "contentRect": [
+        172,
+        253,
+        807,
+        739
+      ],
+      "source": "magic",
+      "sourceRect": [
+        1651,
+        764,
+        826,
+        771
+      ],
+      "sourceContentOffset": [
+        1,
+        0
+      ],
+      "integerTranslation": [
+        -1480,
+        -511
+      ],
+      "opaquePixelsPreserved": 292789,
+      "mattePixels": 113626,
+      "maxWhiteCompositeError": 5,
+      "wholeSilhouetteBounds": null,
+      "wholeSilhouettePixelsPreserved": 0
+    },
+    "magicLessApple": {
+      "group": "magic",
+      "frame": 8,
+      "rect": [
+        0,
+        2048,
+        1152,
+        1024
+      ],
+      "contentRect": [
+        213,
+        313,
+        726,
+        679
+      ],
+      "source": "alternate",
+      "sourceRect": [
+        80,
+        1027,
+        733,
+        733
+      ],
+      "sourceContentOffset": [
+        1,
+        50
+      ],
+      "integerTranslation": [
+        132,
+        -764
+      ],
+      "opaquePixelsPreserved": 226185,
+      "mattePixels": 80489,
+      "maxWhiteCompositeError": 5,
+      "wholeSilhouetteBounds": null,
+      "wholeSilhouettePixelsPreserved": 0
+    },
+    "magicLessGrapes": {
+      "group": "magic",
+      "frame": 9,
+      "rect": [
+        1152,
+        2048,
+        1152,
+        1024
+      ],
+      "contentRect": [
+        203,
+        221,
+        745,
+        771
+      ],
+      "source": "magicBitten",
+      "sourceRect": [
+        1712,
+        734,
+        764,
+        801
+      ],
+      "sourceContentOffset": [
+        0,
+        24
+      ],
+      "integerTranslation": [
+        -1509,
+        -537
+      ],
+      "opaquePixelsPreserved": 280326,
+      "mattePixels": 88558,
+      "maxWhiteCompositeError": 5,
+      "wholeSilhouetteBounds": null,
+      "wholeSilhouettePixelsPreserved": 0
+    },
+    "magicLessCookie": {
+      "group": "magic",
+      "frame": 10,
+      "rect": [
+        2304,
+        2048,
+        1152,
+        1024
+      ],
+      "contentRect": [
+        196,
+        254,
+        760,
+        738
+      ],
+      "source": "grape",
+      "sourceRect": [
+        840,
+        973,
+        760,
+        747
+      ],
+      "sourceContentOffset": [
+        0,
+        9
+      ],
+      "integerTranslation": [
+        -644,
+        -728
+      ],
+      "opaquePixelsPreserved": 300742,
+      "mattePixels": 114757,
+      "maxWhiteCompositeError": 5,
+      "wholeSilhouetteBounds": null,
+      "wholeSilhouettePixelsPreserved": 0
+    },
+    "grapesAfterOne": {
+      "group": "magic",
+      "frame": 11,
+      "rect": [
+        3456,
+        2048,
+        1152,
+        1024
+      ],
+      "contentRect": [
+        202,
+        274,
+        747,
+        718
+      ],
+      "source": "grape",
+      "sourceRect": [
+        853,
+        80,
+        760,
+        747
+      ],
+      "sourceContentOffset": [
+        13,
+        29
+      ],
+      "integerTranslation": [
+        -664,
+        165
+      ],
+      "opaquePixelsPreserved": 249633,
+      "mattePixels": 139938,
+      "maxWhiteCompositeError": 5,
+      "wholeSilhouetteBounds": null,
+      "wholeSilhouettePixelsPreserved": 0
+    }
+  },
+  "sources": {
+    "basic": {
+      "path": "tmp_dragon/food/Gemini_Generated_Image_4pjmna4pjmna4pjm.png",
+      "sha256": "cd40f2f5de4fa8b2185d6b52ae98773979e03959f77549453e05abe4d22d63df",
+      "size": [
+        2752,
+        1536
+      ]
+    },
+    "magic": {
+      "path": "tmp_dragon/food/Gemini_Generated_Image_xax57mxax57mxax5.png",
+      "sha256": "62ace5d04d2acfa216e1612d6cf54d8ef9964ce0b3bc96118681ee1707316356",
+      "size": [
+        2752,
+        1536
+      ]
+    },
+    "bitten": {
+      "path": "tmp_dragon/food/Gemini_Generated_Image_at7yz6at7yz6at7y.png",
+      "sha256": "be757fdb16fda23709745ea501a62c0a7b28386d55234ca788b429ed20deb479",
+      "size": [
+        2400,
+        1792
+      ]
+    },
+    "bone": {
+      "path": "tmp_dragon/food/Gemini_Generated_Image_7i70q27i70q27i70.png",
+      "sha256": "fc729cb408c7562c8e2265cbb9c3f7d4b89550c6b0ccc2905ac516fb5164386e",
+      "size": [
+        2400,
+        1792
+      ]
+    },
+    "magicBitten": {
+      "path": "tmp_dragon/food/Gemini_Generated_Image_d97qrbd97qrbd97q.png",
+      "sha256": "b067ddd19c195afb726a6b6264babfb0aefaa6662e6409ce4e48c184a00d2f86",
+      "size": [
+        2752,
+        1536
+      ]
+    },
+    "grape": {
+      "path": "tmp_dragon/food/Gemini_Generated_Image_xfiqdexfiqdexfiq.png",
+      "sha256": "709f3c530fcbb8b0ea750229344e6ea95a23c59d109d0923316aec0b3b539b08",
+      "size": [
+        2400,
+        1792
+      ]
+    },
+    "alternate": {
+      "path": "tmp_dragon/food/Gemini_Generated_Image_m877bfm877bfm877.png",
+      "sha256": "f15551ecf1f4bfe246db12597a5a31a3d5c6922b2ead85e2ae443d805bb41d49",
+      "size": [
+        2400,
+        1792
+      ]
+    }
+  },
+  "knownLimits": [
+    "White-background source images do not uniquely determine original glow/shadow alpha. Their appearance on dark backgrounds is estimated; pale glow can change.",
+    "Original artwork angles, scale differences, and food arrangement changes remain. No missing detail is invented.",
+    "The selected magic apple bowl has both apples removed. The grape bowl has the whole bunch removed; it is not the state after eating one grape.",
+    "Reward ownership, app behavior, deployment WebP and PWA integration are separate from these prepared source assets."
+  ],
+  "approval": "User approved the food assets and gradual biting animation on 2026-11-19."
+}

@@ -27,6 +27,10 @@ const images = [
   ["baby/fire-tail-attack", "baby/fire-tail-attack", 3606],
   ["baby/fire-breath", "baby/fire-breath", 3040],
   ["baby/thunder-breath", "baby/thunder-breath", 3280],
+  ["baby/fire-eat", "baby/fire-eat", 2880],
+  ["baby/thunder-eat", "baby/thunder-eat", 2880],
+  ["food/basic", "food/basic", 4608],
+  ["food/magic", "food/magic", 4608],
   ["baby/lightning", "baby/thunder", 1024],
   ...["fire", "lightning", "ice"].flatMap((element) => ["blink", "breathe"].map((motion) =>
     [`baby/${element}-${motion}`, `baby/${element === "lightning" ? "thunder" : element}-${motion}`, 1024])),
@@ -39,7 +43,9 @@ const images = [
 for (const [input, name, width] of images) {
   const file = resolve(output, `${name}.webp`);
   await mkdir(dirname(file), { recursive: true });
-  await sharp(resolve(source, `${input}.png`)).resize({ width, withoutEnlargement: true })
-    .webp((name.endsWith("walk-bde") || name.endsWith("sit-sequence") || name.endsWith("tail-attack") || name.endsWith("-breath")) ? { lossless: true } : { quality: name.includes("flight-") ? 85 : 90, alphaQuality: 100 }).toFile(file);
+  const nativeFeeding = name.endsWith("-eat") || name.startsWith("food/");
+  const image = sharp(resolve(source, `${input}.png`));
+  if (!nativeFeeding) image.resize({ width, withoutEnlargement: true });
+  await image.webp((nativeFeeding || name.endsWith("walk-bde") || name.endsWith("sit-sequence") || name.endsWith("tail-attack") || name.endsWith("-breath")) ? { lossless: true } : { quality: name.includes("flight-") ? 85 : 90, alphaQuality: 100 }).toFile(file);
 }
 console.log(`Dragon assets: ${images.length} WebP files built from assets/dragons/source`);

@@ -77,5 +77,5 @@ export function dateKey(date = new Date()) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
-// Dragon rewards use the separate dragon-data catalog/placement contract;
+// Dragon decorations, reusable foods and skills use the separate dragon reward contract;
 // emptyReadingData deliberately contains no optimistic reward progress.

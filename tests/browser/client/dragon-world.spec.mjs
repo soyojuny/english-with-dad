@@ -15,6 +15,7 @@ async function dragonFixture(page, options = {}) {
     const { p_action: action, p_payload: payload } = route.request().postDataJSON();
     if (fail) return route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ message: '연결을 확인해 주세요.' }) });
     if (action === 'skill') { const dragon = state.dragons.find(item => item.id === payload.id); if (!dragon.skills.includes(payload.skill)) { dragon.skills.push(payload.skill); state.credits--; } }
+    if (action === 'claim' && !state.owned.includes(payload.itemId)) { state.owned.push(payload.itemId); state.credits--; }
     if (action === 'decorate') { const dragon = state.dragons.find(item => item.id === payload.id); dragon.decor = payload.decor; dragon.version++; }
       if (action === 'element') state.dragons.find(item => item.id === payload.id).element = payload.element;
     if (action === 'egg' && !state.dragons.some(item => item.id === payload.id)) state.dragons.push({ id: payload.id, egg: payload.egg, days: 0, element: null, decor: decor(), skills: [], version: 0, selectedDate: state.today });
@@ -25,6 +26,47 @@ async function dragonFixture(page, options = {}) {
 async function openChild(page) {
   await page.locator('.profile-grid').getByRole('button', { name: /민준/ }).click();
   await expect(page.getByRole('button', { name: '드래곤' })).toBeEnabled();
+}
+
+for (const element of ['fire', 'thunder']) for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 950 }]) {
+  test(`아동 먹이 ${element} ${viewport.width}px: 해금·재조회·조금씩 먹기·무제한 재사용`, async ({ childCompletion: f }) => {
+    // Given
+    const { page } = f;
+    await page.setViewportSize(viewport);
+    const fixture = await dragonFixture(page, { dragons: [{ id: 'dragon-1', egg: 0, days: 6, selectedDate: '2026-10-01', element, decor: decor(), skills: ['fly', 'tail-attack', 'breath', 'clone'], version: 0 }] });
+    fixture.state.catalog.push(...[
+      ['lava-apple', '용암 열매'], ['thunder-grapes', '번개 포도'],
+    ].map(([id, name]) => ({ id, name, art: id, kind: 'food', free: false })));
+    await openChild(page);
+    await page.getByRole('button', { name: '드래곤', exact: true }).click();
+    const screen = page.getByRole('region', { name: '드래곤 키우기' });
+    await expect(screen.getByRole('button', { name: '먹이 주기' })).toHaveCount(0);
+    // When
+    await screen.getByRole('button', { name: /용암 열매.*받기/ }).click();
+    await screen.getByRole('button', { name: /번개 포도.*받기/ }).click();
+    expect(fixture.state.credits).toBe(0);
+    await page.reload();
+    await page.getByRole('button', { name: '드래곤', exact: true }).click();
+    await screen.getByRole('combobox', { name: '먹이 고르기' }).selectOption('thunder-grapes');
+    await screen.getByRole('button', { name: '먹이 주기' }).click();
+    // Then
+    await expect(screen.locator('.dragon-feeding.is-eating')).toBeVisible();
+    for (const name of ['날기', '꼬리 공격', '브레스', '분신 놀이']) await expect(screen.getByRole('button', { name, exact: true })).toBeDisabled();
+    await page.clock.runFor(1400);
+    await expect(screen.locator('.dragon-feeding [data-role=food]')).toHaveAttribute('data-state', 'grapeHalf');
+    await page.clock.runFor(4500);
+    await expect(screen.locator('.dragon-feeding.is-eating')).toHaveCount(0);
+    await expect(screen.locator('.dragon-feeding [data-role=bunch]')).toHaveAttribute('data-state', 'grapesAfterOne');
+    await expect(screen.locator('.dragon-idle')).toBeVisible();
+    await screen.getByRole('button', { name: '먹이 주기' }).click();
+    await expect(screen.locator('.dragon-feeding.is-eating')).toBeVisible();
+    expect(fixture.state.credits).toBe(0);
+    expect(fixture.state.owned.filter(id => id === 'thunder-grapes')).toHaveLength(1);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    const bounds = await screen.locator('.dragon-feeding-art').boundingBox();
+    expect(bounds.width).toBeGreaterThan(70);
+    expect(bounds.height).toBeGreaterThan(60);
+  });
 }
 
 for (const element of ['fire', 'thunder']) {

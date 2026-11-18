@@ -15,7 +15,7 @@ function fixture(t) {
   mkdirSync(join(root, "lib"));
   for (const path of [
     "scripts/run-unit-tests.mjs", "tsconfig.json", "tsconfig.test.json",
-    "lib/reading-calculations.ts", "lib/reading-data.ts", "lib/reading-types.ts",
+    "lib/reading-calculations.ts", "lib/reading-data.ts", "lib/reading-types.ts", "lib/dragon-types.ts",
   ]) copyFileSync(join(repository, path), join(root, path));
   symlinkSync(join(repository, "node_modules"), join(root, "node_modules"), "junction");
   return {

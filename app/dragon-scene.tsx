@@ -9,6 +9,9 @@ import { DragonTailAttackSprite } from "./dragon-tail-attack";
 import { useDragonBreath } from "./use-dragon-breath";
 import { DragonBreathSprite } from "./dragon-breath";
 import { DragonCloneGame } from "./dragon-clone-game";
+import { ownedDragonFoods, supportsDragonFeeding } from "../lib/dragon-food";
+import { useDragonFeeding } from "./use-dragon-feeding";
+import { DragonFeedingSprite } from "./dragon-feeding";
 
 export function DragonSprite({ dragon }: { dragon: Pick<Dragon, "egg" | "days" | "element"> }) {
   const artwork = dragonArtwork(dragon);
@@ -20,9 +23,10 @@ export function DragonSprite({ dragon }: { dragon: Pick<Dragon, "egg" | "days" |
   </span>;
   return <span className="dragon-sprite" role="img" aria-label={dragonStage(dragon.days)} style={dragonSprite(dragon)} />;
 }
-export function DragonScene({ dragon, decor, catalog, editing = false, selected, onSelect, onMove, paused = false }: {
+export function DragonScene({ dragon, decor, catalog, editing = false, selected, onSelect, onMove, paused = false, ownedFoods = [] }: {
   dragon: Dragon; decor: DragonDecor; catalog: DragonItem[]; selected?: DragonSlot; paused?: boolean;
   editing?: boolean;
+  ownedFoods?: string[];
   onSelect?: (slot: DragonSlot) => void; onMove?: (slot: DragonSlot, x: number, y: number) => void;
 }) {
   const scene = useRef<HTMLDivElement>(null);
@@ -33,7 +37,10 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
   const [pose, setPose] = useState<"standing" | "sitting" | "seated" | "rising">("standing");
   const [sitFrame, setSitFrame] = useState(0);
   const [facing, setFacing] = useState(1);
-  const [queuedAction, setQueuedAction] = useState<"tail-attack" | "breath" | null>(null);
+  const [queuedAction, setQueuedAction] = useState<"tail-attack" | "breath" | "feed" | null>(null);
+  const [selectedFood, setSelectedFood] = useState("");
+  const foods = ownedDragonFoods(ownedFoods);
+  const food = foods.find(entry => entry.id === selectedFood) ?? foods[0];
   const [attackFacing, setAttackFacing] = useState(1);
   const pointer = useRef<number | null>(null);
   const direction = useRef({ dx: 0, dy: 0 });
@@ -55,7 +62,9 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
   const breathAnimation = dragon.element === "thunder" ? thunderBreathAnimation : fireBreathAnimation;
   const breathEffect = dragon.element === "thunder" ? "번개를" : "불꽃을";
   const breath = useDragonBreath(canBreathe && !airborne && !paused, `${dragon.id}:${dragon.days}:${dragon.element}:${editing}`, breathAnimation);
-  const attacking = attack.active || breath.active || queuedAction !== null;
+  const canFeed = enabled && supportsDragonFeeding(dragon) && !!food;
+  const feeding = useDragonFeeding(canFeed && !airborne && !paused && !attack.active && !breath.active, `${dragon.id}:${dragon.days}:${dragon.element}:${editing}:${food?.id}`, dragon.element === "thunder" ? "thunder" : "fire");
+  const attacking = attack.active || breath.active || feeding.active || queuedAction !== null;
   const transitioning = airborne && flight.phase !== "flying";
   const canSit = enabled && !airborne && !attacking && !attack.resting;
   const flightMotion = flight.phase === "flying" ? moving ? "move" : "hover" : "takeoff";
@@ -72,12 +81,13 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
   useEffect(() => { if (!canClone) setCloneOpen(false); }, [canClone]);
   useEffect(() => {
     if (!queuedAction) return;
-    if (paused || airborne || document.hidden || (queuedAction === "breath" ? !canBreathe : !canAttack)) { setQueuedAction(null); return; }
+    if (paused || airborne || document.hidden || (queuedAction === "feed" ? !canFeed : queuedAction === "breath" ? !canBreathe : !canAttack)) { setQueuedAction(null); return; }
     if (pose !== "standing") return;
     setQueuedAction(null);
-    if (queuedAction === "breath") breath.start();
+    if (queuedAction === "feed") feeding.start(food);
+    else if (queuedAction === "breath") breath.start();
     else { setAttackFacing(facing); attack.start(); }
-  }, [queuedAction, pose, canAttack, canBreathe, airborne, paused]);
+  }, [queuedAction, pose, canAttack, canBreathe, canFeed, airborne, paused]);
   useEffect(() => { if (attack.resting) setFacing(-attackFacing); }, [attack.resting, attackFacing]);
   useEffect(() => {
     if (!queuedAction) return;
@@ -125,6 +135,7 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
     onPointerDown={(event) => {
       if (!enabled || transitioning || attacking || pointer.current !== null || (event.pointerType === "mouse" && event.button !== 0)) return;
       const bounds = event.currentTarget.getBoundingClientRect();
+      feeding.clear();
       attack.clearRest();
       pointer.current = event.pointerId; event.currentTarget.setPointerCapture(event.pointerId);
       direction.current = { dx: 0, dy: 0 };
@@ -147,12 +158,14 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
     {canSit && <link rel="preload" as="image" href={sitArtwork} />}
     {canAttack && <link rel="preload" as="image" href={attackAnimation.artwork} />}
     {canBreathe && <link rel="preload" as="image" href={breathAnimation.artwork} />}
+    {canFeed && <><link rel="preload" as="image" href={`/assets/dragons/baby/${dragon.element}-eat.webp`} /><link rel="preload" as="image" href="/assets/dragons/food/basic.webp" /><link rel="preload" as="image" href="/assets/dragons/food/magic.webp" /></>}
     {canFly && (dragon.element ? ["takeoff", "move"] : ["takeoff", "move", "hover"]).map((motion) => <link key={motion} rel="preload" as="image" href={flightArtwork(motion)} />)}
     <img className="dragon-background-art" src={backgroundArt} alt="" draggable={false} />
     {thunderFlight && airborne && <span className="dragon-flight-shadow" aria-hidden="true" style={{ left: `${position.x}%`, top: `${Math.min(94, position.y + 19.5)}%`, transform: `translate(-50%, -50%) scale(${1 - Math.max(0, altitude) / 28 * .55})`, opacity: 1 - Math.max(0, altitude) / 28 * .65 }} />}
     {!cloneOpen && <div className={`dragon-resident ${dragon.days === 0 ? "is-egg" : dragon.days < 18 ? "is-baby" : dragon.days >= 30 && dragon.element === "fire" ? "is-adult-fire" : ""} ${enabled ? "is-controlled" : ""} ${walking ? "is-walking" : ""} ${thunderFlight && airborne ? "has-thunder-flight" : ""}`} style={enabled ? { left: `${position.x}%`, top: `${Math.max(34, position.y - altitude)}%`, transform: `translate(-50%, -50%) scaleX(${facing})` } : undefined}>
       {dragon.days === 0 && <span className="dragon-ground-shadow" aria-hidden="true" />}
-      {breath.active ? <DragonBreathSprite frame={breath.frame} animation={breathAnimation} /> : attack.active || attack.resting ? <DragonTailAttackSprite animation={attackAnimation} frame={attack.frame} resting={attack.resting} mirrored={attackFacing !== facing} /> : airborne ? <span className={`dragon-flight${dragon.element ? ` is-${dragon.element}` : ""}`} role="img" aria-label={flight.phase === "taking-off" ? "날아오르는 아기 드래곤" : flight.phase === "landing" ? "착륙하는 아기 드래곤" : moving ? "비행하는 아기 드래곤" : "공중에 머무는 아기 드래곤"}><span className="dragon-flight-frame" style={{ backgroundImage: `url('${flightArtwork(flightMotion)}')`, backgroundSize: `${flightColumns * 100}% ${flightRows * 100}%`, backgroundPosition: `${flightFrame % flightColumns * 100 / (flightColumns - 1)}% ${flightRows === 1 ? 0 : Math.floor(flightFrame / flightColumns) * 100 / (flightRows - 1)}%` }} /></span> : enabled && pose !== "standing" ? <span className={`dragon-sit is-${pose}`} style={{ backgroundImage: `url('${sitArtwork}')`, backgroundSize: `${sitFrameCount * 100}% 100%`, backgroundPositionX: `${sitFrame * 100 / (sitFrameCount - 1)}%` }} role="img" aria-label="쉬는 아기 드래곤" /> : <div className="dragon-idle"><DragonSprite dragon={dragon} /></div>}
+      {feeding.active && feeding.food ? <DragonFeedingSprite element={dragon.element === "thunder" ? "thunder" : "fire"} food={feeding.food} step={feeding.step} progress={feeding.progress} frame={feeding.frame} active /> : breath.active ? <DragonBreathSprite frame={breath.frame} animation={breathAnimation} /> : attack.active || attack.resting ? <DragonTailAttackSprite animation={attackAnimation} frame={attack.frame} resting={attack.resting} mirrored={attackFacing !== facing} /> : airborne ? <span className={`dragon-flight${dragon.element ? ` is-${dragon.element}` : ""}`} role="img" aria-label={flight.phase === "taking-off" ? "날아오르는 아기 드래곤" : flight.phase === "landing" ? "착륙하는 아기 드래곤" : moving ? "비행하는 아기 드래곤" : "공중에 머무는 아기 드래곤"}><span className="dragon-flight-frame" style={{ backgroundImage: `url('${flightArtwork(flightMotion)}')`, backgroundSize: `${flightColumns * 100}% ${flightRows * 100}%`, backgroundPosition: `${flightFrame % flightColumns * 100 / (flightColumns - 1)}% ${flightRows === 1 ? 0 : Math.floor(flightFrame / flightColumns) * 100 / (flightRows - 1)}%` }} /></span> : enabled && pose !== "standing" ? <span className={`dragon-sit is-${pose}`} style={{ backgroundImage: `url('${sitArtwork}')`, backgroundSize: `${sitFrameCount * 100}% 100%`, backgroundPositionX: `${sitFrame * 100 / (sitFrameCount - 1)}%` }} role="img" aria-label="쉬는 아기 드래곤" /> : <div className="dragon-idle"><DragonSprite dragon={dragon} /></div>}
+      {feeding.food && !feeding.active && <DragonFeedingSprite element={dragon.element === "thunder" ? "thunder" : "fire"} food={feeding.food} step={feeding.step} progress={feeding.progress} frame={feeding.frame} active={false} />}
       {walking && <span className="dragon-walk" role="img" aria-label="걷는 아기 드래곤"><span className="dragon-walk-frame" style={{ backgroundImage: `url('${walkArtwork}')` }} /></span>}
     </div>}
     {stick && <span className="dragon-stick" aria-hidden="true" style={{ left: stick.x, top: stick.y }}><span style={{ transform: `translate(${Math.max(-35, Math.min(35, stick.dx))}px, ${Math.max(-35, Math.min(35, stick.dy))}px)` }} /></span>}
@@ -186,7 +199,16 @@ export function DragonScene({ dragon, decor, catalog, editing = false, selected,
         <img className="dragon-prop-art" src={dragonPropArt[entry.art]} alt="" draggable={false} />
       </button>;
     })}
-  </div>{cloneOpen && canClone && scene.current && <DragonCloneGame skills={dragon.skills} element={dragon.element === "thunder" ? "thunder" : "fire"} scene={scene.current} origin={position} paused={paused} onClose={() => {
+  </div>{canFeed && <div className="dragon-flight-controls dragon-feeding-controls">
+    <label>먹이 고르기<select aria-label="먹이 고르기" value={food.id} disabled={attacking || airborne || paused} onChange={event => { feeding.clear(); setSelectedFood(event.target.value); }}>{foods.map(entry => <option key={entry.id} value={entry.id}>{entry.name}</option>)}</select></label>
+    <button type="button" disabled={attacking || airborne || paused} onClick={() => {
+      if (attacking || airborne || paused) return;
+      setStick(null); pointer.current = null; direction.current = { dx: 0, dy: 0 }; attack.clearRest();
+      if (pose !== "standing") { setPose("rising"); setQueuedAction("feed"); }
+      else feeding.start(food);
+    }}>{feeding.active || queuedAction === "feed" ? "먹는 중" : "먹이 주기"}</button>
+    <span aria-live="polite">{queuedAction === "feed" ? "일어서서 먹이를 준비해요." : feeding.active ? `${food.name} 먹이를 조금씩 세 번 씹어 먹어요.` : airborne ? "착륙한 뒤 먹이를 줄 수 있어요." : "받은 먹이는 횟수 제한 없이 계속 줄 수 있어요."}</span>
+  </div>}{cloneOpen && canClone && scene.current && <DragonCloneGame skills={dragon.skills} element={dragon.element === "thunder" ? "thunder" : "fire"} scene={scene.current} origin={position} paused={paused} onClose={() => {
     setCloneOpen(false);
     window.requestAnimationFrame(() => cloneButton.current?.focus({ preventScroll: true }));
   }} />}{canClone && !cloneOpen && <div className="dragon-flight-controls"><button ref={cloneButton} type="button" disabled={attacking || airborne || paused} onClick={() => {

@@ -37,7 +37,7 @@ for (const icon of manifest.icons ?? []) {
 }
 
 const sw = await readFile(serviceWorkerPath, "utf8");
-if (!sw.includes('const cacheName = "ewd-reading-v30";')) fail("native-resolution thunder breath requires the v30 cache");
+if (!sw.includes('const cacheName = "ewd-reading-v32";')) fail("cleaned feeding artwork requires the v32 cache");
 const appShellMatch = sw.match(/const appShell = \[([\s\S]*?)\];/);
 if (!appShellMatch) fail("service worker appShell array not found");
 
@@ -66,6 +66,10 @@ const dragonArtwork = [
   "/assets/dragons/baby/fire-tail-attack.webp",
   "/assets/dragons/baby/fire-breath.webp",
   "/assets/dragons/baby/thunder-breath.webp",
+  "/assets/dragons/baby/fire-eat.webp",
+  "/assets/dragons/baby/thunder-eat.webp",
+  "/assets/dragons/food/basic.webp",
+  "/assets/dragons/food/magic.webp",
   "/assets/dragons/baby/walk-bde.webp",
   "/assets/dragons/baby/fire-walk-bde.webp",
   "/assets/dragons/baby/thunder-walk-bde.webp",

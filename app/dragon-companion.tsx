@@ -5,6 +5,7 @@ import { DragonScene, DragonSprite } from "./dragon-scene";
 import { availableDragonItems, clampDragonPosition, defaultDragonDecor, dragonEggs, dragonElements, dragonSlotLabels, dragonSlots, dragonStage, supportsDragonFlight, supportsDragonTailAttack, supportsDragonClone, supportsDragonBreath } from "../lib/dragon-data";
 import type { Dragon, DragonDecor, DragonElement, DragonSlot } from "../lib/dragon-types";
 import { dragonBackgroundArt, dragonPropArt } from "../lib/dragon-art";
+import { DragonFoodRewards } from "./dragon-food-rewards";
 
 export function DragonFeedback({ controller }: { controller: DragonController }) {
   return <div aria-live="polite">
@@ -34,7 +35,7 @@ function DragonWorldScreen({ controller }: { controller: DragonController }) {
     <h3 ref={heading} tabIndex={-1}>드래곤의 공간</h3>
     <DragonFeedback controller={controller} />
     <p className="dragon-rewards">전체 보상 달성 {world.totalDays}일 · 보상 선택 기회 <strong>{world.credits}개</strong></p>
-    <p>배경과 장식은 모두 기본 제공이에요. 3일 달성마다 받는 기회로 기능을 골라요.</p>
+    <p>배경과 장식은 모두 기본 제공이에요. 3일 달성마다 받는 기회로 기능이나 먹이를 골라요.</p>
     {choosing && canChooseEgg ? <section className="dragon-egg-picker">
       <h3>{world.dragons.length ? "다음 친구를 만나볼까요?" : "첫 알을 골라 주세요"}</h3>
       <div className="dragon-baby-preview"><DragonSprite dragon={{ egg: 0, days: 1, element: null }} /><p>어떤 알이든 이런 아기로 만나요.<br />무늬와 속성은 관계없어요.</p></div>
@@ -57,6 +58,7 @@ function DragonWorldScreen({ controller }: { controller: DragonController }) {
         {element && <button type="button" disabled={controller.pending} onClick={() => void controller.run({ action: "element", id: dragon.id, element })}>{dragonElements[element]} 속성으로 확정</button>}
       </section>}
       <DragonDecorator key={`${dragon.id}:${dragon.version}`} dragon={dragon} controller={controller} />
+      <DragonFoodRewards controller={controller} />
       {supportsDragonFlight(dragon) && <section aria-label="드래곤 기능 선택"><h4>드래곤 기능 선택</h4>{dragon.skills?.includes("fly") ? <p>날기를 배웠어요. 날기 버튼으로 날아올라 보세요.</p> : <><p>선택 기회 1개로 이 드래곤에게 날기를 가르쳐요.</p><button type="button" disabled={controller.pending || world.credits < 1} onClick={() => void controller.run({ action: "skill", id: dragon.id, skill: "fly" })}>날기 배우기 · 기회 1개</button>{world.credits < 1 && <p>3일 달성을 모으면 기능을 고를 수 있어요.</p>}</>}</section>}
       {supportsDragonTailAttack(dragon) && <section aria-label="꼬리 공격 기능 선택"><h4>꼬리 공격</h4>{dragon.skills?.includes("tail-attack") ? <p>꼬리 공격을 배웠어요. 땅에서 꼬리 공격 버튼을 눌러 보세요.</p> : <><p>3일 달성마다 받는 선택 기회 1개로 이 드래곤에게 꼬리 공격을 가르쳐요.</p><button type="button" disabled={controller.pending || world.credits < 1} onClick={() => void controller.run({ action: "skill", id: dragon.id, skill: "tail-attack" })}>꼬리 공격 배우기 · 기회 1개</button>{world.credits < 1 && <p>3일 달성을 모으면 기능을 고를 수 있어요.</p>}</>}</section>}
       {supportsDragonBreath(dragon) && <section aria-label="브레스 기능 선택"><h4>브레스</h4>{dragon.skills?.includes("breath") ? <p>브레스를 배웠어요. 땅에서 브레스 버튼을 눌러 보세요.</p> : <><p>선택 기회 1개로 이 드래곤에게 브레스를 가르쳐요.</p><button type="button" disabled={controller.pending || world.credits < 1} onClick={() => void controller.run({ action: "skill", id: dragon.id, skill: "breath" })}>브레스 배우기 · 기회 1개</button>{world.credits < 1 && <p>3일 달성을 모으면 기능을 고를 수 있어요.</p>}</>}</section>}
@@ -74,7 +76,7 @@ function DragonDecorator({ dragon, controller }: { dragon: Dragon; controller: D
   const dirty = JSON.stringify(decor) !== JSON.stringify(dragon.decor);
   const move = (target: DragonSlot, x: number, y: number) => { setMessage(""); setDecor((current) => ({ ...current, [target]: { ...current[target], ...clampDragonPosition(x, y) } })); };
   return <section className={`dragon-decorator${editing ? " is-editing" : ""}`} aria-label="드래곤 공간">
-    <div className="dragon-scene-panel"><DragonScene dragon={dragon} decor={decor} catalog={catalog} editing={editing} selected={editing ? slot : undefined} onSelect={editing ? setSlot : undefined} onMove={editing && !controller.pending ? move : undefined} />
+    <div className="dragon-scene-panel"><DragonScene dragon={dragon} decor={decor} catalog={catalog} ownedFoods={world.owned} editing={editing} selected={editing ? slot : undefined} onSelect={editing ? setSlot : undefined} onMove={editing && !controller.pending ? move : undefined} />
       <p className="dragon-scene-caption">{dragonStage(dragon.days)} · {dragon.days}/30일</p>
       {!editing && <button type="button" onClick={() => setEditing(true)}>공간 꾸미기</button>}
     </div>

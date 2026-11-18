@@ -99,4 +99,4 @@ export type ReadingData = {
 };
 
 // Dragon rewards are loaded separately from the daily reading snapshot.
-export type { Dragon, DragonWorld, DragonDecor, DragonItem, DragonSkill } from "./dragon-types";
+export type { Dragon, DragonWorld, DragonDecor, DragonItem, DragonSkill, DragonFoodId } from "./dragon-types";

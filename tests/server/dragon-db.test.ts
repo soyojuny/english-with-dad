@@ -17,6 +17,10 @@ const today = "(statement_timestamp() at time zone 'Asia/Seoul')::date";
 async function world(action = "sync", payload = {}, target = child) {
   return (await db.query<{ world: DragonWorld }>("select public.dragon_world($1,$2,$3::jsonb) as world", [target, action, JSON.stringify(payload)])).rows[0].world;
 }
+async function restoreCurrentDragonRpc() {
+  const sql = await readFile(resolve("supabase/migrations/20261118120000_dragon_food.sql"), "utf8");
+  await db.exec(sql.slice(sql.indexOf("create or replace function")));
+}
 async function complete() {
   await db.exec(`insert into public.assignments(id,owner_user_id,child_id,book_id,date,tasks,task_counts,quiz_enabled) values ('${assignment}','${owner}','${child}','${book}',${today},array['self'],'{"self":2}',true);
     insert into public.completions(owner_user_id,assignment_id,task_type,count) values ('${owner}','${assignment}','self',2);
@@ -150,7 +154,7 @@ test("제공하지 않는 소품·잘못된 자리·범위 밖 좌표와 다른 
   await expect(world("decorate", { id: dragon, version: 0, decor: { ...decor, nest: { itemId: null, x: 50, y: 78 } } })).rejects.toThrow('배치 자리');
   await world("decorate", { id: dragon, version: 0, decor: { ...decor, left: { itemId: 'lava-crystal', x: 50, y: 50 } } });
   await expect(world("decorate", { id: dragon, version: 0, decor })).rejects.toThrow('다른 화면');
-  await expect(world('claim', { itemId: 'gem' })).rejects.toThrow('현재 제공');
+  await expect(world('claim', { itemId: 'gem' })).rejects.toThrow('지원하지 않는');
 });
 
 test("인증된 소유자만 조회·RPC를 쓰고 원장 직접 변경과 내부 함수 호출은 금지한다", async () => {
@@ -210,10 +214,10 @@ test("현재 원화만 제공하며 새 미지원 소품도 숨기고 기회는 
   const updated = await world();
   // Then
   expect(updated.credits).toBe(10);
-  expect(updated.catalog).toHaveLength(6);
-  expect(updated.catalog.every((item) => item.free)).toBe(true);
+  expect(updated.catalog.filter((item) => item.kind !== "food")).toHaveLength(6);
+  expect(updated.catalog.filter((item) => item.kind !== "food").every((item) => item.free)).toBe(true);
   expect(updated.catalog.some((item) => ['new-star','moss','flowers','gem'].includes(item.id))).toBe(false);
-  await expect(world('claim', { itemId: 'new-star' })).rejects.toThrow('현재 제공');
+  await expect(world('claim', { itemId: 'new-star' })).rejects.toThrow('지원하지 않는');
 });
 
 test("학습 트랜잭션이 롤백되면 달성과 보상도 함께 롤백된다", async () => {
@@ -259,8 +263,7 @@ test("화면 규칙 적용은 저장 행을 일괄 변경하지 않고 명시적
   // When
   await db.exec(sql);
   // Restore the current RPC after replaying this historical migration.
-  const current = await readFile(resolve("supabase/migrations/20261115130000_thunder_breath.sql"), "utf8");
-  await db.exec(current.slice(current.indexOf("create or replace function")));
+  await restoreCurrentDragonRpc();
   const visible = (await world()).dragons[0];
   const untouched = (await db.query<{ decor: unknown; version: number }>("select decor,version from public.dragons where id=$1", [dragon])).rows[0];
   // Then: rendering rules do not rewrite any existing data or optimistic version.
@@ -436,6 +439,7 @@ test('기능 제약은 알 수 없는 기능·중복·null을 거절하고 마�
   await db.exec(await readFile(resolve('supabase/migrations/20261114130000_thunder_clone.sql'), 'utf8'));
   await db.exec(await readFile(resolve('supabase/migrations/20261115120000_fire_breath.sql'), 'utf8'));
   await db.exec(await readFile(resolve('supabase/migrations/20261115130000_thunder_breath.sql'), 'utf8'));
+  await restoreCurrentDragonRpc();
   // Then
   expect((await world()).dragons[0].skills).toEqual(['fly']);
   for (const skills of ["array['roar']", "array['fly','fly']", "array['tail-attack','tail-attack']", "array['clone','clone']", "array[null]::text[]"]) {
@@ -500,6 +504,7 @@ test.each(['fire', 'thunder'])('%s 브레스는 다른 기능과 공존하고 �
   expect(acquired.dragons[0].skills).toEqual(['fly', 'tail-attack', 'clone', 'breath']);
   expect([acquired.credits, retry.credits, grown.credits]).toEqual([0, 0, 0]);
   await db.exec(await readFile(resolve('supabase/migrations/20261115130000_thunder_breath.sql'), 'utf8'));
+  await restoreCurrentDragonRpc();
   expect((await world()).dragons[0].skills).toEqual(['fly', 'tail-attack', 'clone', 'breath']);
 });
 
@@ -542,4 +547,72 @@ test.each(['fire', 'thunder'])('%s 브레스는 기회 부족·다른 아동·�
   await expect(db.exec("update public.dragons set skills=array['breath']")).rejects.toThrow('permission denied');
   await db.exec(`select set_config('request.jwt.claim.sub','${other}',false)`);
   await expect(world('skill', { id: dragon, skill: 'breath' })).rejects.toThrow('권한');
+});
+
+for (const total of [0, 1, 2]) {
+  test(`먹이는 달성 ${total + 1}일의 실제 선택 기회 경계를 따른다`, async () => {
+    // Given
+    await seedGrowing(6, total);
+    // When
+    if (total < 2) {
+      await expect(world("claim", { itemId: "lava-apple" })).rejects.toThrow("기회");
+      // Then
+      expect((await world()).owned).not.toContain("lava-apple");
+    } else {
+      const unlocked = await world("claim", { itemId: "lava-apple" });
+      // Then
+      expect(unlocked.owned).toContain("lava-apple");
+      expect(unlocked.credits).toBe(0);
+    }
+  });
+}
+
+test("먹이는 아동 공용으로 한 번만 차감하며 재조회·성장·다음 알에도 보유한다", async () => {
+  // Given
+  await seedGrowing(6, 5);
+  // When
+  const unlocked = await world("claim", { itemId: "bone-meat" });
+  const retry = await world("claim", { itemId: "bone-meat" });
+  await db.exec(`update public.dragons set days=30;`);
+  const next = await world("egg", { id: nextDragon, egg: 1 });
+  const afterGrowth = await world("claim", { itemId: "bone-meat" });
+  // Then
+  expect(unlocked.credits).toBe(1);
+  expect(retry.credits).toBe(1);
+  expect(next.owned).toContain("bone-meat");
+  expect(afterGrowth.owned.filter(id => id === "bone-meat")).toHaveLength(1);
+  expect(afterGrowth.credits).toBe(1);
+});
+
+test("먹이와 기능은 기회를 공유하고 먹이를 장식으로 배치하거나 알 수 없는 먹이를 받지 못한다", async () => {
+  // Given
+  await seedGrowing(6, 2);
+  await world("element", { id: dragon, element: "fire" });
+  await world("claim", { itemId: "thunder-grapes" });
+  // When
+  const decor = defaultDragonDecor(); decor.left.itemId = "thunder-grapes";
+  const synced = await world();
+  // Then
+  expect(synced.credits).toBe(0);
+  expect(synced.catalog.filter(item => item.kind === "food")).toHaveLength(6);
+  await expect(world("skill", { id: dragon, skill: "fly" })).rejects.toThrow("기회");
+  await expect(world("decorate", { id: dragon, version: 0, decor })).rejects.toThrow("현재 제공");
+  await expect(world("claim", { itemId: "unknown-food" })).rejects.toThrow("지원하지 않는");
+});
+
+test("먹이 원장은 같은 가족의 다른 아동과도 분리되고 다른 가족의 RPC·직접 수정은 거절한다", async () => {
+  // Given
+  await seedGrowing(6, 5);
+  await world("claim", { itemId: "fire-apple" });
+  const sibling = "20000000-0000-0000-0000-000000000002";
+  await db.exec(`insert into public.children(id,owner_user_id,name) values ('${sibling}','${owner}','동생');`);
+  const siblingWorld = await world("sync", {}, sibling);
+  // When
+  await db.exec(`select set_config('request.jwt.claim.sub','${other}',false); set role authenticated;`);
+  const hidden = await db.query("select * from public.dragon_owned_items");
+  // Then
+  expect(siblingWorld.owned).not.toContain("fire-apple");
+  expect(hidden.rows).toHaveLength(0);
+  await expect(world("claim", { itemId: "fire-apple" })).rejects.toThrow("권한");
+  await expect(db.exec(`insert into public.dragon_owned_items values ('${child}','${other}','fire-apple')`)).rejects.toThrow();
 });

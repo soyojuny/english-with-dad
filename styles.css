@@ -1900,3 +1900,12 @@ label > textarea {
 .clone-controls { display: flex; flex-wrap: wrap; gap: 10px; }
 .clone-footnote { font-size: .9rem; line-height: 1.6; }
 .dragon-fire-breath.is-thunder .dragon-fire-breath-frame { width: 110%; aspect-ratio: 820 / 570; left: 8%; top: 8%; }
+.dragon-feeding { display: block; position: relative; aspect-ratio: 1; }
+.dragon-feeding.is-finished { position: absolute; inset: 0; }
+.dragon-feeding-art { position: absolute; width: 100%; height: auto; aspect-ratio: 960 / 800; left: 5%; top: 2.6%; overflow: visible; }
+.dragon-feeding-controls label { display: grid; gap: 4px; min-width: 140px; }
+.dragon-food-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.dragon-food-options button { min-width: 0; }
+.dragon-food-options small { display: block; margin-top: 4px; }
+.dragon-food-thumb { display: block; width: 72px; height: 72px; margin: 0 auto 8px; }
+@media (max-width: 480px) { .dragon-food-options { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

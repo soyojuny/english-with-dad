@@ -1,0 +1,541 @@
+{
+  "original": "tmp_dragon/Gemini_Generated_Image_v52kbyv52kbyv52k.png",
+  "originalSha256": "731eb4e453d486f6ad56d1e9d86925f0b65d61c14b1cf334a8c3e63580eca923",
+  "originalSize": [
+    2048,
+    2048
+  ],
+  "output": "assets/dragons/source/baby/fire-eat.png",
+  "outputSha256": "544b9bf796fd702db3dc75d5e0c63fdbbb9e0eedd46c8ed117ac40d903a94264",
+  "frameWidth": 960,
+  "frameHeight": 800,
+  "columns": 3,
+  "rows": 3,
+  "footAnchor": [
+    535,
+    730
+  ],
+  "selectedOriginalFrames": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "playbackOriginalFrames": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    4,
+    5,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    1
+  ],
+  "playbackDurationsMs": [
+    500,
+    300,
+    180,
+    220,
+    180,
+    220,
+    180,
+    220,
+    180,
+    260,
+    300,
+    900,
+    600,
+    500
+  ],
+  "method": "Nine whole connected silhouettes are identified before cutting, including tails crossing manual gap boundaries; neighboring silhouettes are excluded. Native source pixels are placed with integer translations only. No resize, resampling, sharpening, or generative editing. The original near-white mask (min RGB >=250, spread <=5) expands into connected pale residue (min RGB >=200, spread <=55). Reviewed seeds remove the nine thunder under-wing gaps and the fire frame 8 forehead residue down to min RGB 100. Within 3px of the mask, bright matte pixels use a dark outline reference within 5px to estimate white-matte alpha and suppress color speckles; unsupported or alpha <0.08 residue is removed. All remaining opaque RGB bytes are unchanged. PNG decoding is byte-identical to the packed RGBA atlas.",
+  "quality": {
+    "changedOpaqueChannels": 0,
+    "decodedRgbaSha256": "e49f5b70dce388d10b6c8ce3959728a5fe4f2a56c8a2f362a93e684b93dd9ac7",
+    "frames": [
+      {
+        "originalFrame": 1,
+        "sourceRegion": {
+          "sy": 0,
+          "h": 720,
+          "left": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              720
+            ]
+          ],
+          "right": [
+            [
+              725,
+              0
+            ],
+            [
+              725,
+              450
+            ],
+            [
+              615,
+              500
+            ],
+            [
+              615,
+              590
+            ],
+            [
+              715,
+              640
+            ],
+            [
+              715,
+              720
+            ]
+          ]
+        },
+        "wholeSilhouetteBounds": [
+          0,
+          142,
+          713,
+          702
+        ],
+        "wholeSilhouettePixelsCopied": 169350,
+        "integerTranslation": [
+          50,
+          30
+        ],
+        "opaquePixelsPreserved": 164596,
+        "mattePixels": 2436,
+        "maxWhiteCompositeError": 55,
+        "nativeFrameSha256": "2124c0df8a098b2fbdacf7fefff51b05e7e5a0358e8a252acde5a3bfb795c68e",
+        "rgbaSha256": "66b679f8cb3ab8d650740e2f3750b377a0cdeef0466ef35e481637c007ebb55d"
+      },
+      {
+        "originalFrame": 2,
+        "sourceRegion": {
+          "sy": 0,
+          "h": 720,
+          "left": [
+            [
+              725,
+              0
+            ],
+            [
+              725,
+              450
+            ],
+            [
+              615,
+              500
+            ],
+            [
+              615,
+              590
+            ],
+            [
+              715,
+              640
+            ],
+            [
+              715,
+              720
+            ]
+          ],
+          "right": [
+            [
+              1395,
+              0
+            ],
+            [
+              1395,
+              490
+            ],
+            [
+              1310,
+              530
+            ],
+            [
+              1310,
+              600
+            ],
+            [
+              1395,
+              640
+            ],
+            [
+              1395,
+              720
+            ]
+          ]
+        },
+        "wholeSilhouetteBounds": [
+          621,
+          260,
+          1380,
+          701
+        ],
+        "wholeSilhouettePixelsCopied": 171006,
+        "integerTranslation": [
+          -600,
+          30
+        ],
+        "opaquePixelsPreserved": 165708,
+        "mattePixels": 2599,
+        "maxWhiteCompositeError": 55,
+        "nativeFrameSha256": "52b139dc7c2746d58a99b2a8bfbde33937e2c121e0fd984353ec904a5f310fda",
+        "rgbaSha256": "c64185ffb8712c670cb273f3638b6463ce5b4968275c0ee3ba3e872750c1301f"
+      },
+      {
+        "originalFrame": 3,
+        "sourceRegion": {
+          "sy": 0,
+          "h": 720,
+          "left": [
+            [
+              1395,
+              0
+            ],
+            [
+              1395,
+              490
+            ],
+            [
+              1310,
+              530
+            ],
+            [
+              1310,
+              600
+            ],
+            [
+              1395,
+              640
+            ],
+            [
+              1395,
+              720
+            ]
+          ],
+          "right": [
+            [
+              2048,
+              0
+            ],
+            [
+              2048,
+              720
+            ]
+          ]
+        },
+        "wholeSilhouetteBounds": [
+          1310,
+          258,
+          2004,
+          702
+        ],
+        "wholeSilhouettePixelsCopied": 161942,
+        "integerTranslation": [
+          -1270,
+          30
+        ],
+        "opaquePixelsPreserved": 157179,
+        "mattePixels": 2419,
+        "maxWhiteCompositeError": 55,
+        "nativeFrameSha256": "6b00e767e78dd718daef2aaf24bd8b8d82b47f60eb58687a5e054e492ec7ad66",
+        "rgbaSha256": "b63467ba2b49b7d8f5ed1d664aeb4f094a81bb275910a2c7083a3582d5ef3409"
+      },
+      {
+        "originalFrame": 4,
+        "sourceRegion": {
+          "sy": 720,
+          "h": 655,
+          "left": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              655
+            ]
+          ],
+          "right": [
+            [
+              690,
+              0
+            ],
+            [
+              690,
+              655
+            ]
+          ]
+        },
+        "wholeSilhouetteBounds": [
+          69,
+          745,
+          675,
+          1364
+        ],
+        "wholeSilhouettePixelsCopied": 210054,
+        "integerTranslation": [
+          50,
+          -630
+        ],
+        "opaquePixelsPreserved": 204310,
+        "mattePixels": 2524,
+        "maxWhiteCompositeError": 55,
+        "nativeFrameSha256": "cbe1b50085024a50386c572cd2d40eca6482ec077cbbfd22c282d7003c7aaa62",
+        "rgbaSha256": "9d7162c1fb20fe9193eaa63c26d03f537590a42ad253b4feca2aa5dee13063f3"
+      },
+      {
+        "originalFrame": 5,
+        "sourceRegion": {
+          "sy": 720,
+          "h": 655,
+          "left": [
+            [
+              690,
+              0
+            ],
+            [
+              690,
+              655
+            ]
+          ],
+          "right": [
+            [
+              1370,
+              0
+            ],
+            [
+              1370,
+              655
+            ]
+          ]
+        },
+        "wholeSilhouetteBounds": [
+          732,
+          755,
+          1330,
+          1364
+        ],
+        "wholeSilhouettePixelsCopied": 206066,
+        "integerTranslation": [
+          -600,
+          -630
+        ],
+        "opaquePixelsPreserved": 200985,
+        "mattePixels": 2501,
+        "maxWhiteCompositeError": 55,
+        "nativeFrameSha256": "c37009ccae244d9b7fd470faea057ccafecadd26a9587d3acd17bf72974950bf",
+        "rgbaSha256": "c314f95d5f85ed6d13e6a59282b72a89d050ebf09fa9063bcf0024ca8f49cf09"
+      },
+      {
+        "originalFrame": 6,
+        "sourceRegion": {
+          "sy": 720,
+          "h": 655,
+          "left": [
+            [
+              1370,
+              0
+            ],
+            [
+              1370,
+              655
+            ]
+          ],
+          "right": [
+            [
+              2048,
+              0
+            ],
+            [
+              2048,
+              655
+            ]
+          ]
+        },
+        "wholeSilhouetteBounds": [
+          1387,
+          764,
+          1975,
+          1364
+        ],
+        "wholeSilhouettePixelsCopied": 205629,
+        "integerTranslation": [
+          -1270,
+          -630
+        ],
+        "opaquePixelsPreserved": 200406,
+        "mattePixels": 2458,
+        "maxWhiteCompositeError": 55,
+        "nativeFrameSha256": "dbbe16b7db383370ed345e53075d21c698906041e7d6b0a8b1f5f5042793aa83",
+        "rgbaSha256": "e6b1a4279007c4c470c8c3bc4536a5c1c025214ab360537d95c7fa8051909448"
+      },
+      {
+        "originalFrame": 7,
+        "sourceRegion": {
+          "sy": 1375,
+          "h": 673,
+          "left": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              673
+            ]
+          ],
+          "right": [
+            [
+              685,
+              0
+            ],
+            [
+              685,
+              673
+            ]
+          ]
+        },
+        "wholeSilhouetteBounds": [
+          30,
+          1389,
+          677,
+          2015
+        ],
+        "wholeSilhouettePixelsCopied": 211653,
+        "integerTranslation": [
+          50,
+          -1285
+        ],
+        "opaquePixelsPreserved": 206243,
+        "mattePixels": 2648,
+        "maxWhiteCompositeError": 55,
+        "nativeFrameSha256": "04b0b93c6544cc6b82b789f8b21b10279dc9d615dbee9a6c1934012fb862899c",
+        "rgbaSha256": "e36907bacd833d274fcd5cc2aa96213a1810c522185e109c25b156402282051b"
+      },
+      {
+        "originalFrame": 8,
+        "sourceRegion": {
+          "sy": 1375,
+          "h": 673,
+          "left": [
+            [
+              685,
+              0
+            ],
+            [
+              685,
+              673
+            ]
+          ],
+          "right": [
+            [
+              1345,
+              0
+            ],
+            [
+              1345,
+              250
+            ],
+            [
+              1325,
+              270
+            ],
+            [
+              1325,
+              673
+            ]
+          ]
+        },
+        "wholeSilhouetteBounds": [
+          691,
+          1389,
+          1336,
+          2016
+        ],
+        "wholeSilhouettePixelsCopied": 212252,
+        "integerTranslation": [
+          -600,
+          -1285
+        ],
+        "opaquePixelsPreserved": 206323,
+        "mattePixels": 1088,
+        "maxWhiteCompositeError": 155,
+        "nativeFrameSha256": "e545f6ab8f1715c585903080171c4c0e612f3ba0ff3d7c102617e9bba0cc1a74",
+        "rgbaSha256": "6b8703697cfa0cca2f4b55e0d6cfebaa70ecafd831fc5808d76f90517e8ea3c7"
+      },
+      {
+        "originalFrame": 9,
+        "sourceRegion": {
+          "sy": 1375,
+          "h": 673,
+          "left": [
+            [
+              1345,
+              0
+            ],
+            [
+              1345,
+              250
+            ],
+            [
+              1325,
+              270
+            ],
+            [
+              1325,
+              673
+            ]
+          ],
+          "right": [
+            [
+              2048,
+              0
+            ],
+            [
+              2048,
+              673
+            ]
+          ]
+        },
+        "wholeSilhouetteBounds": [
+          1334,
+          1379,
+          1982,
+          2014
+        ],
+        "wholeSilhouettePixelsCopied": 212167,
+        "integerTranslation": [
+          -1270,
+          -1285
+        ],
+        "opaquePixelsPreserved": 206259,
+        "mattePixels": 3038,
+        "maxWhiteCompositeError": 127,
+        "nativeFrameSha256": "eb7d1c64ad5b70ac0f5ae6d221b6000e8d715995bfb5b60ca460e391c1605d64",
+        "rgbaSha256": "dcac63a3ba2fb7cd7cdb828d1ceb3c79d8d9d85b56f22e66737dd2bb48217736"
+      }
+    ]
+  },
+  "knownDefects": [
+    "Original pose-to-pose shape differences and source-edge tail clipping remain; no missing source detail is invented.",
+    "Alpha is estimated from a white-composited original. Removed background patches intentionally change the white-composite pixels; minor edge differences may remain. Body highlights, including the thunder frame 9 foot marking, are preserved.",
+    "The fire frame 5 mouth has irregular tooth/crumb detail already present in the approved source."
+  ],
+  "approval": "User approved the cleaned nine-pose eating atlas on 2026-11-19."
+}

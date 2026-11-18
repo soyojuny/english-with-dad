@@ -1,5 +1,6 @@
 export type DragonElement = "fire" | "thunder" | "ice";
 export type DragonSkill = "fly" | "tail-attack" | "clone" | "breath";
+export type DragonFoodId = "lava-apple" | "bone-meat" | "gold-star" | "fire-apple" | "thunder-grapes" | "aurora-star";
 export type DragonSlot = "background" | "left" | "right";
 export type DragonPlacement = { itemId: string | null; x: number; y: number };
 export type DragonDecor = Record<DragonSlot, DragonPlacement>;
@@ -16,7 +17,7 @@ export type Dragon = {
 export type DragonItem = {
   id: string;
   name: string;
-  kind: "background" | "prop";
+  kind: "background" | "prop" | "food";
   art: string;
   free: boolean;
 };

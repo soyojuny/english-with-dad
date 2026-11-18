@@ -4,35 +4,64 @@ import { readFile } from 'node:fs/promises';
 import { runInNewContext } from 'node:vm';
 
 const source = await readFile(new URL('../../public/sw.js', import.meta.url), 'utf8');
-const shell = ['/', '/manifest.webmanifest', '/assets/dragons/dragons-v2.png', '/assets/app-icon.svg', '/assets/app-icon-192.png',
-  '/assets/app-icon-512.png', '/assets/covers/berenstain-doctor.jpg', '/assets/covers/bones.jpg',
-  '/assets/covers/monthly-filled.jpg'];
-shell.splice(3, 0,
-  '/assets/dragons/eggs/spotted.webp',
-  '/assets/dragons/eggs/striped.webp',
-  '/assets/dragons/eggs/diamond.webp',
-  '/assets/dragons/habitats/lava-open-foreground.webp',
-  '/assets/dragons/habitats/lava-stone-platform.webp',
-  '/assets/dragons/habitats/lava-central-volcano.webp',
-  '/assets/dragons/habitats/lava-waterfall.webp',
-  '/assets/dragons/props/ancient-dragon-relic.webp',
-  '/assets/dragons/props/lava-crystal.webp',
-  '/assets/dragons/adult-fire.webp',
-  '/assets/dragons/baby/neutral.webp',
-  '/assets/dragons/baby/breathe.webp',
-  '/assets/dragons/baby/blink.webp',
-  '/assets/dragons/baby/fire-breathe.webp',
-  '/assets/dragons/baby/fire-blink.webp',
-  '/assets/dragons/baby/thunder-breathe.webp',
-  '/assets/dragons/baby/thunder-blink.webp',
-  '/assets/dragons/baby/ice-breathe.webp',
-  '/assets/dragons/baby/ice-blink.webp',
-  '/assets/dragons/baby/fire.webp',
-  '/assets/dragons/baby/thunder.webp',
-  '/assets/dragons/baby/ice.webp',
-);
+const shell = [
+  "/",
+  "/manifest.webmanifest",
+  "/assets/dragons/dragons-v2.png",
+  "/assets/dragons/eggs/spotted.webp",
+  "/assets/dragons/eggs/striped.webp",
+  "/assets/dragons/eggs/diamond.webp",
+  "/assets/dragons/habitats/lava-open-foreground.webp",
+  "/assets/dragons/habitats/lava-stone-platform.webp",
+  "/assets/dragons/habitats/lava-central-volcano.webp",
+  "/assets/dragons/habitats/lava-waterfall.webp",
+  "/assets/dragons/props/ancient-dragon-relic.webp",
+  "/assets/dragons/props/lava-crystal.webp",
+  "/assets/dragons/adult-fire.webp",
+  "/assets/dragons/baby/neutral.webp",
+  "/assets/dragons/baby/flight-takeoff.webp",
+  "/assets/dragons/baby/flight-move.webp",
+  "/assets/dragons/baby/flight-hover.webp",
+  "/assets/dragons/baby/fire-flight-takeoff.webp",
+  "/assets/dragons/baby/fire-flight-move.webp",
+  "/assets/dragons/baby/thunder-flight-takeoff.webp",
+  "/assets/dragons/baby/thunder-flight-move.webp",
+  "/assets/dragons/baby/thunder-tail-attack.webp",
+  "/assets/dragons/baby/fire-tail-attack.webp",
+  "/assets/dragons/baby/fire-breath.webp",
+  "/assets/dragons/baby/thunder-breath.webp",
+  "/assets/dragons/baby/fire-eat.webp",
+  "/assets/dragons/baby/thunder-eat.webp",
+  "/assets/dragons/food/basic.webp",
+  "/assets/dragons/food/magic.webp",
+  "/assets/dragons/baby/walk-bde.webp",
+  "/assets/dragons/baby/fire-walk-bde.webp",
+  "/assets/dragons/baby/thunder-walk-bde.webp",
+  "/assets/dragons/baby/ice-walk-bde.webp",
+  "/assets/dragons/baby/sit-sequence.webp",
+  "/assets/dragons/baby/fire-sit-sequence.webp",
+  "/assets/dragons/baby/ice-sit-sequence.webp",
+  "/assets/dragons/baby/thunder-sit-sequence.webp",
+  "/assets/dragons/baby/breathe.webp",
+  "/assets/dragons/baby/blink.webp",
+  "/assets/dragons/baby/fire-breathe.webp",
+  "/assets/dragons/baby/fire-blink.webp",
+  "/assets/dragons/baby/thunder-breathe.webp",
+  "/assets/dragons/baby/thunder-blink.webp",
+  "/assets/dragons/baby/ice-breathe.webp",
+  "/assets/dragons/baby/ice-blink.webp",
+  "/assets/dragons/baby/fire.webp",
+  "/assets/dragons/baby/thunder.webp",
+  "/assets/dragons/baby/ice.webp",
+  "/assets/app-icon.svg",
+  "/assets/app-icon-192.png",
+  "/assets/app-icon-512.png",
+  "/assets/covers/berenstain-doctor.jpg",
+  "/assets/covers/bones.jpg",
+  "/assets/covers/monthly-filled.jpg"
+];
 
-function worker({ entries = [], keys = ['ewd-reading-v7'], failure, installFailure, openFailure } = {}) {
+function worker({ entries = [], keys = ['ewd-reading-v32'], failure, installFailure, openFailure } = {}) {
   const listeners = new Map();
   const cached = new Map(entries);
   const calls = { deleted: [], network: [], matches: [], added: [], opened: [], skipped: 0, claimed: 0 };
@@ -83,7 +112,7 @@ test('P01-N01: install은 현재 app shell 전체를 준비하고 새 worker를 
   await sw.dispatch('install');
   const response = await sw.dispatch('fetch', get('/assets/app-icon.svg'));
   // Then
-  assert.deepEqual(sw.calls.opened, ['ewd-reading-v7']);
+  assert.deepEqual(sw.calls.opened, ['ewd-reading-v32']);
   assert.deepEqual(sw.calls.added, shell);
   assert.equal(sw.calls.skipped, 1);
   assert.equal(response, 'shell:/assets/app-icon.svg');
@@ -92,7 +121,7 @@ test('P01-N01: install은 현재 app shell 전체를 준비하고 새 worker를 
 
 test('P01-E01: activate는 이전 cache만 삭제하고 client를 인계한다', async () => {
   // Given
-  const sw = worker({ keys: ['ewd-reading-v0', 'ewd-reading-v4', 'ewd-reading-v5', 'ewd-reading-v6', 'ewd-reading-v7', 'ewd-reading-older'] });
+  const sw = worker({ keys: ['ewd-reading-v0', 'ewd-reading-v4', 'ewd-reading-v5', 'ewd-reading-v6', 'ewd-reading-v32', 'ewd-reading-older'] });
   // When
   await sw.dispatch('activate');
   // Then

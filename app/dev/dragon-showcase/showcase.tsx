@@ -5,6 +5,7 @@ import { DragonScene } from "../../dragon-scene";
 import { defaultDragonDecor, dragonElements } from "../../../lib/dragon-data";
 import { dragonBackgroundArt, dragonPropArt } from "../../../lib/dragon-art";
 import type { Dragon, DragonElement, DragonItem } from "../../../lib/dragon-types";
+import { dragonFoods } from "../../../lib/dragon-food";
 
 const stages = [{ label: "알", days: 0 }, { label: "아기", days: 1 }, { label: "청소년", days: 18 }, { label: "성체", days: 30 }];
 const elements: { label: string; value: DragonElement | "neutral" }[] = [
@@ -26,6 +27,7 @@ function Panel({ title, background }: { title: string; background: string }) {
   const [tailAttack, setTailAttack] = useState(false);
   const [breath, setBreath] = useState(false);
   const [clone, setClone] = useState(false);
+  const [food, setFood] = useState(false);
   const decor = { ...defaultDragonDecor(), background: { ...defaultDragonDecor().background, itemId: background } };
   const dragon: Dragon = { id: title, egg, days, element: element === "neutral" ? null : element, selectedDate: "", decor, version: 0, skills: [...(flight ? ["fly" as const] : []), ...(tailAttack ? ["tail-attack" as const] : []), ...(clone ? ["clone" as const] : []), ...(breath ? ["breath" as const] : [])] };
   return <section className="showcase-panel dragon-screen">
@@ -39,8 +41,10 @@ function Panel({ title, background }: { title: string; background: string }) {
       {days > 0 && days < 18 && (element === "fire" || element === "thunder") && <label><input type="checkbox" checked={tailAttack} onChange={(event) => setTailAttack(event.target.checked)} />꼬리 공격 획득</label>}
       {days > 0 && days < 18 && (element === "fire" || element === "thunder") && <label><input type="checkbox" checked={breath} onChange={(event) => setBreath(event.target.checked)} />브레스 획득</label>}
       {days > 0 && days < 18 && (element === "fire" || element === "thunder") && <label><input type="checkbox" checked={clone} onChange={(event) => setClone(event.target.checked)} />분신 획득</label>}
+      {days > 0 && days < 18 && (element === "fire" || element === "thunder") && <label><input type="checkbox" checked={food} onChange={(event) => setFood(event.target.checked)} />먹이 6종 획득</label>}
     </div>
-    <div className={paused ? "showcase-paused" : ""}><DragonScene dragon={dragon} decor={decor} catalog={catalog} paused={paused} /></div>
+    <div className={paused ? "showcase-paused" : ""}><DragonScene dragon={dragon} decor={decor} catalog={catalog} paused={paused} ownedFoods={food ? dragonFoods.map(entry => entry.id) : []} /></div>
+    {days > 0 && days < 18 && (element === "fire" || element === "thunder") && <p>먹이 6종 획득 → 먹이 고르기 → 먹이 주기 · 조금씩 세 번 씹고 만족 표정 · 받은 먹이는 계속 재사용</p>}
     {days > 0 && days < 18 && (element === "fire" || element === "thunder") && <p>분신 획득 → 분신 놀이 · 무작위 단서를 한 번 보여 주고 빛 속에서 분신 등장 · 배경 속 진짜를 터치하면 반짝인 뒤 대기 모습으로 복귀 · 단서 다시 보기</p>}
     {days > 0 && days < 18 && (element === "fire" || element === "thunder") && <p>꼬리 공격 획득 후 지상에서 버튼으로 공격 · 공격 중 이동·날기 잠금 · 앉아 있으면 일어서고 공격 · 불은 정면 대기를 생략하고 마지막 반대 방향 자세로 대기</p>}
     <p>{days > 0 && days < 18 ? element === "neutral" ? "장면을 드래그해 이동 · 5초 후 서기→2rus-2→A→B→앉기 · 터치하면 역순으로 일어서기 · 날기 획득 시 버튼으로 이륙/착륙, 좌우 드래그로 비행" : element === "fire" ? "장면을 드래그해 이동 · 불 아기 B→D→E 걷기 · 5초 후 5자세로 앉기 · 터치하면 역순으로 일어서기 · 날기 획득 시 8프레임 이륙/착륙, 좌우 드래그로 비행" : element === "thunder" ? "장면을 드래그해 이동 · 번개 아기 3자세 걷기 · 5초 후 5자세로 앉기 · 터치하면 역순으로 일어서기 · 날기 획득 시 준비 자세 후 상승, 6프레임 이착륙·8프레임 비행" : "장면을 드래그해 이동 · 얼음 아기 B→D→E 걷기 · 5초 후 4자세로 앉기 · 터치하면 역순으로 일어서기" : "현재 앱에 연결된 동작 없음"}{days >= 18 && !(days >= 30 && element === "fire") ? " · 기존 대체 원화" : ""}</p>
